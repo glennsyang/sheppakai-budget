@@ -56,7 +56,7 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
             <Flex flex={1} margin="auto" align="center" maxW={800}>
                 <NextLink href="/">
                     <Link>
-                        <Heading>PPM PW</Heading>
+                        <Heading>SHEPPAKAI BUDGET</Heading>
                     </Link>
                 </NextLink>
                 <Box ml={'auto'}>{body}</Box>
