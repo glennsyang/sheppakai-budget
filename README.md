@@ -13,7 +13,7 @@ https://sheppakai-budget.netlify.app
 
 ## Status
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/0946643d-ba98-429a-b5f2-ebfb4ae1cd5e/deploy-status)](https://app.netlify.com/sites/sheppakai-budget/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b7c6e49d-0a58-4283-9bcd-1a7f9b66df2b/deploy-status)](https://app.netlify.com/sites/sheppakai-budget/deploys)
 
 ## Author
 
