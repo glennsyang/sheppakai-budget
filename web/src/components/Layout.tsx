@@ -1,18 +1,17 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { NavBar } from './NavBar';
-import { Wrapper, WrapperVariant } from './Wrapper';
+import Footer from "./Footer";
 
 interface LayoutProps {
-    variant?: WrapperVariant;
+  children: ReactNode;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, variant }) => {
-    return (
-        <>
-            <NavBar />
-            <Wrapper variant={variant}>
-                {children}
-            </Wrapper>
-        </>
-    );
+export const Layout = ({ children }: LayoutProps) => {
+  return (
+    <div className="leading-normal tracking-normal antialiased">
+      <NavBar />
+      {children}
+      <Footer />
+    </div>
+  );
 }

@@ -1,6 +1,5 @@
 import React from "react";
 import { usePostsQuery } from "../generated/graphql";
-import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/core";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
 import { UpdootSection } from "../components/UpdootSection";
@@ -8,87 +7,75 @@ import { EditDeletePostButtons } from "../components/EditDeletePostButtons";
 import { withApollo } from "../utils/withApollo";
 
 const Index = () => {
-    const { data, error, loading, fetchMore, variables } = usePostsQuery({
-        variables: {
-            limit: 15,
-            cursor: null,
-        },
-        notifyOnNetworkStatusChange: true,
-    });
+  return (
+    <Layout>
+      <main className="container mx-auto py-4">
+        <h1 className="text-orange-500 font-bold text-3xl">
+          Budget
+        </h1>
+        <div className="flex flex-row justify-between py-4">
 
-    if (!loading && !data) {
-        return (
-            <div>
-                <div>you got query failed for some reason</div>
-                <div>{error?.message}</div>
+          <div className="flex-grow border rounded-lg mx-4 p-2">
+            <p className="text-teal-500 text-2xl font-semibold">Expenses</p>
+            <div className="flex justify-between mt-2">
+              <p className="text-gray-500 text-base font-semibold">Planned</p>
+              <p className="text-gray-500 text-base font-medium">$1,290.20</p>
             </div>
-        )
-    }
+            <div className="flex justify-between">
+              <p className="text-gray-500 text-base font-semibold">Actual</p>
+              <p className="text-gray-500 text-base font-medium">$1,290.20</p>
+            </div>
+          </div>
 
-    return (
-        <Layout>
-            {!data && loading ? (
-                <div>loading...</div>
-            ) : (
-                    <Stack spacing={8}>
-                        {data!.posts.posts.map((p) => !p ? null : (
-                            <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-                                <UpdootSection post={p} />
-                                <Box flex={1}>
-                                    <NextLink href="/post/[id]" as={`/post/${p.id}`}>
-                                        <Link>
-                                            <Heading fontSize="xl">{p.title}</Heading>
-                                        </Link>
-                                    </NextLink>
-                                    <Text>posted by {p.creator.username}</Text>
-                                    <Flex align="center">
-                                        <Text flex={1} mt={4}>{p.textSnippet}</Text>
-                                        <Box ml="auto">
-                                            <EditDeletePostButtons id={p.id} creatorId={p.creator.id} />
-                                        </Box>
-                                    </Flex>
-                                </Box>
-                            </Flex>
-                        ))}
-                    </Stack>
-                )}
-            {data && data.posts.hasMore ? (
-                <Flex>
-                    <Button onClick={() => {
-                        fetchMore({
-                            variables: {
-                                limit: variables?.limit,
-                                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
-                            },
-                            // updateQuery: (previousValue, { fetchMoreResult }): PostsQuery => {
-                            //     if (!fetchMoreResult) {
-                            //         return previousValue as PostsQuery;
-                            //     }
+          <div className="flex-grow border rounded-lg mx-4 p-2">
+            <p className="text-teal-500 text-2xl font-semibold">Income</p>
+            <div className="flex justify-between mt-2">
+              <p className="text-gray-500 text-base font-semibold">Planned</p>
+              <p className="text-gray-500 text-base font-medium">$1,290.20</p>
+            </div>
+            <div className="flex justify-between">
+              <p className="text-gray-500 text-base font-semibold">Actual</p>
+              <p className="text-gray-500 text-base font-medium">$1,290.20</p>
+            </div>
+          </div>
 
-                            //     return {
-                            //         __typename: "Query",
-                            //         posts: {
-                            //             __typename: "PaginatedPosts",
-                            //             hasMore: (fetchMoreResult as PostsQuery).posts.hasMore,
-                            //             posts: [
-                            //                 ...(previousValue as PostsQuery).posts.posts,
-                            //                 ...(fetchMoreResult as PostsQuery).posts.posts,
-                            //             ]
-                            //         },
-                            //     };
-                            // }
-                        });
-                    }}
-                        isLoading={loading}
-                        m="auto"
-                        my={8}
-                    >
-                        load more
-                    </Button>
-                </Flex>
-            ) : null}
-        </Layout>
-    );
+        </div>
+
+        <div className="flex flex-row justify-between py-4">
+          <div className="flex-grow border rounded-lg mx-4 p-2">
+            <p className="text-orange-500 text-2xl font-semibold">Expenses</p>
+            <div className="flex justify-between mt-2">
+              <p className="text-gray-500 text-base font-semibold">Category</p>
+              <p className="text-gray-500 text-base font-medium">Planned</p>
+              <p className="text-gray-500 text-base font-medium">Actual</p>
+              <p className="text-gray-500 text-base font-medium">Diff.  </p>
+            </div>
+            <div className="flex justify-between mt-2">
+              <p className="text-gray-500 text-base font-semibold">Groceries</p>
+              <p className="text-gray-500 text-base font-medium">$400.00</p>
+              <p className="text-gray-500 text-base font-medium">$432.20</p>
+              <p className="text-gray-500 text-base font-medium">$32.20</p>
+            </div>
+            <div className="flex justify-between">
+            </div>
+          </div>
+
+          <div className="flex-grow border rounded-lg mx-4 p-2">
+            <p className="text-orange-500 text-2xl font-semibold">Income</p>
+            <div className="flex justify-between mt-2">
+              <p className="text-gray-500 text-base font-semibold">Planned</p>
+              <p className="text-gray-500 text-base font-medium">$1,290.20</p>
+            </div>
+            <div className="flex justify-between">
+              <p className="text-gray-500 text-base font-semibold">Actual</p>
+              <p className="text-gray-500 text-base font-medium">$1,290.20</p>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </Layout>
+  );
 };
 
 export default withApollo({ ssr: true })(Index);
