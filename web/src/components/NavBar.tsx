@@ -22,7 +22,7 @@ export const NavBar = ({ }) => {
         <NextLink href="/login">
           <button className="bg-transparent rounded-xl bg-teal-500 text-white font-bold px-4 py-2">
             Login
-        </button>
+          </button>
         </NextLink>
       </div>
     );
@@ -35,14 +35,7 @@ export const NavBar = ({ }) => {
           </button>
         </NextLink>
         <div>{data.me.username.toUpperCase()}</div>
-        <button className="rounded-xl bg-teal-500 text-white font-bold px-4 py-2"
-          onClick={async () => {
-            await logout();
-            await apolloClient.resetStore();
-          }}
-        //isLoading={logoutFetching}
-        //variant="link"
-        >
+        <button className="rounded-xl bg-teal-500 text-white font-bold px-4 py-2">
           Logout
         </button>
       </div>
