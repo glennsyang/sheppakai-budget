@@ -4,26 +4,20 @@ import Sidebar from "../components/Sidebar";
 import Table from "../components/Table";
 import dayjs from "dayjs";
 import { withApollo } from "../utils/withApollo";
+import { CellValue } from "react-table";
+import AddButton from "../components/AddButton";
 
 const formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
 });
 
-const Transactions: React.FC<{}> = ({ }) => {
+const Expenses: React.FC<{}> = ({ }) => {
   const expenses = useMemo(
     () => [
       { id: 1, date: "12-01-2020", amount: 22.64, description: "toothbrushes", category: "Personal" },
       { id: 2, date: "12-07-2020", amount: 8.30, description: "watercolor set, brush pens, sketch book", category: "Other" },
       { id: 3, date: "12-08-2020", amount: 29.99, description: "whiskey", category: "Entertainment" }
-    ],
-    []
-  );
-  const income = useMemo(
-    () => [
-      { id: 1, date: "12-01-2020", amount: 789.90, description: "G Paycheck IBM", category: "Paycheck G - IBM" },
-      { id: 2, date: "12-07-2020", amount: 718.15, description: "G Paycheck IBM", category: "Paycheck G - IBM" },
-      { id: 3, date: "12-14-2020", amount: 816.65, description: "G Paycheck IBM", category: "Paycheck G - IBM" }
     ],
     []
   );
@@ -33,13 +27,13 @@ const Transactions: React.FC<{}> = ({ }) => {
       {
         Header: 'Date',
         accessor: 'date',
-        Cell: ({ cell: { value } }) => dayjs(value).format("DD-MMM-YYYY"),
+        Cell: ({ cell: { value } }: CellValue) => dayjs(value).format("DD-MMM-YYYY"),
         sortType: 'datetime'
       },
       {
         Header: 'Amount',
         accessor: 'amount',
-        Cell: ({ cell: { value } }) => <div className="font-bold">{formatter.format(value)}</div>,
+        Cell: ({ cell: { value } }: CellValue) => <div className="font-bold">{formatter.format(value)}</div>,
       },
       {
         Header: 'Description',
@@ -59,17 +53,12 @@ const Transactions: React.FC<{}> = ({ }) => {
         <Sidebar />
         <div id="content" className="w-5/6 p-4">
 
-          <h1 className="text-orange-500 font-bold text-3xl">
-            Transactions
-          </h1>
-          <div className="flex justify-between py-4">
+          <div>
             <Table
               columns={columns}
               data={expenses}
-            />
-            <Table
-              columns={columns}
-              data={income}
+              tableName="Expenses"
+              filterName="description"
             />
           </div>
 
@@ -79,4 +68,4 @@ const Transactions: React.FC<{}> = ({ }) => {
   );
 };
 
-export default withApollo({ ssr: false })(Transactions);
+export default withApollo({ ssr: false })(Expenses);
