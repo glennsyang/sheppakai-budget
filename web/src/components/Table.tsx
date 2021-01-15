@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { FaSearch, FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { FaPlusCircle, FaSearch, FaCaretDown, FaCaretUp, FaChevronLeft, FaChevronRight, FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { useTable, usePagination, useFilters, useSortBy } from "react-table";
-import AddButton from "./AddButton";
+import Modal, { FormValues } from "./Modal";
 
 interface TableProps {
   columns: any;
@@ -12,6 +12,7 @@ interface TableProps {
 
 const Table = ({ columns, data, tableName, filterName }: TableProps) => {
   const [filterInput, setFilterInput] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const tableInstance = useTable({ columns, data }, useFilters, useSortBy, usePagination);
   const {
     getTableProps,
@@ -36,6 +37,13 @@ const Table = ({ columns, data, tableName, filterName }: TableProps) => {
     setFilter(filterName, value);
     setFilterInput(e.target.value);
   }
+  // Modal
+  const handleToggleModal = () => { setShowModal(!showModal) };
+  const handleCreateModal = (modalData: FormValues) => {
+    setShowModal(!showModal);
+    console.log(modalData);
+    //createData(modalData)
+  };
 
   return (
     <>
@@ -44,7 +52,14 @@ const Table = ({ columns, data, tableName, filterName }: TableProps) => {
           <h1 className="text-orange-500 font-bold text-3xl mr-4">
             {tableName}
           </h1>
-          <AddButton title={tableName} />
+          <button
+            type="button"
+            title="Add New"
+            onClick={handleToggleModal}
+            className="text-orange-500"
+          >
+            <FaPlusCircle size={22} />
+          </button>
         </div>
         <div className="flex items-center text-gray-500 text-sm antialiased font-semibold">
           Display
@@ -122,6 +137,33 @@ const Table = ({ columns, data, tableName, filterName }: TableProps) => {
             })}
         </tbody>
       </table>
+      {/* Pagination can be built however you'd like. This is just a very basic UI implementation: */}
+      <div className="flex justify-between items-center mx-2 my-4">
+        <span className="text-gray-500 text-sm antialiased font-semibold p-2">
+          Page{' '}<span>{pageIndex + 1} of {pageCount}</span>
+        </span>
+        <span className="text-gray-500 text-sm antialiased font-semibold p-2">{'Total:'}{' '}{rows.length}</span>
+        <div className="text-gray-500 bg-teal-100 rounded-lg border text-sm antialiased font-semibold">
+          <button type="button" onClick={() => gotoPage(0)} disabled={!canPreviousPage} className="p-2 border-r">
+            <FaAngleDoubleLeft size={18} />
+          </button>
+          <button type="button" onClick={() => previousPage()} disabled={!canPreviousPage} className="p-2 border-r">
+            <FaChevronLeft size={18} />
+          </button>
+          <button type="button" onClick={() => nextPage()} disabled={!canNextPage} className="p-2 border-r">
+            <FaChevronRight size={18} />
+          </button>
+          <button type="button" onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage} className="p-2">
+            <FaAngleDoubleRight size={18} />
+          </button>
+        </div>
+      </div>
+      <Modal
+        show={showModal}
+        tableName={tableName}
+        onClose={handleToggleModal}
+        onCreate={handleCreateModal}
+      />
     </>
   );
 };

@@ -1,9 +1,9 @@
-import React from 'react';
-import NextLink from "next/link";
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
-import { isServer } from '../utils/isServer';
-import { useRouter } from 'next/router';
-import { useApolloClient } from '@apollo/client';
+import React from "react";
+import Link from "next/link";
+import { useLogoutMutation, useMeQuery } from "../generated/graphql";
+import { isServer } from "../utils/isServer";
+import { useRouter } from "next/router";
+import { useApolloClient } from "@apollo/client";
 
 export const NavBar = ({ }) => {
   const router = useRouter();
@@ -19,21 +19,21 @@ export const NavBar = ({ }) => {
   } else if (!data?.me) {
     menuItems = (
       <div>
-        <NextLink href="/login">
-          <button className="bg-transparent rounded-xl bg-teal-500 text-white font-bold px-4 py-2">
+        <Link href="/login">
+          <button className="bg-transparent rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-bold px-4 py-2">
             Login
           </button>
-        </NextLink>
+        </Link>
       </div>
     );
   } else {
     menuItems = (
       <div>
-        <NextLink href="/create-post">
+        <Link href="/create-post">
           <button className="rounded-xl bg-teal-500 text-white font-bold px-4 py-2">
             Create Entry
           </button>
-        </NextLink>
+        </Link>
         <div>{data.me.username.toUpperCase()}</div>
         <button className="rounded-xl bg-teal-500 text-white font-bold px-4 py-2">
           Logout
