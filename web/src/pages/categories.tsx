@@ -3,7 +3,6 @@ import { Layout } from "../components/Layout";
 import Sidebar from "../components/Sidebar";
 import Table from "../components/Table";
 import { withApollo } from "../utils/withApollo";
-import AddButton from "../components/AddButton";
 
 const Income: React.FC<{}> = ({ }) => {
   const categories = useMemo(

@@ -1,8 +1,7 @@
 import React from "react";
 import { FIELD_REQUIRED } from "../utils/constants";
-import { RegisterOptions } from "react-hook-form";
 
-const Transaction = ({ register }: { register: RegisterOptions }) => {
+const Transaction = () => {
   return (
     <div className="relative px-4 pb-4 flex-1">
       <div className="block text-gray-400 font-bold">Date</div>

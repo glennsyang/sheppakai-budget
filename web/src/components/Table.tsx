@@ -56,7 +56,7 @@ const Table = ({ columns, data, tableName, filterName }: TableProps) => {
             type="button"
             title="Add New"
             onClick={handleToggleModal}
-            className="text-orange-500"
+            className="text-orange-500 focus:outline-none"
           >
             <FaPlusCircle size={22} />
           </button>

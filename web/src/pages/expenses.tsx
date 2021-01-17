@@ -5,7 +5,6 @@ import Table from "../components/Table";
 import dayjs from "dayjs";
 import { withApollo } from "../utils/withApollo";
 import { CellValue } from "react-table";
-import AddButton from "../components/AddButton";
 
 const formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
