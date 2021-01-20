@@ -1,9 +1,9 @@
-import React from 'react';
-import { Formik, Form } from 'formik';
+import React from "react";
+import { Formik, Form } from "formik";
 import { MeDocument, MeQuery, useLoginMutation } from "../generated/graphql";
-import { toErrorMap } from '../utils/toErrorMap';
+import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from "next/router";
-import { withApollo } from '../utils/withApollo';
+import { withApollo } from "../utils/withApollo";
 
 const Login: React.FC<{}> = ({ }) => {
   const router = useRouter();

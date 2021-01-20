@@ -6,9 +6,9 @@ import dayjs from "dayjs";
 import { withApollo } from "../utils/withApollo";
 import { CellValue } from "react-table";
 
-const formatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
+const formatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
 });
 
 const Expenses: React.FC<{}> = ({ }) => {
@@ -24,23 +24,23 @@ const Expenses: React.FC<{}> = ({ }) => {
   const columns = useMemo(
     () => [
       {
-        Header: 'Date',
-        accessor: 'date',
+        Header: "Date",
+        accessor: "date",
         Cell: ({ cell: { value } }: CellValue) => dayjs(value).format("DD-MMM-YYYY"),
-        sortType: 'datetime'
+        sortType: "datetime"
       },
       {
-        Header: 'Amount',
-        accessor: 'amount',
+        Header: "Amount",
+        accessor: "amount",
         Cell: ({ cell: { value } }: CellValue) => <div className="font-bold">{formatter.format(value)}</div>,
       },
       {
-        Header: 'Description',
-        accessor: 'description',
+        Header: "Description",
+        accessor: "description",
       },
       {
-        Header: 'Category',
-        accessor: 'category',
+        Header: "Category",
+        accessor: "category",
       },
     ],
     []

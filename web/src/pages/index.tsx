@@ -3,7 +3,6 @@ import { Layout } from "../components/Layout";
 import { withApollo } from "../utils/withApollo";
 import Sidebar from "../components/Sidebar";
 import SummaryBox from "../components/SummaryBox";
-import Table from "../components/Table";
 
 const data = [
   { id: 1, title: "Expenses", plannedTotal: 1290.22, actualTotal: 1321.45 },

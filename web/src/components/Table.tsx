@@ -85,7 +85,7 @@ const Table = ({ columns, data, tableName, filterName }: TableProps) => {
             onChange={handleFilterChange}
             placeholder={"Search..."}
             aria-label="Search a column"
-            type='text'
+            type="text"
             className="outline-none text-sm antialiased font-light px-4"
           />
         </div>
@@ -128,7 +128,7 @@ const Table = ({ columns, data, tableName, filterName }: TableProps) => {
                       return (
                         <td className="bg-white text-gray-600 text-sm antialiased font-light border-b p-2" {...cell.getCellProps()}>
                           {// Render the cell contents
-                            cell.render('Cell')}
+                            cell.render("Cell")}
                         </td>
                       )
                     })}
@@ -137,12 +137,12 @@ const Table = ({ columns, data, tableName, filterName }: TableProps) => {
             })}
         </tbody>
       </table>
-      {/* Pagination can be built however you'd like. This is just a very basic UI implementation: */}
+      {/* Pagination can be built however you"d like. This is just a very basic UI implementation: */}
       <div className="flex justify-between items-center mx-2 my-4">
         <span className="text-gray-500 text-sm antialiased font-semibold p-2">
-          Page{' '}<span>{pageIndex + 1} of {pageCount}</span>
+          Page{" "}<span>{pageIndex + 1} of {pageCount}</span>
         </span>
-        <span className="text-gray-500 text-sm antialiased font-semibold p-2">{'Total:'}{' '}{rows.length}</span>
+        <span className="text-gray-500 text-sm antialiased font-semibold p-2">{"Total:"}{" "}{rows.length}</span>
         <div className="text-gray-500 bg-teal-100 rounded-lg border text-sm antialiased font-semibold">
           <button type="button" onClick={() => gotoPage(0)} disabled={!canPreviousPage} className="p-2 border-r">
             <FaAngleDoubleLeft size={18} />

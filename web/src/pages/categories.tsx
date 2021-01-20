@@ -17,8 +17,8 @@ const Income: React.FC<{}> = ({ }) => {
   const columns = useMemo(
     () => [
       {
-        Header: 'Name',
-        accessor: 'name',
+        Header: "Name",
+        accessor: "name",
       },
     ],
     []

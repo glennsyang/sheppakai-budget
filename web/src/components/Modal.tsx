@@ -1,5 +1,23 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Formik, Field, Form, FormikHelpers } from "formik";
+import * as Yup from "yup";
+import Select from "react-select";
+
+import { customStyles } from "../utils/constants";
+import DatePickerField from "./DatePickerField";
+import { InputField } from "./InputField";
+import CurrencyField from "./CurrencyField";
+
+const transactionSchema = Yup.object().shape({
+  transdate: Yup.date()
+    .required("*Required").nullable(),
+  description: Yup.string()
+    .required("*Required"),
+  amount: Yup.string()
+    .required("*Required"),
+  category: Yup.string()
+    .required("*Required"),
+});
 
 interface ModalProps {
   show: boolean;
@@ -15,12 +33,25 @@ export interface FormValues {
   category: string;
 }
 
+const categories = [
+  { value: 'entertainment', label: 'Entertainment' },
+  { value: 'personal', label: 'Personal' },
+  { value: 'other', label: 'Other' }
+];
+
 const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
   // Close button
   const handleClose = () => { onClose && onClose() }
   // Submit button
   const onSubmit = (modalData: FormValues) => { onCreate({ ...modalData }) }
   const initialValues: FormValues = { transdate: "", amount: "", description: "", category: "", };
+
+  const [value, setValue] = useState(0);
+  const handleValueChange = useCallback(val => {
+    // eslint-disable-next-line
+    console.log(val);
+    setValue(val);
+  }, []);
 
   if (!show) { return null }
   return (
@@ -33,6 +64,7 @@ const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
             </h1>
             <Formik
               initialValues={initialValues}
+              validationSchema={transactionSchema}
               onSubmit={(
                 values: FormValues,
                 { setSubmitting }: FormikHelpers<FormValues>
@@ -41,37 +73,45 @@ const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
                 onSubmit(values);
                 setSubmitting(false);
               }}>
-              {({ isSubmitting }) => (
+              {({ isSubmitting, errors, touched }) => (
                 <Form>
                   <div className="flex-1 px-4 pb-4 mr-2">
-                    <div className="block text-gray-400 font-bold">Date</div>
-                    <Field
-                      id="transdate"
+
+                    <DatePickerField
+                      label="Transaction Date"
                       name="transdate"
-                      placeholder="Transaction Date"
-                      className="text-black w-full block rounded-md border border-gray-400 shadow-inner py-2 px-2 placeholder-gray-400"
                     />
-                    <div className="block text-gray-400 font-bold mt-2">Description</div>
-                    <Field
-                      id="description"
+
+                    <InputField
+                      label="Description"
                       name="description"
-                      placeholder="Description"
-                      className="text-black w-full block rounded-md border border-gray-400 shadow-inner py-2 px-2 placeholder-gray-400"
                     />
-                    <div className="block text-gray-400 font-bold mt-2">Amount</div>
-                    <Field
-                      id="amount"
-                      name="amount"
-                      placeholder="Amount"
-                      className="text-black w-full block rounded-md border border-gray-400 shadow-inner py-2 px-2 placeholder-gray-400"
-                    />
+
                     <div className="block text-gray-400 font-bold mt-2">Category</div>
-                    <Field
-                      id="category"
+                    <Select
                       name="category"
-                      placeholder="Category"
+                      placeholder="Select Category..."
+                      styles={customStyles}
+                      //className="basic-single"
+                      //classNamePrefix="select"
+                      isClearable
+                      isSearchable
+                      options={categories}
+                    />
+
+                    <div className="block text-gray-400 font-bold mt-2">Amount</div>
+                    <CurrencyField
+                      max={100000000}
+                      onValueChange={handleValueChange}
+                      style={{ textAlign: 'right' }}
+                      value={value}
+                      //id="amount"
+                      //name="amount"
+                      ///placeholder="Amount"
                       className="text-black w-full block rounded-md border border-gray-400 shadow-inner py-2 px-2 placeholder-gray-400"
                     />
+                    {errors.amount && touched.amount ? (<div className="text-red-400 text-md">{errors.amount}</div>) : null}
+
                     {/* Buttons */}
                     <div className="flex items-center justify-end py-2 px-4 mt-4 border-t border-solid border-gray-300 rounded-b">
                       <button
