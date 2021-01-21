@@ -20,8 +20,8 @@ export const customStyles = {
         backgroundColor: state.isSelected ? 'white' : 'white',
         color: '#2d3748',
         ':hover': {
-            backgroundColor: '#f7fafc',
-            color: '#4299e1',
+            backgroundColor: '#ECFDF5',
+            color: '#10B981',
         },
         padding: 10,
         fontSize: '14px',

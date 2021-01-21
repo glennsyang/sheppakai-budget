@@ -11,7 +11,7 @@ interface DatePickerFieldProps {
 //export const DatePickerField: React.FC<DatePickerFieldProps> = ({ label, ...props }) => {
 const DatePickerField = ({ label, ...props }: DatePickerFieldProps) => {
   const { setFieldValue } = useFormikContext();
-  const [field, { error }] = useField(props);
+  const [field, { error, touched }] = useField(props);
   return (
     <>
       <div className="block text-gray-400 font-bold">{label}</div>
@@ -24,9 +24,9 @@ const DatePickerField = ({ label, ...props }: DatePickerFieldProps) => {
         onChange={val => {
           setFieldValue(field.name, val);
         }}
-        className="text-black rounded-md border border-gray-400 shadow-inner py-2 px-2 placeholder-gray-400"
+        className="text-black rounded-md border border-gray-300 shadow-inner py-2 px-2 placeholder-gray-300"
       />
-      {error ? (<div className="text-red-400 text-md">{error}</div>) : null}
+      {error && touched ? (<div className="text-red-400 text-md">{error}</div>) : null}
     </>
   );
 };

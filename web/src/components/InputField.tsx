@@ -16,8 +16,8 @@ export const InputField: React.FC<InputFieldProps> = ({ label, size: _, ...props
         {...props}
         id={field.name}
         name={field.name}
-        placeholder={label}
-        className="text-black w-full block rounded-md border border-gray-400 shadow-inner py-2 px-2 placeholder-gray-400"
+        placeholder={`${label}...`}
+        className="text-black w-full block rounded-md border border-gray-300 shadow-inner py-2 px-2 placeholder-gray-300"
       />
       {error && touched ? (<div className="text-red-400 text-md">{error}</div>) : null}
     </>

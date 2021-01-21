@@ -1,22 +1,22 @@
 import React, { useCallback, useState } from "react";
-import { Formik, Field, Form, FormikHelpers } from "formik";
+import { Formik, Form, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import Select from "react-select";
 
-import { customStyles } from "../utils/constants";
 import DatePickerField from "./DatePickerField";
 import { InputField } from "./InputField";
 import CurrencyField from "./CurrencyField";
+import SelectField from "./SelectField";
 
 const transactionSchema = Yup.object().shape({
   transdate: Yup.date()
     .required("*Required").nullable(),
   description: Yup.string()
-    .required("*Required"),
-  amount: Yup.string()
+    .min(4, '*Must be at least 4 characters')
     .required("*Required"),
   category: Yup.string()
     .required("*Required"),
+  //amount: Yup.string()
+  //.required("*Required"),
 });
 
 interface ModalProps {
@@ -28,15 +28,15 @@ interface ModalProps {
 
 export interface FormValues {
   transdate: string;
-  amount: string;
+  amount: number;
   description: string;
   category: string;
 }
 
-const categories = [
-  { value: 'entertainment', label: 'Entertainment' },
-  { value: 'personal', label: 'Personal' },
-  { value: 'other', label: 'Other' }
+const options = [
+  { value: "entertainment", label: "Entertainment" },
+  { value: "personal", label: "Personal" },
+  { value: "other", label: "Other" }
 ];
 
 const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
@@ -44,7 +44,7 @@ const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
   const handleClose = () => { onClose && onClose() }
   // Submit button
   const onSubmit = (modalData: FormValues) => { onCreate({ ...modalData }) }
-  const initialValues: FormValues = { transdate: "", amount: "", description: "", category: "", };
+  const initialValues: FormValues = { transdate: "", amount: 0, description: "", category: "", };
 
   const [value, setValue] = useState(0);
   const handleValueChange = useCallback(val => {
@@ -76,48 +76,36 @@ const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
               {({ isSubmitting, errors, touched }) => (
                 <Form>
                   <div className="flex-1 px-4 pb-4 mr-2">
-
                     <DatePickerField
                       label="Transaction Date"
                       name="transdate"
                     />
-
                     <InputField
                       label="Description"
                       name="description"
                     />
-
-                    <div className="block text-gray-400 font-bold mt-2">Category</div>
-                    <Select
+                    <SelectField
+                      label="Category"
                       name="category"
-                      placeholder="Select Category..."
-                      styles={customStyles}
-                      //className="basic-single"
-                      //classNamePrefix="select"
-                      isClearable
-                      isSearchable
-                      options={categories}
+                      options={options}
+                      iid="category"
                     />
 
-                    <div className="block text-gray-400 font-bold mt-2">Amount</div>
                     <CurrencyField
                       max={100000000}
                       onValueChange={handleValueChange}
-                      style={{ textAlign: 'right' }}
                       value={value}
-                      //id="amount"
-                      //name="amount"
-                      ///placeholder="Amount"
-                      className="text-black w-full block rounded-md border border-gray-400 shadow-inner py-2 px-2 placeholder-gray-400"
+                      label="Amount"
+                      name="amount"
+                      className="text-black text-right block rounded-md border border-gray-300 shadow-inner py-2 px-2 placeholder-gray-300"
                     />
-                    {errors.amount && touched.amount ? (<div className="text-red-400 text-md">{errors.amount}</div>) : null}
 
                     {/* Buttons */}
                     <div className="flex items-center justify-end py-2 px-4 mt-4 border-t border-solid border-gray-300 rounded-b">
                       <button
                         type="button"
                         onClick={handleClose}
-                        className="bg-transparent rounded-xl text-teal-500 border border-teal-500 hover:bg-teal-500 hover:text-white font-bold px-4 py-2 mr-2"
+                        className="bg-transparent rounded-xl text-teal-500 border border-teal-500 hover:text-teal-600 hover:border-teal-600 font-bold px-4 py-2 mr-2"
                       >
                         Close
                       </button>
