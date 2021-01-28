@@ -1,0 +1,21 @@
+@tailwind base;
+
+/* Write your own custom base styles here */
+
+/* Start purging... */
+@tailwind components;
+/* Stop purging. */
+
+/* Write your own custom component styles here */
+.btn-blue {
+  @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+}
+.gradient {
+  background: linear-gradient(90deg, #14B8A6 0%, #0D9488 100%);;
+}
+
+/* Start purging... */
+@tailwind utilities;
+/* Stop purging.  */
+
+/* Your own custom utilities */

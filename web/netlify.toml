@@ -1,4 +1,4 @@
 ## netlify.toml
 [build]
   command = "yarn build && yarn export"
-  publish = "out"
+  publish = "web/out"
