@@ -1,11 +1,11 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import { Formik, Form, FormikHelpers } from "formik";
 import * as Yup from "yup";
 
 import DatePickerField from "./DatePickerField";
 import { InputField } from "./InputField";
-import CurrencyField from "./CurrencyField";
 import SelectField from "./SelectField";
+import { CurrencyField } from "./CurrencyField";
 
 const transactionSchema = Yup.object().shape({
   transdate: Yup.date()
@@ -15,8 +15,9 @@ const transactionSchema = Yup.object().shape({
     .required("*Required"),
   category: Yup.string()
     .required("*Required"),
-  //amount: Yup.string()
-  //.required("*Required"),
+  amount: Yup.number()
+    .required("*Required")
+    .positive(),
 });
 
 interface ModalProps {
@@ -46,13 +47,6 @@ const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
   const onSubmit = (modalData: FormValues) => { onCreate({ ...modalData }) }
   const initialValues: FormValues = { transdate: "", amount: 0, description: "", category: "", };
 
-  const [value, setValue] = useState(0);
-  const handleValueChange = useCallback(val => {
-    // eslint-disable-next-line
-    console.log(val);
-    setValue(val);
-  }, []);
-
   if (!show) { return null }
   return (
     <>
@@ -73,7 +67,7 @@ const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
                 onSubmit(values);
                 setSubmitting(false);
               }}>
-              {({ isSubmitting, errors, touched }) => (
+              {({ isSubmitting }) => (
                 <Form>
                   <div className="flex-1 px-4 pb-4 mr-2">
                     <DatePickerField
@@ -92,12 +86,8 @@ const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
                     />
 
                     <CurrencyField
-                      max={100000000}
-                      onValueChange={handleValueChange}
-                      value={value}
                       label="Amount"
                       name="amount"
-                      className="text-black text-right block rounded-md border border-gray-300 shadow-inner py-2 px-2 placeholder-gray-300"
                     />
 
                     {/* Buttons */}

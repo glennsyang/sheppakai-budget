@@ -3,8 +3,10 @@ import { Layout } from "../components/Layout";
 import Sidebar from "../components/Sidebar";
 import Table from "../components/Table";
 import dayjs from "dayjs";
-import { withApollo } from "../utils/withApollo";
+//import { withApollo } from "../utils/withApollo";
+import { withApollo } from '../lib/withApollo'
 import { CellValue } from "react-table";
+import { FormValues } from "../components/Modal";
 
 const formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -45,6 +47,10 @@ const Expenses: React.FC<{}> = ({ }) => {
     ],
     []
   );
+  const createTransaction = (modalData: FormValues) => {
+    console.log(modalData);
+
+  };
 
   return (
     <Layout>
@@ -58,6 +64,7 @@ const Expenses: React.FC<{}> = ({ }) => {
               data={expenses}
               tableName="Expenses"
               filterName="description"
+              createData={createTransaction}
             />
           </div>
 

@@ -8,9 +8,10 @@ interface TableProps {
   data: any;
   tableName: string;
   filterName: string;
+  createData(modalData: FormValues): void;
 }
 
-const Table = ({ columns, data, tableName, filterName }: TableProps) => {
+const Table = ({ columns, data, tableName, filterName, createData }: TableProps) => {
   const [filterInput, setFilterInput] = useState("");
   const [showModal, setShowModal] = useState(false);
   const tableInstance = useTable({ columns, data }, useFilters, useSortBy, usePagination);
@@ -41,8 +42,7 @@ const Table = ({ columns, data, tableName, filterName }: TableProps) => {
   const handleToggleModal = () => { setShowModal(!showModal) };
   const handleCreateModal = (modalData: FormValues) => {
     setShowModal(!showModal);
-    console.log(modalData);
-    //createData(modalData)
+    createData(modalData)
   };
 
   return (

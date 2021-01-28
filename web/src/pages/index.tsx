@@ -1,6 +1,9 @@
 import React from "react";
 import { Layout } from "../components/Layout";
-import { withApollo } from "../utils/withApollo";
+//import { withApollo } from "../utils/withApollo";
+import { withApollo } from '../lib/withApollo'
+import { useFetchUser } from "../lib/user";
+
 import Sidebar from "../components/Sidebar";
 import SummaryBox from "../components/SummaryBox";
 
@@ -10,6 +13,14 @@ const data = [
 ];
 
 const Index = () => {
+  // const { user, loading } = useFetchUser();
+  // if (loading) {
+  //   return <div>Loading...</div>
+  // }
+  // if (!loading && !user) {
+  //   return <div>this is where login page should go...</div>
+  // }
+
   return (
     <Layout>
       <main className="min-h-screen flex flex-row bg-gray-100">
@@ -34,4 +45,6 @@ const Index = () => {
   );
 };
 
-export default withApollo({ ssr: true })(Index);
+//export default withApollo()(Index);
+//export default withApollo({ ssr: true })(Index);
+export default Index;
