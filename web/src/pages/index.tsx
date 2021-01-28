@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout } from "../components/Layout";
+import Layout from "../components/Layout";
 import SvgBudget from "../components/svg/SvgBudget";
 import SvgSync from "../components/svg/SvgSync";
 import Link from "next/link";

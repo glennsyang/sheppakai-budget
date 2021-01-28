@@ -5,7 +5,7 @@ import Link from "next/link";
 // import { useRouter } from "next/router";
 // import { useApolloClient } from "@apollo/client";
 
-export const NavBar = ({ }) => {
+const NavBar = ({ }) => {
   // const router = useRouter();
   // const [logout, { loading: logoutFetching }] = useLogoutMutation();
   // const apolloClient = useApolloClient();
@@ -22,7 +22,7 @@ export const NavBar = ({ }) => {
         </button>
       </a></Link>
       <Link href="/login"><a>
-        <button className="bg-transparent rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-bold px-4 py-2">
+        <button className="bg-transparent rounded-xl bg-teal-500 text-white hover:bg-teal-600 focus:outline-none focus:shadow-outline font-bold px-4 py-2">
           Login
         </button>
       </a></Link>
@@ -39,4 +39,6 @@ export const NavBar = ({ }) => {
       </div>
     </div>
   );
-}
+};
+
+export default NavBar;

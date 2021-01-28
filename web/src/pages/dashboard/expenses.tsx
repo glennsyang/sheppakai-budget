@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Layout } from "../../components/Layout";
+import Layout from "../../components/Layout";
 import Sidebar from "../../components/Sidebar";
 import Table from "../../components/Table";
 import dayjs from "dayjs";

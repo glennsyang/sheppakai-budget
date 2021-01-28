@@ -6,7 +6,7 @@ type CurrencyFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   name: string;
 };
 
-export const CurrencyField: React.FC<CurrencyFieldProps> = ({ label, size: _, ...props }) => {
+const CurrencyField: React.FC<CurrencyFieldProps> = ({ label, size: _, ...props }) => {
   //console.log({ props });
   const [field, { error, touched }] = useField(props);
   //console.log({ field });
@@ -37,3 +37,5 @@ export const CurrencyField: React.FC<CurrencyFieldProps> = ({ label, size: _, ..
     </>
   );
 };
+
+export default CurrencyField;

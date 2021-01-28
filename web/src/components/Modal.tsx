@@ -3,9 +3,9 @@ import { Formik, Form, FormikHelpers } from "formik";
 import * as Yup from "yup";
 
 import DatePickerField from "./DatePickerField";
-import { InputField } from "./InputField";
+import InputField from "./InputField";
 import SelectField from "./SelectField";
-import { CurrencyField } from "./CurrencyField";
+import CurrencyField from "./CurrencyField";
 
 const transactionSchema = Yup.object().shape({
   transdate: Yup.date()

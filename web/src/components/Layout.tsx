@@ -1,12 +1,12 @@
 import React, { ReactNode } from "react"
-import { NavBar } from "./NavBar";
+import NavBar from "./NavBar";
 import Footer from "./Footer";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
-export const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="leading-normal tracking-normal antialiased">
       <NavBar />
@@ -14,4 +14,6 @@ export const Layout = ({ children }: LayoutProps) => {
       <Footer />
     </div>
   );
-}
+};
+
+export default Layout;
