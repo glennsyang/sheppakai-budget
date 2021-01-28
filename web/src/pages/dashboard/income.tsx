@@ -1,24 +1,24 @@
 import React, { useMemo } from "react";
-import { Layout } from "../components/Layout";
-import Sidebar from "../components/Sidebar";
-import Table from "../components/Table";
+import { Layout } from "../../components/Layout";
+import Sidebar from "../../components/Sidebar";
+import Table from "../../components/Table";
 import dayjs from "dayjs";
 //import { withApollo } from "../utils/withApollo";
-import { withApollo } from '../lib/withApollo'
+import { withApollo } from '../../lib/withApollo'
 import { CellValue } from "react-table";
-import { FormValues } from "../components/Modal";
+import { FormValues } from "../../components/Modal";
 
 const formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
 
-const Expenses: React.FC<{}> = ({ }) => {
-  const expenses = useMemo(
+const Income: React.FC<{}> = ({ }) => {
+  const income = useMemo(
     () => [
-      { id: 1, date: "12-01-2020", amount: 22.64, description: "toothbrushes", category: "Personal" },
-      { id: 2, date: "12-07-2020", amount: 8.30, description: "watercolor set, brush pens, sketch book", category: "Other" },
-      { id: 3, date: "12-08-2020", amount: 29.99, description: "whiskey", category: "Entertainment" }
+      { id: 1, date: "12-01-2020", amount: 789.90, description: "G Paycheck IBM", category: "Paycheck G - IBM" },
+      { id: 2, date: "12-07-2020", amount: 718.15, description: "G Paycheck IBM", category: "Paycheck G - IBM" },
+      { id: 3, date: "12-14-2020", amount: 816.65, description: "G Paycheck IBM", category: "Paycheck G - IBM" }
     ],
     []
   );
@@ -61,8 +61,8 @@ const Expenses: React.FC<{}> = ({ }) => {
           <div>
             <Table
               columns={columns}
-              data={expenses}
-              tableName="Expenses"
+              data={income}
+              tableName="Income"
               filterName="description"
               createData={createTransaction}
             />
@@ -74,4 +74,4 @@ const Expenses: React.FC<{}> = ({ }) => {
   );
 };
 
-export default withApollo({ ssr: false })(Expenses);
+export default withApollo({ ssr: false })(Income);

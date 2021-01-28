@@ -37,10 +37,10 @@ const Sidebar = () => {
   const classShow = "md:w-16 lg:w-16";
   const classHide = "md:w-min lg:w-min";
   const menuItems = [
-    { name: "Summary", linkTo: "/", icon: "FaGlobe" },
-    { name: "Expenses", linkTo: "/expenses", icon: "FaReceipt" },
-    { name: "Income", linkTo: "/income", icon: "FaDollarSign" },
-    { name: "Categories", linkTo: "/categories", icon: "FaList" },
+    { name: "Summary", linkTo: "/dashboard", icon: "FaGlobe" },
+    { name: "Expenses", linkTo: "/dashboard/expenses", icon: "FaReceipt" },
+    { name: "Income", linkTo: "/dashboard/income", icon: "FaDollarSign" },
+    { name: "Categories", linkTo: "/dashboard/categories", icon: "FaList" },
   ];
 
   return (

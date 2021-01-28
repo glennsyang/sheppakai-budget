@@ -16,11 +16,16 @@ export const NavBar = ({ }) => {
 
   const menuItems = (
     <div>
-      <Link href="/login">
+      <Link href="/signup"><a>
+        <button className="hover:underline text-gray-800 font-bold focus:outline-none focus:shadow-outline mx-6">
+          Sign Up
+        </button>
+      </a></Link>
+      <Link href="/login"><a>
         <button className="bg-transparent rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-bold px-4 py-2">
           Login
-          </button>
-      </Link>
+        </button>
+      </a></Link>
     </div>
   );
 
@@ -28,7 +33,7 @@ export const NavBar = ({ }) => {
     <div className="sticky border-b shadow-md">
       <div className="container mx-auto flex justify-between items-center py-2">
         <h1 className="text-xl font-bold text-teal-500">
-          SHEPPAKAI BUDGET
+          <Link href="/">SHEPPAKAI BUDGET</Link>
         </h1>
         {menuItems}
       </div>
