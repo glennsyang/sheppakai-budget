@@ -21,7 +21,7 @@ const NavBar = ({ }) => {
           Sign Up
         </button>
       </a></Link>
-      <Link href="/login"><a>
+      <Link href="/dashboard"><a>
         <button className="bg-transparent rounded-xl bg-teal-500 text-white hover:bg-teal-600 focus:outline-none focus:shadow-outline font-bold px-4 py-2">
           Login
         </button>

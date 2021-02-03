@@ -3,7 +3,6 @@ import Layout from "../../components/Layout";
 import Sidebar from "../../components/Sidebar";
 import Table from "../../components/Table";
 import dayjs from "dayjs";
-//import { withApollo } from "../utils/withApollo";
 import { withApollo } from '../../lib/withApollo'
 import { CellValue } from "react-table";
 import { FormValues } from "../../components/Modal";
@@ -74,4 +73,4 @@ const Income: React.FC<{}> = ({ }) => {
   );
 };
 
-export default withApollo({ ssr: false })(Income);
+export default withApollo({ ssr: true })(Income);

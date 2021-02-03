@@ -8,6 +8,7 @@ import auth0 from './auth0';
 // On the client, we store the Apollo Client in the following variable.
 // This prevents the client from reinitializing between page transitions.
 let globalApolloClient = null;
+
 /**
  * Installs the Apollo Client on NextPageContext
  * or NextAppContext. Useful if you want to use apolloClient
@@ -16,6 +17,7 @@ let globalApolloClient = null;
  */
 export const initOnContext = (ctx) => {
   const inAppContext = Boolean(ctx.ctx);
+
   // We consider installing `withApollo({ ssr: true })` on global App level
   // as antipattern since it disables project wide Automatic Static Optimization.
   if (process.env.NODE_ENV === "development") {
@@ -26,15 +28,18 @@ export const initOnContext = (ctx) => {
       );
     }
   }
+
   // Initialize ApolloClient if not already done
   const apolloClient =
     ctx.apolloClient ||
     initApolloClient(ctx.apolloState || {}, inAppContext ? ctx.ctx : ctx);
+
   // We send the Apollo Client as a prop to the component to avoid calling initApollo() twice in the server.
   // Otherwise, the component would have to call initApollo() again but this
   // time without the context. Once that happens, the following code will make sure we send
   // the prop as `null` to the browser.
   apolloClient.toJSON = () => null;
+
   // Add apolloClient to NextPageContext & NextAppContext.
   // This allows us to consume the apolloClient inside our
   // custom `getInitialProps({ apolloClient })`.
@@ -42,17 +47,22 @@ export const initOnContext = (ctx) => {
   if (inAppContext) {
     ctx.ctx.apolloClient = apolloClient;
   }
+
   return ctx;
 };
+
 async function getHeaders(ctx) {
   if (typeof window !== "undefined") return null;
   if (typeof ctx.req === "undefined") return null;
+
   const s = await auth0.getSession(ctx.req)
   if (s && s.accessToken == null) return null;
+
   return {
     authorization: `Bearer ${s ? s.accessToken : ""}`
   };
 };
+
 /**
  * Always creates a new apollo client on the server
  * Creates or reuses apollo client in the browser.
@@ -65,12 +75,15 @@ const initApolloClient = (initialState, headers) => {
   if (typeof window === "undefined") {
     return createApolloClient(initialState, headers);
   }
+
   // Reuse client on the client-side
   if (!globalApolloClient) {
     globalApolloClient = createApolloClient(initialState, headers);
   }
+
   return globalApolloClient;
 };
+
 /**
  * Creates a withApollo HOC
  * that provides the apolloContext
@@ -90,12 +103,14 @@ export const withApollo = ({ ssr = true } = {}) => (PageComponent) => {
       // client = initApolloClient(apolloState, undefined);
       client = initApolloClient(apolloState, {});
     }
+
     return (
       <ApolloProvider client={client}>
         <PageComponent {...pageProps} />
       </ApolloProvider>
     );
   };
+
   // Set the correct displayName in development
   if (process.env.NODE_ENV !== "production") {
     const displayName =
@@ -105,14 +120,17 @@ export const withApollo = ({ ssr = true } = {}) => (PageComponent) => {
   if (ssr || PageComponent.getInitialProps) {
     WithApollo.getInitialProps = async (ctx) => {
       const { AppTree } = ctx;
+
       // Initialize ApolloClient, add it to the ctx object so
       // we can use it in `PageComponent.getInitialProp`.
       const apolloClient = (ctx.apolloClient = initApolloClient(null, await getHeaders(ctx)))
+
       // Run wrapped getInitialProps methods
       let pageProps = {};
       if (PageComponent.getInitialProps) {
         pageProps = await PageComponent.getInitialProps(ctx);
       }
+
       // Only on the server:
       if (typeof window === "undefined") {
         // When redirecting, the response is finished.
@@ -120,6 +138,7 @@ export const withApollo = ({ ssr = true } = {}) => (PageComponent) => {
         if (ctx.res && ctx.res.finished) {
           return pageProps;
         }
+
         // Only if ssr is enabled
         if (ssr) {
           try {
@@ -144,13 +163,16 @@ export const withApollo = ({ ssr = true } = {}) => (PageComponent) => {
           Head.rewind();
         }
       }
+
       // Extract query data from the Apollo store
       const apolloState = apolloClient.cache.extract();
+
       return {
         ...pageProps,
         apolloState
       }
     };
   }
+
   return WithApollo;
 };

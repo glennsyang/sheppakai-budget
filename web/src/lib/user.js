@@ -14,7 +14,7 @@ export async function fetchUser(cookie = "") {
         },
       }
       : {}
-  )
+  );
 
   if (!res.ok) {
     delete window.__user;
@@ -26,7 +26,7 @@ export async function fetchUser(cookie = "") {
     window.__user = json;
   }
   return json;
-};
+}
 
 export function useFetchUser({ required } = {}) {
   const [loading, setLoading] = useState(
@@ -63,11 +63,11 @@ export function useFetchUser({ required } = {}) {
 
       return () => {
         isMounted = false;
-      }
+      };
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
-  )
+  );
 
-  return { user, loading };
+  return { user, loading }
 };

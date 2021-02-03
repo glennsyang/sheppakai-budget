@@ -7,11 +7,6 @@ import Link from "next/link";
 //import { withApollo } from '../lib/withApollo'
 //import { useFetchUser } from "../lib/user";
 
-const data = [
-  { id: 1, title: "Expenses", plannedTotal: 1290.22, actualTotal: 1321.45 },
-  { id: 2, title: "Income", plannedTotal: 1290.22, actualTotal: 1321.45 },
-];
-
 const Index = () => {
   // const { user, loading } = useFetchUser();
   // if (loading) {

@@ -5,12 +5,13 @@ import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { WebSocketLink } from "apollo-link-ws";
 import { SubscriptionClient } from "subscriptions-transport-ws";
-import auth0 from "./auth0-config";
+import auth0 from "./auth0";
 
 let accessToken = null;
 
 const requestAccessToken = async () => {
   if (accessToken) return;
+
   const res = await fetch(`${process.env.APP_HOST}/api/session`);
   if (res.ok) {
     const json = await res.json();
@@ -19,12 +20,14 @@ const requestAccessToken = async () => {
     accessToken = "public";
   }
 };
+
 // remove cached token on 401 from the server
 const resetTokenLink = onError(({ networkError }) => {
   if (networkError && networkError.name === "ServerError" && networkError.statusCode === 401) {
     accessToken = null;
   }
 });
+
 const createHttpLink = (headers) => {
   const httpLink = new HttpLink({
     uri: "https://immense-pelican-51.hasura.app/v1/graphql",
@@ -34,6 +37,7 @@ const createHttpLink = (headers) => {
   });
   return httpLink;
 };
+
 const createWSLink = () => {
   return new WebSocketLink(
     new SubscriptionClient("wss://immense-pelican-51.hasura.app/v1/graphql", {
@@ -50,6 +54,7 @@ const createWSLink = () => {
     })
   );
 };
+
 export default function createApolloClient(initialState, headers) {
   const ssrMode = typeof window === "undefined";
   let link;

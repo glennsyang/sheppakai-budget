@@ -1,6 +1,6 @@
 import { useField, FieldProps } from "formik";
 import Select, { Option, ReactSelectProps } from "react-select";
-import { customStyles } from "../utils/constants";
+import { customStyles } from "../../utils/constants";
 
 interface PropsType {
   [x: string]: any;

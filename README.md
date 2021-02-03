@@ -6,10 +6,11 @@ https://sheppakai-budget.netlify.app
 ## Built With
 
 - [NextJS](https://nextjs.org/)
-- [ChakraUI](https://chakra-ui.com/)
+- [TailwindCSS](https://tailwindcss.com/)
 - [Express](https://expressjs.com/)
 - [GraphQL](https://graphql.org/)
 - [Apollo](https://github.com/apollographql)
+- [Hasura](https://hasura.io)
 
 ## Status
 
