@@ -1,0 +1,5 @@
+mutation DeleteTransaction($transId: uuid!) {
+  delete_transactions(where: {id: {_eq: $transId}}) {
+    affected_rows
+  }
+}

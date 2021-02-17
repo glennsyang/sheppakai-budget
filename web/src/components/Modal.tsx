@@ -6,6 +6,8 @@ import DatePickerField from "./fields/DatePickerField";
 import InputField from "./fields/InputField";
 import SelectField from "./fields/SelectField";
 import CurrencyField from "./fields/CurrencyField";
+import { TransactionFormValues } from "../types";
+import { useGetCategoriesQuery } from "../generated/graphql";
 
 const transactionSchema = Yup.object().shape({
   transdate: Yup.date()
@@ -24,28 +26,22 @@ interface ModalProps {
   show: boolean;
   tableName: string;
   onClose: () => void;
-  onCreate(modalData: FormValues): void;
-}
-
-export interface FormValues {
-  transdate: string;
-  amount: number;
-  description: string;
-  category: string;
-}
-
-const options = [
-  { value: "entertainment", label: "Entertainment" },
-  { value: "personal", label: "Personal" },
-  { value: "other", label: "Other" }
-];
+  onCreate(modalData: TransactionFormValues): void;
+};
 
 const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
   // Close button
   const handleClose = () => { onClose && onClose() }
   // Submit button
-  const onSubmit = (modalData: FormValues) => { onCreate({ ...modalData }) }
-  const initialValues: FormValues = { transdate: "", amount: 0, description: "", category: "", };
+  const onSubmit = (modalData: TransactionFormValues) => { onCreate({ ...modalData }) }
+  const initialValues: TransactionFormValues = { transdate: "", amount: 0, description: "", category: "", };
+  // Get Categories
+  const { data, error, loading } = useGetCategoriesQuery({
+    notifyOnNetworkStatusChange: true,
+  });
+  const options = data?.categories.map((category) => (
+    { value: category.id, label: category.name }
+  ));
 
   if (!show) { return null }
   return (
@@ -60,8 +56,8 @@ const Modal = ({ show, tableName, onClose, onCreate }: ModalProps) => {
               initialValues={initialValues}
               validationSchema={transactionSchema}
               onSubmit={(
-                values: FormValues,
-                { setSubmitting }: FormikHelpers<FormValues>
+                values: TransactionFormValues,
+                { setSubmitting }: FormikHelpers<TransactionFormValues>
               ) => {
                 //console.log({ values });
                 onSubmit(values);

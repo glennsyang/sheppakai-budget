@@ -1,62 +1,41 @@
-import React, { useMemo } from "react";
-import { CellValue } from "react-table";
-import gql from "graphql-tag";
+import React, { useEffect, useMemo, useState } from "react";
+import { Cell, CellValue } from "react-table";
 import dayjs from "dayjs";
 
+import { TYPE_ID_EXPENSE } from "../../utils/constants";
 import Layout from "../../components/Layout";
 import Sidebar from "../../components/Sidebar";
 import Table from "../../components/Table";
-import { FormValues } from "../../components/Modal";
 import { withApollo } from '../../lib/withApollo'
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useGetTransactionsQuery, useCreateTransactionMutation, useUpdateTransactionMutation, GetTransactionsQuery, Transactions } from '../../generated/graphql';
+import { useFetchUser } from "../../lib/user";
+import Actions from "../../components/Actions";
+import EditableCell from "../../components/EditableCell";
+import Loader from "../../components/Loader";
+import { TransactionFormValues } from "../../types";
 
 const formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
 
-const GET_MY_TRANSACTIONS = gql`
-  query getMyTransactions {
-    transactions {
-      id
-      amount
-      description
-      transactionDate
-  }
-}`;
-
-const ADD_TRANSACTION = gql`
-  mutation ($amount: numeric!, $description: String!, $categoryId: uuid, $transDate: timestamptz, $userId: String!) {
-    insert_transactions(objects: {
-      amount: $amount, 
-      description: $description,
-      categoryId: $categoryId,
-      transactionDate: $transDate,
-      userId: $userId,
-    }) {
-      affected_rows
-      returning {
-        id
-        description
-        createdAt
-        amount
-      }
-    }
-  }
-`;
-
 const Expenses: React.FC<{}> = ({ }) => {
-  const { loading, error, data } = useQuery(GET_MY_TRANSACTIONS);
-  const [addTransaction] = useMutation(ADD_TRANSACTION);
+  const [skipPageReset, setSkipPageReset] = useState(false);
+  const [shouldUpdate, setShouldUpdate] = useState<boolean>(false);
+  const { data, error, loading, refetch } = useGetTransactionsQuery({
+    variables: { type: "expense", },
+    notifyOnNetworkStatusChange: true,
+  });
+  const [createTransaction] = useCreateTransactionMutation();
+  const [updateTransaction] = useUpdateTransactionMutation();
+  const { user } = useFetchUser();
 
-  // const expenses = useMemo(
-  //   () => [
-  //     { id: 1, transactionDate: "12-01-2020", amount: 22.64, description: "toothbrushes", category: "Personal" },
-  //     { id: 2, transactionDate: "12-07-2020", amount: 8.30, description: "watercolor set, brush pens, sketch book", category: "Other" },
-  //     { id: 3, transactionDate: "12-08-2020", amount: 29.99, description: "whiskey", category: "Entertainment" }
-  //   ],
-  //   []
-  // );
+  useEffect(() => {
+    if (shouldUpdate) {
+      refetch();
+      setShouldUpdate(false);
+    }
+  }, [shouldUpdate, setShouldUpdate, refetch]);
 
   const columns = useMemo(
     () => [
@@ -74,48 +53,98 @@ const Expenses: React.FC<{}> = ({ }) => {
       {
         Header: "Description",
         accessor: "description",
+        Cell: EditableCell,
       },
       {
         Header: "Category",
-        accessor: "category",
+        accessor: "category.name",
+      },
+      {
+        Header: "Entered By",
+        accessor: "user.name",
+      },
+      {
+        Header: "Actions",
+        disableSortBy: true,
+        id: 'actions',
+        accessor: 'actions',
+        Cell: ({ row }: Cell) => (<Actions rowProps={row.original} collection={'expense'} />)
       },
     ],
     []
   );
-  const createTransaction = (modalData: FormValues) => {
+  const updateData = async (rowIndex: number, columnId: string, value: CellValue) => {
+    setSkipPageReset(true);
+    const old = data!.transactions[rowIndex]
+    if (value != old.description) {
+      const { errors, data } = await updateTransaction({
+        variables: {
+          transId: old.id,
+          amount: old.amount,
+          description: value,
+          transDate: old.transactionDate
+        },
+        // update: (cache) => {
+        //   cache.evict({ fieldName: "transactions:{}" });
+        // },
+      });
+      if (errors) { console.log({ errors }); }
+      else {
+        if (data?.update_transactions?.affected_rows != 0) {
+          console.log("Success!");
+        } else {
+          // display error on screen
+          alert("No rows were updated. You may not have permissions to update this row.")
+          console.log("No rows were updated. Check your permissions!");
+          console.log({ user });
+        }
+      }
+      setShouldUpdate(true);
+    }
+  };
+  const handleCreateTransaction = async (modalData: TransactionFormValues) => {
     console.log(modalData);
-    addTransaction({
+    const { errors } = await createTransaction({
       variables: {
         amount: modalData.amount,
         description: modalData.description,
-        categoryId: "7f4456cc-7147-4e0d-9d2b-80bae3c2030e",
-        transactionDate: modalData.transdate,
-        userId: "auth0|0123456789",
-      }
+        categoryId: modalData.category,
+        transDate: dayjs(modalData.transdate).format("YYYY-MM-DDTHH:mm:ssZ"),
+        userId: user.sub,
+        typeId: TYPE_ID_EXPENSE,
+      },
+      // update: (cache) => {
+      //   cache.evict({ fieldName: "transactions:{}" });
+      // },
     });
+    if (errors) {
+      console.log({ errors });
+    } else {
+      setShouldUpdate(true);
+    }
   };
 
   if (error) {
     console.log({ error });
-    return <div>Error!</div>;
+    return <div>Error!<div>{error.message}</div></div>;
   }
   return (
     <Layout>
       <main className="min-h-screen flex flex-row bg-gray-100">
         <Sidebar />
-        {loading ? <div>Loading...</div> :
+        {loading ? <Loader /> :
           <div id="content" className="w-5/6 p-4">
-
             <div>
               <Table
                 columns={columns}
-                data={data.transactions}
+                data={data?.transactions}
                 tableName="Expenses"
                 filterName="description"
-                createData={createTransaction}
+                createData={handleCreateTransaction}
+                updateData={updateData}
+                skipPageReset={skipPageReset}
               />
             </div>
-
           </div>
         }
       </main>

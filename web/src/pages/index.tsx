@@ -1,20 +1,13 @@
 import React from "react";
+import Router from "next/router";
+import Link from "next/link";
 import Layout from "../components/Layout";
 import SvgBudget from "../components/svg/SvgBudget";
 import SvgSync from "../components/svg/SvgSync";
-import Link from "next/link";
-//import { withApollo } from "../utils/withApollo";
-//import { withApollo } from '../lib/withApollo'
-//import { useFetchUser } from "../lib/user";
+import { useFetchUser } from "../lib/user";
 
 const Index = () => {
-  // const { user, loading } = useFetchUser();
-  // if (loading) {
-  //   return <div>Loading...</div>
-  // }
-  // if (!loading && !user) {
-  //   return <div>this is where login page should go...</div>
-  // }
+  const { user, loading } = useFetchUser();
 
   return (
     <Layout>
@@ -32,11 +25,24 @@ const Index = () => {
               <p className="leading-normal text-2xl mb-8">
                 Sheppakaibudget is a budget tracker for the modern age. Spend, save, and give toward what's important in life.
               </p>
-              <Link href="/login"><a>
-                <button className="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out">
-                  Get Started
-              </button>
-              </a></Link>
+              {!user ?
+                <Link href="/login"><a>
+                  <button
+                    className="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
+                    onClick={() => {
+                      Router.push('/api/login');
+                    }}
+                  >
+                    Get Started
+                  </button>
+                </a></Link>
+                :
+                <Link href="/dashboard"><a>
+                  <button className="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out">
+                    Get Started
+                  </button>
+                </a></Link>
+              }
             </div>
             <div className="w-full md:w-3/5 py-6 text-center">
               <img className="w-full md:w-4/5 z-50" src="/hero.png" />

@@ -1,0 +1,18 @@
+mutation CreateTransaction($amount: numeric!, $description: String!, $categoryId: uuid, $transDate: timestamptz, $userId: String!, $typeId: Int!) {
+    insert_transactions(objects: {
+      amount: $amount, 
+      description: $description,
+      categoryId: $categoryId,
+      transactionDate: $transDate,
+      userId: $userId,
+      typeId: $typeId,
+    }) {
+      affected_rows
+      returning {
+        id
+        description
+        createdAt
+        amount
+      }
+    }
+  }

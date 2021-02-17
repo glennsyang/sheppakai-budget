@@ -2,6 +2,9 @@ export const FIELD_REQUIRED = "*This field is required.";
 export const VALID_EMAIL = "*Please enter a valid e-mail address.";
 export const VALID_PASSWORD = "*Password must be at least 12 characters long.";
 
+export const TYPE_ID_INCOME = 1;
+export const TYPE_ID_EXPENSE = 2;
+
 /*
  * React-Select custom styles
  */

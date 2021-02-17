@@ -1,0 +1,10 @@
+mutation UpdateCategory($id: uuid!, $name: String!) {
+  update_categories(where: {id: {_eq: $id}}, _set: {name: $name}) {
+    affected_rows
+    returning {
+      id
+      name
+      updatedAt
+    }
+  }
+}

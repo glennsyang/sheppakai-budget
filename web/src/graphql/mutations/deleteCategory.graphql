@@ -1,0 +1,5 @@
+mutation DeleteCategory($id: uuid!) {
+  delete_categories(where: {id: {_eq: $id}}) {
+    affected_rows
+  }
+}

@@ -1,0 +1,13 @@
+mutation UpdateTransaction($transId: uuid!, $amount: numeric, $description: String!, $transDate: timestamptz) {
+  update_transactions(where: {id: {_eq: $transId}}, _set: {amount: $amount, description: $description, transactionDate: $transDate}) {
+    affected_rows
+    returning {
+      amount
+      description
+      transactionDate
+      category {
+        name
+      }
+    }
+  }
+}

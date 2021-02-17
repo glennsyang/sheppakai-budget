@@ -1,11 +1,18 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { Cell, CellValue } from "react-table";
+import dayjs from "dayjs";
+
+import { TYPE_ID_INCOME } from "../../utils/constants";
 import Layout from "../../components/Layout";
 import Sidebar from "../../components/Sidebar";
 import Table from "../../components/Table";
-import dayjs from "dayjs";
 import { withApollo } from '../../lib/withApollo'
-import { CellValue } from "react-table";
-import { FormValues } from "../../components/Modal";
+import { useGetTransactionsQuery, useCreateTransactionMutation, useUpdateTransactionMutation } from '../../generated/graphql';
+import { useFetchUser } from "../../lib/user";
+import EditableCell from "../../components/EditableCell";
+import Loader from "../../components/Loader";
+import { TransactionFormValues } from "../../types";
+import Actions from "../../components/Actions";
 
 const formatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -13,20 +20,23 @@ const formatter = new Intl.NumberFormat("en-US", {
 });
 
 const Income: React.FC<{}> = ({ }) => {
-  const income = useMemo(
-    () => [
-      { id: 1, date: "12-01-2020", amount: 789.90, description: "G Paycheck IBM", category: "Paycheck G - IBM" },
-      { id: 2, date: "12-07-2020", amount: 718.15, description: "G Paycheck IBM", category: "Paycheck G - IBM" },
-      { id: 3, date: "12-14-2020", amount: 816.65, description: "G Paycheck IBM", category: "Paycheck G - IBM" }
-    ],
-    []
-  );
+  const [skipPageReset, setSkipPageReset] = useState(false);
+
+  const { data, error, loading } = useGetTransactionsQuery({
+    variables: {
+      type: "income",
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+  const [createTransaction] = useCreateTransactionMutation();
+  const [updateTransaction] = useUpdateTransactionMutation();
+  const { user } = useFetchUser();
 
   const columns = useMemo(
     () => [
       {
         Header: "Date",
-        accessor: "date",
+        accessor: "transactionDate",
         Cell: ({ cell: { value } }: CellValue) => dayjs(value).format("DD-MMM-YYYY"),
         sortType: "datetime"
       },
@@ -38,39 +48,87 @@ const Income: React.FC<{}> = ({ }) => {
       {
         Header: "Description",
         accessor: "description",
+        Cell: EditableCell,
       },
       {
         Header: "Category",
-        accessor: "category",
+        accessor: "category.name",
+      },
+      {
+        Header: "Entered By",
+        accessor: "user.name",
+      },
+      {
+        Header: "Actions",
+        disableSortBy: true,
+        id: 'actions',
+        accessor: 'actions',
+        Cell: ({ row }: Cell) => (<Actions rowProps={row.original} collection={'income'} />)
       },
     ],
     []
   );
-  const createTransaction = (modalData: FormValues) => {
+  const updateData = async (rowIndex: number, columnId: string, value: CellValue) => {
+    setSkipPageReset(true);
+    const id = data!.transactions[rowIndex].id;
+    const old = data!.transactions[rowIndex]
+    if (value != old.description) {
+      await updateTransaction({
+        variables: {
+          transId: id,
+          description: value,
+          amount: old.amount,
+          transDate: old.transactionDate
+        }
+      });
+    }
+  };
+  const handleCreateTransaction = async (modalData: TransactionFormValues) => {
     console.log(modalData);
-
+    const { errors } = await createTransaction({
+      variables: {
+        amount: modalData.amount,
+        description: modalData.description,
+        categoryId: modalData.category,
+        transDate: dayjs(modalData.transdate).format("YYYY-MM-DDTHH:mm:ssZ"),
+        userId: user.sub,
+        typeId: TYPE_ID_INCOME,
+      },
+      //update: (cache) => {
+      //  cache.evict({ fieldName: "transactions:{}" });
+      //},
+    });
+    if (errors) {
+      console.log({ error });
+    }
   };
 
+  if (error) {
+    console.log({ error });
+    return <div>Error!<div>{error.message}</div></div>;
+  }
   return (
     <Layout>
       <main className="min-h-screen flex flex-row bg-gray-100">
         <Sidebar />
-        <div id="content" className="w-5/6 p-4">
-
-          <div>
-            <Table
-              columns={columns}
-              data={income}
-              tableName="Income"
-              filterName="description"
-              createData={createTransaction}
-            />
+        {loading ? <Loader /> :
+          <div id="content" className="w-5/6 p-4">
+            <div>
+              <Table
+                columns={columns}
+                data={data!.transactions}
+                tableName="Income"
+                filterName="description"
+                createData={handleCreateTransaction}
+                updateData={updateData}
+                skipPageReset={skipPageReset}
+              />
+            </div>
           </div>
-
-        </div>
+        }
       </main>
     </Layout>
   );
 };
 
-export default withApollo({ ssr: true })(Income);
+export default withApollo()(Income);

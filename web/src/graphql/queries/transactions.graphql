@@ -1,0 +1,20 @@
+query getTransactions($type: String!) {
+    transactions(where: {type: {name: {_eq: $type}}}, order_by: {transactionDate: desc}) {
+      id
+      amount
+      description
+      transactionDate
+      user {
+        id
+        name
+      }
+      category {
+        id
+        name
+      }
+      type {
+        id
+        name
+      }
+    }
+  }

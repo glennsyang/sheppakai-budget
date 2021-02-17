@@ -1,20 +1,23 @@
 import React, { useState } from "react";
 import { FaPlusCircle, FaSearch, FaCaretDown, FaCaretUp, FaChevronLeft, FaChevronRight, FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
-import { useTable, usePagination, useFilters, useSortBy } from "react-table";
-import Modal, { FormValues } from "./Modal";
+import { useTable, usePagination, useFilters, useSortBy, CellValue } from "react-table";
+import { TransactionFormValues } from "../types";
+import Modal from "./Modal";
 
 interface TableProps {
   columns: any;
   data: any;
   tableName: string;
   filterName: string;
-  createData(modalData: FormValues): void;
+  createData(modalData: TransactionFormValues): void;
+  updateData(rowIndex: number, columnId: string, value: CellValue): void;
+  skipPageReset: boolean;
 }
 
-const Table = ({ columns, data, tableName, filterName, createData }: TableProps) => {
+const Table = ({ columns, data, tableName, filterName, createData, updateData, skipPageReset }: TableProps) => {
   const [filterInput, setFilterInput] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const tableInstance = useTable({ columns, data }, useFilters, useSortBy, usePagination);
+  const tableInstance = useTable({ columns, data, autoResetPage: !skipPageReset, updateData }, useFilters, useSortBy, usePagination);
   const {
     getTableProps,
     getTableBodyProps,
@@ -40,7 +43,7 @@ const Table = ({ columns, data, tableName, filterName, createData }: TableProps)
   }
   // Modal
   const handleToggleModal = () => { setShowModal(!showModal) };
-  const handleCreateModal = (modalData: FormValues) => {
+  const handleCreateModal = (modalData: TransactionFormValues) => {
     setShowModal(!showModal);
     createData(modalData)
   };
