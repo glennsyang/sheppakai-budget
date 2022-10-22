@@ -1,4 +1,4 @@
-import { MetaTags } from '@redwoodjs/web'
+import { MetaTags } from '@redwoodjs/web';
 
 const AboutPage = () => {
   return (
@@ -10,7 +10,7 @@ const AboutPage = () => {
         works, ye mighty, and despair!
       </p>
     </>
-  )
-}
+  );
+};
 
-export default AboutPage
+export default AboutPage;

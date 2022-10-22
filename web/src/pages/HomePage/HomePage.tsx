@@ -1,12 +1,14 @@
-import { MetaTags } from '@redwoodjs/web'
+import { MetaTags } from '@redwoodjs/web';
+
+import ExpensesCell from 'src/components/ExpensesCell';
 
 const HomePage = () => {
   return (
     <>
       <MetaTags title="Home" description="Home page" />
-      Home
+      <ExpensesCell />
     </>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;
