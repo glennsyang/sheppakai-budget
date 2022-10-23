@@ -24,8 +24,6 @@ describe('users', () => {
     const result = await createUser({
       input: {
         email: 'String3034281',
-        hashedPassword: 'String',
-        salt: 'String',
       },
     });
 

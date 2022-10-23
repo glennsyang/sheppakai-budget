@@ -6,6 +6,7 @@ export const schema = gql`
     date: DateTime!
     type: TransactionType!
     category: Category
+    categoryId: Int
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -16,15 +17,16 @@ export const schema = gql`
   }
 
   type Query {
-    transactions: [Transaction!]! @skipAuth
-    transaction(id: Int!): Transaction @skipAuth
+    transactions: [Transaction!]! @requireAuth
+    transaction(id: Int!): Transaction @requireAuth
   }
 
   input CreateTransactionInput {
     description: String!
-    amount: Float!
+    amount: Float
     date: DateTime!
     type: TransactionType!
+    categoryId: Int
   }
 
   input UpdateTransactionInput {
@@ -32,6 +34,7 @@ export const schema = gql`
     amount: Float
     date: DateTime
     type: TransactionType
+    categoryId: Int
   }
 
   type Mutation {

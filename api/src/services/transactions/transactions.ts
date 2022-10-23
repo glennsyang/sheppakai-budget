@@ -4,7 +4,6 @@ import type {
   TransactionResolvers
 } from 'types/graphql';
 
-import { requireAuth } from 'src/lib/auth';
 import { db } from 'src/lib/db';
 
 export const transactions: QueryResolvers['transactions'] = () => {
@@ -38,7 +37,6 @@ export const updateTransaction: MutationResolvers['updateTransaction'] = ({
 export const deleteTransaction: MutationResolvers['deleteTransaction'] = ({
   id,
 }) => {
-  requireAuth({ roles: 'admin' });
   return db.transaction.delete({
     where: { id },
   });

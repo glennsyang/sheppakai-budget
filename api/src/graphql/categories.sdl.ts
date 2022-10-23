@@ -2,26 +2,22 @@ export const schema = gql`
   type Category {
     id: Int!
     name: String!
-    transaction: Transaction!
-    transactionId: Int!
+    transactions: [Transaction]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
 
   type Query {
     categories: [Category!]! @requireAuth
-    # categories(transactionId: Int!): [Category!]! @requireAuth
     category(id: Int!): Category @requireAuth
   }
 
   input CreateCategoryInput {
     name: String!
-    transactionId: Int!
   }
 
   input UpdateCategoryInput {
     name: String
-    transactionId: Int
   }
 
   type Mutation {

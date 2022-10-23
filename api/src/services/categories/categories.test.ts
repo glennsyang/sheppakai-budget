@@ -5,10 +5,7 @@ import {
   deleteCategory,
   updateCategory
 } from './categories';
-import type {
-  StandardScenario,
-  TransactionOnlyScenario
-} from './categories.scenarios';
+import type { StandardScenario } from './categories.scenarios';
 
 // Generated boilerplate tests do not account for all circumstances
 // and can fail without adjustments, e.g. Float and DateTime types.
@@ -19,9 +16,6 @@ import type {
 describe('categories', () => {
   scenario('returns all categories', async (scenario: StandardScenario) => {
     const result = await categories();
-    // const result = await categories({
-    //   transactionId: scenario.category.one.transactionId,
-    // });
 
     expect(result.length).toEqual(Object.keys(scenario.category).length);
   });
@@ -32,44 +26,22 @@ describe('categories', () => {
     expect(result).toEqual(scenario.category.one);
   });
 
-  scenario('creates a category', async (scenario: StandardScenario) => {
+  scenario('creates a category', async () => {
     const result = await createCategory({
-      input: {
-        name: 'String',
-        transactionId: scenario.category.two.transactionId,
-      },
+      input: { name: 'String9393952' },
     });
 
-    expect(result.name).toEqual('String');
-    expect(result.transactionId).toEqual(scenario.category.two.transactionId);
-    expect(result.updatedAt).toEqual('2022-10-22T23:31:25Z');
+    expect(result.name).toEqual('String9393952');
   });
-
-  scenario(
-    'transactionOnly',
-    'creates a new category',
-    async (scenario: TransactionOnlyScenario) => {
-      const category = await createCategory({
-        input: {
-          name: 'Groceries',
-          transactionId: scenario.transaction.shoe.id,
-        },
-      });
-
-      expect(category.name).toEqual('Groceries');
-      expect(category.transactionId).toEqual(scenario.transaction.shoe.id);
-      expect(category.createdAt).not.toEqual(null);
-    }
-  );
 
   scenario('updates a category', async (scenario: StandardScenario) => {
     const original = await category({ id: scenario.category.one.id });
     const result = await updateCategory({
       id: original.id,
-      input: { name: 'String2' },
+      input: { name: 'String21584402' },
     });
 
-    expect(result.name).toEqual('String2');
+    expect(result.name).toEqual('String21584402');
   });
 
   scenario('deletes a category', async (scenario: StandardScenario) => {

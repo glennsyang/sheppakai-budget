@@ -4,18 +4,11 @@ import type {
   QueryResolvers
 } from 'types/graphql';
 
-import { requireAuth } from 'src/lib/auth';
 import { db } from 'src/lib/db';
 
 export const categories: QueryResolvers['categories'] = () => {
-  return db.category.findMany({});
+  return db.category.findMany();
 };
-
-// export const categories = ({
-//   transactionId,
-// }: Required<Pick<Prisma.CategoryWhereInput, 'transactionId'>>) => {
-//   return db.category.findMany({ where: { transactionId } });
-// };
 
 export const category: QueryResolvers['category'] = ({ id }) => {
   return db.category.findUnique({
@@ -42,13 +35,12 @@ export const updateCategory: MutationResolvers['updateCategory'] = ({
 };
 
 export const deleteCategory: MutationResolvers['deleteCategory'] = ({ id }) => {
-  requireAuth({ roles: 'admin' });
   return db.category.delete({
     where: { id },
   });
 };
 
 export const Category: CategoryResolvers = {
-  transaction: (_obj, { root }) =>
-    db.category.findUnique({ where: { id: root.id } }).transaction(),
+  transactions: (_obj, { root }) =>
+    db.category.findUnique({ where: { id: root.id } }).transactions(),
 };

@@ -1,11 +1,11 @@
-import EditTransactionCell from 'src/components/Transaction/EditTransactionCell'
+import EditTransactionCell from 'src/components/Transaction/EditTransactionCell';
 
 type TransactionPageProps = {
-  id: number
-}
+  id: number;
+};
 
 const EditTransactionPage = ({ id }: TransactionPageProps) => {
-  return <EditTransactionCell id={id} />
-}
+  return <EditTransactionCell id={id} />;
+};
 
-export default EditTransactionPage
+export default EditTransactionPage;

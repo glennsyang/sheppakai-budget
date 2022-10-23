@@ -83,6 +83,7 @@ const TransactionsList = ({ transactions }) => {
             <th>Description</th>
             <th>Amount</th>
             <th>Date</th>
+            <th>Category</th>
             <th>Type</th>
             <th>Created at</th>
             <th>Updated at</th>
@@ -96,6 +97,7 @@ const TransactionsList = ({ transactions }) => {
               <td>{truncate(transaction.description)}</td>
               <td>{truncate(transaction.amount)}</td>
               <td>{timeTag(transaction.date)}</td>
+              <td>{transaction.category.name}</td>
               <td>{truncate(transaction.type)}</td>
               <td>{timeTag(transaction.createdAt)}</td>
               <td>{timeTag(transaction.updatedAt)}</td>

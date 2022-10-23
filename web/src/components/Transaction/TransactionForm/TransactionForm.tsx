@@ -1,39 +1,23 @@
 import {
+  DatetimeLocalField,
+  FieldError,
   Form,
   FormError,
-  FieldError,
   Label,
-  TextField,
-  DatetimeLocalField,
   Submit,
-} from '@redwoodjs/forms'
-
+  TextField
+} from '@redwoodjs/forms';
 
 const formatDatetime = (value) => {
   if (value) {
-    return value.replace(/:\d{2}\.\d{3}\w/, '')
+    return value.replace(/:\d{2}\.\d{3}\w/, '');
   }
-}
-
+};
 
 const TransactionForm = (props) => {
   const onSubmit = (data) => {
-
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    
-    
-  
-    props.onSave(data, props?.transaction?.id)
-  }
+    props.onSave(data, props?.transaction?.id);
+  };
 
   return (
     <div className="rw-form-wrapper">
@@ -44,7 +28,7 @@ const TransactionForm = (props) => {
           titleClassName="rw-form-error-title"
           listClassName="rw-form-error-list"
         />
-      
+
         <Label
           name="description"
           className="rw-label"
@@ -52,15 +36,14 @@ const TransactionForm = (props) => {
         >
           Description
         </Label>
-        
-          <TextField
-            name="description"
-            defaultValue={props.transaction?.description}
-            className="rw-input"
-            errorClassName="rw-input rw-input-error"
-            validation={{ required: true }}
-          />
-        
+
+        <TextField
+          name="description"
+          defaultValue={props.transaction?.description}
+          className="rw-input"
+          errorClassName="rw-input rw-input-error"
+          validation={{ required: true }}
+        />
 
         <FieldError name="description" className="rw-field-error" />
 
@@ -71,15 +54,14 @@ const TransactionForm = (props) => {
         >
           Amount
         </Label>
-        
-          <TextField
-            name="amount"
-            defaultValue={props.transaction?.amount}
-            className="rw-input"
-            errorClassName="rw-input rw-input-error"
-            validation={{ valueAsNumber: true, required: true }}
-          />
-        
+
+        <TextField
+          name="amount"
+          defaultValue={props.transaction?.amount}
+          className="rw-input"
+          errorClassName="rw-input rw-input-error"
+          validation={{ valueAsNumber: true, required: true }}
+        />
 
         <FieldError name="amount" className="rw-field-error" />
 
@@ -90,15 +72,14 @@ const TransactionForm = (props) => {
         >
           Date
         </Label>
-        
-          <DatetimeLocalField
-            name="date"
-            defaultValue={formatDatetime(props.transaction?.date)}
-            className="rw-input"
-            errorClassName="rw-input rw-input-error"
-            validation={{ required: true }}
-          />
-        
+
+        <DatetimeLocalField
+          name="date"
+          defaultValue={formatDatetime(props.transaction?.date)}
+          className="rw-input"
+          errorClassName="rw-input rw-input-error"
+          validation={{ required: true }}
+        />
 
         <FieldError name="date" className="rw-field-error" />
 
@@ -109,29 +90,41 @@ const TransactionForm = (props) => {
         >
           Type
         </Label>
-        
-          <TextField
-            name="type"
-            defaultValue={props.transaction?.type}
-            className="rw-input"
-            errorClassName="rw-input rw-input-error"
-            validation={{ required: true }}
-          />
-        
 
+        <TextField
+          name="type"
+          defaultValue={props.transaction?.type}
+          className="rw-input"
+          errorClassName="rw-input rw-input-error"
+          validation={{ required: true }}
+        />
         <FieldError name="type" className="rw-field-error" />
 
+        <Label
+          name="categoryId"
+          className="rw-label"
+          errorClassName="rw-label rw-label-error"
+        >
+          Category
+        </Label>
+
+        <TextField
+          name="categoryId"
+          defaultValue={props.transaction?.category.id}
+          className="rw-input"
+          errorClassName="rw-input rw-input-error"
+          validation={{ valueAsNumber: true, required: true }}
+        />
+        <FieldError name="categoryId" className="rw-field-error" />
+
         <div className="rw-button-group">
-          <Submit
-            disabled={props.loading}
-            className="rw-button rw-button-blue"
-          >
+          <Submit disabled={props.loading} className="rw-button rw-button-blue">
             Save
           </Submit>
         </div>
       </Form>
     </div>
-  )
-}
+  );
+};
 
-export default TransactionForm
+export default TransactionForm;

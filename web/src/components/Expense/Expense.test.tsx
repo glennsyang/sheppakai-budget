@@ -1,3 +1,4 @@
+
 import { render, screen } from '@redwoodjs/testing';
 
 import { toCurrency } from 'src/utils/utilities';
@@ -11,7 +12,7 @@ describe('Expense', () => {
       amount: 39.98,
       description: 'tomatoes',
       date: '2022-10-01T12:34:56Z',
-      type: 'expense',
+      type: 'EXPENSE',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

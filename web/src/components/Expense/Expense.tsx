@@ -33,25 +33,26 @@ const Expense = ({ expense }: Props) => {
   };
 
   return (
-    <article key={expense.id} className="bg-gray-200 p-8 rounded-lg relative">
+    <article key={expense.id} className="relative rounded-lg bg-gray-200 p-8">
       <header>
-        <h2 className="text-xl text-blue-700 font-semibold">
+        <h2 className="text-xl font-semibold text-blue-700">
           <Link to={routes.expense({ id: expense.id })}>
             {expense.description}
           </Link>
         </h2>
       </header>
-      <div className="mt-2 text-gray-900 font-light">
+      <div className="mt-2 font-light text-gray-900">
         <div>{toDateString(expense.date)}</div>
         <div>{toCurrency(expense.amount)}</div>
         <div>{expense.type}</div>
+        <div>Category: {expense.category.name}</div>
       </div>
       <div>
         {hasRole('admin') && (
           <button
             type="button"
             onClick={deleteTrans}
-            className="absolute bottom-2 right-2 bg-red-500 text-xs rounded text-white px-2 py-1"
+            className="absolute bottom-2 right-2 rounded bg-red-500 px-2 py-1 text-xs text-white"
           >
             Delete
           </button>

@@ -1,8 +1,8 @@
-import { navigate, routes } from '@redwoodjs/router'
-import { useMutation } from '@redwoodjs/web'
-import { toast } from '@redwoodjs/web/toast'
+import { navigate, routes } from '@redwoodjs/router';
+import { useMutation } from '@redwoodjs/web';
+import { toast } from '@redwoodjs/web/toast';
 
-import TransactionForm from 'src/components/Transaction/TransactionForm'
+import TransactionForm from 'src/components/Transaction/TransactionForm';
 
 const CREATE_TRANSACTION_MUTATION = gql`
   mutation CreateTransactionMutation($input: CreateTransactionInput!) {
@@ -10,22 +10,25 @@ const CREATE_TRANSACTION_MUTATION = gql`
       id
     }
   }
-`
+`;
 
 const NewTransaction = () => {
-  const [createTransaction, { loading, error }] = useMutation(CREATE_TRANSACTION_MUTATION, {
-    onCompleted: () => {
-      toast.success('Transaction created')
-      navigate(routes.transactions())
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+  const [createTransaction, { loading, error }] = useMutation(
+    CREATE_TRANSACTION_MUTATION,
+    {
+      onCompleted: () => {
+        toast.success('Transaction created');
+        navigate(routes.transactions());
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }
+  );
 
   const onSave = (input) => {
-    createTransaction({ variables: { input } })
-  }
+    createTransaction({ variables: { input } });
+  };
 
   return (
     <div className="rw-segment">
@@ -36,7 +39,7 @@ const NewTransaction = () => {
         <TransactionForm onSave={onSave} loading={loading} error={error} />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default NewTransaction
+export default NewTransaction;

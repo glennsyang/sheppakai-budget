@@ -15,6 +15,10 @@ export const QUERY = gql`
       amount
       date
       type
+      category {
+        id
+        name
+      }
       createdAt
       updatedAt
     }

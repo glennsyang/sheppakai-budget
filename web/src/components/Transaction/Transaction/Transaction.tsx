@@ -93,6 +93,10 @@ const Transaction = ({ transaction }) => {
               <td>{transaction.type}</td>
             </tr>
             <tr>
+              <th>Category</th>
+              <td>{transaction.category.name}</td>
+            </tr>
+            <tr>
               <th>Created at</th>
               <td>{timeTag(transaction.createdAt)}</td>
             </tr>
