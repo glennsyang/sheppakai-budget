@@ -1,4 +1,4 @@
-import { Loading, Empty, Failure, Success } from './ExpensesCell';
+import { Empty, Failure, Loading, Success } from './ExpensesCell';
 import { standard } from './ExpensesCell.mock';
 
 export const loading = (args) => {

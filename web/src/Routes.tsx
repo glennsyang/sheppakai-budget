@@ -19,7 +19,7 @@ const Routes = () => {
       <Route path="/signup" page={SignupPage} name="signup" />
       <Route path="/forgot-password" page={ForgotPasswordPage} name="forgotPassword" />
       <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
-      <Private unauthenticated="home">
+      <Private unauthenticated="home" roles="admin">
         <Set wrap={TransactionsLayout} title="Transactions" titleTo="transactions" buttonLabel="New Transaction" buttonTo="newTransaction">
           <Route path="/admin/transactions/new" page={TransactionNewTransactionPage} name="newTransaction" />
           <Route path="/admin/transactions/{id:Int}/edit" page={TransactionEditTransactionPage} name="editTransaction" />

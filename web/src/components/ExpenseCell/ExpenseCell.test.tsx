@@ -1,5 +1,8 @@
 import { render, screen } from '@redwoodjs/testing/web';
-import { Loading, Empty, Failure, Success } from './ExpenseCell';
+
+import { toCurrency } from 'src/utils/utilities';
+
+import { Empty, Failure, Loading, Success } from './ExpenseCell';
 import { standard } from './ExpenseCell.mock';
 
 // Generated boilerplate tests do not account for all circumstances
@@ -34,8 +37,12 @@ describe('ExpenseCell', () => {
   // 2. Add test: expect(screen.getByText('Hello, world')).toBeInTheDocument()
 
   it('renders Success successfully', async () => {
+    const expense = standard().expense;
     expect(() => {
-      render(<Success expense={standard().expense} />);
+      render(<Success expense={expense} />);
     }).not.toThrow();
+
+    expect(screen.getByText(toCurrency(expense.amount))).toBeInTheDocument();
+    expect(screen.getByText(expense.description)).toBeInTheDocument();
   });
 });

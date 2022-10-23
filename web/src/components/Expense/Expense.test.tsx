@@ -1,14 +1,23 @@
-import { render } from '@redwoodjs/testing/web'
+import { render, screen } from '@redwoodjs/testing';
 
-import Expense from './Expense'
+import { toCurrency } from 'src/utils/utilities';
 
-//   Improve this test with help from the Redwood Testing Doc:
-//    https://redwoodjs.com/docs/testing#testing-components
+import Expense from './Expense';
 
 describe('Expense', () => {
-  it('renders successfully', () => {
-    expect(() => {
-      render(<Expense />)
-    }).not.toThrow()
-  })
-})
+  it('renders a blog post', () => {
+    const expense = {
+      id: 1,
+      amount: 39.98,
+      description: 'tomatoes',
+      date: '2022-10-01T12:34:56Z',
+      type: 'expense',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    render(<Expense expense={expense} />);
+
+    expect(screen.getByText(toCurrency(expense.amount))).toBeInTheDocument();
+    expect(screen.getByText(expense.description)).toBeInTheDocument();
+  });
+});

@@ -1,7 +1,13 @@
-import AppLayout from './AppLayout'
+import AppLayout from './AppLayout';
 
-export const generated = (args) => {
-  return <AppLayout {...args} />
-}
+export const loggedIn = () => {
+  mockCurrentUser({ email: 'glenn@sheppakai.com' });
 
-export default { title: 'Layouts/AppLayout' }
+  return <AppLayout />;
+};
+
+export const loggedOut = () => {
+  return <AppLayout />;
+};
+
+export default { title: 'Layouts/AppLayout' };

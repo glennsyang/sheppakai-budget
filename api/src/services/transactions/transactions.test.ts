@@ -33,18 +33,16 @@ describe('transactions', () => {
     const result = await createTransaction({
       input: {
         description: 'String',
-        amount: 2960087.3908603773,
-        date: '2022-09-05T06:32:51Z',
-        type: 'String',
-        updatedAt: '2022-09-05T06:32:51Z',
+        amount: 979314.6531650887,
+        type: 'EXPENSE',
+        date: '2022-10-23T00:24:33Z',
       },
     });
 
     expect(result.description).toEqual('String');
-    expect(result.amount).toEqual(2960087.3908603773);
-    expect(result.date).toEqual('2022-09-05T06:32:51Z');
-    expect(result.type).toEqual('String');
-    expect(result.updatedAt).toEqual('2022-09-05T06:32:51Z');
+    expect(result.amount).toEqual(979314.6531650887);
+    expect(result.date).toEqual('2022-10-23T00:24:33Z');
+    expect(result.updatedAt).toEqual('2022-10-23T00:24:33Z');
   });
 
   scenario('updates a transaction', async (scenario: StandardScenario) => {

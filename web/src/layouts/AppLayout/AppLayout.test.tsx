@@ -1,14 +1,34 @@
-import { render } from '@redwoodjs/testing/web'
+import { render, screen, waitFor } from '@redwoodjs/testing';
 
-import AppLayout from './AppLayout'
+import AppLayout from './AppLayout';
 
-//   Improve this test with help from the Redwood Testing Doc:
-//   https://redwoodjs.com/docs/testing#testing-pages-layouts
+const EMAIL = 'glenn@sheppakai.com';
+const loggedIn = () => {
+  mockCurrentUser({ email: EMAIL });
+};
+const loggedOut = () => {
+  mockCurrentUser(null);
+};
 
 describe('AppLayout', () => {
-  it('renders successfully', () => {
-    expect(() => {
-      render(<AppLayout />)
-    }).not.toThrow()
-  })
-})
+  it('displays a Login link when not logged in', async () => {
+    loggedOut();
+    render(<AppLayout />);
+
+    await waitFor(() => expect(screen.getByText('Login')).toBeInTheDocument());
+  });
+
+  it('displays a Logout link when logged in', async () => {
+    loggedIn();
+    render(<AppLayout />);
+
+    await waitFor(() => expect(screen.getByText('Logout')).toBeInTheDocument());
+  });
+
+  it("displays a logged in user's email address", async () => {
+    loggedIn();
+    render(<AppLayout />);
+
+    await waitFor(() => expect(screen.getByText(EMAIL)).toBeInTheDocument());
+  });
+});

@@ -28,10 +28,10 @@ export const Failure = ({ error }: CellFailureProps) => (
 
 export const Success = ({ expenses }: CellSuccessProps<ExpensesQuery>) => {
   return (
-    <ul>
+    <div className="space-y-10">
       {expenses.map((expense) => (
         <Expense key={expense.id} expense={expense} />
       ))}
-    </ul>
+    </div>
   );
 };

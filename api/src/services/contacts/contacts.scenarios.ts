@@ -2,20 +2,11 @@ import type { Prisma } from '@prisma/client';
 
 export const standard = defineScenario<Prisma.ContactCreateArgs>({
   contact: {
-    one: {
+    john: {
       data: {
-        name: 'String',
-        email: 'String',
-        message: 'String',
-        updatedAt: '2022-10-22T04:56:43Z',
-      },
-    },
-    two: {
-      data: {
-        name: 'String',
-        email: 'String',
-        message: 'String',
-        updatedAt: '2022-10-22T04:56:43Z',
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        message: 'I love RedwoodJS',
       },
     },
   },

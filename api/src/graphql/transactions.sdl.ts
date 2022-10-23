@@ -4,9 +4,15 @@ export const schema = gql`
     description: String!
     amount: Float!
     date: DateTime!
-    type: String!
+    type: TransactionType!
+    category: Category
     createdAt: DateTime!
     updatedAt: DateTime!
+  }
+
+  enum TransactionType {
+    EXPENSE
+    INCOME
   }
 
   type Query {
@@ -18,20 +24,20 @@ export const schema = gql`
     description: String!
     amount: Float!
     date: DateTime!
-    type: String!
+    type: TransactionType!
   }
 
   input UpdateTransactionInput {
     description: String
     amount: Float
     date: DateTime
-    type: String
+    type: TransactionType
   }
 
   type Mutation {
     createTransaction(input: CreateTransactionInput!): Transaction! @requireAuth
     updateTransaction(id: Int!, input: UpdateTransactionInput!): Transaction!
       @requireAuth
-    deleteTransaction(id: Int!): Transaction! @requireAuth
+    deleteTransaction(id: Int!): Transaction! @requireAuth(roles: "admin")
   }
 `;
