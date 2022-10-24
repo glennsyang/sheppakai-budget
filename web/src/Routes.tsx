@@ -11,7 +11,6 @@ import { Private, Route, Router, Set } from '@redwoodjs/router';
 
 import AppLayout from 'src/layouts/AppLayout';
 import TransactionsLayout from 'src/layouts/TransactionsLayout';
-import UsersLayout from 'src/layouts/UsersLayout/UsersLayout';
 
 const Routes = () => {
   return (
@@ -26,14 +25,6 @@ const Routes = () => {
           <Route path="/admin/transactions/{id:Int}/edit" page={TransactionEditTransactionPage} name="editTransaction" />
           <Route path="/admin/transactions/{id:Int}" page={TransactionTransactionPage} name="transaction" />
           <Route path="/admin/transactions" page={TransactionTransactionsPage} name="transactions" />
-        </Set>
-      </Private>
-      <Private unauthenticated="home" roles="admin">
-        <Set wrap={UsersLayout} title="Users" titleTo="users" buttonLabel="New User" buttonTo="newUser">
-          <Route path="/admin/users/new" page={TransactionNewTransactionPage} name="newUser" />
-          <Route path="/admin/users/{id:Int}/edit" page={TransactionEditTransactionPage} name="editUser" />
-          <Route path="/admin/users/{id:Int}" page={TransactionTransactionPage} name="users" />
-          <Route path="/admin/users" page={TransactionTransactionsPage} name="users" />
         </Set>
       </Private>
       <Set wrap={AppLayout}>

@@ -7,7 +7,7 @@ type AppLayoutProps = {
 };
 
 const AppLayout = ({ children }: AppLayoutProps) => {
-  const { isAuthenticated, currentUser, logOut } = useAuth();
+  const { isAuthenticated, currentUser, logOut, hasRole } = useAuth();
 
   return (
     <>
@@ -39,6 +39,16 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 Contact
               </Link>
             </li>
+            {isAuthenticated && hasRole('admin') ? (
+              <li>
+                <Link
+                  className="rounded py-2 px-4 transition duration-100 hover:bg-blue-600"
+                  to={routes.transactions()}
+                >
+                  Admin
+                </Link>
+              </li>
+            ) : null}
             <li>
               {isAuthenticated ? (
                 <div>

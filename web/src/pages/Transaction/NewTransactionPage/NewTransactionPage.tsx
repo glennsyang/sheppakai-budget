@@ -1,7 +1,7 @@
-import NewTransaction from 'src/components/Transaction/NewTransaction'
+import NewTransaction from 'src/components/Transaction/NewTransaction';
 
 const NewTransactionPage = () => {
-  return <NewTransaction />
-}
+  return <NewTransaction />;
+};
 
-export default NewTransactionPage
+export default NewTransactionPage;

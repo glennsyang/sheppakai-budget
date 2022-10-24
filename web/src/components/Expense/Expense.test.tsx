@@ -1,3 +1,4 @@
+import { TransactionType } from 'types/graphql';
 
 import { render, screen } from '@redwoodjs/testing';
 
@@ -12,7 +13,7 @@ describe('Expense', () => {
       amount: 39.98,
       description: 'tomatoes',
       date: '2022-10-01T12:34:56Z',
-      type: 'EXPENSE',
+      type: 'EXPENSE' as TransactionType,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

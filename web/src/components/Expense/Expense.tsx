@@ -16,7 +16,7 @@ const DELETE = gql`
   }
 `;
 interface Props {
-  expense?: Omit<Transaction, 'createdAt'>;
+  expense?: Transaction;
 }
 const Expense = ({ expense }: Props) => {
   const { hasRole } = useAuth();

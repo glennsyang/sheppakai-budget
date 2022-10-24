@@ -3,7 +3,7 @@ import { MetaTags } from '@redwoodjs/web';
 import ExpenseCell from 'src/components/ExpenseCell';
 
 interface Props {
-  id: number;
+  id?: number;
 }
 
 const ExpensePage = ({ id }: Props) => {
@@ -11,7 +11,7 @@ const ExpensePage = ({ id }: Props) => {
     <>
       <MetaTags title="Expense" description="Expense page" />
 
-      <ExpenseCell id={id} rand={Math.random()} />
+      <ExpenseCell id={id} />
     </>
   );
 };
