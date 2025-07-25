@@ -1,0 +1,7 @@
+// place files you want to import through the `$lib` alias in this folder.
+
+// Re-export types for easier importing
+export type { User, Category, Expense, Income, DashboardSummary } from './types';
+
+// Re-export components for easier importing
+export { default as DataTable } from './components/DataTable.svelte';
