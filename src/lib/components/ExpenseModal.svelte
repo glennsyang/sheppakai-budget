@@ -1,40 +1,49 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import {
-		Dialog,
-		DialogContent,
-		DialogDescription,
-		DialogFooter,
-		DialogHeader,
-		DialogTitle
-	} from '$lib/components/ui/dialog';
-	import { onMount } from 'svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		open: boolean;
-		onOpenChange: (open: boolean) => void;
 		onExpenseAdded?: () => void;
+		onExpenseUpdated?: () => void;
+		initialData?: {
+			id?: string;
+			amount?: number;
+			description?: string;
+			date?: string;
+			categoryId?: string;
+		};
+		isEditing?: boolean;
 	}
 
-	let { open = $bindable(), onOpenChange, onExpenseAdded }: Props = $props();
+	let {
+		open = $bindable(),
+		onExpenseAdded,
+		onExpenseUpdated,
+		initialData,
+		isEditing
+	}: Props = $props();
 
-	let amount = $state('');
-	let description = $state('');
-	let date = $state('');
-	let categoryId = $state('');
-	let submitting = $state(false);
-	let categories = $state<Array<{ id: number; name: string }>>([]);
+	let amount = $state(initialData?.amount ? initialData.amount.toString() : '');
+	let description = $state(initialData?.description || '');
+	let date = $state(initialData?.date || '');
+	let categoryId = $state(initialData?.categoryId || '');
+	let categories = $state<Array<{ id: string; name: string }>>([]);
 	let loadingCategories = $state(false);
+	let submitting = $state(false);
 
 	let categoriesLoaded = $state(false);
 
 	// Set default date to today
 	function setDefaultDate() {
-		const today = new Date();
-		date = today.toISOString().split('T')[0];
+		if (!initialData?.date) {
+			const today = new Date();
+			date = today.toISOString().split('T')[0];
+		}
 	}
 
 	async function loadCategories() {
@@ -74,38 +83,49 @@
 			return;
 		}
 
+		const payload = {
+			amount: numAmount,
+			description: description.trim() || undefined,
+			date: date,
+			categoryId: parseInt(categoryId.toString()) // Required field, no need to check for undefined
+		};
+
 		submitting = true;
 		try {
-			const response = await fetch('/api/expenses', {
-				method: 'POST',
+			let url = '/api/expenses';
+			let method = 'POST';
+
+			if (isEditing && initialData?.id) {
+				url = `/api/expenses/${initialData.id}`;
+				method = 'PUT';
+			}
+			const response = await fetch(url, {
+				method,
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({
-					amount: numAmount,
-					description: description.trim() || undefined,
-					date: date,
-					categoryId: parseInt(categoryId) // Required field, no need to check for undefined
-				})
+				body: JSON.stringify(payload)
 			});
 
 			if (response.ok) {
 				// Reset form
-				amount = '';
-				description = '';
-				setDefaultDate();
-				categoryId = '';
-				onOpenChange(false);
-
-				// Notify parent component
-				onExpenseAdded?.();
+				if (!isEditing) {
+					amount = '';
+					description = '';
+					setDefaultDate();
+					categoryId = '';
+					onExpenseAdded?.();
+				} else {
+					onExpenseUpdated?.();
+				}
 			} else {
 				const errorData = await response.json();
-				alert(errorData.error || 'Failed to create expense');
+				const action = isEditing ? 'update' : 'create';
+				alert(errorData.error || `Failed to ${action} expense`);
 			}
 		} catch (error) {
-			console.error('Error creating expense:', error);
-			alert('Failed to create expense');
+			console.error(`Error ${isEditing ? 'updating' : 'creating'} expense:`, error);
+			alert(`Failed to ${isEditing ? 'update' : 'create'} expense entry`);
 		} finally {
 			submitting = false;
 		}
@@ -123,20 +143,22 @@
 	});
 </script>
 
-<Dialog {open} {onOpenChange}>
-	<DialogContent class="sm:max-w-[425px]">
-		<DialogHeader>
-			<DialogTitle>Add New Expense</DialogTitle>
-			<DialogDescription>
-				Record a new expense. Fill in the amount, description, date, and optionally select a
-				category.
-			</DialogDescription>
-		</DialogHeader>
-		<form onsubmit={handleSubmit} class="space-y-4">
+<Dialog.Root bind:open>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>{isEditing ? 'Edit Expense' : 'Add New Expense'}</Dialog.Title>
+			<Dialog.Description>
+				{isEditing
+					? 'Update this expense entry. Modify the amount, description, date, or category as needed.'
+					: 'Record a new expense entry. Fill in the amount, description, date, and optionally select a category.'}
+			</Dialog.Description>
+		</Dialog.Header>
+		<form method="POST" action="/expenses?/create" class="space-y-4">
 			<div class="space-y-2">
 				<label for="expense-amount" class="text-sm font-medium">Amount</label>
 				<Input
 					id="expense-amount"
+					name="amount"
 					type="number"
 					step="0.01"
 					min="0"
@@ -150,6 +172,7 @@
 				<label for="expense-description" class="text-sm font-medium">Description</label>
 				<Textarea
 					id="expense-description"
+					name="description"
 					bind:value={description}
 					placeholder="What was this expense for?"
 					rows={2}
@@ -158,7 +181,7 @@
 
 			<div class="space-y-2">
 				<label for="expense-date" class="text-sm font-medium">Date</label>
-				<Input id="expense-date" type="date" bind:value={date} required />
+				<Input id="expense-date" name="date" type="date" bind:value={date} required />
 			</div>
 
 			<div class="space-y-2">
@@ -166,7 +189,7 @@
 				{#if loadingCategories}
 					<div class="text-sm text-muted-foreground">Loading categories...</div>
 				{:else}
-					<Select.Root type="single" name="expense-category" bind:value={categoryId} required>
+					<Select.Root type="single" name="categoryId" bind:value={categoryId} required>
 						<Select.Trigger class="w-full">
 							{categoryId
 								? categories.find((c) => c.id.toString() === categoryId)?.name ||
@@ -184,12 +207,18 @@
 					</Select.Root>
 				{/if}
 			</div>
+
+			<Dialog.Footer>
+				<Dialog.Close>
+					<Button type="button" variant="outline">Cancel</Button>
+				</Dialog.Close>
+				<Button
+					type="submit"
+					disabled={submitting || !amount || !description || !date || !categoryId}
+				>
+					{submitting ? (isEditing ? 'Saving...' : 'Creating...') : isEditing ? 'Save' : 'Create'}
+				</Button>
+			</Dialog.Footer>
 		</form>
-		<DialogFooter>
-			<Button type="button" variant="outline" onclick={() => onOpenChange(false)}>Cancel</Button>
-			<Button type="button" onclick={handleSubmit} disabled={submitting || !amount || !categoryId}>
-				{submitting ? 'Creating...' : 'Create Expense'}
-			</Button>
-		</DialogFooter>
-	</DialogContent>
-</Dialog>
+	</Dialog.Content>
+</Dialog.Root>

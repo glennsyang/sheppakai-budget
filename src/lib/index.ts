@@ -4,4 +4,4 @@
 export type { User, Category, Expense, Income, DashboardSummary } from './types';
 
 // Re-export components for easier importing
-export { default as DataTable } from './components/DataTable.svelte';
+export { default as SimpleTable } from './components/SimpleTable.svelte';

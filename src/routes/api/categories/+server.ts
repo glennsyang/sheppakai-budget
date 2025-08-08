@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { categories } from '$lib/server/db/schema';
 import type { RequestHandler } from './$types';
+import { generateUUID } from '$lib/utils';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	if (!locals.user) {
@@ -33,13 +34,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const newCategory = await db
 			.insert(categories)
 			.values({
+				id: generateUUID(),
 				name: name.trim(),
 				description: description?.trim() || null,
-				user_id: locals.user.id,
+				user_id: locals.user.id.toString(), // Convert to string
 				created_at: new Date().toISOString(),
-				created_by: locals.user.id,
+				created_by: locals.user.id.toString(), // Convert to string
 				updated_at: new Date().toISOString(),
-				updated_by: locals.user.id
+				updated_by: locals.user.id.toString() // Convert to string
 			})
 			.returning();
 

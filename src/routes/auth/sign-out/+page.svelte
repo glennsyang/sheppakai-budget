@@ -3,8 +3,8 @@
 	import { Button } from '$lib/components/ui/button';
 </script>
 
-<div class="flex min-h-screen items-center justify-center">
-	<div class="w-full max-w-md space-y-6 p-8 text-center">
+<div class="flex min-h-screen items-center justify-center bg-gray-100">
+	<div class="w-full max-w-md space-y-6 rounded-lg bg-white p-8 text-center shadow-lg">
 		<div>
 			<h1 class="text-3xl font-bold">Sign Out</h1>
 			<p class="mt-2 text-gray-600">Are you sure you want to sign out?</p>

@@ -9,4 +9,4 @@ export const actions: Actions = {
 		// Redirect to sign-in page
 		throw redirect(302, '/auth/sign-in');
 	}
-};
+} satisfies Actions;
