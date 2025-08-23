@@ -4,12 +4,11 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { onMount } from 'svelte';
+	import { enhance } from '$app/forms';
+	import type { Category } from '$lib';
 
 	interface Props {
 		open: boolean;
-		onExpenseAdded?: () => void;
-		onExpenseUpdated?: () => void;
 		initialData?: {
 			id?: string;
 			amount?: number;
@@ -18,25 +17,23 @@
 			categoryId?: string;
 		};
 		isEditing?: boolean;
+		isLoading?: boolean;
+		categories: Category[];
 	}
 
 	let {
 		open = $bindable(),
-		onExpenseAdded,
-		onExpenseUpdated,
 		initialData,
-		isEditing
+		isEditing,
+		isLoading = $bindable(false),
+		categories
 	}: Props = $props();
 
+	let id = $state(initialData?.id || '');
 	let amount = $state(initialData?.amount ? initialData.amount.toString() : '');
 	let description = $state(initialData?.description || '');
 	let date = $state(initialData?.date || '');
 	let categoryId = $state(initialData?.categoryId || '');
-	let categories = $state<Array<{ id: string; name: string }>>([]);
-	let loadingCategories = $state(false);
-	let submitting = $state(false);
-
-	let categoriesLoaded = $state(false);
 
 	// Set default date to today
 	function setDefaultDate() {
@@ -46,99 +43,21 @@
 		}
 	}
 
-	async function loadCategories() {
-		if (loadingCategories || categoriesLoaded) return; // Prevent multiple calls
-
-		loadingCategories = true;
-		try {
-			const response = await fetch('/api/categories');
-			if (response.ok) {
-				const data = await response.json();
-				categories = data || [];
-				categoriesLoaded = true;
-			}
-		} catch (error) {
-			console.error('Error loading categories:', error);
-		} finally {
-			loadingCategories = false;
-		}
-	}
-
-	async function handleSubmit(event?: Event) {
-		event?.preventDefault();
-
-		const numAmount = parseFloat(amount);
-		if (!numAmount || numAmount <= 0) {
-			alert('Please enter a valid amount');
-			return;
-		}
-
-		if (!date) {
-			alert('Please select a date');
-			return;
-		}
-
-		if (!categoryId) {
-			alert('Please select a category');
-			return;
-		}
-
-		const payload = {
-			amount: numAmount,
-			description: description.trim() || undefined,
-			date: date,
-			categoryId: parseInt(categoryId.toString()) // Required field, no need to check for undefined
-		};
-
-		submitting = true;
-		try {
-			let url = '/api/expenses';
-			let method = 'POST';
-
-			if (isEditing && initialData?.id) {
-				url = `/api/expenses/${initialData.id}`;
-				method = 'PUT';
-			}
-			const response = await fetch(url, {
-				method,
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(payload)
-			});
-
-			if (response.ok) {
-				// Reset form
-				if (!isEditing) {
-					amount = '';
-					description = '';
-					setDefaultDate();
-					categoryId = '';
-					onExpenseAdded?.();
-				} else {
-					onExpenseUpdated?.();
-				}
-			} else {
-				const errorData = await response.json();
-				const action = isEditing ? 'update' : 'create';
-				alert(errorData.error || `Failed to ${action} expense`);
-			}
-		} catch (error) {
-			console.error(`Error ${isEditing ? 'updating' : 'creating'} expense:`, error);
-			alert(`Failed to ${isEditing ? 'update' : 'create'} expense entry`);
-		} finally {
-			submitting = false;
-		}
-	}
-
-	onMount(() => {
-		setDefaultDate();
-	});
-
-	// Load categories when dialog opens if not already loaded
 	$effect(() => {
-		if (open && !categoriesLoaded && !loadingCategories) {
-			loadCategories();
+		if (open) {
+			if (initialData) {
+				id = initialData.id || '';
+				amount = initialData.amount ? initialData.amount.toString() : '';
+				description = initialData.description || '';
+				date = initialData.date || '';
+				categoryId = initialData.categoryId || '';
+			} else {
+				id = '';
+				amount = '';
+				description = '';
+				categoryId = '';
+				setDefaultDate();
+			}
 		}
 	});
 </script>
@@ -153,7 +72,21 @@
 					: 'Record a new expense entry. Fill in the amount, description, date, and optionally select a category.'}
 			</Dialog.Description>
 		</Dialog.Header>
-		<form method="POST" action="/expenses?/create" class="space-y-4">
+		<form
+			class="space-y-4"
+			method="POST"
+			action={isEditing ? '/expense?/update' : '/expense?/create'}
+			use:enhance={() => {
+				open = false;
+				isLoading = true;
+
+				return async ({ update }) => {
+					isLoading = false;
+					await update();
+				};
+			}}
+		>
+			<input type="hidden" name="id" value={id} />
 			<div class="space-y-2">
 				<label for="expense-amount" class="text-sm font-medium">Amount</label>
 				<Input
@@ -186,37 +119,27 @@
 
 			<div class="space-y-2">
 				<label for="expense-category" class="text-sm font-medium">Category</label>
-				{#if loadingCategories}
-					<div class="text-sm text-muted-foreground">Loading categories...</div>
-				{:else}
-					<Select.Root type="single" name="categoryId" bind:value={categoryId} required>
-						<Select.Trigger class="w-full">
-							{categoryId
-								? categories.find((c) => c.id.toString() === categoryId)?.name ||
-									'Select a category'
-								: 'Select a category'}
-						</Select.Trigger>
-						<Select.Content>
-							<Select.Label class="px-2 py-1 text-sm font-medium">Categories</Select.Label>
-							{#each categories as category (category.id)}
-								<Select.Item value={category.id.toString()} label={category.name}>
-									{category.name}
-								</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
-				{/if}
+				<Select.Root type="single" name="categoryId" bind:value={categoryId} required>
+					<Select.Trigger class="w-full">
+						{categoryId
+							? categories.find((c) => c.id.toString() === categoryId)?.name || 'Select a category'
+							: 'Select a category'}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Label class="px-2 py-1 text-sm font-medium">Categories</Select.Label>
+						{#each categories as category (category.id)}
+							<Select.Item value={category.id.toString()} label={category.name}>
+								{category.name}
+							</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
 			</div>
 
 			<Dialog.Footer>
-				<Dialog.Close>
-					<Button type="button" variant="outline">Cancel</Button>
-				</Dialog.Close>
-				<Button
-					type="submit"
-					disabled={submitting || !amount || !description || !date || !categoryId}
-				>
-					{submitting ? (isEditing ? 'Saving...' : 'Creating...') : isEditing ? 'Save' : 'Create'}
+				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
+				<Button type="submit" disabled={!amount || !description || !date || !categoryId}>
+					{isEditing ? 'Save' : 'Create'}
 				</Button>
 			</Dialog.Footer>
 		</form>

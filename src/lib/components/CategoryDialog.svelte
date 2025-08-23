@@ -2,97 +2,82 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import {
-		Dialog,
-		DialogContent,
-		DialogDescription,
-		DialogFooter,
-		DialogHeader,
-		DialogTitle
-	} from '$lib/components/ui/dialog';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import type { Category } from '$lib/types';
 
 	interface Props {
 		open: boolean;
-		onOpenChange: (open: boolean) => void;
-		onCategoryAdded?: () => void;
+		isEditing?: boolean;
 	}
 
-	let { open = $bindable(), onOpenChange, onCategoryAdded }: Props = $props();
+	let { open = $bindable(), isEditing = false }: Props = $props();
 
 	let name = $state('');
 	let description = $state('');
-	let submitting = $state(false);
 
-	async function handleSubmit(event?: Event) {
-		event?.preventDefault();
-		if (!name.trim()) return;
+	async function handleSubmit(
+		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
+	) {
+		event.preventDefault();
+		const data = new FormData(event.currentTarget);
 
-		submitting = true;
 		try {
-			const response = await fetch('/api/categories', {
+			const response = await fetch('/api/category', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({
-					name: name.trim(),
-					description: description.trim() || undefined
-				})
+				body: JSON.stringify(Object.fromEntries(data))
 			});
 
-			if (response.ok) {
-				// Reset form
-				name = '';
-				description = '';
-				onOpenChange(false);
+			const newCategory: Category[] = await response.json();
 
-				// Notify parent component
-				onCategoryAdded?.();
-			} else {
-				console.error('Failed to create category');
+			if (response.ok) {
+				open = false;
 			}
 		} catch (error) {
 			console.error('Error creating category:', error);
-		} finally {
-			submitting = false;
 		}
 	}
 </script>
 
-<Dialog {open} {onOpenChange}>
-	<DialogContent class="sm:max-w-[425px]">
-		<DialogHeader>
-			<DialogTitle>Add New Category</DialogTitle>
-			<DialogDescription>
-				Create a new category to organize your expenses. You can add a name and optional
-				description.
-			</DialogDescription>
-		</DialogHeader>
-		<form onsubmit={handleSubmit} class="space-y-4">
+<Dialog.Root bind:open>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>Add New Category</Dialog.Title>
+			<Dialog.Description>
+				Create a new category to organize your expenses. You can add a name and a description.
+			</Dialog.Description>
+		</Dialog.Header>
+		<form class="space-y-4" method="POST" onsubmit={handleSubmit}>
 			<div class="space-y-2">
 				<label for="category-name" class="text-sm font-medium">Name</label>
 				<Input
 					id="category-name"
+					name="name"
 					bind:value={name}
 					placeholder="e.g., Food, Transportation, Entertainment"
 					required
 				/>
 			</div>
+
 			<div class="space-y-2">
-				<label for="category-description" class="text-sm font-medium">Description (optional)</label>
+				<label for="category-description" class="text-sm font-medium">Description</label>
 				<Textarea
 					id="category-description"
+					name="description"
 					bind:value={description}
 					placeholder="Brief description of this category..."
 					rows={3}
+					required
 				/>
 			</div>
+			<Dialog.Footer>
+				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
+				<Button type="submit" disabled={!name || !description}>
+					{isEditing ? 'Save' : 'Create'}
+				</Button>
+			</Dialog.Footer>
 		</form>
-		<DialogFooter>
-			<Button type="button" variant="outline" onclick={() => onOpenChange(false)}>Cancel</Button>
-			<Button type="button" onclick={handleSubmit} disabled={submitting || !name.trim()}>
-				{submitting ? 'Creating...' : 'Create Category'}
-			</Button>
-		</DialogFooter>
-	</DialogContent>
-</Dialog>
+	</Dialog.Content>
+</Dialog.Root>

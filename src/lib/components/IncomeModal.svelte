@@ -2,35 +2,38 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
+	import type { Category } from '$lib/types';
 
 	interface Props {
 		open: boolean;
-		onIncomeAdded?: () => void;
-		onIncomeUpdated?: () => void;
 		initialData?: {
 			id?: string;
 			amount?: number;
 			description?: string;
 			date?: string;
+			categoryId?: string;
 		};
 		isEditing?: boolean;
+		isLoading?: boolean;
+		categories: Category[];
 	}
 
 	let {
 		open = $bindable(),
-		onIncomeAdded,
-		onIncomeUpdated,
 		initialData = undefined,
-		isEditing = false
+		isEditing = false,
+		isLoading = $bindable(false),
+		categories = []
 	}: Props = $props();
 
+	let id = $state(initialData?.id || '');
 	let amount = $state(initialData?.amount ? initialData.amount.toString() : '');
 	let description = $state(initialData?.description || '');
 	let date = $state(initialData?.date || '');
-	let submitting = $state(false);
+	let categoryId = $state(initialData?.categoryId || '');
 
 	// Set default date to today if not editing
 	function setDefaultDate() {
@@ -40,72 +43,23 @@
 		}
 	}
 
-	async function handleSubmit(event?: Event) {
-		event?.preventDefault();
-
-		const numAmount = parseFloat(amount);
-		if (!numAmount || numAmount <= 0) {
-			alert('Please enter a valid amount');
-			return;
-		}
-
-		if (!date) {
-			alert('Please select a date');
-			return;
-		}
-
-		const payload = {
-			amount: numAmount,
-			description: description.trim() || undefined,
-			date: date
-		};
-
-		submitting = true;
-		try {
-			let url = '/api/income';
-			let method = 'POST';
-
-			// If we're editing, use PUT request with the income ID
-			if (isEditing && initialData?.id) {
-				url = `/api/income/${initialData.id}`;
-				method = 'PUT';
-			}
-
-			const response = await fetch(url, {
-				method,
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(payload)
-			});
-
-			if (response.ok) {
-				// Reset form
-				if (!isEditing) {
-					amount = '';
-					description = '';
-					setDefaultDate();
-					// Notify parent component for creation
-					onIncomeAdded?.();
-				} else {
-					// Notify parent component for update
-					onIncomeUpdated?.();
-				}
+	// Reset form when modal opens
+	$effect(() => {
+		if (open) {
+			if (initialData) {
+				id = initialData.id || '';
+				amount = initialData.amount ? initialData.amount.toString() : '';
+				description = initialData.description || '';
+				date = initialData.date || '';
+				categoryId = initialData.categoryId || '';
 			} else {
-				const errorData = await response.json();
-				const action = isEditing ? 'update' : 'create';
-				alert(errorData.error || `Failed to ${action} income entry`);
+				id = '';
+				amount = '';
+				description = '';
+				categoryId = '';
+				setDefaultDate();
 			}
-		} catch (error) {
-			console.error(`Error ${isEditing ? 'updating' : 'creating'} income:`, error);
-			alert(`Failed to ${isEditing ? 'update' : 'create'} income entry`);
-		} finally {
-			submitting = false;
 		}
-	}
-
-	onMount(() => {
-		setDefaultDate();
 	});
 </script>
 
@@ -119,7 +73,21 @@
 					: 'Record a new income entry. Fill in the amount, description, and date.'}
 			</Dialog.Description>
 		</Dialog.Header>
-		<form method="POST" action="/income?/create" use:enhance class="space-y-4">
+		<form
+			class="space-y-4"
+			method="POST"
+			action={isEditing ? '/income?/update' : '/income?/create'}
+			use:enhance={() => {
+				open = false;
+				isLoading = true;
+
+				return async ({ update }) => {
+					isLoading = false;
+					await update();
+				};
+			}}
+		>
+			<input type="hidden" name="id" value={id} />
 			<div class="space-y-2">
 				<label for="income-amount" class="text-sm font-medium">Amount</label>
 				<Input
@@ -150,10 +118,29 @@
 				<Input id="income-date" name="date" type="date" bind:value={date} required />
 			</div>
 
+			<div class="space-y-2">
+				<label for="expense-category" class="text-sm font-medium">Category</label>
+				<Select.Root type="single" name="categoryId" bind:value={categoryId} required>
+					<Select.Trigger class="w-full">
+						{categoryId
+							? categories.find((c) => c.id.toString() === categoryId)?.name || 'Select a category'
+							: 'Select a category'}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Label class="px-2 py-1 text-sm font-medium">Categories</Select.Label>
+						{#each categories as category (category.id)}
+							<Select.Item value={category.id.toString()} label={category.name}>
+								{category.name}
+							</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
+			</div>
+
 			<Dialog.Footer>
-				<Dialog.Close><Button type="button" variant="outline">Cancel</Button></Dialog.Close>
-				<Button type="submit" disabled={submitting || !amount || !description || !date}>
-					{submitting ? (isEditing ? 'Saving...' : 'Creating...') : isEditing ? 'Save' : 'Create'}
+				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
+				<Button type="submit" disabled={!amount || !description || !date}>
+					{isEditing ? 'Save' : 'Create'}
 				</Button>
 			</Dialog.Footer>
 		</form>

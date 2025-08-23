@@ -15,7 +15,7 @@
 		</form>
 
 		<div class="text-center">
-			<a href="/dashboard" class="text-sm text-blue-600 hover:text-blue-500"> Cancel </a>
+			<a href="/dashboard" class="text-sm"> Cancel </a>
 		</div>
 	</div>
 </div>

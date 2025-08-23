@@ -1,31 +1,36 @@
+import { randomUUID } from 'crypto';
+
+// Helper function to generate a UUID for new records
+export const generateId = () => randomUUID();
+
 /**
- * Add audit fields (created_by, updated_by) to new records
+ * Add audit fields (createdBy, updatedBy) to new records
  * @param data Original data object
  * @param userId Current user ID
  */
 export function withAuditFieldsForCreate<T extends Record<string, unknown>>(
 	data: T,
 	userId: string
-): T & { created_by: string; updated_by: string } {
+): T & { createdBy: string; updatedBy: string } {
 	return {
 		...data,
-		created_by: userId,
-		updated_by: userId
+		createdBy: userId,
+		updatedBy: userId
 	};
 }
 
 /**
- * Add audit fields (updated_by, updated_at) to updated records
+ * Add audit fields (updatedBy, updatedAt) to updated records
  * @param data Original data object
  * @param userId Current user ID
  */
 export function withAuditFieldsForUpdate<T extends Record<string, unknown>>(
 	data: T,
 	userId: string
-): T & { updated_by: string; updated_at: string } {
+): T & { updatedBy: string; updatedAt: string } {
 	return {
 		...data,
-		updated_by: userId,
-		updated_at: new Date().toISOString()
+		updatedBy: userId,
+		updatedAt: new Date().toISOString()
 	};
 }

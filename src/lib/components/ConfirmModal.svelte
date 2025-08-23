@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 
@@ -6,11 +7,12 @@
 		open: boolean;
 		title: string;
 		message: string;
-		onOpenChange: (open: boolean) => void;
-		onConfirm?: () => void;
+		confirmButtonText: string;
+		id?: string;
+		actionUrl?: string;
 	}
 
-	let { open = $bindable(), title, message, onOpenChange, onConfirm }: Props = $props();
+	let { open = $bindable(), title, message, id, confirmButtonText, actionUrl }: Props = $props();
 </script>
 
 <Dialog.Root bind:open>
@@ -21,9 +23,22 @@
 				{message}
 			</Dialog.Description>
 		</Dialog.Header>
-		<Dialog.Footer>
-			<Dialog.Close><Button type="button" variant="outline">Close</Button></Dialog.Close>
-			<Button type="button" onclick={onConfirm}>Ok</Button>
-		</Dialog.Footer>
+		<form
+			method="POST"
+			action={actionUrl}
+			use:enhance={() => {
+				open = false;
+
+				return async ({ update }) => {
+					await update();
+				};
+			}}
+		>
+			<input type="hidden" name="id" value={id} />
+			<Dialog.Footer>
+				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
+				<Button type="submit">{confirmButtonText}</Button>
+			</Dialog.Footer>
+		</form>
 	</Dialog.Content>
 </Dialog.Root>

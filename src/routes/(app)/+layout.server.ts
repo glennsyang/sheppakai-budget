@@ -1,5 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
+import db from '$lib/server/db';
+import type { Category } from '$lib';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
 	// Don't redirect auth routes
@@ -15,6 +17,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	}
 
 	return {
-		user: locals.user
+		user: locals.user,
+		categories: (await db.query.category.findMany()) as Category[]
 	};
 };

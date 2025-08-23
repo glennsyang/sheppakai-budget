@@ -15,24 +15,13 @@
 	});
 </script>
 
-<div
-	class="flex min-h-screen items-center justify-center bg-gradient-to-br from-cyan-500 via-teal-500 to-blue-500"
->
-	<!-- Header with logo -->
-	<header
-		class="absolute top-0 w-full border-b border-white/20 bg-white/10 shadow-lg backdrop-blur-md"
-	>
-		<div class="container mx-auto flex items-center justify-center px-4 py-3">
-			<div class="text-xl font-bold text-white">Budget Tracker</div>
-		</div>
-	</header>
-
+<div class="flex min-h-screen items-center justify-center">
 	<div
 		class="mx-4 w-full max-w-md space-y-6 rounded-xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md"
 	>
 		<div class="text-center">
-			<h1 class="text-3xl font-bold text-white">Sign In</h1>
-			<p class="mt-2 text-white/90">Enter your credentials to access your account</p>
+			<h1 class="text-3xl font-bold">Sign In</h1>
+			<p class="mt-2">Enter your credentials to access your account</p>
 		</div>
 
 		<form method="POST" use:enhance class="space-y-4">
@@ -51,7 +40,7 @@
 			{/if}
 
 			<div class="space-y-2">
-				<label for="email" class="block text-sm font-medium text-white">Email</label>
+				<label for="email" class="block text-sm font-medium">Email</label>
 				<Input
 					id="email"
 					name="email"
@@ -68,7 +57,7 @@
 			</div>
 
 			<div class="space-y-2">
-				<label for="password" class="block text-sm font-medium text-white">Password</label>
+				<label for="password" class="block text-sm font-medium">Password</label>
 				<Input
 					id="password"
 					name="password"
@@ -84,21 +73,15 @@
 				{/if}
 			</div>
 
-			<Button
-				type="submit"
-				class="w-full bg-white text-teal-700 hover:bg-white/90"
-				disabled={$submitting}
-			>
+			<Button type="submit" class="w-full" disabled={$submitting}>
 				{$submitting ? 'Signing In...' : 'Sign In'}
 			</Button>
 		</form>
 
 		<div class="text-center">
-			<p class="text-sm text-white">
+			<p class="text-sm">
 				Don't have an account?
-				<a href="/auth/register" class="font-medium text-white/90 underline hover:text-white">
-					Register here
-				</a>
+				<a href="/auth/register" class="font-medium underline"> Register here </a>
 			</p>
 		</div>
 	</div>

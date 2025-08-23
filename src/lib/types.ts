@@ -15,7 +15,7 @@ export type Category = {
 export type Expense = {
 	id: string;
 	amount: number;
-	description: string | null;
+	description: string;
 	date: string;
 	category: Category | null;
 	user: User;
@@ -24,8 +24,9 @@ export type Expense = {
 export type Income = {
 	id: string;
 	amount: number;
-	description: string | null;
+	description: string;
 	date: string;
+	category: Category | null;
 	user: User;
 };
 

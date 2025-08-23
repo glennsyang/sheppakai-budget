@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
+	import type { Category, Expense } from '$lib';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { columns } from './columns';
-	import type { Category, Income } from '$lib';
+	import type { PageProps } from './$types';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import IncomeModal from '$lib/components/IncomeModal.svelte';
+	import ExpenseModal from '$lib/components/ExpenseModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { getContext } from 'svelte';
 
@@ -19,13 +19,13 @@
 </script>
 
 <svelte:head>
-	<title>All Income - Budget Tracker</title>
+	<title>All Expenses - Budget Tracker</title>
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold tracking-tight">All Income</h1>
-		<p class="mt-2 text-muted-foreground">Complete list of all your recorded income</p>
+		<h1 class="text-3xl font-bold tracking-tight">All Expenses</h1>
+		<p class="mt-2 text-muted-foreground">Complete list of all your recorded expenses</p>
 	</div>
 
 	<div class="overflow-hidden rounded-lg border shadow">
@@ -41,10 +41,10 @@
 			{#if loading}
 				<TableSkeleton rows={5} columns={4} />
 			{:else}
-				<DataTable {columns} data={data.income as Income[]} />
+				<DataTable {columns} data={data.expenses as Expense[]} />
 			{/if}
 		</div>
 	</div>
 </div>
 
-<IncomeModal bind:open={openModal} bind:isLoading={loading} categories={categories()} />
+<ExpenseModal bind:open={openModal} bind:isLoading={loading} categories={categories()} />

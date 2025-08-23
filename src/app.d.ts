@@ -5,10 +5,11 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			user?: {
-				id: number;
-				firstName?: string;
-				lastName?: string;
+				id: string;
+				firstName: string | undefined;
+				lastName: string | undefined;
 				email: string;
+				updatedAt?: string;
 			};
 		}
 		// interface PageData {}

@@ -12,21 +12,18 @@ export type WithoutChildren<T> = T extends { children?: any } ? Omit<T, 'childre
 export type WithoutChildrenOrChild<T> = WithoutChildren<WithoutChild<T>>;
 export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & { ref?: U | null };
 
-/**
- * Generate a RFC4122 compliant UUID (version 4)
- * @returns A UUID string in the format xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx where x is any hexadecimal digit and y is one of 8, 9, a, or b
- */
-export function generateUUID(): string {
-	// For browsers or environments with crypto support
-	if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-		return crypto.randomUUID();
-	}
-
-	// For Node.js or environments without crypto.randomUUID
-	const getRandomHex = (c: string) => {
-		const r = (Math.random() * 16) | 0;
-		return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-	};
-
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, getRandomHex);
-}
+// Month selection
+export const months = [
+	{ value: '01', label: 'January' },
+	{ value: '02', label: 'February' },
+	{ value: '03', label: 'March' },
+	{ value: '04', label: 'April' },
+	{ value: '05', label: 'May' },
+	{ value: '06', label: 'June' },
+	{ value: '07', label: 'July' },
+	{ value: '08', label: 'August' },
+	{ value: '09', label: 'September' },
+	{ value: '10', label: 'October' },
+	{ value: '11', label: 'November' },
+	{ value: '12', label: 'December' }
+];

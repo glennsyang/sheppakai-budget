@@ -17,6 +17,13 @@ export const columns: ColumnDef<Income>[] = [
 		}
 	},
 	{
+		accessorKey: 'category',
+		header: 'Category',
+		cell: ({ row }) => {
+			return row.original.category ? row.original.category.name : 'Uncategorized';
+		}
+	},
+	{
 		accessorKey: 'description',
 		header: 'Description'
 	},

@@ -1,8 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { categories } from '$lib/server/db/schema';
+import { category } from '$lib/server/db/schema';
 import type { RequestHandler } from './$types';
-import { generateUUID } from '$lib/utils';
+import { withAuditFieldsForCreate } from '$lib/server/db/utils';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	if (!locals.user) {
@@ -10,9 +10,9 @@ export const GET: RequestHandler = async ({ locals }) => {
 	}
 
 	try {
-		const userCategories = await db.select().from(categories);
+		const allCategories = await db.select().from(category);
 
-		return json(userCategories);
+		return json(allCategories);
 	} catch (error) {
 		console.error('Error fetching categories:', error);
 		return new Response('Internal Server Error', { status: 500 });
@@ -24,6 +24,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
+	const userId = locals.user.id.toString();
+
 	try {
 		const { name, description } = await request.json();
 
@@ -32,17 +34,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		const newCategory = await db
-			.insert(categories)
-			.values({
-				id: generateUUID(),
-				name: name.trim(),
-				description: description?.trim() || null,
-				user_id: locals.user.id.toString(), // Convert to string
-				created_at: new Date().toISOString(),
-				created_by: locals.user.id.toString(), // Convert to string
-				updated_at: new Date().toISOString(),
-				updated_by: locals.user.id.toString() // Convert to string
-			})
+			.insert(category)
+			.values(
+				withAuditFieldsForCreate(
+					{
+						name: name.trim(),
+						description: description?.trim() || null
+					},
+					userId
+				)
+			)
 			.returning();
 
 		return json(newCategory[0]);

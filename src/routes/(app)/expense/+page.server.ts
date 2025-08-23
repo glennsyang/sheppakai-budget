@@ -1,9 +1,9 @@
 import { fail } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { eq } from 'drizzle-orm';
-import { categories, expenses, users } from '$lib/server/db/schema';
+import { desc, eq } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { expense } from '$lib/server/db/schema';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -11,40 +11,24 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	return {
-		expenses: await db
-			.select({
-				id: expenses.id,
-				amount: expenses.amount,
-				description: expenses.description,
-				date: expenses.date,
-				category: {
-					id: categories.id,
-					name: categories.name
-				},
-				user: {
-					id: users.id,
-					email: users.email,
-					firstName: users.firstName,
-					lastName: users.lastName
-				}
-			})
-			.from(expenses)
-			.innerJoin(categories, eq(expenses.category_id, categories.id))
-			.innerJoin(users, eq(expenses.user_id, users.id))
-			.where(eq(expenses.user_id, locals.user.id.toString()))
+		expenses: await db.query.expense.findMany({
+			with: {
+				category: true,
+				user: true
+			},
+			orderBy: [desc(expense.date)]
+		}),
+		categories: await db.query.category.findMany()
 	};
 };
 
 export const actions = {
 	create: async ({ request, locals }) => {
 		if (!locals.user) {
-			return { status: 401 };
+			return fail(401, { error: 'Unauthorized' });
 		}
 
 		const data = await request.formData();
-
-		console.log('Creating expense entry with data:', data);
-
 		const hasAmount = data.has('amount');
 		const hasDescription = data.has('description');
 		const hasDate = data.has('date');
@@ -57,18 +41,20 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db.insert(expenses).values(
+			await db.insert(expense).values(
 				withAuditFieldsForCreate(
 					{
-						user_id: userId,
 						amount: Number(data.get('amount')),
 						description: data.get('description')?.toString() || '',
 						date: data.get('date')?.toString() || '',
-						category_id: data.get('categoryId')?.toString()
+						categoryId: data.get('categoryId')?.toString() || '',
+						userId: userId
 					},
 					userId
 				)
 			);
+
+			console.log('Created expense entry for user:', userId);
 		} catch (error) {
 			console.error('Error creating expense entry:', error);
 			return fail(500, { error: 'Failed to create expense entry' });
@@ -78,7 +64,7 @@ export const actions = {
 	},
 	update: async ({ request, locals }) => {
 		if (!locals.user) {
-			return { status: 401 };
+			return fail(401, { error: 'Unauthorized' });
 		}
 
 		const data = await request.formData();
@@ -99,19 +85,19 @@ export const actions = {
 			const userId = locals.user.id.toString();
 
 			await db
-				.update(expenses)
+				.update(expense)
 				.set(
 					withAuditFieldsForUpdate(
 						{
 							amount: Number(data.get('amount')),
 							description: data.get('description')?.toString() || '',
 							date: data.get('date')?.toString() || '',
-							category_id: data.get('categoryId')?.toString()
+							categoryId: data.get('categoryId')?.toString()
 						},
 						userId
 					)
 				)
-				.where(eq(expenses.id, expenseId));
+				.where(eq(expense.id, expenseId));
 
 			console.log('Updated expense entry:', expenseId);
 		} catch (error) {
@@ -123,7 +109,7 @@ export const actions = {
 	},
 	delete: async ({ request, locals }) => {
 		if (!locals.user) {
-			return { status: 401 };
+			return fail(401, { error: 'Unauthorized' });
 		}
 
 		const data = await request.formData();
@@ -136,7 +122,7 @@ export const actions = {
 		const expenseId = data.get('id')!.toString();
 
 		try {
-			await db.delete(expenses).where(eq(expenses.id, expenseId));
+			await db.delete(expense).where(eq(expense.id, expenseId));
 
 			console.log('Deleted expense entry:', expenseId);
 		} catch (error) {
@@ -146,4 +132,4 @@ export const actions = {
 
 		return { success: true, update: true };
 	}
-};
+} satisfies Actions;

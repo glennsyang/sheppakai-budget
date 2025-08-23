@@ -82,7 +82,6 @@
 			size="sm"
 			onclick={() => table.previousPage()}
 			disabled={!table.getCanPreviousPage()}
-			class="border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100"
 		>
 			Previous
 		</Button>
@@ -91,7 +90,6 @@
 			size="sm"
 			onclick={() => table.nextPage()}
 			disabled={!table.getCanNextPage()}
-			class="border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100"
 		>
 			Next
 		</Button>

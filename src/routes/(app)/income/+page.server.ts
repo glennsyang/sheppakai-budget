@@ -1,9 +1,9 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
-import { eq } from 'drizzle-orm';
-import { income, users } from '$lib/server/db/schema';
+import { desc, eq } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { income } from '$lib/server/db/schema';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -11,39 +11,31 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	return {
-		income: await db
-			.select({
-				id: income.id,
-				amount: income.amount,
-				description: income.description,
-				date: income.date,
-				user: {
-					id: users.id,
-					email: users.email,
-					firstName: users.firstName,
-					lastName: users.lastName
-				}
-			})
-			.from(income)
-			.innerJoin(users, eq(income.user_id, users.id))
-			.where(eq(income.user_id, locals.user.id.toString()))
+		income: await db.query.income.findMany({
+			with: {
+				category: true,
+				user: true
+			},
+			orderBy: [desc(income.date)]
+		}),
+		categories: await db.query.category.findMany()
 	};
 };
 
 export const actions = {
-	create: async ({ request, locals, url }) => {
+	create: async ({ request, locals }) => {
 		if (!locals.user) {
-			return { status: 401 };
+			return fail(401, { error: 'Unauthorized' });
 		}
 
 		const data = await request.formData();
-
 		const hasAmount = data.has('amount');
 		const hasDescription = data.has('description');
 		const hasDate = data.has('date');
+		const hasCategoryId = data.has('categoryId');
 
-		if (!hasAmount || !hasDescription || !hasDate) {
-			return fail(400, { hasAmount, hasDescription, hasDate });
+		if (!hasAmount || !hasDescription || !hasDate || !hasCategoryId) {
+			return fail(400, { hasAmount, hasDescription, hasDate, hasCategoryId });
 		}
 
 		try {
@@ -52,26 +44,27 @@ export const actions = {
 			await db.insert(income).values(
 				withAuditFieldsForCreate(
 					{
-						user_id: userId,
 						amount: Number(data.get('amount')),
 						description: data.get('description')?.toString() || '',
-						date: data.get('date')?.toString() || ''
+						date: data.get('date')?.toString() || '',
+						categoryId: data.get('categoryId')?.toString() || '',
+						userId: userId
 					},
 					userId
 				)
 			);
+
+			console.log('Created income entry for user:', userId);
 		} catch (error) {
 			console.error('Error creating income entry:', error);
 			return fail(500, { error: 'Failed to create income entry' });
 		}
 
-		console.log('url:', url);
-
 		return { success: true, create: true };
 	},
-	update: async ({ request, locals, url }) => {
+	update: async ({ request, locals }) => {
 		if (!locals.user) {
-			return { status: 401 };
+			return fail(401, { error: 'Unauthorized' });
 		}
 
 		const data = await request.formData();
@@ -80,9 +73,10 @@ export const actions = {
 		const hasAmount = data.has('amount');
 		const hasDescription = data.has('description');
 		const hasDate = data.has('date');
+		const hasCategoryId = data.has('categoryId');
 
-		if (!hasId || !hasAmount || !hasDescription || !hasDate) {
-			return fail(400, { hasId, hasDescription, hasAmount, hasDate });
+		if (!hasId || !hasAmount || !hasDescription || !hasDate || !hasCategoryId) {
+			return fail(400, { hasId, hasDescription, hasAmount, hasDate, hasCategoryId });
 		}
 
 		// Update the income entry in the database
@@ -97,7 +91,8 @@ export const actions = {
 						{
 							amount: Number(data.get('amount')),
 							description: data.get('description')?.toString() || '',
-							date: data.get('date')?.toString() || ''
+							date: data.get('date')?.toString() || '',
+							categoryId: data.get('categoryId')?.toString()
 						},
 						userId
 					)
@@ -110,20 +105,16 @@ export const actions = {
 			return fail(500, { error: 'Failed to update income entry' });
 		}
 
-		if (!url.origin.includes('income')) {
-			redirect(303, '/');
-		}
-
 		return { success: true, update: true };
 	},
-	delete: async ({ request, locals, url }) => {
+	delete: async ({ request, locals }) => {
 		if (!locals.user) {
-			return { status: 401 };
+			return fail(401, { error: 'Unauthorized' });
 		}
 
 		const data = await request.formData();
-
 		const hasId = data.has('id');
+
 		if (!hasId) {
 			return fail(400, { hasId });
 		}
@@ -137,10 +128,6 @@ export const actions = {
 		} catch (error) {
 			console.error('Error deleting income entry:', error);
 			return fail(500, { error: 'Failed to delete income entry' });
-		}
-
-		if (!url.origin.includes('income')) {
-			redirect(303, '/');
 		}
 
 		return { success: true, update: true };

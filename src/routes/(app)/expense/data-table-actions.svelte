@@ -3,13 +3,16 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
-	import type { Income } from '$lib';
-	import IncomeModal from '$lib/components/IncomeModal.svelte';
+	import type { Category, Expense } from '$lib';
+	import ExpenseModal from '$lib/components/ExpenseModal.svelte';
+	import { getContext } from 'svelte';
 
-	let { id, incomeData }: { id: string; incomeData: Income } = $props();
+	let { id, expenseData }: { id: string; expenseData: Expense } = $props();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
+
+	const categories = getContext('categories') as () => Category[];
 </script>
 
 <DropdownMenu.Root>
@@ -27,21 +30,23 @@
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
-<IncomeModal
+<ExpenseModal
 	bind:open={openEditModal}
 	initialData={{
 		id,
-		amount: incomeData?.amount,
-		description: incomeData?.description,
-		date: incomeData?.date
+		amount: expenseData?.amount,
+		categoryId: expenseData?.category?.id,
+		description: expenseData?.description,
+		date: expenseData?.date
 	}}
 	isEditing
+	categories={categories()}
 />
 
 <ConfirmModal
 	bind:open={openDeleteModal}
 	{id}
-	actionUrl="/income?/delete"
+	actionUrl="/expense?/delete"
 	title="Delete Entry"
 	message="Are you sure you want to delete this entry?"
 	confirmButtonText="Delete"
