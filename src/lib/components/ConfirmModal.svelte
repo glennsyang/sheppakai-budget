@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		open: boolean;
@@ -29,7 +30,13 @@
 			use:enhance={() => {
 				open = false;
 
-				return async ({ update }) => {
+				return async ({ result, update }) => {
+					if (result.type === 'success') {
+						toast.success(`${title} successful!`);
+					} else {
+						toast.error(`${title} failed!`);
+					}
+
 					await update();
 				};
 			}}

@@ -42,7 +42,7 @@
 	bind:open={openDeleteModal}
 	{id}
 	actionUrl="/income?/delete"
-	title="Delete Entry"
-	message="Are you sure you want to delete this entry?"
+	title="Delete Income"
+	message="Are you sure you want to delete this income?"
 	confirmButtonText="Delete"
 />

@@ -153,6 +153,6 @@ export const actions = {
 			return fail(500, { error: 'Failed to delete expense entry' });
 		}
 
-		return { success: true, update: true };
+		return { success: true, delete: true };
 	}
 } satisfies Actions;

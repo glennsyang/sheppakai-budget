@@ -51,8 +51,9 @@
 								>{#snippet child({ props })}
 									<Button {...props} variant="outline">
 										<Avatar.Root>
-											<Avatar.Image src="https://github.com/shadcn.png" alt="@shadcn" />
-											<Avatar.Fallback>CN</Avatar.Fallback>
+											<Avatar.Fallback>
+												{data.user?.firstName?.[0] || ''}{data.user?.lastName?.[0] || ''}
+											</Avatar.Fallback>
 										</Avatar.Root>
 										<Menu class="h-4 w-4" />
 									</Button>

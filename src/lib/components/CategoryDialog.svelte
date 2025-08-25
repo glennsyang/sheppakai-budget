@@ -4,6 +4,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Category } from '$lib/types';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		open: boolean;
@@ -30,13 +31,20 @@
 				body: JSON.stringify(Object.fromEntries(data))
 			});
 
-			const newCategory: Category[] = await response.json();
+			const newCategory: Category = await response.json();
 
 			if (response.ok) {
 				open = false;
+				toast.success(
+					isEditing ? 'Category updated successfully!' : 'Category created successfully!',
+					{
+						description: `Category: ${newCategory.name}`
+					}
+				);
 			}
 		} catch (error) {
 			console.error('Error creating category:', error);
+			toast.error('There was an error creating the category. Please try again.');
 		}
 	}
 </script>

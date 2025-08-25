@@ -13,8 +13,9 @@
 	const currentMonth = (new Date().getMonth() + 1).toString();
 	const currentYear = new Date().getFullYear();
 
-	let loading = $state(false);
-	let selectedMonth = $derived(page.url.searchParams.get('month') ?? currentMonth);
+	let loading: boolean = $state(false);
+	let selectedMonth: string = $derived(page.url.searchParams.get('month') ?? currentMonth);
+	let monthName: string = $derived(months.find((m) => m.value === selectedMonth)?.label ?? '');
 
 	function onMonthChange(month: string | undefined) {
 		goto(`?month=${month}&year=${currentYear}`, { keepFocus: true, replaceState: true });
@@ -69,7 +70,7 @@
 
 	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 		<BudgetProgressCard
-			title="Income"
+			title={`Total Income - ${monthName}`}
 			planned={plannedIncome}
 			actual={data.actualIncomeTotal || 0}
 			{loading}
@@ -78,7 +79,7 @@
 		/>
 
 		<BudgetProgressCard
-			title="Expenses"
+			title={`Total Expenses - ${monthName}`}
 			planned={plannedExpenses}
 			actual={data.actualExpensesTotal || 0}
 			{loading}

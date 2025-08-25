@@ -5,6 +5,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { enhance } from '$app/forms';
 	import type { Category } from '$lib/types';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		open: boolean;
@@ -73,8 +74,16 @@
 			use:enhance={() => {
 				open = false;
 				isLoading = true;
+				toast.success(isEditing ? 'Income updated successfully!' : 'Income created successfully!');
 
-				return async ({ update }) => {
+				return async ({ result, update }) => {
+					if (result.type === 'success') {
+						toast.success(
+							isEditing ? 'Income updated successfully!' : 'Income created successfully!'
+						);
+					} else {
+						toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the income.`);
+					}
 					isLoading = false;
 					await update();
 				};

@@ -6,6 +6,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { enhance } from '$app/forms';
 	import type { Category } from '$lib';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		open: boolean;
@@ -80,7 +81,14 @@
 				open = false;
 				isLoading = true;
 
-				return async ({ update }) => {
+				return async ({ result, update }) => {
+					if (result.type === 'success') {
+						toast.success(
+							isEditing ? 'Expense updated successfully!' : 'Expense created successfully!'
+						);
+					} else {
+						toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the expense.`);
+					}
 					isLoading = false;
 					await update();
 				};
