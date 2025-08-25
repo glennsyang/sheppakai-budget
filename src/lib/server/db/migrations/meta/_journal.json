@@ -15,6 +15,13 @@
       "when": 1755984783626,
       "tag": "0001_glorious_wong",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1756100903488,
+      "tag": "0002_nosy_onslaught",
+      "breakpoints": true
     }
   ]
 }

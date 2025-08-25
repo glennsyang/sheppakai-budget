@@ -26,6 +26,14 @@ export type Income = {
 	amount: number;
 	description: string;
 	date: string;
+	user: User;
+};
+
+export type Budget = {
+	id: string;
+	amount: number;
+	month: string;
+	year: string;
 	category: Category | null;
 	user: User;
 };

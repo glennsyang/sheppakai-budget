@@ -2,7 +2,6 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { enhance } from '$app/forms';
 	import type { Category } from '$lib/types';
@@ -14,26 +13,22 @@
 			amount?: number;
 			description?: string;
 			date?: string;
-			categoryId?: string;
 		};
 		isEditing?: boolean;
 		isLoading?: boolean;
-		categories: Category[];
 	}
 
 	let {
 		open = $bindable(),
 		initialData = undefined,
 		isEditing = false,
-		isLoading = $bindable(false),
-		categories = []
+		isLoading = $bindable(false)
 	}: Props = $props();
 
 	let id = $state(initialData?.id || '');
 	let amount = $state(initialData?.amount ? initialData.amount.toString() : '');
 	let description = $state(initialData?.description || '');
 	let date = $state(initialData?.date || '');
-	let categoryId = $state(initialData?.categoryId || '');
 
 	// Set default date to today if not editing
 	function setDefaultDate() {
@@ -51,12 +46,10 @@
 				amount = initialData.amount ? initialData.amount.toString() : '';
 				description = initialData.description || '';
 				date = initialData.date || '';
-				categoryId = initialData.categoryId || '';
 			} else {
 				id = '';
 				amount = '';
 				description = '';
-				categoryId = '';
 				setDefaultDate();
 			}
 		}
@@ -116,25 +109,6 @@
 			<div class="space-y-2">
 				<label for="income-date" class="text-sm font-medium">Date</label>
 				<Input id="income-date" name="date" type="date" bind:value={date} required />
-			</div>
-
-			<div class="space-y-2">
-				<label for="expense-category" class="text-sm font-medium">Category</label>
-				<Select.Root type="single" name="categoryId" bind:value={categoryId} required>
-					<Select.Trigger class="w-full">
-						{categoryId
-							? categories.find((c) => c.id.toString() === categoryId)?.name || 'Select a category'
-							: 'Select a category'}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Label class="px-2 py-1 text-sm font-medium">Categories</Select.Label>
-						{#each categories as category (category.id)}
-							<Select.Item value={category.id.toString()} label={category.name}>
-								{category.name}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
 			</div>
 
 			<Dialog.Footer>

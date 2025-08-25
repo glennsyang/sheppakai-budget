@@ -5,15 +5,27 @@
 	import type { PageProps } from './$types';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import ExpenseModal from '$lib/components/ExpenseModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { getContext } from 'svelte';
+	import { months } from '$lib/utils';
+	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 
 	let openModal = $state<boolean>(false);
-
 	let loading = $state(false);
+
+	const currentMonth = (new Date().getMonth() + 1).toString();
+	const currentYear = new Date().getFullYear();
+
+	let selectedMonth = $derived(page.url.searchParams.get('month') ?? currentMonth);
+
+	function onMonthChange(month: string | undefined) {
+		goto(`?month=${month}&year=${currentYear}`, { keepFocus: true, replaceState: true });
+	}
 
 	const categories = getContext('categories') as () => Category[];
 </script>
@@ -24,8 +36,27 @@
 
 <div class="px-4 py-6 sm:px-0">
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold tracking-tight">All Expenses</h1>
-		<p class="mt-2 text-muted-foreground">Complete list of all your recorded expenses</p>
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-3xl font-bold tracking-tight">All Expenses</h1>
+				<p class="mt-2 text-muted-foreground">Complete list of all your recorded expenses</p>
+			</div>
+			<div class="w-44">
+				<Select.Root type="single" value={selectedMonth} onValueChange={onMonthChange}>
+					<Select.Trigger class="w-full">
+						{selectedMonth ? months.find((m) => m.value === selectedMonth)?.label : 'Select Month'}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Label>Select Month</Select.Label>
+						{#each months as month (month.value)}
+							<Select.Item value={month.value} label={month.label}>
+								{month.label}
+							</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
+			</div>
+		</div>
 	</div>
 
 	<div class="overflow-hidden rounded-lg border shadow">

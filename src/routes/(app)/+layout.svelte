@@ -1,14 +1,18 @@
 <script lang="ts">
 	import '../../app.css';
 	import { Button } from '$lib/components/ui/button';
+	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import CategoryDialog from '$lib/components/CategoryDialog.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import MoonIcon from '@lucide/svelte/icons/moon';
 	import Menu from '@lucide/svelte/icons/menu';
-	import FolderIcon from '@lucide/svelte/icons/folder';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import UserIcon from '@lucide/svelte/icons/user';
+	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
+	import BankNoteIcon from '@lucide/svelte/icons/banknote';
+	import ReceiptIcon from '@lucide/svelte/icons/receipt';
 	import { toggleMode } from 'mode-watcher';
 	import { goto } from '$app/navigation';
 	import { navigating } from '$app/state';
@@ -45,8 +49,12 @@
 						<DropdownMenu.Root>
 							<DropdownMenu.Trigger
 								>{#snippet child({ props })}
-									<Button {...props} variant="outline" size="sm" class="gap-2">
-										Menu<Menu class="h-4 w-4" />
+									<Button {...props} variant="outline">
+										<Avatar.Root>
+											<Avatar.Image src="https://github.com/shadcn.png" alt="@shadcn" />
+											<Avatar.Fallback>CN</Avatar.Fallback>
+										</Avatar.Root>
+										<Menu class="h-4 w-4" />
 									</Button>
 								{/snippet}
 							</DropdownMenu.Trigger>
@@ -56,9 +64,21 @@
 										<UserIcon class="mr-2 h-4 w-4" />
 										Profile
 									</DropdownMenu.Item>
+									<DropdownMenu.Item onclick={() => goto('/budget')}>
+										<DollarSignIcon class="mr-2 h-4 w-4" />
+										Budgets
+									</DropdownMenu.Item>
+									<DropdownMenu.Item onclick={() => goto('/expense')}>
+										<ReceiptIcon class="mr-2 h-4 w-4" />
+										Expenses
+									</DropdownMenu.Item>
+									<DropdownMenu.Item onclick={() => goto('/income')}>
+										<BankNoteIcon class="mr-2 h-4 w-4" />
+										Income
+									</DropdownMenu.Item>
 									<DropdownMenu.Item onclick={() => (openCategoryModal = true)}>
-										<FolderIcon class="mr-2 h-4 w-4" />
-										Categories
+										<PlusIcon class="mr-2 h-4 w-4" />
+										Category
 									</DropdownMenu.Item>
 									<DropdownMenu.Separator />
 									<DropdownMenu.Item>

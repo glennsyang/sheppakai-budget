@@ -1,51 +1,96 @@
 import { db } from '$lib/server/db';
-import { expense, income } from '$lib/server/db/schema';
-import { desc } from 'drizzle-orm';
+import { budget, expense, income } from '$lib/server/db/schema';
+import { and, desc, sql, eq, ne } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
-import type { Expense, Income } from '$lib';
+import type { Budget, Expense, Income } from '$lib';
 
-export const load: PageServerLoad = async ({ locals, url, params }) => {
+const incomeCategoryId = '4a2f9787-df72-4af0-94ce-193c87494956';
+
+export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
 		return [];
 	}
 
-	console.log('url', url.searchParams as URLSearchParams);
-	console.log('params', params);
+	// Get month from URL or use current month
+	const monthParam = url.searchParams.get('month');
+	const currentDate = new Date();
+	const currentMonth = currentDate.getMonth() + 1;
 
-	const allIncome: Income[] = await db.query.income.findMany({
+	// Get year from URL or use current year
+	const yearParam = url.searchParams.get('year');
+	const currentYear = currentDate.getFullYear();
+
+	let year = currentYear;
+	let month = currentMonth;
+	if (monthParam && yearParam) {
+		year = parseInt(yearParam);
+		month = parseInt(monthParam);
+	}
+
+	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+
+	const actualIncome: Income[] = (await db.query.income.findMany({
 		with: {
-			category: true,
 			user: true
 		},
-		// where: and(
-		// 	sql`date(${income.date}) >= date(${startDate})`,
-		// 	sql`date(${income.date}) <= date(${endDate})`,
-		// 	eq(income.userId, locals.user.id)
-		// ),
+		where: and(
+			sql`date(${income.date}) >= date(${startDate})`,
+			sql`date(${income.date}) <= date(${endDate})`
+		),
 		orderBy: [desc(income.date)]
-	});
+	})) as Income[];
 
-	const allExpenses: Expense[] = await db.query.expense.findMany({
+	const actualExpenses: Expense[] = (await db.query.expense.findMany({
 		with: {
 			category: true,
 			user: true
 		},
-		// where: and(
-		// 	sql`date(${expense.date}) >= date(${startDate})`,
-		// 	sql`date(${expense.date}) <= date(${endDate})`,
-		// 	eq(expense.userId, locals.user.id)
-		// ),
+		where: and(
+			sql`date(${expense.date}) >= date(${startDate})`,
+			sql`date(${expense.date}) <= date(${endDate})`
+		),
 		orderBy: [desc(expense.date)]
-	});
+	})) as Expense[];
+
+	const plannedExpenses: Budget[] = (await db.query.budget.findMany({
+		with: {
+			category: true,
+			user: true
+		},
+		where: and(
+			ne(budget.categoryId, incomeCategoryId),
+			eq(budget.year, year.toString()),
+			eq(budget.month, month.toString().padStart(2, '0'))
+		)
+	})) as Budget[];
+
+	const plannedIncome: Budget[] = (await db.query.budget.findMany({
+		with: {
+			category: true,
+			user: true
+		},
+		where: and(
+			eq(budget.categoryId, incomeCategoryId),
+			eq(budget.year, year.toString()),
+			eq(budget.month, month.toString().padStart(2, '0'))
+		)
+	})) as Budget[];
 
 	// Calculate totals
-	const totalExpenses = allExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-	const totalIncome = allIncome.reduce((sum, inc) => sum + inc.amount, 0);
+	const actualExpensesTotal = actualExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+	const plannedExpensesTotal = plannedExpenses.reduce((sum, budget) => sum + budget.amount, 0);
+	const actualIncomeTotal = actualIncome.reduce((sum, inc) => sum + inc.amount, 0);
+	const plannedIncomeTotal = plannedIncome.reduce((sum, budget) => sum + budget.amount, 0);
 
 	return {
-		expenses: allExpenses.slice(0, 5),
-		income: allIncome.slice(0, 5),
-		totalExpenses,
-		totalIncome
+		actualExpenses,
+		plannedExpenses,
+		actualExpensesTotal,
+		plannedExpensesTotal,
+		actualIncome,
+		plannedIncome,
+		actualIncomeTotal,
+		plannedIncomeTotal
 	};
 };

@@ -1,9 +1,9 @@
 import { fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
-import { expense } from '$lib/server/db/schema';
+import { budget } from '$lib/server/db/schema';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
@@ -26,20 +26,17 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		month = parseInt(monthParam);
 	}
 
-	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
-
 	return {
-		expenses: await db.query.expense.findMany({
+		budget: await db.query.budget.findMany({
 			with: {
 				category: true,
 				user: true
 			},
 			where: and(
-				sql`date(${expense.date}) >= date(${startDate})`,
-				sql`date(${expense.date}) <= date(${endDate})`
+				eq(budget.year, year.toString()),
+				eq(budget.month, month.toString().padStart(2, '0'))
 			),
-			orderBy: [desc(expense.date)]
+			orderBy: [desc(budget.year), desc(budget.month)]
 		}),
 		categories: await db.query.category.findMany()
 	};
@@ -52,24 +49,25 @@ export const actions = {
 		}
 
 		const data = await request.formData();
+		console.log('data:', JSON.stringify(Object.fromEntries(data.entries())));
 		const hasAmount = data.has('amount');
-		const hasDescription = data.has('description');
-		const hasDate = data.has('date');
+		const hasYear = data.has('year');
+		const hasMonth = data.has('month');
 		const hasCategoryId = data.has('categoryId');
 
-		if (!hasAmount || !hasDescription || !hasDate || !hasCategoryId) {
-			return fail(400, { hasAmount, hasDescription, hasDate, hasCategoryId });
+		if (!hasAmount || !hasYear || !hasMonth || !hasCategoryId) {
+			return fail(400, { hasAmount, hasYear, hasMonth, hasCategoryId });
 		}
 
 		try {
 			const userId = locals.user.id.toString();
 
-			await db.insert(expense).values(
+			await db.insert(budget).values(
 				withAuditFieldsForCreate(
 					{
 						amount: Number(data.get('amount')),
-						description: data.get('description')?.toString() || '',
-						date: data.get('date')?.toString() || '',
+						year: data.get('year')?.toString() || '',
+						month: data.get('month')?.toString() || '',
 						categoryId: data.get('categoryId')?.toString() || '',
 						userId: userId
 					},
@@ -77,10 +75,10 @@ export const actions = {
 				)
 			);
 
-			console.log('Created expense entry for user:', userId);
+			console.log('Created budget entry for user:', userId);
 		} catch (error) {
-			console.error('Error creating expense entry:', error);
-			return fail(500, { error: 'Failed to create expense entry' });
+			console.error('Error creating budget entry:', error);
+			return fail(500, { error: 'Failed to create budget entry' });
 		}
 
 		return { success: true, create: true };
@@ -94,38 +92,38 @@ export const actions = {
 
 		const hasId = data.has('id');
 		const hasAmount = data.has('amount');
-		const hasDescription = data.has('description');
-		const hasDate = data.has('date');
+		const hasYear = data.has('year');
+		const hasMonth = data.has('month');
 		const hasCategoryId = data.has('categoryId');
 
-		if (!hasId || !hasAmount || !hasDescription || !hasDate || !hasCategoryId) {
-			return fail(400, { hasId, hasDescription, hasAmount, hasDate, hasCategoryId });
+		if (!hasId || !hasAmount || !hasYear || !hasMonth || !hasCategoryId) {
+			return fail(400, { hasId, hasAmount, hasYear, hasMonth, hasCategoryId });
 		}
 
-		// Update the expense entry in the database
-		const expenseId = data.get('id')!.toString();
+		// Update the budget entry in the database
+		const budgetId = data.get('id')!.toString();
 		try {
 			const userId = locals.user.id.toString();
 
 			await db
-				.update(expense)
+				.update(budget)
 				.set(
 					withAuditFieldsForUpdate(
 						{
 							amount: Number(data.get('amount')),
-							description: data.get('description')?.toString() || '',
-							date: data.get('date')?.toString() || '',
+							year: data.get('year')?.toString() || '',
+							month: data.get('month')?.toString() || '',
 							categoryId: data.get('categoryId')?.toString()
 						},
 						userId
 					)
 				)
-				.where(eq(expense.id, expenseId));
+				.where(eq(budget.id, budgetId));
 
-			console.log('Updated expense entry:', expenseId);
+			console.log('Updated budget entry:', budgetId);
 		} catch (error) {
-			console.error('Error updating expense entry:', error);
-			return fail(500, { error: 'Failed to update expense entry' });
+			console.error('Error updating budget entry:', error);
+			return fail(500, { error: 'Failed to update budget entry' });
 		}
 
 		return { success: true, update: true };
@@ -136,21 +134,21 @@ export const actions = {
 		}
 
 		const data = await request.formData();
-
 		const hasId = data.has('id');
+
 		if (!hasId) {
 			return fail(400, { hasId });
 		}
 
-		const expenseId = data.get('id')!.toString();
+		const budgetId = data.get('id')!.toString();
 
 		try {
-			await db.delete(expense).where(eq(expense.id, expenseId));
+			await db.delete(budget).where(eq(budget.id, budgetId));
 
-			console.log('Deleted expense entry:', expenseId);
+			console.log('Deleted budget entry:', budgetId);
 		} catch (error) {
-			console.error('Error deleting expense entry:', error);
-			return fail(500, { error: 'Failed to delete expense entry' });
+			console.error('Error deleting budget entry:', error);
+			return fail(500, { error: 'Failed to delete budget entry' });
 		}
 
 		return { success: true, update: true };

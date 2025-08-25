@@ -1,24 +1,45 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { income } from '$lib/server/db/schema';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
 		return [];
 	}
 
+	// Get month from URL or use current month
+	const monthParam = url.searchParams.get('month');
+	const currentDate = new Date();
+	const currentMonth = currentDate.getMonth() + 1;
+
+	// Get year from URL or use current year
+	const yearParam = url.searchParams.get('year');
+	const currentYear = currentDate.getFullYear();
+
+	let year = currentYear;
+	let month = currentMonth;
+	if (monthParam && yearParam) {
+		year = parseInt(yearParam);
+		month = parseInt(monthParam);
+	}
+
+	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+
 	return {
 		income: await db.query.income.findMany({
 			with: {
-				category: true,
 				user: true
 			},
+			where: and(
+				sql`date(${income.date}) >= date(${startDate})`,
+				sql`date(${income.date}) <= date(${endDate})`
+			),
 			orderBy: [desc(income.date)]
-		}),
-		categories: await db.query.category.findMany()
+		})
 	};
 };
 
@@ -32,10 +53,9 @@ export const actions = {
 		const hasAmount = data.has('amount');
 		const hasDescription = data.has('description');
 		const hasDate = data.has('date');
-		const hasCategoryId = data.has('categoryId');
 
-		if (!hasAmount || !hasDescription || !hasDate || !hasCategoryId) {
-			return fail(400, { hasAmount, hasDescription, hasDate, hasCategoryId });
+		if (!hasAmount || !hasDescription || !hasDate) {
+			return fail(400, { hasAmount, hasDescription, hasDate });
 		}
 
 		try {
@@ -47,7 +67,6 @@ export const actions = {
 						amount: Number(data.get('amount')),
 						description: data.get('description')?.toString() || '',
 						date: data.get('date')?.toString() || '',
-						categoryId: data.get('categoryId')?.toString() || '',
 						userId: userId
 					},
 					userId
@@ -73,10 +92,9 @@ export const actions = {
 		const hasAmount = data.has('amount');
 		const hasDescription = data.has('description');
 		const hasDate = data.has('date');
-		const hasCategoryId = data.has('categoryId');
 
-		if (!hasId || !hasAmount || !hasDescription || !hasDate || !hasCategoryId) {
-			return fail(400, { hasId, hasDescription, hasAmount, hasDate, hasCategoryId });
+		if (!hasId || !hasAmount || !hasDescription || !hasDate) {
+			return fail(400, { hasId, hasDescription, hasAmount, hasDate });
 		}
 
 		// Update the income entry in the database
@@ -91,8 +109,7 @@ export const actions = {
 						{
 							amount: Number(data.get('amount')),
 							description: data.get('description')?.toString() || '',
-							date: data.get('date')?.toString() || '',
-							categoryId: data.get('categoryId')?.toString()
+							date: data.get('date')?.toString() || ''
 						},
 						userId
 					)

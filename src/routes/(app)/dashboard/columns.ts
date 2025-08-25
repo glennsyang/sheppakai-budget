@@ -30,11 +30,6 @@ export const incomeColumns = [
 		label: 'Entered By',
 		format: (user: User) => user?.firstName || 'Unknown User'
 	},
-	{
-		key: 'category',
-		label: 'Category',
-		format: (category: Category) => category?.name || 'Uncategorized'
-	},
 	{ key: 'description', label: 'Description' },
 	{
 		key: 'amount',

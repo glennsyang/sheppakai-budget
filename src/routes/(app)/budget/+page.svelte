@@ -2,12 +2,13 @@
 	import type { PageProps } from './$types';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { columns } from './columns';
-	import type { Income } from '$lib';
+	import type { Category, Budget } from '$lib';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import IncomeModal from '$lib/components/IncomeModal.svelte';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
+	import { getContext } from 'svelte';
+	import BudgetModal from '$lib/components/BudgetModal.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { months } from '$lib/utils';
@@ -19,24 +20,25 @@
 
 	const currentMonth = (new Date().getMonth() + 1).toString();
 	const currentYear = new Date().getFullYear();
-
 	let selectedMonth = $derived(page.url.searchParams.get('month') ?? currentMonth);
 
 	function onMonthChange(month: string | undefined) {
 		goto(`?month=${month}&year=${currentYear}`, { keepFocus: true, replaceState: true });
 	}
+
+	const categories = getContext('categories') as () => Category[];
 </script>
 
 <svelte:head>
-	<title>All Income - Budget Tracker</title>
+	<title>All Budgets - Budget Tracker</title>
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">
 	<div class="mb-8">
 		<div class="flex items-center justify-between">
 			<div>
-				<h1 class="text-3xl font-bold tracking-tight">All Income</h1>
-				<p class="mt-2 text-muted-foreground">Complete list of all your recorded income</p>
+				<h1 class="text-3xl font-bold tracking-tight">All Budgets</h1>
+				<p class="mt-2 text-muted-foreground">Complete list of all your recorded budgets</p>
 			</div>
 			<div class="w-44">
 				<Select.Root type="single" value={selectedMonth} onValueChange={onMonthChange}>
@@ -69,10 +71,10 @@
 			{#if loading}
 				<TableSkeleton rows={5} columns={4} />
 			{:else}
-				<DataTable {columns} data={data.income as Income[]} />
+				<DataTable {columns} data={data.budget as Budget[]} />
 			{/if}
 		</div>
 	</div>
 </div>
 
-<IncomeModal bind:open={openModal} bind:isLoading={loading} />
+<BudgetModal bind:open={openModal} bind:isLoading={loading} categories={categories()} />
