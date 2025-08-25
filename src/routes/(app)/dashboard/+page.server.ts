@@ -3,8 +3,7 @@ import { budget, expense, income } from '$lib/server/db/schema';
 import { and, desc, sql, eq, ne } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import type { Budget, Expense, Income } from '$lib';
-
-const incomeCategoryId = '4a2f9787-df72-4af0-94ce-193c87494956';
+import { incomeCategoryId } from '$lib/utils';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {

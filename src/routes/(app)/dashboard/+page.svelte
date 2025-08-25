@@ -3,7 +3,7 @@
 	import type { PageProps } from './$types';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { months } from '$lib/utils';
+	import { incomeCategoryId, months } from '$lib/utils';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { getContext } from 'svelte';
@@ -91,7 +91,7 @@
 	<h2 class="mt-8 mb-4 text-xl font-semibold">Expenses by Category</h2>
 	<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 		{#each categories() as category}
-			{#if category.id !== '4a2f9787-df72-4af0-94ce-193c87494956'}
+			{#if category.id !== incomeCategoryId}
 				<!-- Skip income category -->
 				<BudgetProgressCard
 					title={category.name}

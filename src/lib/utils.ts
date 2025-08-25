@@ -27,3 +27,5 @@ export const months = [
 	{ value: '11', label: 'November' },
 	{ value: '12', label: 'December' }
 ];
+
+export const incomeCategoryId = '4a2f9787-df72-4af0-94ce-193c87494956';
