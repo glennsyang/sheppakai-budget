@@ -8,6 +8,7 @@
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import MoonIcon from '@lucide/svelte/icons/moon';
 	import Menu from '@lucide/svelte/icons/menu';
+	import HouseIcon from '@lucide/svelte/icons/house';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import UserIcon from '@lucide/svelte/icons/user';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
@@ -64,6 +65,11 @@
 									<DropdownMenu.Item onclick={() => goto('/profile')}>
 										<UserIcon class="mr-2 h-4 w-4" />
 										Profile
+									</DropdownMenu.Item>
+									<DropdownMenu.Separator />
+									<DropdownMenu.Item onclick={() => goto('/')}>
+										<HouseIcon class="mr-2 h-4 w-4" />
+										Dashboard
 									</DropdownMenu.Item>
 									<DropdownMenu.Item onclick={() => goto('/budget')}>
 										<DollarSignIcon class="mr-2 h-4 w-4" />
