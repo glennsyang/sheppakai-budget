@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Category, Expense, Income } from '$lib';
 	import { DataTable } from '$lib/components/ui/data-table';
-	import { columns as expenseColumns } from './columns';
+	import { columns } from './columns';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
@@ -12,6 +12,7 @@
 	import { months } from '$lib/utils';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { expenseColumns } from '../../dashboard/columns';
 
 	interface Props {
 		data: {
@@ -21,7 +22,7 @@
 
 	let { data }: Props = $props();
 
-	let openExpenseModal = $state<boolean>(false);
+	let openModal = $state<boolean>(false);
 	let loading = $state(false);
 
 	const currentDate = new Date();
@@ -84,7 +85,7 @@
 			<div class="mb-4 flex items-center justify-between">
 				<div></div>
 				<div class="flex items-center gap-2">
-					<Button size="sm" onclick={() => (openExpenseModal = true)}>
+					<Button size="sm" onclick={() => (openModal = true)}>
 						<PlusIcon />
 						Add Expense
 					</Button>
@@ -93,10 +94,10 @@
 			{#if loading}
 				<TableSkeleton rows={5} columns={4} />
 			{:else}
-				<DataTable columns={expenseColumns} data={data.expenses as Expense[]} />
+				<DataTable {columns} data={data.expenses as Expense[]} />
 			{/if}
 		</div>
 	</div>
 </div>
 
-<ExpenseModal bind:open={openExpenseModal} bind:isLoading={loading} categories={categories()} />
+<ExpenseModal bind:open={openModal} bind:isLoading={loading} categories={categories()} />
