@@ -13,7 +13,8 @@
 		initialData?: {
 			id?: string;
 			amount?: number;
-			description?: string;
+			payee?: string;
+			notes?: string;
 			date?: string;
 			categoryId?: string;
 		};
@@ -32,7 +33,8 @@
 
 	let id = $state(initialData?.id || '');
 	let amount = $state(initialData?.amount ? initialData.amount.toString() : '');
-	let description = $state(initialData?.description || '');
+	let payee = $state(initialData?.payee || '');
+	let notes = $state(initialData?.notes || '');
 	let date = $state(initialData?.date || '');
 	let categoryId = $state(initialData?.categoryId || '');
 
@@ -49,13 +51,15 @@
 			if (initialData) {
 				id = initialData.id || '';
 				amount = initialData.amount ? initialData.amount.toString() : '';
-				description = initialData.description || '';
+				payee = initialData.payee || '';
+				notes = initialData.notes || '';
 				date = initialData.date || '';
 				categoryId = initialData.categoryId || '';
 			} else {
 				id = '';
 				amount = '';
-				description = '';
+				payee = '';
+				notes = '';
 				categoryId = '';
 				setDefaultDate();
 			}
@@ -69,8 +73,8 @@
 			<Dialog.Title>{isEditing ? 'Edit Expense' : 'Add New Expense'}</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
-					? 'Update this expense entry. Modify the amount, description, date, or category as needed.'
-					: 'Record a new expense entry. Fill in the amount, description, date, and optionally select a category.'}
+					? 'Update this expense entry. Modify the amount, payee, notes, date, or category as needed.'
+					: 'Record a new expense entry. Fill in the amount, payee, notes, date, and optionally select a category.'}
 			</Dialog.Description>
 		</Dialog.Header>
 		<form
@@ -110,11 +114,22 @@
 			</div>
 
 			<div class="space-y-2">
-				<label for="expense-description" class="text-sm font-medium">Description</label>
+				<label for="expense-payee" class="text-sm font-medium">Payee</label>
+				<Input
+					id="expense-payee"
+					name="payee"
+					bind:value={payee}
+					placeholder="Who did you pay?"
+					required
+				/>
+			</div>
+
+			<div class="space-y-2">
+				<label for="expense-notes" class="text-sm font-medium">Notes</label>
 				<Textarea
-					id="expense-description"
-					name="description"
-					bind:value={description}
+					id="expense-notes"
+					name="notes"
+					bind:value={notes}
 					placeholder="What was this expense for?"
 					rows={2}
 				/>
@@ -146,7 +161,7 @@
 
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
-				<Button type="submit" disabled={!amount || !description || !date || !categoryId}>
+				<Button type="submit" disabled={!amount || !payee || !notes || !date || !categoryId}>
 					{isEditing ? 'Save' : 'Create'}
 				</Button>
 			</Dialog.Footer>

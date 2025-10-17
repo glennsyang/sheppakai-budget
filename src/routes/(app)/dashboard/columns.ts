@@ -1,19 +1,15 @@
-import type { Category, User } from '$lib';
+import type { Category } from '$lib';
 
 // Column definitions for expenses table
 export const expenseColumns = [
 	{ key: 'date', label: 'Date', width: '100px' },
 	{
-		key: 'user',
-		label: 'Entered By',
-		format: (user: User) => user?.firstName || 'Unknown User'
-	},
-	{
 		key: 'category',
 		label: 'Category',
 		format: (category: Category) => category?.name || 'Uncategorized'
 	},
-	{ key: 'description', label: 'Description' },
+	{ key: 'payee', label: 'Payee' },
+	{ key: 'notes', label: 'Notes' },
 	{
 		key: 'amount',
 		label: 'Amount',
@@ -25,11 +21,6 @@ export const expenseColumns = [
 // Column definitions for income table
 export const incomeColumns = [
 	{ key: 'date', label: 'Date', width: '100px' },
-	{
-		key: 'user',
-		label: 'Entered By',
-		format: (user: User) => user?.firstName || 'Unknown User'
-	},
 	{ key: 'description', label: 'Description' },
 	{
 		key: 'amount',

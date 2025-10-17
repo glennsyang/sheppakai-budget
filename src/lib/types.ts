@@ -15,7 +15,8 @@ export type Category = {
 export type Expense = {
 	id: string;
 	amount: number;
-	description: string;
+	payee: string;
+	notes: string;
 	date: string;
 	category: Category | null;
 	user: User;

@@ -1,24 +1,13 @@
-import type { Budget } from '$lib';
+import type { Expense } from '$lib';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
 import DataTableActions from './data-table-actions.svelte';
 
-export const columns: ColumnDef<Budget>[] = [
+export const columns: ColumnDef<Expense>[] = [
 	{
-		accessorKey: 'year',
-		header: 'Year'
-	},
-	{
-		accessorKey: 'month',
-		header: 'Month'
-	},
-	{
-		accessorKey: 'user',
-		header: 'Entered By',
-		cell: ({ row }) => {
-			return row.original.user.firstName;
-		}
+		accessorKey: 'date',
+		header: 'Date'
 	},
 	{
 		accessorKey: 'category',
@@ -26,6 +15,10 @@ export const columns: ColumnDef<Budget>[] = [
 		cell: ({ row }) => {
 			return row.original.category ? row.original.category.name : 'Uncategorized';
 		}
+	},
+	{
+		accessorKey: 'payee',
+		header: 'Payee'
 	},
 	{
 		accessorKey: 'amount',
@@ -52,12 +45,16 @@ export const columns: ColumnDef<Budget>[] = [
 		}
 	},
 	{
+		accessorKey: 'notes',
+		header: 'Notes'
+	},
+	{
 		id: 'actions',
 		cell: ({ row }) => {
-			// Pass both the ID and the entire budget data for editing
+			// Pass both the ID and the entire expense data for editing
 			return renderComponent(DataTableActions, {
 				id: row.original.id.toString(),
-				budgetData: row.original
+				expenseData: row.original
 			});
 		}
 	}

@@ -56,7 +56,7 @@
 						{selectedMonth ? months.find((m) => m.value === selectedMonth)?.label : 'Select Month'}
 					</Select.Trigger>
 					<Select.Content>
-						<Select.Label>Select Month</Select.Label>
+						<Select.Label>Jump to Month</Select.Label>
 						{#each months as month (month.value)}
 							<Select.Item value={month.value} label={month.label}>
 								{month.label}

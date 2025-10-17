@@ -3,101 +3,107 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import CategoryDialog from '$lib/components/CategoryDialog.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import MoonIcon from '@lucide/svelte/icons/moon';
-	import Menu from '@lucide/svelte/icons/menu';
-	import HouseIcon from '@lucide/svelte/icons/house';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import UserIcon from '@lucide/svelte/icons/user';
-	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
-	import BankNoteIcon from '@lucide/svelte/icons/banknote';
-	import ReceiptIcon from '@lucide/svelte/icons/receipt';
+	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import { toggleMode } from 'mode-watcher';
-	import { goto } from '$app/navigation';
-	import { navigating } from '$app/state';
+	import { navigating, page } from '$app/state';
 	import { setContext } from 'svelte';
-	import type { LayoutData } from '../$types';
+	import type { LayoutServerData } from './$types';
 
 	interface Props {
-		data: LayoutData;
+		data: LayoutServerData;
 		children: any;
 	}
 
 	let { data, children }: Props = $props();
 
-	let openCategoryModal = $state(false);
+	if (data.categories) {
+		setContext('categories', () => data.categories);
+	}
 
-	setContext('categories', () => data.categories);
+	// Track active tab based on current path
+	let currentPath = $derived(page.url.pathname);
+	let isFinancesActive = $derived(
+		currentPath.includes('/finances') ||
+			currentPath.includes('/budget') ||
+			currentPath.includes('/expense') ||
+			currentPath.includes('/income')
+	);
+	let isHomeActive = $derived(
+		currentPath === '/(app)/dashboard' || currentPath.startsWith('/dashboard')
+	);
+	let isSetupActive = $derived(currentPath === '/(app)/setup' || currentPath.startsWith('/setup'));
 </script>
 
 <!-- Full application layout for all other routes -->
 <div class="min-h-screen">
-	<header class="shadow-lg">
-		<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-			<div class="flex items-center justify-between">
-				<div class="flex items-center space-x-4">
-					<Button href="/dashboard" class="text-2xl font-bold" variant="link">
-						Budget Tracker
+	<header class="border-b">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div class="flex h-16 items-center justify-between">
+				<!-- Left: Navigation Tabs -->
+				<nav class="flex items-center space-x-1">
+					<!-- Home Tab -->
+					<Button
+						href="/dashboard"
+						variant={isHomeActive ? 'secondary' : 'ghost'}
+						class="px-4 py-2"
+					>
+						Home
 					</Button>
-				</div>
 
-				<div class="flex items-center space-x-4">
+					<!-- Finances Tab with Dropdown -->
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<Button
+									{...props}
+									variant={isFinancesActive ? 'secondary' : 'ghost'}
+									class="px-4 py-2"
+								>
+									Finances
+								</Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="start">
+							<DropdownMenu.Item onclick={() => (window.location.href = '/finances/transactions')}>
+								Transactions
+							</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => (window.location.href = '/finances/budget')}>
+								Budget
+							</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => (window.location.href = '/finances/recurring')}>
+								Recurring
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+
+					<!-- Setup Tab -->
+					<Button href="/setup" variant={isSetupActive ? 'secondary' : 'ghost'} class="px-4 py-2">
+						Setup
+					</Button>
+				</nav>
+
+				<!-- Right: Profile, Logout, Theme Toggle -->
+				<div class="flex items-center space-x-2">
 					{#if data.user}
-						<span class="text-sm">Welcome, {data.user.firstName}</span>
+						<!-- Profile Avatar -->
+						<Button href="/profile" variant="ghost" size="icon" class="rounded-full">
+							<Avatar.Root class="h-8 w-8">
+								<Avatar.Fallback>
+									{data.user?.firstName?.[0] || ''}{data.user?.lastName?.[0] || ''}
+								</Avatar.Fallback>
+							</Avatar.Root>
+						</Button>
 
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger
-								>{#snippet child({ props })}
-									<Button {...props} variant="outline">
-										<Avatar.Root>
-											<Avatar.Fallback>
-												{data.user?.firstName?.[0] || ''}{data.user?.lastName?.[0] || ''}
-											</Avatar.Fallback>
-										</Avatar.Root>
-										<Menu class="h-4 w-4" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content align="end" class="w-56">
-								<DropdownMenu.Group>
-									<DropdownMenu.Item onclick={() => goto('/profile')}>
-										<UserIcon class="mr-2 h-4 w-4" />
-										Profile
-									</DropdownMenu.Item>
-									<DropdownMenu.Separator />
-									<DropdownMenu.Item onclick={() => goto('/')}>
-										<HouseIcon class="mr-2 h-4 w-4" />
-										Dashboard
-									</DropdownMenu.Item>
-									<DropdownMenu.Item onclick={() => goto('/budget')}>
-										<DollarSignIcon class="mr-2 h-4 w-4" />
-										Budgets
-									</DropdownMenu.Item>
-									<DropdownMenu.Item onclick={() => goto('/expense')}>
-										<ReceiptIcon class="mr-2 h-4 w-4" />
-										Expenses
-									</DropdownMenu.Item>
-									<DropdownMenu.Item onclick={() => goto('/income')}>
-										<BankNoteIcon class="mr-2 h-4 w-4" />
-										Income
-									</DropdownMenu.Item>
-									<DropdownMenu.Item onclick={() => (openCategoryModal = true)}>
-										<PlusIcon class="mr-2 h-4 w-4" />
-										Category
-									</DropdownMenu.Item>
-									<DropdownMenu.Separator />
-									<DropdownMenu.Item>
-										<form method="POST" action="/auth/sign-out" class="w-full">
-											<Button type="submit" variant="ghost" size="sm" class="w-full justify-start">
-												Sign Out
-											</Button>
-										</form>
-									</DropdownMenu.Item>
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<!-- Logout Button -->
+						<form method="POST" action="/auth/sign-out">
+							<Button type="submit" variant="ghost" size="sm">
+								<LogOutIcon class="mr-2 h-4 w-4" />
+								Logout
+							</Button>
+						</form>
 					{/if}
 
 					<!-- Theme Toggle -->
@@ -123,5 +129,3 @@
 		{/if}
 	</main>
 </div>
-
-<CategoryDialog bind:open={openCategoryModal} />

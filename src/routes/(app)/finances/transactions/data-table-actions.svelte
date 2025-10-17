@@ -36,7 +36,8 @@
 		id,
 		amount: expenseData?.amount,
 		categoryId: expenseData?.category?.id,
-		description: expenseData?.description,
+		payee: expenseData?.payee,
+		notes: expenseData?.notes,
 		date: expenseData?.date
 	}}
 	isEditing

@@ -7,7 +7,8 @@ import user from './user';
 const expense = sqliteTable('expenses', {
 	id: text('id').primaryKey().$defaultFn(generateId),
 	amount: real('amount').notNull(),
-	description: text('description').notNull(),
+	payee: text('payee').notNull(),
+	notes: text('notes').notNull(),
 	date: text('date').notNull(),
 	categoryId: text('category_id')
 		.notNull()

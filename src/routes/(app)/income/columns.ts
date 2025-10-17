@@ -10,13 +10,6 @@ export const columns: ColumnDef<Income>[] = [
 		header: 'Date'
 	},
 	{
-		accessorKey: 'user',
-		header: 'Entered By',
-		cell: ({ row }) => {
-			return row.original.user.firstName;
-		}
-	},
-	{
 		accessorKey: 'description',
 		header: 'Description'
 	},
