@@ -12,7 +12,7 @@ export type Category = {
 	name: string;
 };
 
-export type Expense = {
+export type Transaction = {
 	id: string;
 	amount: number;
 	payee: string;
@@ -39,9 +39,18 @@ export type Budget = {
 	user: User;
 };
 
+export type Recurring = {
+	id: string;
+	merchant: string;
+	description: string;
+	cadence: 'Monthly' | 'Yearly';
+	amount: number;
+	user: User;
+};
+
 export type DashboardSummary = {
-	expenses: Expense[];
+	transactions: Transaction[];
 	income: Income[];
-	totalExpenses: number;
+	totalTransactions: number;
 	totalIncome: number;
 };

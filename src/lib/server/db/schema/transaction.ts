@@ -4,7 +4,7 @@ import { generateId } from '../utils';
 import category from './category';
 import user from './user';
 
-const expense = sqliteTable('expenses', {
+const transaction = sqliteTable('transactions', {
 	id: text('id').primaryKey().$defaultFn(generateId),
 	amount: real('amount').notNull(),
 	payee: text('payee').notNull(),
@@ -30,9 +30,9 @@ const expense = sqliteTable('expenses', {
 		.references(() => user.id)
 });
 
-export const expenseRelations = relations(expense, ({ one }) => ({
-	category: one(category, { fields: [expense.categoryId], references: [category.id] }),
-	user: one(user, { fields: [expense.userId], references: [user.id] })
+export const transactionRelations = relations(transaction, ({ one }) => ({
+	category: one(category, { fields: [transaction.categoryId], references: [category.id] }),
+	user: one(user, { fields: [transaction.userId], references: [user.id] })
 }));
 
-export default expense;
+export default transaction;

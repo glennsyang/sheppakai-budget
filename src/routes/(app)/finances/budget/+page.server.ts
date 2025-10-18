@@ -22,8 +22,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	let year = currentYear;
 	let month = currentMonth;
 	if (monthParam && yearParam) {
-		year = parseInt(yearParam);
-		month = parseInt(monthParam);
+		year = Number.parseInt(yearParam);
+		month = Number.parseInt(monthParam);
 	}
 
 	return {
@@ -38,7 +38,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			),
 			orderBy: [desc(budget.year), desc(budget.month)]
 		}),
-		categories: await db.query.category.findMany()
+		categories: await db.query.category.findMany(),
+		recurring: await db.query.recurring.findMany()
 	};
 };
 

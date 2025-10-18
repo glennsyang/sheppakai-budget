@@ -1,14 +1,15 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import type { Category, Budget } from '$lib';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import SettingsIcon from '@lucide/svelte/icons/settings';
+	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { Input } from '$lib/components/ui/input';
 	import { getContext } from 'svelte';
-	import BudgetModal from '$lib/components/BudgetModal.svelte';
+	import CategoryDialog from '$lib/components/CategoryDialog.svelte';
+	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
+	import SummaryRow from '$lib/components/SummaryRow.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { months } from '$lib/utils';
@@ -16,14 +17,19 @@
 
 	let { data }: PageProps = $props();
 
-	let openModal = $state<boolean>(false);
+	let openCategoryDialog = $state<boolean>(false);
 	let selectedCategoryId = $state<string | null>(null);
 	let editingBudgetId = $state<string | null>(null);
 	let editAmount = $state<string>('');
-	let selectedPresetAmount = $state<'lastMonth' | 'lastMonthBudget' | 'average' | 'custom' | null>(
-		null
-	);
+	let editingCustomAmount = $state<boolean>(false);
+	// Track selected preset amount per category
+	let categoryPresetSelections = $state<
+		Record<string, 'lastMonth' | 'lastMonthBudget' | 'average' | 'custom' | null>
+	>({});
 	let customAmount = $state<string>('');
+
+	// Calculate total recurring expenses
+	let totalRecurring = $derived((data.recurring || []).reduce((sum, item) => sum + item.amount, 0));
 
 	const currentDate = new Date();
 	const defaultMonth = currentDate.getMonth() + 1;
@@ -55,6 +61,12 @@
 	// Calculate total budget for the month
 	let totalBudget = $derived((data.budget as Budget[]).reduce((sum, b) => sum + b.amount, 0));
 
+	// Calculate categories without budgets
+	let categoriesWithoutBudget = $derived(
+		sortedCategories.filter((category) => !getBudgetForCategory(category.id))
+	);
+	let allBudgetsSet = $derived(categoriesWithoutBudget.length === 0);
+
 	// Get selected category details
 	let selectedCategory = $derived(
 		selectedCategoryId ? categories().find((c) => c.id === selectedCategoryId) : null
@@ -64,6 +76,11 @@
 		selectedCategoryId ? getBudgetForCategory(selectedCategoryId) : null
 	);
 
+	// Get the selected preset for the current category
+	let selectedPresetAmount = $derived(
+		selectedCategoryId ? categoryPresetSelections[selectedCategoryId] || null : null
+	);
+
 	// Set first category as selected by default
 	$effect(() => {
 		if (!selectedCategoryId && sortedCategories.length > 0) {
@@ -71,14 +88,57 @@
 		}
 	});
 
-	function startEditing(budgetId: string, currentAmount: number) {
-		editingBudgetId = budgetId;
-		editAmount = currentAmount.toString();
-	}
+	// Auto-select preset based on budget data
+	$effect(() => {
+		if (selectedCategoryId && selectedBudget) {
+			// If we haven't set a selection for this category yet, determine it automatically
+			if (!categoryPresetSelections[selectedCategoryId]) {
+				const budgetAmount = selectedBudget.amount;
+				const lastMonthSpent = getLastMonthSpent(selectedCategoryId);
+				const lastMonthBudget = getLastMonthBudget(selectedCategoryId);
+				const averageSpent = getAverageSpent(selectedCategoryId);
+
+				// Check if budget matches any preset
+				if (budgetAmount === lastMonthSpent && lastMonthSpent > 0) {
+					categoryPresetSelections[selectedCategoryId] = 'lastMonth';
+				} else if (budgetAmount === lastMonthBudget && lastMonthBudget > 0) {
+					categoryPresetSelections[selectedCategoryId] = 'lastMonthBudget';
+				} else if (budgetAmount === averageSpent && averageSpent > 0) {
+					categoryPresetSelections[selectedCategoryId] = 'average';
+				} else if (budgetAmount > 0) {
+					// Custom amount entered
+					categoryPresetSelections[selectedCategoryId] = 'custom';
+				} else {
+					// Budget is 0 or doesn't exist, default to lastMonthBudget
+					categoryPresetSelections[selectedCategoryId] = 'lastMonthBudget';
+				}
+			}
+		} else if (selectedCategoryId && !selectedBudget) {
+			// No budget exists, default to lastMonthBudget
+			if (!categoryPresetSelections[selectedCategoryId]) {
+				categoryPresetSelections[selectedCategoryId] = 'lastMonthBudget';
+			}
+		}
+	});
 
 	function cancelEditing() {
 		editingBudgetId = null;
 		editAmount = '';
+		editingCustomAmount = false;
+		customAmount = '';
+	}
+
+	function startEditingCustomAmount() {
+		editingCustomAmount = true;
+		if (selectedCategoryId) {
+			categoryPresetSelections[selectedCategoryId] = 'custom';
+		}
+		if (selectedBudget) {
+			editingBudgetId = selectedBudget.id;
+			editAmount = selectedBudget.amount.toString();
+		} else {
+			editAmount = '';
+		}
 	}
 
 	// Calculate preset amounts for the selected category
@@ -108,7 +168,9 @@
 		type: 'lastMonth' | 'lastMonthBudget' | 'average' | 'custom',
 		amount: number
 	) {
-		selectedPresetAmount = type;
+		if (selectedCategoryId) {
+			categoryPresetSelections[selectedCategoryId] = type;
+		}
 		if (type === 'custom') {
 			customAmount = '';
 		} else {
@@ -154,12 +216,21 @@
 	</div>
 
 	<!-- Three Column Layout -->
-	<div class="grid grid-cols-12 gap-6">
+	<div class="grid grid-cols-13 gap-4">
 		<!-- Column 1: Category List -->
 		<div class="col-span-3">
 			<div class="rounded-lg border bg-card shadow">
 				<div class="border-b p-6">
-					<h3 class="text-lg font-semibold">Categories</h3>
+					<div class="flex items-center justify-between">
+						<h3 class="text-lg font-semibold">Categories</h3>
+						<button
+							type="button"
+							class="rounded p-1 hover:bg-muted"
+							onclick={() => (openCategoryDialog = true)}
+						>
+							<SettingsIcon class="h-4 w-4" />
+						</button>
+					</div>
 				</div>
 				<div class="p-0">
 					<div class="max-h-[600px] overflow-y-auto">
@@ -188,7 +259,7 @@
 		</div>
 
 		<!-- Column 2: Category Detail -->
-		<div class="col-span-6">
+		<div class="col-span-7">
 			{#if selectedCategory}
 				<!-- Heading -->
 				<div class="mb-6">
@@ -200,162 +271,54 @@
 				<!-- Four Mini Cards -->
 				<div class="mb-6 grid grid-cols-4 gap-4">
 					<!-- Last Month Spent -->
-					<button
-						class="relative rounded-lg border bg-card p-4 shadow transition-all hover:border-primary"
-						onclick={() => selectPresetAmount('lastMonth', presetAmounts.lastMonthSpent)}
-					>
-						<div class="absolute top-2 right-2">
-							{#if selectedPresetAmount === 'lastMonth'}
-								<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-							{:else}
-								<CheckCircleIcon class="h-5 w-5 text-gray-300" />
-							{/if}
-						</div>
-						<div class="flex flex-col items-center justify-center space-y-2 pt-2">
-							<p class="text-2xl font-bold">${presetAmounts.lastMonthSpent.toFixed(2)}</p>
-							<p class="text-center text-sm text-muted-foreground">Last month spent</p>
-						</div>
-					</button>
+					<PresetBudgetCard
+						title="How much I spent last month"
+						amount={presetAmounts.lastMonthSpent}
+						isSelected={selectedPresetAmount === 'lastMonth'}
+						{selectedMonth}
+						{selectedYear}
+						categoryId={selectedCategory.id}
+						onSelect={() => selectPresetAmount('lastMonth', presetAmounts.lastMonthSpent)}
+					/>
 
 					<!-- Last Month Budget -->
-					<button
-						class="relative rounded-lg border bg-card p-4 shadow transition-all hover:border-primary"
-						onclick={() => selectPresetAmount('lastMonthBudget', presetAmounts.lastMonthBudget)}
-					>
-						<div class="absolute top-2 right-2">
-							{#if selectedPresetAmount === 'lastMonthBudget'}
-								<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-							{:else}
-								<CheckCircleIcon class="h-5 w-5 text-gray-300" />
-							{/if}
-						</div>
-						<div class="flex flex-col items-center justify-center space-y-2 pt-2">
-							<p class="text-2xl font-bold">${presetAmounts.lastMonthBudget.toFixed(2)}</p>
-							<p class="text-center text-sm text-muted-foreground">Last month budget</p>
-						</div>
-					</button>
+					<PresetBudgetCard
+						title="How much I budgeted last month"
+						amount={presetAmounts.lastMonthBudget}
+						isSelected={selectedPresetAmount === 'lastMonthBudget'}
+						{selectedMonth}
+						{selectedYear}
+						categoryId={selectedCategory.id}
+						onSelect={() => selectPresetAmount('lastMonthBudget', presetAmounts.lastMonthBudget)}
+					/>
 
 					<!-- Average Spent -->
-					<button
-						class="relative rounded-lg border bg-card p-4 shadow transition-all hover:border-primary"
-						onclick={() => selectPresetAmount('average', presetAmounts.averageSpent)}
-					>
-						<div class="absolute top-2 right-2">
-							{#if selectedPresetAmount === 'average'}
-								<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-							{:else}
-								<CheckCircleIcon class="h-5 w-5 text-gray-300" />
-							{/if}
-						</div>
-						<div class="flex flex-col items-center justify-center space-y-2 pt-2">
-							<p class="text-2xl font-bold">${presetAmounts.averageSpent.toFixed(2)}</p>
-							<p class="text-center text-sm text-muted-foreground">Average spent</p>
-						</div>
-					</button>
-					<!-- Custom Amount -->
-					<button
-						class="relative rounded-lg border bg-card p-4 shadow transition-all hover:border-primary"
-						onclick={() => selectPresetAmount('custom', 0)}
-					>
-						<div class="absolute top-2 right-2">
-							{#if selectedPresetAmount === 'custom'}
-								<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-							{:else}
-								<CheckCircleIcon class="h-5 w-5 text-gray-300" />
-							{/if}
-						</div>
-						<div class="flex flex-col items-center justify-center space-y-2 pt-2">
-							{#if selectedPresetAmount === 'custom'}
-								<Input
-									type="number"
-									bind:value={customAmount}
-									step="0.01"
-									min="0"
-									class="h-8 w-full text-center text-xl font-bold"
-									placeholder="0.00"
-								/>
-							{:else}
-								<p class="text-2xl font-bold">$0.00</p>
-							{/if}
-							<p class="text-center text-sm text-muted-foreground">Custom amount</p>
-						</div>
-					</button>
-				</div>
+					<PresetBudgetCard
+						title="How much I spend on average"
+						amount={presetAmounts.averageSpent}
+						isSelected={selectedPresetAmount === 'average'}
+						{selectedMonth}
+						{selectedYear}
+						categoryId={selectedCategory.id}
+						onSelect={() => selectPresetAmount('average', presetAmounts.averageSpent)}
+					/>
 
-				<!-- Budget Details Card -->
-				<div class="rounded-lg border bg-card shadow">
-					<div class="border-b p-6">
-						<div class="flex items-center justify-between">
-							<h3 class="text-lg font-semibold">Budget Details</h3>
-							{#if selectedBudget}
-								<Button size="sm" onclick={() => (openModal = true)}>
-									<PlusIcon class="mr-2 h-4 w-4" />
-									Edit Budget
-								</Button>
-							{:else}
-								<Button size="sm" onclick={() => (openModal = true)}>
-									<PlusIcon class="mr-2 h-4 w-4" />
-									Add Budget
-								</Button>
-							{/if}
-						</div>
-					</div>
-					<div class="p-6">
-						{#if selectedBudget}
-							<div class="space-y-4">
-								<div>
-									<p class="text-sm font-medium text-muted-foreground">Budgeted Amount</p>
-									{#if editingBudgetId === selectedBudget.id}
-										<form method="POST" action="?/update" class="mt-2 flex gap-2">
-											<input type="hidden" name="id" value={selectedBudget.id} />
-											<input
-												type="hidden"
-												name="month"
-												value={selectedMonth.toString().padStart(2, '0')}
-											/>
-											<input type="hidden" name="year" value={selectedYear.toString()} />
-											<input type="hidden" name="categoryId" value={selectedCategory.id} />
-											<Input
-												type="number"
-												name="amount"
-												bind:value={editAmount}
-												step="0.01"
-												min="0"
-												class="w-48"
-											/>
-											<Button type="submit" size="sm">Save</Button>
-											<Button type="button" size="sm" variant="outline" onclick={cancelEditing}>
-												Cancel
-											</Button>
-										</form>
-									{:else}
-										<div class="mt-2 flex items-center gap-4">
-											<p class="text-2xl font-bold">${selectedBudget.amount.toFixed(2)}</p>
-											<Button
-												size="sm"
-												variant="outline"
-												onclick={() => startEditing(selectedBudget.id, selectedBudget.amount)}
-											>
-												Edit
-											</Button>
-											<form method="POST" action="?/delete" class="inline">
-												<input type="hidden" name="id" value={selectedBudget.id} />
-												<Button type="submit" size="sm" variant="destructive">Delete</Button>
-											</form>
-										</div>
-									{/if}
-								</div>
-							</div>
-						{:else}
-							<div class="py-12 text-center">
-								<p class="mb-4 text-muted-foreground">No budget set for this category</p>
-								<Button onclick={() => (openModal = true)}>
-									<PlusIcon class="mr-2 h-4 w-4" />
-									Add Budget
-								</Button>
-							</div>
-						{/if}
-					</div>
+					<!-- Custom Amount -->
+					<PresetBudgetCard
+						title="Custom"
+						amount={selectedBudget ? selectedBudget.amount : 0}
+						isSelected={selectedPresetAmount === 'custom'}
+						isCustom={true}
+						isEditing={editingCustomAmount}
+						{editAmount}
+						budgetId={selectedBudget?.id}
+						{selectedMonth}
+						{selectedYear}
+						categoryId={selectedCategory.id}
+						onSelect={() => selectPresetAmount('custom', 0)}
+						onEdit={startEditingCustomAmount}
+						onCancel={cancelEditing}
+					/>
 				</div>
 			{:else}
 				<div class="rounded-lg border bg-card shadow">
@@ -368,29 +331,53 @@
 
 		<!-- Column 3: Total Summary -->
 		<div class="col-span-3">
+			<!-- Budget Status Box -->
+			<div class="mb-4 rounded-lg border bg-card shadow">
+				<div class="relative p-6">
+					<div class="absolute top-4 right-4">
+						{#if allBudgetsSet}
+							<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
+						{:else}
+							<CheckCircleIcon class="h-5 w-5 text-gray-300" />
+						{/if}
+					</div>
+					<div class="flex flex-col items-center justify-center space-y-2">
+						<SlidersHorizontalIcon class="h-5 w-5 text-muted-foreground" />
+						<p class="text-lg font-semibold">
+							Set {months.find((m) => m.value === selectedMonth.toString().padStart(2, '0'))
+								?.label || 'Monthly'} Budget
+						</p>
+						{#if categoriesWithoutBudget.length > 0}
+							<p class="text-sm text-muted-foreground">
+								There is no budget set for {categoriesWithoutBudget.length}
+								{categoriesWithoutBudget.length === 1 ? 'category' : 'categories'}.
+							</p>
+						{:else}
+							<p class="text-sm text-muted-foreground">All budgets are set!</p>
+						{/if}
+					</div>
+				</div>
+			</div>
+
+			<!-- Spending Overview Box -->
 			<div class="rounded-lg border bg-card shadow">
 				<div class="border-b p-6">
-					<h3 class="text-lg font-semibold">Monthly Total</h3>
+					<h3 class="text-lg font-semibold">
+						{months.find((m) => m.value === selectedMonth.toString().padStart(2, '0'))?.label ||
+							'Monthly'} Spending Overview
+					</h3>
 				</div>
 				<div class="p-6">
 					<div class="space-y-4">
-						<div>
-							<p class="text-sm font-medium text-muted-foreground">Total Budget</p>
-							<p class="text-3xl font-bold">${totalBudget.toFixed(2)}</p>
-						</div>
-						<div class="rounded-lg bg-muted p-4">
-							<p class="mb-2 text-sm font-medium">Budget Breakdown</p>
-							<div class="space-y-2">
-								<div class="flex justify-between text-sm">
-									<span>Categories with Budget:</span>
-									<span class="font-medium">{(data.budget as Budget[]).length}</span>
-								</div>
-								<div class="flex justify-between text-sm">
-									<span>Total Categories:</span>
-									<span class="font-medium">{categories().length}</span>
-								</div>
-							</div>
-						</div>
+						<SummaryRow label="Recurring Expenses" amount={totalRecurring} />
+						<SummaryRow label="You Budgeted" amount={totalBudget} />
+						<SummaryRow
+							label="You Expect To Spend"
+							amount={totalRecurring + totalBudget}
+							emphasized={true}
+							bordered={true}
+							muted={false}
+						/>
 					</div>
 				</div>
 			</div>
@@ -398,4 +385,4 @@
 	</div>
 </div>
 
-<BudgetModal bind:open={openModal} categories={categories()} />
+<CategoryDialog bind:open={openCategoryDialog} />

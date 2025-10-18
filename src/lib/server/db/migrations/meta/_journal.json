@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1755756225521,
-      "tag": "0000_modern_barracuda",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1755984783626,
-      "tag": "0001_glorious_wong",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1756100903488,
-      "tag": "0002_nosy_onslaught",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1760704815228,
-      "tag": "0003_overconfident_omega_red",
+      "when": 1760797755960,
+      "tag": "0000_needy_catseye",
       "breakpoints": true
     }
   ]

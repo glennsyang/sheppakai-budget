@@ -3,11 +3,12 @@ import { real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { generateId } from '../utils';
 import user from './user';
 
-const income = sqliteTable('income', {
+const recurring = sqliteTable('recurring', {
 	id: text('id').primaryKey().$defaultFn(generateId),
-	amount: real('amount').notNull(),
+	merchant: text('merchant').notNull(),
 	description: text('description').notNull(),
-	date: text('date').notNull(),
+	cadence: text('cadence').notNull(),
+	amount: real('amount').notNull(),
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id),
@@ -25,8 +26,8 @@ const income = sqliteTable('income', {
 		.references(() => user.id)
 });
 
-export const incomeRelations = relations(income, ({ one }) => ({
-	user: one(user, { fields: [income.userId], references: [user.id] })
+export const recurringRelations = relations(recurring, ({ one }) => ({
+	user: one(user, { fields: [recurring.userId], references: [user.id] })
 }));
 
-export default income;
+export default recurring;

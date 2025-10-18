@@ -3,13 +3,16 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
-	import type { Income } from '$lib';
-	import IncomeModal from '$lib/components/IncomeModal.svelte';
+	import type { Category, Recurring } from '$lib';
+	import RecurringModal from '$lib/components/RecurringModal.svelte';
+	import { getContext } from 'svelte';
 
-	let { id, incomeData }: { id: string; incomeData: Income } = $props();
+	let { id, recurringData }: { id: string; recurringData: Recurring } = $props();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
+
+	const categories = getContext('categories') as () => Category[];
 </script>
 
 <DropdownMenu.Root>
@@ -27,13 +30,14 @@
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
-<IncomeModal
+<RecurringModal
 	bind:open={openEditModal}
 	initialData={{
 		id,
-		amount: incomeData?.amount,
-		description: incomeData?.description,
-		date: incomeData?.date
+		merchant: recurringData?.merchant,
+		description: recurringData?.description,
+		cadence: recurringData?.cadence,
+		amount: recurringData?.amount
 	}}
 	isEditing
 />
@@ -41,8 +45,8 @@
 <ConfirmModal
 	bind:open={openDeleteModal}
 	{id}
-	actionUrl="/income?/delete"
-	title="Delete Income"
-	message="Are you sure you want to delete this income?"
+	actionUrl="/recurring/delete"
+	title="Delete Recurring"
+	message="Are you sure you want to delete this recurring expense?"
 	confirmButtonText="Delete"
 />

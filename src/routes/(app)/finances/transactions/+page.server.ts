@@ -1,12 +1,12 @@
 import { db } from '$lib/server/db';
-import { expense } from '$lib/server/db/schema';
+import { transaction } from '$lib/server/db/schema';
 import { and, desc, sql } from 'drizzle-orm';
-import type { Expense } from '$lib';
+import type { Transaction } from '$lib';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
-		return { expenses: [] };
+		return { transactions: [] };
 	}
 
 	// Get month and year from URL or use current month/year
@@ -20,19 +20,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
 	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-	const expenses: Expense[] = (await db.query.expense.findMany({
+	const transactions: Transaction[] = (await db.query.transaction.findMany({
 		with: {
 			category: true,
 			user: true
 		},
 		where: and(
-			sql`date(${expense.date}) >= date(${startDate})`,
-			sql`date(${expense.date}) <= date(${endDate})`
+			sql`date(${transaction.date}) >= date(${startDate})`,
+			sql`date(${transaction.date}) <= date(${endDate})`
 		),
-		orderBy: [desc(expense.date)]
-	})) as Expense[];
+		orderBy: [desc(transaction.date)]
+	})) as Transaction[];
 
 	return {
-		expenses
+		transactions
 	};
 };

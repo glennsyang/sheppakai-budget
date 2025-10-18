@@ -3,11 +3,11 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
-	import type { Category, Expense } from '$lib';
-	import ExpenseModal from '$lib/components/ExpenseModal.svelte';
+	import type { Category, Transaction } from '$lib';
+	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { getContext } from 'svelte';
 
-	let { id, expenseData }: { id: string; expenseData: Expense } = $props();
+	let { id, transactionData }: { id: string; transactionData: Transaction } = $props();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
@@ -30,15 +30,15 @@
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
-<ExpenseModal
+<TransactionModal
 	bind:open={openEditModal}
 	initialData={{
 		id,
-		amount: expenseData?.amount,
-		categoryId: expenseData?.category?.id,
-		payee: expenseData?.payee,
-		notes: expenseData?.notes,
-		date: expenseData?.date
+		amount: transactionData?.amount,
+		categoryId: transactionData?.category?.id,
+		payee: transactionData?.payee,
+		notes: transactionData?.notes,
+		date: transactionData?.date
 	}}
 	isEditing
 	categories={categories()}
@@ -47,8 +47,8 @@
 <ConfirmModal
 	bind:open={openDeleteModal}
 	{id}
-	actionUrl="/expense?/delete"
-	title="Delete Expense"
-	message="Are you sure you want to delete this expense?"
+	actionUrl="/finances/transactions?/delete"
+	title="Delete Transaction"
+	message="Are you sure you want to delete this transaction?"
 	confirmButtonText="Delete"
 />

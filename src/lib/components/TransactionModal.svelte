@@ -70,17 +70,17 @@
 <Dialog.Root bind:open>
 	<Dialog.Content class="sm:max-w-[425px]">
 		<Dialog.Header>
-			<Dialog.Title>{isEditing ? 'Edit Expense' : 'Add New Expense'}</Dialog.Title>
+			<Dialog.Title>{isEditing ? 'Edit Transaction' : 'Add New Transaction'}</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
-					? 'Update this expense entry. Modify the amount, payee, notes, date, or category as needed.'
-					: 'Record a new expense entry. Fill in the amount, payee, notes, date, and optionally select a category.'}
+					? 'Update this transaction entry. Modify the amount, payee, notes, date, or category as needed.'
+					: 'Record a new transaction entry. Fill in the amount, payee, notes, date, and optionally select a category.'}
 			</Dialog.Description>
 		</Dialog.Header>
 		<form
 			class="space-y-4"
 			method="POST"
-			action={isEditing ? '/expense?/update' : '/expense?/create'}
+			action={isEditing ? '/finances/transactions?/update' : '/finances/transactions?/create'}
 			use:enhance={() => {
 				open = false;
 				isLoading = true;
@@ -88,10 +88,12 @@
 				return async ({ result, update }) => {
 					if (result.type === 'success') {
 						toast.success(
-							isEditing ? 'Expense updated successfully!' : 'Expense created successfully!'
+							isEditing ? 'Transaction updated successfully!' : 'Transaction created successfully!'
 						);
 					} else {
-						toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the expense.`);
+						toast.error(
+							`There was an error ${isEditing ? 'updating' : 'creating'} the transaction.`
+						);
 					}
 					isLoading = false;
 					await update();
@@ -100,9 +102,9 @@
 		>
 			<input type="hidden" name="id" value={id} />
 			<div class="space-y-2">
-				<label for="expense-amount" class="text-sm font-medium">Amount</label>
+				<label for="transaction-amount" class="text-sm font-medium">Amount</label>
 				<Input
-					id="expense-amount"
+					id="transaction-amount"
 					name="amount"
 					type="number"
 					step="0.01"
@@ -114,9 +116,9 @@
 			</div>
 
 			<div class="space-y-2">
-				<label for="expense-payee" class="text-sm font-medium">Payee</label>
+				<label for="transaction-payee" class="text-sm font-medium">Payee</label>
 				<Input
-					id="expense-payee"
+					id="transaction-payee"
 					name="payee"
 					bind:value={payee}
 					placeholder="Who did you pay?"
@@ -125,23 +127,23 @@
 			</div>
 
 			<div class="space-y-2">
-				<label for="expense-notes" class="text-sm font-medium">Notes</label>
+				<label for="transaction-notes" class="text-sm font-medium">Notes</label>
 				<Textarea
-					id="expense-notes"
+					id="transaction-notes"
 					name="notes"
 					bind:value={notes}
-					placeholder="What was this expense for?"
+					placeholder="What was this transaction for?"
 					rows={2}
 				/>
 			</div>
 
 			<div class="space-y-2">
-				<label for="expense-date" class="text-sm font-medium">Date</label>
-				<Input id="expense-date" name="date" type="date" bind:value={date} required />
+				<label for="transaction-date" class="text-sm font-medium">Date</label>
+				<Input id="transaction-date" name="date" type="date" bind:value={date} required />
 			</div>
 
 			<div class="space-y-2">
-				<label for="expense-category" class="text-sm font-medium">Category</label>
+				<label for="transaction-category" class="text-sm font-medium">Category</label>
 				<Select.Root type="single" name="categoryId" bind:value={categoryId} required>
 					<Select.Trigger class="w-full">
 						{categoryId

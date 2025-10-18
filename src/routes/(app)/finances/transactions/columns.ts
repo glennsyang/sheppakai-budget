@@ -1,10 +1,10 @@
-import type { Expense } from '$lib';
+import type { Transaction } from '$lib';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
 import DataTableActions from './data-table-actions.svelte';
 
-export const columns: ColumnDef<Expense>[] = [
+export const columns: ColumnDef<Transaction>[] = [
 	{
 		accessorKey: 'date',
 		header: 'Date'
@@ -41,7 +41,10 @@ export const columns: ColumnDef<Expense>[] = [
 				};
 			});
 
-			return renderSnippet(amountCellSnippet, formatter.format(parseFloat(row.getValue('amount'))));
+			return renderSnippet(
+				amountCellSnippet,
+				formatter.format(Number.parseFloat(row.getValue('amount')))
+			);
 		}
 	},
 	{
@@ -54,7 +57,7 @@ export const columns: ColumnDef<Expense>[] = [
 			// Pass both the ID and the entire expense data for editing
 			return renderComponent(DataTableActions, {
 				id: row.original.id.toString(),
-				expenseData: row.original
+				transactionData: row.original
 			});
 		}
 	}
