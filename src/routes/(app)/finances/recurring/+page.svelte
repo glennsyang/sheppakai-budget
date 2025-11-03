@@ -26,7 +26,7 @@
 <div class="px-4 py-6 sm:px-0">
 	<div class="mb-8">
 		<h1 class="text-3xl font-bold tracking-tight">Recurring Expenses</h1>
-		<p class="mt-2 text-muted-foreground">Manage your monthly recurring expenses</p>
+		<p class="mt-2 text-muted-foreground">Manage your monthly and yearly recurring expenses</p>
 	</div>
 
 	<div class="grid grid-cols-1 gap-6 lg:grid-cols-4">

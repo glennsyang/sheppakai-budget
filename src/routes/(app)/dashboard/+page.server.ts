@@ -1,8 +1,8 @@
 import { db } from '$lib/server/db';
-import { budget, expense, income } from '$lib/server/db/schema';
+import { budget, transaction } from '$lib/server/db/schema';
 import { and, desc, sql, eq, ne } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
-import type { Budget, Expense, Income } from '$lib';
+import type { Budget, Transaction } from '$lib';
 import { incomeCategoryId } from '$lib/utils';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -22,35 +22,24 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	let year = currentYear;
 	let month = currentMonth;
 	if (monthParam && yearParam) {
-		year = parseInt(yearParam);
-		month = parseInt(monthParam);
+		year = Number.parseInt(yearParam);
+		month = Number.parseInt(monthParam);
 	}
 
 	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
 	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-	const actualIncome: Income[] = (await db.query.income.findMany({
-		with: {
-			user: true
-		},
-		where: and(
-			sql`date(${income.date}) >= date(${startDate})`,
-			sql`date(${income.date}) <= date(${endDate})`
-		),
-		orderBy: [desc(income.date)]
-	})) as Income[];
-
-	const actualExpenses: Expense[] = (await db.query.expense.findMany({
+	const actualExpenses: Transaction[] = (await db.query.transaction.findMany({
 		with: {
 			category: true,
 			user: true
 		},
 		where: and(
-			sql`date(${expense.date}) >= date(${startDate})`,
-			sql`date(${expense.date}) <= date(${endDate})`
+			sql`date(${transaction.date}) >= date(${startDate})`,
+			sql`date(${transaction.date}) <= date(${endDate})`
 		),
-		orderBy: [desc(expense.date)]
-	})) as Expense[];
+		orderBy: [desc(transaction.date)]
+	})) as Transaction[];
 
 	const plannedExpenses: Budget[] = (await db.query.budget.findMany({
 		with: {
@@ -79,7 +68,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	// Calculate totals
 	const actualExpensesTotal = actualExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 	const plannedExpensesTotal = plannedExpenses.reduce((sum, budget) => sum + budget.amount, 0);
-	const actualIncomeTotal = actualIncome.reduce((sum, inc) => sum + inc.amount, 0);
 	const plannedIncomeTotal = plannedIncome.reduce((sum, budget) => sum + budget.amount, 0);
 
 	return {
@@ -87,9 +75,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		plannedExpenses,
 		actualExpensesTotal,
 		plannedExpensesTotal,
-		actualIncome,
 		plannedIncome,
-		actualIncomeTotal,
 		plannedIncomeTotal
 	};
 };

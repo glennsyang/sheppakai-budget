@@ -21,6 +21,10 @@ export const columns: ColumnDef<Transaction>[] = [
 		header: 'Payee'
 	},
 	{
+		accessorKey: 'notes',
+		header: 'Notes'
+	},
+	{
 		accessorKey: 'amount',
 		header: () => {
 			const amountHeaderSnippet = createRawSnippet(() => ({
@@ -46,10 +50,6 @@ export const columns: ColumnDef<Transaction>[] = [
 				formatter.format(Number.parseFloat(row.getValue('amount')))
 			);
 		}
-	},
-	{
-		accessorKey: 'notes',
-		header: 'Notes'
 	},
 	{
 		id: 'actions',

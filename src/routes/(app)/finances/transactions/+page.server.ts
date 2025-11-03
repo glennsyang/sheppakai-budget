@@ -1,8 +1,10 @@
+import { fail } from '@sveltejs/kit';
+import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
+import { desc, and, eq, sql } from 'drizzle-orm';
+import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { transaction } from '$lib/server/db/schema';
-import { and, desc, sql } from 'drizzle-orm';
 import type { Transaction } from '$lib';
-import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
@@ -36,3 +38,119 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		transactions
 	};
 };
+
+export const actions = {
+	create: async ({ request, locals }) => {
+		if (!locals.user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
+
+		const data = await request.formData();
+		const hasAmount = data.has('amount');
+		const hasPayee = data.has('payee');
+		const hasNotes = data.has('notes');
+		const hasDate = data.has('date');
+		const hasCategoryId = data.has('categoryId');
+
+		if (!hasAmount || !hasNotes || !hasDate || !hasCategoryId || !hasPayee) {
+			return fail(400, { hasAmount, hasNotes, hasDate, hasCategoryId, hasPayee });
+		}
+
+		try {
+			const userId = locals.user.id.toString();
+
+			await db.insert(transaction).values(
+				withAuditFieldsForCreate(
+					{
+						amount: Number(data.get('amount')),
+						payee: data.get('payee')?.toString() || '',
+						notes: data.get('notes')?.toString() || '',
+						date: data.get('date')?.toString() || '',
+						categoryId: data.get('categoryId')?.toString() || '',
+						userId: userId
+					},
+					userId
+				)
+			);
+
+			console.log('Created transaction entry for user:', userId);
+		} catch (error) {
+			console.error('Error creating transaction entry:', error);
+			return fail(500, { error: 'Failed to create transaction entry' });
+		}
+
+		return { success: true, create: true };
+	},
+	update: async ({ request, locals }) => {
+		if (!locals.user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
+
+		const data = await request.formData();
+
+		const hasId = data.has('id');
+		const hasAmount = data.has('amount');
+		const hasPayee = data.has('payee');
+		const hasNotes = data.has('notes');
+		const hasDate = data.has('date');
+		const hasCategoryId = data.has('categoryId');
+
+		if (!hasId || !hasAmount || !hasPayee || !hasNotes || !hasDate || !hasCategoryId) {
+			return fail(400, { hasId, hasAmount, hasPayee, hasNotes, hasDate, hasCategoryId });
+		}
+
+		// Update the transaction entry in the database
+		const transactionId = data.get('id')!.toString();
+		try {
+			const userId = locals.user.id.toString();
+
+			await db
+				.update(transaction)
+				.set(
+					withAuditFieldsForUpdate(
+						{
+							amount: Number(data.get('amount')),
+							payee: data.get('payee')?.toString() || '',
+							notes: data.get('notes')?.toString() || '',
+							date: data.get('date')?.toString() || '',
+							categoryId: data.get('categoryId')?.toString() || ''
+						},
+						userId
+					)
+				)
+				.where(eq(transaction.id, transactionId));
+
+			console.log('Updated transaction entry:', transactionId);
+		} catch (error) {
+			console.error('Error updating transaction entry:', error);
+			return fail(500, { error: 'Failed to update transaction entry' });
+		}
+
+		return { success: true, update: true };
+	},
+	delete: async ({ request, locals }) => {
+		if (!locals.user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
+
+		const data = await request.formData();
+		const hasId = data.has('id');
+
+		if (!hasId) {
+			return fail(400, { hasId });
+		}
+
+		const transactionId = data.get('id')!.toString();
+
+		try {
+			await db.delete(transaction).where(eq(transaction.id, transactionId));
+
+			console.log('Deleted transaction entry:', transactionId);
+		} catch (error) {
+			console.error('Error deleting transaction entry:', error);
+			return fail(500, { error: 'Failed to delete transaction entry' });
+		}
+
+		return { success: true, update: true };
+	}
+} satisfies Actions;

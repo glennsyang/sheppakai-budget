@@ -79,22 +79,41 @@
 		</div>
 	</div>
 
-	<div class="overflow-hidden rounded-lg border shadow">
-		<div class="p-6">
-			<div class="mb-4 flex items-center justify-between">
-				<div></div>
-				<div class="flex items-center gap-2">
-					<Button size="sm" onclick={() => (openModal = true)}>
-						<PlusIcon />
-						Add Transaction
-					</Button>
+	<div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+		<!-- Table Column (larger) -->
+		<div class="lg:col-span-3">
+			<div class="overflow-hidden rounded-lg border shadow">
+				<div class="p-6">
+					<div class="mb-4 flex items-center justify-between">
+						<div></div>
+						<div class="flex items-center gap-2">
+							<Button size="sm" onclick={() => (openModal = true)}>
+								<PlusIcon />
+								Add Transaction
+							</Button>
+						</div>
+					</div>
+					{#if loading}
+						<TableSkeleton rows={5} columns={4} />
+					{:else}
+						<DataTable {columns} data={data.transactions as Transaction[]} />
+					{/if}
 				</div>
 			</div>
-			{#if loading}
-				<TableSkeleton rows={5} columns={4} />
-			{:else}
-				<DataTable {columns} data={data.transactions as Transaction[]} />
-			{/if}
+		</div>
+
+		<!-- Summary Card Column -->
+		<div class="lg:col-span-1">
+			<div class="overflow-hidden rounded-lg border shadow">
+				<div class="p-6">
+					<h2 class="text-center text-2xl font-bold tracking-tight">Budget Summary</h2>
+					<div class="my-4 border-t"></div>
+					<div class="flex items-center justify-between">
+						<span class="text-base font-medium">Recurring Total</span>
+						<span class="text-2xl font-bold">$0.00</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
