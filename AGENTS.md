@@ -12,15 +12,12 @@ This project is a web application that allows users to track their monthly budge
 
 - SvelteKit and Tailwind CSS.
 - Always use Svelte 5.
-- SQLite (better-sqlite3) for data storage.
-- Drizzle for ORM
+- SQLite for data storage.
 
 ## Coding Standards
 
-- Use Typescript for all new files.
 - Use semicolons at the end of each statement.
 - Use single quotes for strings.
-- Use snake_case for database column names.
 
 ## UI guidelines
 
