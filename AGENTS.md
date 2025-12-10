@@ -72,7 +72,7 @@ This is a SvelteKit web application for tracking monthly budgets, managing expen
 
 ## Node.js Version
 
-- This project requires **Node.js version 20.19.5** for development and production to ensure compatibility and stability. Please use a version manager (like nvm or asdf) to set your Node version accordingly.
+- This project requires **Node.js version 22.13.1** for development and production to ensure compatibility and stability. Please use a version manager (like nvm or asdf) to set your Node version accordingly.
 
 ## Database Driver: better-sqlite3
 
