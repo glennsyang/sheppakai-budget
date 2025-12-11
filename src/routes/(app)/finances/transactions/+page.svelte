@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Category, Transaction } from '$lib';
+	import type { Category, Transaction, Budget } from '$lib';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { columns } from './columns';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -8,6 +8,7 @@
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
+	import CategoryBudgetProgress from '$lib/components/CategoryBudgetProgress.svelte';
 	import { getContext } from 'svelte';
 	import { months } from '$lib/utils';
 	import { page } from '$app/state';
@@ -16,6 +17,8 @@
 	interface Props {
 		data: {
 			transactions: Transaction[];
+			budgets: Budget[];
+			categorySpending: Record<string, number>;
 		};
 	}
 
@@ -42,6 +45,15 @@
 	}
 
 	const categories = getContext('categories') as () => Category[];
+
+	// Sort budgets alphabetically by category name
+	let sortedBudgets = $derived(
+		[...data.budgets].sort((a, b) => {
+			const nameA = a.category?.name || '';
+			const nameB = b.category?.name || '';
+			return nameA.localeCompare(nameB);
+		})
+	);
 </script>
 
 <svelte:head>
@@ -107,10 +119,19 @@
 				<div class="p-6">
 					<h2 class="text-center text-2xl font-bold tracking-tight">Budget Summary</h2>
 					<div class="my-4 border-t"></div>
-					<div class="flex items-center justify-between">
-						<span class="text-base font-medium">Recurring Total</span>
-						<span class="text-2xl font-bold">$0.00</span>
-					</div>
+					{#if sortedBudgets.length === 0}
+						<p class="text-center text-sm text-muted-foreground">No budgets set for this month</p>
+					{:else}
+						{#each sortedBudgets as budgetItem (budgetItem.id)}
+							{#if budgetItem.category}
+								<CategoryBudgetProgress
+									categoryName={budgetItem.category.name}
+									spent={data.categorySpending[budgetItem.category.id] || 0}
+									budgeted={budgetItem.amount}
+								/>
+							{/if}
+						{/each}
+					{/if}
 				</div>
 			</div>
 		</div>

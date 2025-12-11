@@ -3,8 +3,8 @@ import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
 import { desc, and, eq, sql } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
-import { transaction } from '$lib/server/db/schema';
-import type { Transaction } from '$lib';
+import { transaction, budget } from '$lib/server/db/schema';
+import type { Transaction, Budget } from '$lib';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
@@ -34,8 +34,31 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		orderBy: [desc(transaction.date)]
 	})) as Transaction[];
 
+	// Load budgets for the current month/year
+	const budgets: Budget[] = (await db.query.budget.findMany({
+		with: {
+			category: true,
+			user: true
+		},
+		where: and(eq(budget.month, month.toString()), eq(budget.year, year.toString()))
+	})) as Budget[];
+
+	// Calculate spending per category
+	const categorySpending = transactions.reduce(
+		(acc, txn) => {
+			if (txn.category) {
+				const categoryId = txn.category.id;
+				acc[categoryId] = (acc[categoryId] || 0) + txn.amount;
+			}
+			return acc;
+		},
+		{} as Record<string, number>
+	);
+
 	return {
-		transactions
+		transactions,
+		budgets,
+		categorySpending
 	};
 };
 
