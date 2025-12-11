@@ -34,7 +34,9 @@
 	let isHomeActive = $derived(
 		currentPath === '/(app)/dashboard' || currentPath.startsWith('/dashboard')
 	);
-	let isSetupActive = $derived(currentPath === '/(app)/setup' || currentPath.startsWith('/setup'));
+	let isSetupActive = $derived(
+		currentPath.includes('/setup') || currentPath.includes('/categories')
+	);
 </script>
 
 <!-- Full application layout for all other routes -->
@@ -80,9 +82,24 @@
 					</DropdownMenu.Root>
 
 					<!-- Setup Tab -->
-					<Button href="/setup" variant={isSetupActive ? 'secondary' : 'ghost'} class="px-4 py-2">
-						Setup
-					</Button>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<Button
+									{...props}
+									variant={isSetupActive ? 'secondary' : 'ghost'}
+									class="px-4 py-2"
+								>
+									Setup
+								</Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content align="start">
+							<DropdownMenu.Item onclick={() => (window.location.href = '/setup/categories')}>
+								Categories
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
 				</nav>
 
 				<!-- Right: Profile, Logout, Theme Toggle -->

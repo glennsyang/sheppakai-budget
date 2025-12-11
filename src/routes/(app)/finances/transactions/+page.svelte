@@ -56,7 +56,6 @@
 					<MonthYearSwitcher
 						currentMonth={selectedMonth}
 						currentYear={selectedYear}
-						currentType={'transactions'}
 						onMonthChange={onMonthYearChange}
 					/>
 				</div>

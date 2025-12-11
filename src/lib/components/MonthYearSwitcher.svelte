@@ -6,11 +6,10 @@
 	interface Props {
 		currentMonth: number;
 		currentYear: number;
-		currentType: string;
 		onMonthChange: (month: number, year: number) => void;
 	}
 
-	let { currentMonth, currentYear, currentType, onMonthChange }: Props = $props();
+	let { currentMonth, currentYear, onMonthChange }: Props = $props();
 
 	const monthNames = [
 		'January',
@@ -51,7 +50,7 @@
 		onMonthChange(month, year);
 	}
 
-	let displayText = $derived(`${monthNames[currentMonth - 1]} ${currentYear}'s ${currentType}`);
+	let displayText = $derived(`${monthNames[currentMonth - 1]} ${currentYear}`);
 </script>
 
 <div class="flex items-center gap-2">

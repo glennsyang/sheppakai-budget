@@ -192,7 +192,6 @@
 					<MonthYearSwitcher
 						currentMonth={selectedMonth}
 						currentYear={selectedYear}
-						currentType={'budget'}
 						onMonthChange={onMonthYearChange}
 					/>
 				</div>
