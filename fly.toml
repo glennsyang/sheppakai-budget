@@ -1,0 +1,27 @@
+# fly.toml app configuration file generated for sheppakai-budget-withered-surf-3396 on 2025-12-11T16:41:32-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'sheppakai-budget-withered-surf-3396'
+primary_region = 'yyz'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpus = 1
+  memory_mb = 1024
+
+[mounts]
+  source = "sheppakai_budget_data"
+  destination="/data"
+  auto_extend_size_threshold = 80
+  auto_extend_size_increment = "1GB"
+  auto_extend_size_limit = "10GB"
