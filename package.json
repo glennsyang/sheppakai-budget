@@ -31,6 +31,7 @@
 		"@tanstack/table-core": "^8.21.3",
 		"@types/better-sqlite3": "^7.6.12",
 		"@types/d3-scale": "^4.0.9",
+		"@types/d3-shape": "^3.1.7",
 		"@types/node": "^20",
 		"bits-ui": "^2.14.4",
 		"clsx": "^2.1.1",
