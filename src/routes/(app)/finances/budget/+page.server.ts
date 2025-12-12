@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { budget, transaction } from '$lib/server/db/schema';
@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const endDateStr = `${latestMonth.year}-${latestMonth.month}-${endDate.getDate().toString().padStart(2, '0')}`;
 
 	// Fetch historical budgets for the last 6 months
-	const historicalBudgets = await db.query.budget.findMany({
+	const historicalBudgets = await getDb().query.budget.findMany({
 		with: {
 			category: true,
 			user: true
@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	});
 
 	// Fetch and aggregate transactions for the last 6 months
-	const historicalTransactions = await db
+	const historicalTransactions = await getDb()
 		.select({
 			categoryId: transaction.categoryId,
 			month: sql<string>`substr(${transaction.date}, 6, 2)`,
@@ -89,7 +89,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		.all();
 
 	return {
-		budget: await db.query.budget.findMany({
+		budget: await getDb().query.budget.findMany({
 			with: {
 				category: true,
 				user: true
@@ -103,8 +103,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		historicalBudgets,
 		historicalTransactions,
 		last6Months,
-		categories: await db.query.category.findMany(),
-		recurring: await db.query.recurring.findMany()
+		categories: await getDb().query.category.findMany(),
+		recurring: await getDb().query.recurring.findMany()
 	};
 };
 
@@ -128,18 +128,20 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db.insert(budget).values(
-				withAuditFieldsForCreate(
-					{
-						amount: Number(data.get('amount')),
-						year: data.get('year')?.toString() || '',
-						month: data.get('month')?.toString() || '',
-						categoryId: data.get('categoryId')?.toString() || '',
-						userId: userId
-					},
-					userId
-				)
-			);
+			await getDb()
+				.insert(budget)
+				.values(
+					withAuditFieldsForCreate(
+						{
+							amount: Number(data.get('amount')),
+							year: data.get('year')?.toString() || '',
+							month: data.get('month')?.toString() || '',
+							categoryId: data.get('categoryId')?.toString() || '',
+							userId: userId
+						},
+						userId
+					)
+				);
 
 			console.log('Created budget entry for user:', userId);
 		} catch (error) {
@@ -171,7 +173,7 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db
+			await getDb()
 				.update(budget)
 				.set(
 					withAuditFieldsForUpdate(
@@ -209,7 +211,7 @@ export const actions = {
 		const budgetId = data.get('id')!.toString();
 
 		try {
-			await db.delete(budget).where(eq(budget.id, budgetId));
+			await getDb().delete(budget).where(eq(budget.id, budgetId));
 
 			console.log('Deleted budget entry:', budgetId);
 		} catch (error) {

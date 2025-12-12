@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { asc, eq } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { category } from '$lib/server/db/schema';
@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return { categories: [] };
 	}
 
-	const categories = await db.query.category.findMany({
+	const categories = await getDb().query.category.findMany({
 		orderBy: [asc(category.name)]
 	});
 
@@ -34,16 +34,18 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db.insert(category).values(
-				withAuditFieldsForCreate(
-					{
-						name: data.get('name')?.toString() || '',
-						description: data.get('description')?.toString() || '',
-						userId: userId
-					},
-					userId
-				)
-			);
+			await getDb()
+				.insert(category)
+				.values(
+					withAuditFieldsForCreate(
+						{
+							name: data.get('name')?.toString() || '',
+							description: data.get('description')?.toString() || '',
+							userId: userId
+						},
+						userId
+					)
+				);
 
 			console.log('Created category for user:', userId);
 		} catch (error) {
@@ -74,7 +76,7 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db
+			await getDb()
 				.update(category)
 				.set(
 					withAuditFieldsForUpdate(
@@ -112,7 +114,7 @@ export const actions = {
 
 		try {
 			// Check if category is in use before deleting
-			const inUse = await db.query.transaction.findFirst({
+			const inUse = await getDb().query.transaction.findFirst({
 				where: (transaction, { eq }) => eq(transaction.categoryId, categoryId)
 			});
 
@@ -122,7 +124,7 @@ export const actions = {
 				});
 			}
 
-			await db.delete(category).where(eq(category.id, categoryId));
+			await getDb().delete(category).where(eq(category.id, categoryId));
 
 			console.log('Deleted category:', categoryId);
 		} catch (error) {

@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import db from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import type { Category } from '$lib';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
@@ -18,6 +18,6 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
 	return {
 		user: locals.user,
-		categories: (await db.query.category.findMany()) as Category[]
+		categories: (await getDb().query.category.findMany()) as Category[]
 	};
 };

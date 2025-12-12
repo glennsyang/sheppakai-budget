@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { desc, and, eq, sql } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { transaction, budget } from '$lib/server/db/schema';
@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
 	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-	const transactions: Transaction[] = (await db.query.transaction.findMany({
+	const transactions: Transaction[] = (await getDb().query.transaction.findMany({
 		with: {
 			category: true,
 			user: true
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	})) as Transaction[];
 
 	// Load budgets for the current month/year
-	const budgets: Budget[] = (await db.query.budget.findMany({
+	const budgets: Budget[] = (await getDb().query.budget.findMany({
 		with: {
 			category: true,
 			user: true
@@ -82,19 +82,21 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db.insert(transaction).values(
-				withAuditFieldsForCreate(
-					{
-						amount: Number(data.get('amount')),
-						payee: data.get('payee')?.toString() || '',
-						notes: data.get('notes')?.toString() || '',
-						date: data.get('date')?.toString() || '',
-						categoryId: data.get('categoryId')?.toString() || '',
-						userId: userId
-					},
-					userId
-				)
-			);
+			await getDb()
+				.insert(transaction)
+				.values(
+					withAuditFieldsForCreate(
+						{
+							amount: Number(data.get('amount')),
+							payee: data.get('payee')?.toString() || '',
+							notes: data.get('notes')?.toString() || '',
+							date: data.get('date')?.toString() || '',
+							categoryId: data.get('categoryId')?.toString() || '',
+							userId: userId
+						},
+						userId
+					)
+				);
 
 			console.log('Created transaction entry for user:', userId);
 		} catch (error) {
@@ -127,7 +129,7 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db
+			await getDb()
 				.update(transaction)
 				.set(
 					withAuditFieldsForUpdate(
@@ -166,7 +168,7 @@ export const actions = {
 		const transactionId = data.get('id')!.toString();
 
 		try {
-			await db.delete(transaction).where(eq(transaction.id, transactionId));
+			await getDb().delete(transaction).where(eq(transaction.id, transactionId));
 
 			console.log('Deleted transaction entry:', transactionId);
 		} catch (error) {

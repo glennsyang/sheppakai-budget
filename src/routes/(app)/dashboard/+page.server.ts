@@ -1,4 +1,4 @@
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { budget, transaction, recurring, income } from '$lib/server/db/schema';
 import { and, desc, sql, eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
 	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-	const actualExpenses: Transaction[] = (await db.query.transaction.findMany({
+	const actualExpenses: Transaction[] = (await getDb().query.transaction.findMany({
 		with: {
 			category: true,
 			user: true
@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		orderBy: [desc(transaction.date)]
 	})) as Transaction[];
 
-	const plannedExpenses: Budget[] = (await db.query.budget.findMany({
+	const plannedExpenses: Budget[] = (await getDb().query.budget.findMany({
 		with: {
 			category: true,
 			user: true
@@ -52,7 +52,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	})) as Budget[];
 
 	// Get recurring expenses for the user
-	const recurringExpenses: Recurring[] = (await db.query.recurring.findMany({
+	const recurringExpenses: Recurring[] = (await getDb().query.recurring.findMany({
 		with: {
 			user: true
 		},
@@ -60,7 +60,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	})) as Recurring[];
 
 	// Get income for the selected month
-	const incomeRecords: Income[] = (await db.query.income.findMany({
+	const incomeRecords: Income[] = (await getDb().query.income.findMany({
 		where: and(
 			eq(income.userId, locals.user.id),
 			sql`date(${income.date}) >= date(${startDate})`,

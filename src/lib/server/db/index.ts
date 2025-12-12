@@ -3,12 +3,19 @@ import Database from 'better-sqlite3';
 import * as schema from './schema';
 import { env } from '$env/dynamic/private';
 
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
-const connection = new Database(env.DATABASE_URL);
+export function getDb() {
+	if (!_db) {
+		if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
-export const db = drizzle(connection, { schema, logger: true });
+		const connection = new Database(env.DATABASE_URL);
+		_db = drizzle(connection, { schema, logger: true });
+	}
 
-export type db = typeof db;
+	return _db;
+}
 
-export default db;
+export type DB = ReturnType<typeof getDb>;
+
+export default getDb;

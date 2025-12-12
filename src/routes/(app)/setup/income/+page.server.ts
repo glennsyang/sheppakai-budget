@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { asc, eq } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { income } from '$lib/server/db/schema';
@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return { incomes: [] };
 	}
 
-	const incomes = await db.query.income.findMany({
+	const incomes = await getDb().query.income.findMany({
 		orderBy: [asc(income.date)]
 	});
 
@@ -36,18 +36,20 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db.insert(income).values(
-				withAuditFieldsForCreate(
-					{
-						name: data.get('name')?.toString() || '',
-						description: data.get('description')?.toString() || '',
-						date: data.get('date')?.toString() || '',
-						amount: Number(data.get('amount')),
-						userId: userId
-					},
-					userId
-				)
-			);
+			await getDb()
+				.insert(income)
+				.values(
+					withAuditFieldsForCreate(
+						{
+							name: data.get('name')?.toString() || '',
+							description: data.get('description')?.toString() || '',
+							date: data.get('date')?.toString() || '',
+							amount: Number(data.get('amount')),
+							userId: userId
+						},
+						userId
+					)
+				);
 
 			console.log('Created income for user:', userId);
 		} catch (error) {
@@ -80,7 +82,7 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db
+			await getDb()
 				.update(income)
 				.set(
 					withAuditFieldsForUpdate(
@@ -119,7 +121,7 @@ export const actions = {
 		const incomeId = data.get('id')!.toString();
 
 		try {
-			await db.delete(income).where(eq(income.id, incomeId));
+			await getDb().delete(income).where(eq(income.id, incomeId));
 
 			console.log('Deleted income:', incomeId);
 		} catch (error) {

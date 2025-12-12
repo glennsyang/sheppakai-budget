@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { asc, eq } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { recurring } from '$lib/server/db/schema';
@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	return {
-		recurring: await db.query.recurring.findMany({
+		recurring: await getDb().query.recurring.findMany({
 			with: {
 				user: true
 			},
@@ -39,19 +39,21 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db.insert(recurring).values(
-				withAuditFieldsForCreate(
-					{
-						amount: Number(data.get('amount')),
-						description: data.get('description')?.toString() || '',
-						date: data.get('date')?.toString() || '',
-						merchant: data.get('merchant')?.toString() || '',
-						cadence: data.get('cadence')?.toString() || '',
-						userId: userId
-					},
-					userId
-				)
-			);
+			await getDb()
+				.insert(recurring)
+				.values(
+					withAuditFieldsForCreate(
+						{
+							amount: Number(data.get('amount')),
+							description: data.get('description')?.toString() || '',
+							date: data.get('date')?.toString() || '',
+							merchant: data.get('merchant')?.toString() || '',
+							cadence: data.get('cadence')?.toString() || '',
+							userId: userId
+						},
+						userId
+					)
+				);
 
 			console.log('Created recurring entry for user:', userId);
 		} catch (error) {
@@ -83,7 +85,7 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 
-			await db
+			await getDb()
 				.update(recurring)
 				.set(
 					withAuditFieldsForUpdate(
@@ -122,7 +124,7 @@ export const actions = {
 		const recurringId = data.get('id')!.toString();
 
 		try {
-			await db.delete(recurring).where(eq(recurring.id, recurringId));
+			await getDb().delete(recurring).where(eq(recurring.id, recurringId));
 
 			console.log('Deleted recurring entry:', recurringId);
 		} catch (error) {

@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { user } from '$lib/server/db/schema';
 import bcrypt from 'bcryptjs';
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Get the full user data including updatedAt
-	const fullUserData = await db.query.user.findFirst({
+	const fullUserData = await getDb().query.user.findFirst({
 		where: eq(user.id, locals.user.id)
 	});
 
@@ -33,7 +33,7 @@ export const actions = {
 		const lastName = data.get('lastName')?.toString();
 
 		try {
-			await db
+			await getDb()
 				.update(user)
 				.set({
 					firstName: firstName || null,
@@ -75,7 +75,7 @@ export const actions = {
 
 		try {
 			// Get current user data including hashed password
-			const currentUser = await db.select().from(user).where(eq(user.id, locals.user.id));
+			const currentUser = await getDb().select().from(user).where(eq(user.id, locals.user.id));
 
 			if (currentUser.length === 0) {
 				return fail(404, { error: 'User not found' });
@@ -95,7 +95,7 @@ export const actions = {
 			const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
 			// Update password in database
-			await db
+			await getDb()
 				.update(user)
 				.set({
 					hashed_password: hashedNewPassword,

@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { category } from '$lib/server/db/schema';
 import type { RequestHandler } from './$types';
 import { withAuditFieldsForCreate } from '$lib/server/db/utils';
@@ -10,7 +10,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 	}
 
 	try {
-		const allCategories = await db.select().from(category);
+		const allCategories = await getDb().select().from(category);
 
 		return json(allCategories);
 	} catch (error) {
@@ -33,7 +33,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			return new Response('Category name is required', { status: 400 });
 		}
 
-		const newCategory = await db
+		const newCategory = await getDb()
 			.insert(category)
 			.values(
 				withAuditFieldsForCreate(

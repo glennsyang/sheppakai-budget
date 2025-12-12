@@ -1,6 +1,6 @@
 import { dev } from '$app/environment';
 import type { Handle } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { user } from '$lib/server/db/schema';
 
@@ -14,7 +14,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (sessionCookie) {
 		try {
 			const sessionData = JSON.parse(sessionCookie);
-			const foundUser = await db.query.user.findFirst({ where: eq(user.id, sessionData.userId) });
+			const foundUser = await getDb().query.user.findFirst({
+				where: eq(user.id, sessionData.userId)
+			});
 
 			if (foundUser) {
 				event.locals.user = {
