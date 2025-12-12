@@ -3,6 +3,10 @@ import type { Handle } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { user } from '$lib/server/db/schema';
+import { ensureMigrated } from '$lib/server/db/init';
+
+// Run migrations on startup
+ensureMigrated();
 
 export const handle: Handle = async ({ event, resolve }) => {
 	if (dev && event.url.pathname === '/.well-known/appspecific/com.chrome.devtools.json') {
