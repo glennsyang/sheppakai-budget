@@ -3,3 +3,4 @@ export { default as category } from './category';
 export { default as transaction, transactionRelations } from './transaction';
 export { default as budget, budgetRelations } from './budget';
 export { default as recurring, recurringRelations } from './recurring';
+export { default as income } from './income';

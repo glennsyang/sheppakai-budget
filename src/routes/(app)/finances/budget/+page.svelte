@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import type { Category, Budget } from '$lib';
+	import type { Category, Budget, ChartData } from '$lib';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
@@ -10,6 +10,7 @@
 	import CategoryDialog from '$lib/components/CategoryDialog.svelte';
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
 	import SummaryRow from '$lib/components/SummaryRow.svelte';
+	import LineChart from '$lib/components/LineChart.svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { months } from '$lib/utils';
@@ -80,6 +81,66 @@
 	let selectedPresetAmount = $derived(
 		selectedCategoryId ? categoryPresetSelections[selectedCategoryId] || null : null
 	);
+
+	// Create chartData for the selected category
+	let chartData = $derived.by(() => {
+		if (!selectedCategoryId || !data.last6Months) {
+			return [];
+		}
+
+		return data.last6Months.map((monthData) => {
+			// Find budget for this month/category
+			const budgetForMonth = data.historicalBudgets?.find(
+				(b) =>
+					b.category?.id === selectedCategoryId &&
+					b.month === monthData.month &&
+					b.year === monthData.year
+			);
+
+			// Find transaction total for this month/category
+			const transactionForMonth = data.historicalTransactions?.find(
+				(t) =>
+					t.categoryId === selectedCategoryId &&
+					t.month === monthData.month &&
+					t.year === monthData.year
+			);
+
+			return {
+				date: monthData.date,
+				planned: budgetForMonth?.amount || 0,
+				actual: transactionForMonth?.total || 0
+			} as ChartData;
+		});
+	});
+
+	// Calculate trending percentage for the chart
+	let trendingPercentage = $derived.by(() => {
+		if (chartData.length < 2) return null;
+
+		const lastMonth = chartData[chartData.length - 1].actual;
+		const previousMonth = chartData[chartData.length - 2].actual;
+
+		if (previousMonth === 0) return null;
+
+		const percentChange = ((lastMonth - previousMonth) / previousMonth) * 100;
+		return {
+			value: Math.abs(percentChange),
+			direction: percentChange >= 0 ? ('up' as const) : ('down' as const)
+		};
+	});
+
+	// Calculate month range label for the chart
+	let monthRangeLabel = $derived.by(() => {
+		if (chartData.length === 0) return '';
+
+		const firstDate = chartData[0].date;
+		const lastDate = chartData[chartData.length - 1].date;
+
+		const firstMonth = firstDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+		const lastMonth = lastDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+		return `${firstMonth} - ${lastMonth}`;
+	});
 
 	// Set first category as selected by default
 	$effect(() => {
@@ -317,6 +378,16 @@
 						onSelect={() => selectPresetAmount('custom', 0)}
 						onEdit={startEditingCustomAmount}
 						onCancel={cancelEditing}
+					/>
+				</div>
+
+				<!-- Bar Chart -->
+				<div class="mt-6">
+					<LineChart
+						categoryName={selectedCategory.name}
+						{chartData}
+						trendingData={trendingPercentage}
+						monthRange={monthRangeLabel}
 					/>
 				</div>
 			{:else}

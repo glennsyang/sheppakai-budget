@@ -1,9 +1,8 @@
 import { db } from '$lib/server/db';
-import { budget, transaction } from '$lib/server/db/schema';
-import { and, desc, sql, eq, ne } from 'drizzle-orm';
+import { budget, transaction, recurring, income } from '$lib/server/db/schema';
+import { and, desc, sql, eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
-import type { Budget, Transaction } from '$lib';
-import { incomeCategoryId } from '$lib/utils';
+import type { Budget, Transaction, Recurring, Income } from '$lib';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
@@ -47,35 +46,54 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			user: true
 		},
 		where: and(
-			ne(budget.categoryId, incomeCategoryId),
 			eq(budget.year, year.toString()),
 			eq(budget.month, month.toString().padStart(2, '0'))
 		)
 	})) as Budget[];
 
-	const plannedIncome: Budget[] = (await db.query.budget.findMany({
+	// Get recurring expenses for the user
+	const recurringExpenses: Recurring[] = (await db.query.recurring.findMany({
 		with: {
-			category: true,
 			user: true
 		},
-		where: and(
-			eq(budget.categoryId, incomeCategoryId),
-			eq(budget.year, year.toString()),
-			eq(budget.month, month.toString().padStart(2, '0'))
-		)
-	})) as Budget[];
+		where: eq(recurring.userId, locals.user.id)
+	})) as Recurring[];
 
-	// Calculate totals
-	const actualExpensesTotal = actualExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-	const plannedExpensesTotal = plannedExpenses.reduce((sum, budget) => sum + budget.amount, 0);
-	const plannedIncomeTotal = plannedIncome.reduce((sum, budget) => sum + budget.amount, 0);
+	// Get income for the selected month
+	const incomeRecords: Income[] = (await db.query.income.findMany({
+		where: and(
+			eq(income.userId, locals.user.id),
+			sql`date(${income.date}) >= date(${startDate})`,
+			sql`date(${income.date}) <= date(${endDate})`
+		)
+	})) as Income[];
+
+	// Calculate monthly recurring total (yearly expenses divided by 12)
+	const recurringMonthlyTotal = recurringExpenses.reduce((sum, item) => {
+		if (item.cadence === 'Monthly') {
+			return sum + item.amount;
+		} else if (item.cadence === 'Yearly') {
+			return sum + item.amount / 12;
+		}
+		return sum;
+	}, 0);
+
+	// Calculate totals - include recurring in actual expenses
+	const actualExpensesTotal =
+		actualExpenses.reduce((sum, expense) => sum + expense.amount, 0) + recurringMonthlyTotal;
+	const plannedExpensesTotal =
+		plannedExpenses.reduce((sum, budget) => sum + budget.amount, 0) + recurringMonthlyTotal;
+
+	// Calculate income totals
+	const totalIncome = incomeRecords.reduce((sum, inc) => sum + inc.amount, 0);
+	const remainingBalance = totalIncome - plannedExpensesTotal;
 
 	return {
 		actualExpenses,
 		plannedExpenses,
 		actualExpensesTotal,
 		plannedExpensesTotal,
-		plannedIncome,
-		plannedIncomeTotal
+		totalIncome,
+		remainingBalance
 	};
 };

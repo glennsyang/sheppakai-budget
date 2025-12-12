@@ -25,14 +25,6 @@ export type Transaction = {
 	user: User;
 };
 
-export type Income = {
-	id: string;
-	amount: number;
-	description: string;
-	date: string;
-	user: User;
-};
-
 export type Budget = {
 	id: string;
 	amount: number;
@@ -51,9 +43,21 @@ export type Recurring = {
 	user: User;
 };
 
-export type DashboardSummary = {
-	transactions: Transaction[];
-	income: Income[];
-	totalTransactions: number;
-	totalIncome: number;
+export type Income = {
+	id: string;
+	name: string;
+	description: string;
+	amount: number;
+	date: string;
+	userId: string;
+	createdAt: string;
+	createdBy: string;
+	updatedAt: string;
+	updatedBy: string;
+};
+
+export type ChartData = {
+	date: Date;
+	actual: number;
+	planned: number;
 };

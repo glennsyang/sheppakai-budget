@@ -17,15 +17,3 @@ export const expenseColumns = [
 		format: (amount: number) => `$${amount.toFixed(2)}`
 	}
 ];
-
-// Column definitions for income table
-export const incomeColumns = [
-	{ key: 'date', label: 'Date', width: '100px' },
-	{ key: 'description', label: 'Description' },
-	{
-		key: 'amount',
-		label: 'Amount',
-		align: 'right' as const,
-		format: (amount: number) => `$${amount.toFixed(2)}`
-	}
-];

@@ -3,7 +3,7 @@
 	import type { PageProps } from './$types';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { incomeCategoryId, months } from '$lib/utils';
+	import { months } from '$lib/utils';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { getContext } from 'svelte';
@@ -22,9 +22,11 @@
 	}
 
 	let plannedExpenses: number = data.plannedExpensesTotal || 0;
-	let plannedIncome: number = data.plannedIncomeTotal || 0;
 
 	const categories = getContext('categories') as () => Category[];
+
+	// Sort categories alphabetically
+	let sortedCategories = $derived([...categories()].sort((a, b) => a.name.localeCompare(b.name)));
 
 	function getPlannedAmount(categoryId: string): number {
 		return data.plannedExpenses?.find((b) => b?.category?.id === categoryId)?.amount || 0;
@@ -68,41 +70,40 @@
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-		<BudgetProgressCard
-			title={`Total Income - ${monthName}`}
-			planned={plannedIncome}
-			actual={data.actualIncomeTotal || 0}
-			{loading}
-			actualLabel="Actual"
-			plannedLabel="Planned"
-		/>
-
+	<div class="grid grid-cols-1 gap-6 lg:grid-cols-1">
 		<BudgetProgressCard
 			title={`Total Expenses - ${monthName}`}
 			planned={plannedExpenses}
 			actual={data.actualExpensesTotal || 0}
 			{loading}
-			actualLabel="Actual"
-			plannedLabel="Planned"
+			label1="Budget"
+			label2="Spent"
 		/>
 	</div>
 
 	<!-- Category Expenses -->
 	<h2 class="mt-8 mb-4 text-xl font-semibold">Expenses by Category</h2>
 	<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-		{#each categories() as category}
-			{#if category.id !== incomeCategoryId}
-				<!-- Skip income category -->
-				<BudgetProgressCard
-					title={category.name}
-					planned={getPlannedAmount(category.id)}
-					actual={getActualAmount(category.id)}
-					{loading}
-					actualLabel="Spent"
-					plannedLabel="Budget"
-				/>
-			{/if}
+		{#each sortedCategories as category}
+			<BudgetProgressCard
+				title={category.name}
+				planned={getPlannedAmount(category.id)}
+				actual={getActualAmount(category.id)}
+				{loading}
+				label1="Budget"
+				label2="Spent"
+			/>
 		{/each}
+	</div>
+
+	<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-1">
+		<BudgetProgressCard
+			title={`Income Summary - ${monthName}`}
+			planned={data.totalIncome || 0}
+			actual={data.actualExpensesTotal || 0}
+			{loading}
+			label1="Income"
+			label2="Expenses"
+		/>
 	</div>
 </div>
