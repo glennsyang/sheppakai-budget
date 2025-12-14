@@ -14,7 +14,7 @@
 	import FolderTreeIcon from '@lucide/svelte/icons/folder-tree';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
 	import { toggleMode } from 'mode-watcher';
-	import { navigating, page } from '$app/state';
+	import { navigating } from '$app/state';
 	import { setContext } from 'svelte';
 	import type { LayoutServerData } from './$types';
 
@@ -25,9 +25,7 @@
 
 	let { data, children }: Props = $props();
 
-	if (data.categories) {
-		setContext('categories', () => data.categories);
-	}
+	setContext('categories', () => data.categories);
 </script>
 
 <!-- Full application layout for all other routes -->

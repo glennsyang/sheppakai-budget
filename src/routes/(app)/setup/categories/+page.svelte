@@ -5,7 +5,6 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
-	import type { Category } from '$lib';
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
 
 	let { data }: PageProps = $props();

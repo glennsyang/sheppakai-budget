@@ -11,8 +11,6 @@
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
-
-	const categories = getContext('categories') as () => Category[];
 </script>
 
 <DropdownMenu.Root>
