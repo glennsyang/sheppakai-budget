@@ -8,6 +8,9 @@ primary_region = 'yyz'
 
 [build]
 
+[deploy]
+  release_command = "npx tsx src/lib/server/db/migrate.ts"
+
 [[mounts]]
   source = 'sheppakai_budget_data'
   destination = '/data'
