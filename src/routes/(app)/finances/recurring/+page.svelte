@@ -24,18 +24,18 @@
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">
-	<div class="mb-8">
-		<h1 class="text-3xl font-bold tracking-tight">Recurring Expenses</h1>
-		<p class="mt-2 text-muted-foreground">Manage your monthly and yearly recurring expenses</p>
-	</div>
-
 	<div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
 		<!-- Table Column (larger) -->
 		<div class="lg:col-span-3">
 			<div class="overflow-hidden rounded-lg border shadow">
 				<div class="p-6">
 					<div class="mb-4 flex items-center justify-between">
-						<div></div>
+						<div>
+							<h1 class="text-3xl font-bold tracking-tight">Recurring Expenses</h1>
+							<p class="mt-2 text-muted-foreground">
+								Manage your monthly and yearly recurring expenses
+							</p>
+						</div>
 						<div class="flex items-center gap-2">
 							<Button size="sm" onclick={() => (openModal = true)}>
 								<PlusIcon />

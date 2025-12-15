@@ -2,23 +2,36 @@ import type { Transaction } from '$lib';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import DataTableActions from './data-table-actions.svelte';
 
 export const columns: ColumnDef<Transaction>[] = [
 	{
 		accessorKey: 'date',
-		header: 'Date'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Date',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		accessorKey: 'category',
-		header: 'Category',
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Category',
+				onclick: column.getToggleSortingHandler()
+			}),
 		cell: ({ row }) => {
 			return row.original.category ? row.original.category.name : 'Uncategorized';
 		}
 	},
 	{
 		accessorKey: 'payee',
-		header: 'Payee'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Payee',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		accessorKey: 'notes',

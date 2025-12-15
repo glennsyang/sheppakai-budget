@@ -96,7 +96,12 @@
 			<div class="overflow-hidden rounded-lg border shadow">
 				<div class="p-6">
 					<div class="mb-4 flex items-center justify-between">
-						<div></div>
+						<div>
+							<h1 class="text-3xl font-bold tracking-tight">Transactions</h1>
+							<p class="mt-2 text-muted-foreground">
+								Manage your daily financial transactions and expenses
+							</p>
+						</div>
 						<div class="flex items-center gap-2">
 							<Button size="sm" onclick={() => (openModal = true)}>
 								<PlusIcon />

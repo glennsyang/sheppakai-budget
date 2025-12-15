@@ -3,9 +3,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
-	import type { Category, Recurring } from '$lib';
+	import type { Recurring } from '$lib';
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
-	import { getContext } from 'svelte';
 
 	let { id, recurringData }: { id: string; recurringData: Recurring } = $props();
 

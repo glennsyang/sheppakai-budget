@@ -2,16 +2,25 @@ import type { Recurring } from '$lib';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import DataTableActions from './data-table-actions.svelte';
 
 export const columns: ColumnDef<Recurring>[] = [
 	{
 		accessorKey: 'merchant',
-		header: 'Merchant'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Merchant',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		accessorKey: 'description',
-		header: 'Description'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Description',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		accessorKey: 'cadence',

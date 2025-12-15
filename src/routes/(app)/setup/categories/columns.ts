@@ -1,16 +1,25 @@
 import type { Category } from '$lib';
 import type { ColumnDef } from '@tanstack/table-core';
 import { renderComponent } from '$lib/components/ui/data-table/index.js';
+import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import DataTableActions from './data-table-actions.svelte';
 
 export const columns: ColumnDef<Category>[] = [
 	{
 		accessorKey: 'name',
-		header: 'Name'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Name',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		accessorKey: 'description',
-		header: 'Description'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Description',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		id: 'actions',

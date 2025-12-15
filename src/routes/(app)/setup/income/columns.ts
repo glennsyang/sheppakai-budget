@@ -1,5 +1,6 @@
 import type { ColumnDef } from '@tanstack/table-core';
 import { renderComponent } from '$lib/components/ui/data-table/index.js';
+import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import DataTableActions from './data-table-actions.svelte';
 
 export type Income = {
@@ -13,19 +14,35 @@ export type Income = {
 export const columns: ColumnDef<Income>[] = [
 	{
 		accessorKey: 'name',
-		header: 'Name'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Name',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		accessorKey: 'description',
-		header: 'Description'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Description',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		accessorKey: 'date',
-		header: 'Date'
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Date',
+				onclick: column.getToggleSortingHandler()
+			})
 	},
 	{
 		accessorKey: 'amount',
-		header: 'Amount',
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Amount',
+				onclick: column.getToggleSortingHandler()
+			}),
 		cell: ({ row }) => {
 			const amount = row.getValue('amount') as number;
 			return `$${amount.toFixed(2)}`;
