@@ -42,11 +42,9 @@ COPY --from=build /app/build /app/build
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/package.json /app
 
-# Copy migration files and scripts needed for startup
+# Copy Drizzle config and migrations for drizzle-kit CLI
+COPY --from=build /app/drizzle.config.ts /app/drizzle.config.ts
 COPY --from=build /app/src/lib/server/db/migrations /app/src/lib/server/db/migrations
-COPY --from=build /app/src/lib/server/db/migrate.ts /app/src/lib/server/db/migrate.ts
-COPY --from=build /app/src/lib/server/db/schema /app/src/lib/server/db/schema
-COPY --from=build /app/src/lib/server/db/index.ts /app/src/lib/server/db/index.ts
 
 # Setup sqlite3 on a separate volume
 RUN mkdir -p /data
