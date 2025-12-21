@@ -64,7 +64,7 @@
 		<form
 			class="space-y-4"
 			method="POST"
-			action={isEditing ? '/setup/income?/update' : '/setup/income?/create'}
+			action={isEditing ? '/finances/income?/update' : '/finances/income?/create'}
 			use:enhance={() => {
 				open = false;
 				isLoading = true;

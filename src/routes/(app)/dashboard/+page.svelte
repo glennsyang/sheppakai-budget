@@ -70,7 +70,7 @@
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-1">
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		<BudgetProgressCard
 			title={`Total Expenses - ${monthName}`}
 			planned={plannedExpenses}
@@ -78,6 +78,14 @@
 			{loading}
 			label1="Budget"
 			label2="Spent"
+		/>
+		<BudgetProgressCard
+			title={`Total Income - ${monthName}`}
+			planned={data.totalIncome || 0}
+			actual={data.actualExpensesTotal || 0}
+			{loading}
+			label1="Income"
+			label2="Expenses"
 		/>
 	</div>
 
@@ -94,16 +102,5 @@
 				label2="Spent"
 			/>
 		{/each}
-	</div>
-
-	<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-1">
-		<BudgetProgressCard
-			title={`Income Summary - ${monthName}`}
-			planned={data.totalIncome || 0}
-			actual={data.actualExpensesTotal || 0}
-			{loading}
-			label1="Income"
-			label2="Expenses"
-		/>
 	</div>
 </div>

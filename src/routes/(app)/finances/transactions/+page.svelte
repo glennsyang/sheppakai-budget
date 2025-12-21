@@ -105,7 +105,7 @@
 						<div class="flex items-center gap-2">
 							<Button size="sm" onclick={() => (openModal = true)}>
 								<PlusIcon />
-								Add Transaction
+								Add
 							</Button>
 						</div>
 					</div>

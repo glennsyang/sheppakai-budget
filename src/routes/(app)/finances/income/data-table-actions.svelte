@@ -42,7 +42,7 @@
 <ConfirmModal
 	bind:open={openDeleteModal}
 	{id}
-	actionUrl="/setup/income?/delete"
+	actionUrl="/finances/income?/delete"
 	title="Delete Income"
 	message="Are you sure you want to delete this income source?"
 	confirmButtonText="Delete"

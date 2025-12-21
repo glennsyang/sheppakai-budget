@@ -68,7 +68,7 @@
 		<form
 			class="space-y-4"
 			method="POST"
-			action={isEditing ? '/finances/recurring?/update' : '/finances/recurring?/create'}
+			action={isEditing ? '/setup/recurring?/update' : '/setup/recurring?/create'}
 			use:enhance={() => {
 				open = false;
 				isLoading = true;

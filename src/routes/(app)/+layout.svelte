@@ -67,11 +67,11 @@
 											</NavigationMenu.Link>
 
 											<NavigationMenu.Link
-												href="/finances/recurring"
+												href="/finances/income"
 												class="flex-row items-center gap-2"
 											>
-												<RepeatIcon />
-												Recurring
+												<DollarSignIcon />
+												Income
 											</NavigationMenu.Link>
 										</li>
 									</ul>
@@ -82,7 +82,7 @@
 							<NavigationMenu.Item>
 								<NavigationMenu.Trigger>Setup</NavigationMenu.Trigger>
 								<NavigationMenu.Content>
-									<ul class="grid w-[200px] gap-4 p-2">
+									<ul class="grid w-50 gap-4 p-2">
 										<li>
 											<NavigationMenu.Link
 												href="/setup/categories"
@@ -91,9 +91,12 @@
 												<FolderTreeIcon />
 												Categories
 											</NavigationMenu.Link>
-											<NavigationMenu.Link href="/setup/income" class="flex-row items-center gap-2">
-												<DollarSignIcon />
-												Income
+											<NavigationMenu.Link
+												href="/setup/recurring"
+												class="flex-row items-center gap-2"
+											>
+												<RepeatIcon />
+												Recurring
 											</NavigationMenu.Link>
 										</li>
 									</ul>

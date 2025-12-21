@@ -27,8 +27,8 @@
 				</div>
 				<div class="flex items-center gap-2">
 					<Button size="sm" onclick={() => (openModal = true)}>
-						<PlusIcon class="mr-2 size-4" />
-						Add Income
+						<PlusIcon />
+						Add
 					</Button>
 				</div>
 			</div>
