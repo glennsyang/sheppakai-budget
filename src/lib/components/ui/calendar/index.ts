@@ -36,4 +36,5 @@ export {
 	Nav,
 	NextButton,
 	PrevButton,
-	YearSelect};
+	YearSelect
+};

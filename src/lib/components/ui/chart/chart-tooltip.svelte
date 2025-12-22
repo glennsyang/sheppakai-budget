@@ -5,7 +5,7 @@
 
 	import { cn, type WithElementRef, type WithoutChildren } from '$lib/utils.js';
 
-	import { getPayloadConfigFromPayload, type TooltipPayload,useChart } from './chart-utils.js';
+	import { getPayloadConfigFromPayload, type TooltipPayload, useChart } from './chart-utils.js';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function defaultFormatter(value: any, _payload: TooltipPayload[]) {
@@ -88,7 +88,7 @@
 <TooltipPrimitive.Root variant="none">
 	<div
 		class={cn(
-			'grid min-w-[9rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl',
+			'grid min-w-36 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl',
 			className
 		)}
 		{...restProps}

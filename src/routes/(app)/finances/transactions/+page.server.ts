@@ -1,12 +1,13 @@
 import { fail } from '@sveltejs/kit';
 import { and, desc, eq, sql } from 'drizzle-orm';
 
-import type { Budget,Transaction } from '$lib';
 import { getDb } from '$lib/server/db';
-import { budget,transaction } from '$lib/server/db/schema';
+import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 
-import type { Actions,PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
+
+import type { Budget, Transaction } from '$lib';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {

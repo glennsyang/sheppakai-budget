@@ -1,6 +1,4 @@
 <script lang="ts">
-	import '../../app.css';
-
 	import { setContext } from 'svelte';
 
 	import { navigating } from '$app/state';
@@ -12,6 +10,8 @@
 
 	import type { LayoutServerData } from './$types';
 	import { sidebarData } from './data';
+
+	import '../../app.css';
 
 	interface Props {
 		data: LayoutServerData;

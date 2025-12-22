@@ -13,7 +13,8 @@
 		getSortedRowModel,
 		type PaginationState,
 		type SortingState,
-		type VisibilityState	} from '@tanstack/table-core';
+		type VisibilityState
+	} from '@tanstack/table-core';
 
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';

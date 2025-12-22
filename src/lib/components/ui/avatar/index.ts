@@ -9,4 +9,5 @@ export {
 	Image as AvatarImage,
 	Fallback,
 	Image,
-	Root};
+	Root
+};

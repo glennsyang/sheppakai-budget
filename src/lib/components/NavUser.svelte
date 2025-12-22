@@ -5,6 +5,7 @@
 
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -71,7 +72,7 @@
 				</DropdownMenu.Label>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Group>
-					<DropdownMenu.Item onclick={() => goto('/profile')}>
+					<DropdownMenu.Item onclick={() => goto(resolve('/profile'))}>
 						<CircleUserIcon />
 						Profile
 					</DropdownMenu.Item>

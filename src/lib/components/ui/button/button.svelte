@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
-	import { tv,type VariantProps } from 'tailwind-variants';
+	import { tv, type VariantProps } from 'tailwind-variants';
 
 	import { cn, type WithElementRef } from '$lib/utils.js';
 
@@ -57,6 +57,7 @@
 </script>
 
 {#if href}
+	``eslint-disable-next-line svelte/no-navigation-without-resolve
 	<a
 		bind:this={ref}
 		data-slot="button"

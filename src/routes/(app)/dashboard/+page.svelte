@@ -3,12 +3,13 @@
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import type { Category } from '$lib';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
+
+	import type { Category } from '$lib';
 
 	let { data }: PageProps = $props();
 
@@ -17,7 +18,6 @@
 
 	let loading: boolean = $state(false);
 	let selectedMonth: string = $derived(page.url.searchParams.get('month') ?? currentMonth);
-	let monthName: string = $derived(months.find((m) => m.value === selectedMonth)?.label ?? '');
 
 	function onMonthChange(month: string | undefined) {
 		goto(`?month=${month}&year=${currentYear}`, { keepFocus: true, replaceState: true });
@@ -92,7 +92,7 @@
 	<!-- Category Expenses -->
 	<h2 class="mt-8 mb-4 text-xl font-semibold">Expenses by Category</h2>
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-		{#each sortedCategories as category, index}
+		{#each sortedCategories as category}
 			<BudgetProgressCard
 				title={category.name}
 				planned={getPlannedAmount(category.id)}

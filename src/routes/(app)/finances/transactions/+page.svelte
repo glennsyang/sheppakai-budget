@@ -3,8 +3,8 @@
 	import { getContext } from 'svelte';
 
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import type { Budget,Category, Transaction } from '$lib';
 	import CategoryBudgetProgress from '$lib/components/CategoryBudgetProgress.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
@@ -15,6 +15,8 @@
 	import { months } from '$lib/utils';
 
 	import { columns } from './columns';
+
+	import type { Budget, Category, Transaction } from '$lib';
 
 	interface Props {
 		data: {
@@ -37,12 +39,18 @@
 	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
 
 	function onMonthYearChange(month: number, year: number) {
-		goto(`?month=${month}&year=${year}`, { keepFocus: true, replaceState: true });
+		goto(`${resolve('/finances/transactions')}?month=${month}&year=${year}`, {
+			keepFocus: true,
+			replaceState: true
+		});
 	}
 
 	function onMonthJump(month: string | undefined) {
 		if (month) {
-			goto(`?month=${month}&year=${selectedYear}`, { keepFocus: true, replaceState: true });
+			goto(`${resolve('/finances/transactions')}?month=${month}&year=${selectedYear}`, {
+				keepFocus: true,
+				replaceState: true
+			});
 		}
 	}
 

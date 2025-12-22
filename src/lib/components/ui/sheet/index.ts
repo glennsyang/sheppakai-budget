@@ -30,4 +30,5 @@ export {
 	Title as SheetTitle,
 	Trigger as SheetTrigger,
 	Title,
-	Trigger};
+	Trigger
+};

@@ -14,6 +14,9 @@ const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
 export default ts.config(
 	includeIgnoreFile(gitignorePath),
+	{
+		ignores: ['src/lib/components/ui/**']
+	},
 	js.configs.recommended,
 	...ts.configs.recommended,
 	...svelte.configs.recommended,
@@ -30,7 +33,27 @@ export default ts.config(
 			// typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
 			// see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
 			'no-undef': 'off',
-			'simple-import-sort/imports': 'error',
+			'simple-import-sort/imports': [
+				'error',
+				{
+					groups: [
+						// Side effect imports at the start
+						['^\\u0000'],
+						// Node.js builtins prefixed with `node:`
+						['^node:'],
+						// Packages (things that start with a letter, digit, underscore, or `@`)
+						['^@?\\w'],
+						// Internal packages and absolute imports
+						['^(\\$lib|\\$app)(/.*|$)'],
+						// Parent imports (../)
+						['^\\.\\.(?!/?$)', '^\\.\\./?$'],
+						// Other relative imports (./)
+						['^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$'],
+						// Type imports
+						['^.+\\.?(css|scss|sass|less)$']
+					]
+				}
+			],
 			'simple-import-sort/exports': 'error'
 		}
 	},

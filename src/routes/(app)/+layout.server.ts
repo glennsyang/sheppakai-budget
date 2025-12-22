@@ -1,9 +1,10 @@
 import { redirect } from '@sveltejs/kit';
 
-import type { Category } from '$lib';
 import { getDb } from '$lib/server/db';
 
 import type { LayoutServerLoad } from './$types';
+
+import type { Category } from '$lib';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
 	// Don't redirect auth routes

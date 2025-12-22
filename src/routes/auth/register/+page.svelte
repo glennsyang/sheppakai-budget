@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms';
 
+	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 
@@ -92,7 +93,7 @@
 		<div class="text-center">
 			<p class="text-sm">
 				Already have an account
-				<a href="/auth/sign-in" class="font-medium underline"> Sign in here </a>
+				<a href={resolve('/auth/sign-in')} class="font-medium underline"> Sign in here </a>
 			</p>
 		</div>
 	</div>

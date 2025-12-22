@@ -4,9 +4,9 @@ import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 
-import { env } from '$env/dynamic/private';
-
 import * as schema from './schema';
+
+import { env } from '$env/dynamic/private';
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 

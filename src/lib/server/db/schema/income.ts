@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { real,sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { user } from '../schema';
 import { generateId } from '../utils';

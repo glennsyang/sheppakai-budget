@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { user } from '$lib/server/db/schema';
 
-import type { Actions,PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {

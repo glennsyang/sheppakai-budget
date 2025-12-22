@@ -24,4 +24,5 @@ export {
 	Viewport as NavigationMenuViewport,
 	Root,
 	Trigger,
-	Viewport};
+	Viewport
+};

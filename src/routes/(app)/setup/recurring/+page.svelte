@@ -1,7 +1,6 @@
 <script lang="ts">
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
-	import type { Recurring } from '$lib';
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -9,6 +8,8 @@
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
+
+	import type { Recurring } from '$lib';
 
 	let { data }: PageProps = $props();
 

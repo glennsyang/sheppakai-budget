@@ -1,10 +1,11 @@
 import type { ColumnDef } from '@tanstack/table-core';
 
-import type { Category } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import { renderComponent } from '$lib/components/ui/data-table/index.js';
 
 import DataTableActions from './data-table-actions.svelte';
+
+import type { Category } from '$lib';
 
 export const columns: ColumnDef<Category>[] = [
 	{

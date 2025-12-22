@@ -1,10 +1,11 @@
-import { and, desc, eq,sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 
-import type { Budget, Income,Recurring, Transaction } from '$lib';
 import { getDb } from '$lib/server/db';
-import { budget, income,recurring, transaction } from '$lib/server/db/schema';
+import { budget, income, recurring, transaction } from '$lib/server/db/schema';
 
 import type { PageServerLoad } from './$types';
+
+import type { Budget, Income, Recurring, Transaction } from '$lib';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {

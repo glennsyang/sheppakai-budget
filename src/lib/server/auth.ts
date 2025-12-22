@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 
-import { getDb } from './db';
 import { user } from './db/schema';
+import { getDb } from './db';
 
 export async function register(email: string, password: string) {
 	const existing = await getDb().select().from(user).where(eq(user.email, email));

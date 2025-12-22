@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { DateFormatter, type DateValue,getLocalTimeZone } from '@internationalized/date';
+	import { DateFormatter, type DateValue, getLocalTimeZone } from '@internationalized/date';
 	import type { ComponentProps } from 'svelte';
 
 	import type Calendar from './calendar.svelte';

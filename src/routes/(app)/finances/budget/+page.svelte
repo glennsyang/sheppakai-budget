@@ -7,7 +7,6 @@
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import type { Budget, Category, ChartData } from '$lib';
 	import CategoryDialog from '$lib/components/CategoryDialog.svelte';
 	import LineChart from '$lib/components/LineChart.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
@@ -17,6 +16,8 @@
 	import { months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
+
+	import type { Budget, Category, ChartData } from '$lib';
 
 	let { data }: PageProps = $props();
 

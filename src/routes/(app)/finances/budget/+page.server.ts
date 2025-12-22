@@ -5,7 +5,7 @@ import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 
-import type { Actions,PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 // Helper function to calculate date range for the last 6 months
 function getLast6MonthsRange(currentMonth: number, currentYear: number) {
