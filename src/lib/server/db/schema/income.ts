@@ -1,7 +1,8 @@
-import { sqliteTable, text, real } from 'drizzle-orm/sqlite-core';
-import { generateId } from '../utils';
 import { sql } from 'drizzle-orm';
+import { real,sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
 import { user } from '../schema';
+import { generateId } from '../utils';
 
 const income = sqliteTable('income', {
 	id: text('id').primaryKey().$defaultFn(generateId),

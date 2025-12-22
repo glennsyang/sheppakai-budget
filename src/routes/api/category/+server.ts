@@ -1,8 +1,10 @@
 import { json } from '@sveltejs/kit';
+
 import { getDb } from '$lib/server/db';
 import { category } from '$lib/server/db/schema';
-import type { RequestHandler } from './$types';
 import { withAuditFieldsForCreate } from '$lib/server/db/utils';
+
+import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	if (!locals.user) {

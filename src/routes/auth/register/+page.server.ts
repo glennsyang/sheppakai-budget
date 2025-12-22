@@ -1,8 +1,10 @@
+import { fail, isRedirect,redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { fail, redirect, isRedirect } from '@sveltejs/kit';
 import { z } from 'zod';
+
 import { register } from '$lib/server/auth';
+
 import type { Actions, PageServerLoad } from './$types';
 
 const registerSchema = z

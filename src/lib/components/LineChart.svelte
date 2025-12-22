@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { LineChart } from 'layerchart';
-	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
+	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import { scaleUtc } from 'd3-scale';
 	import { curveNatural } from 'd3-shape';
-	import * as Chart from '$lib/components/ui/chart/index.js';
+	import { LineChart } from 'layerchart';
+
 	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { ChartData } from '$lib/types';
 
 	interface Props {

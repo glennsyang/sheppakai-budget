@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { toast } from 'svelte-sonner';
+
+	import { enhance } from '$app/forms';
+	import type { Category } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
-	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import { enhance } from '$app/forms';
-	import type { Category } from '$lib';
-	import { toast } from 'svelte-sonner';
+	import { Textarea } from '$lib/components/ui/textarea';
 
 	interface Props {
 		open: boolean;

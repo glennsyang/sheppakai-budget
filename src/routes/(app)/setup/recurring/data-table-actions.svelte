@@ -1,10 +1,11 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+
+	import type { Recurring } from '$lib';
+	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
+	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
-	import type { Recurring } from '$lib';
-	import RecurringModal from '$lib/components/RecurringModal.svelte';
 
 	let { id, recurringData }: { id: string; recurringData: Recurring } = $props();
 

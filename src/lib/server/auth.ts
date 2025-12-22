@@ -1,6 +1,7 @@
-import { getDb } from './db';
-import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
+import { eq } from 'drizzle-orm';
+
+import { getDb } from './db';
 import { user } from './db/schema';
 
 export async function register(email: string, password: string) {

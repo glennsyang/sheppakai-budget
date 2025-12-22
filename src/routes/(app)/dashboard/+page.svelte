@@ -1,12 +1,14 @@
 <script lang="ts">
+	import { getContext } from 'svelte';
+
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import type { Category } from '$lib';
-	import type { PageProps } from './$types';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { months } from '$lib/utils';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
-	import { getContext } from 'svelte';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -72,14 +74,14 @@
 
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 		<BudgetProgressCard
-			title={`Budgeted`}
+			title="Budgeted"
 			planned={plannedExpenses}
 			actual={data.actualExpensesTotal || 0}
 			{loading}
 			label1="Spent"
 		/>
 		<BudgetProgressCard
-			title={`Income`}
+			title="Income"
 			planned={data.totalIncome || 0}
 			actual={data.actualExpensesTotal || 0}
 			{loading}

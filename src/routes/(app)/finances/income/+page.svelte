@@ -1,16 +1,18 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import IncomeModal from '$lib/components/IncomeModal.svelte';
+	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
+	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import * as Select from '$lib/components/ui/select/index.js';
-	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
-	import { columns } from './columns';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
-	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import { months } from '$lib/utils';
-	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
+
+	import type { PageProps } from './$types';
+	import { columns } from './columns';
 
 	let { data }: PageProps = $props();
 

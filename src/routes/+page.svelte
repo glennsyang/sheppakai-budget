@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import MoonIcon from '@lucide/svelte/icons/moon';
+	import SunIcon from '@lucide/svelte/icons/sun';
+	import { toggleMode } from 'mode-watcher';
+	import { onMount } from 'svelte';
+
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
-	import { toggleMode } from 'mode-watcher';
-	import SunIcon from '@lucide/svelte/icons/sun';
-	import MoonIcon from '@lucide/svelte/icons/moon';
+	import { Button } from '$lib/components/ui/button';
 
 	// If user is authenticated, redirect to dashboard
 	onMount(() => {

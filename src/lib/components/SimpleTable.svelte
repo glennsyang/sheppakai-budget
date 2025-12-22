@@ -1,7 +1,7 @@
 <script lang="ts">
-	import * as Table from '$lib/components/ui/table/index.js';
-	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { Button } from '$lib/components/ui/button';
+	import { Skeleton } from '$lib/components/ui/skeleton';
+	import * as Table from '$lib/components/ui/table/index.js';
 
 	type Column<T> = {
 		key: keyof T;

@@ -1,18 +1,20 @@
 <script lang="ts">
-	import type { Category, Transaction, Budget } from '$lib';
-	import { DataTable } from '$lib/components/ui/data-table';
-	import { columns } from './columns';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import TransactionModal from '$lib/components/TransactionModal.svelte';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
-	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
-	import CategoryBudgetProgress from '$lib/components/CategoryBudgetProgress.svelte';
 	import { getContext } from 'svelte';
-	import { months } from '$lib/utils';
-	import { page } from '$app/state';
+
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import type { Budget,Category, Transaction } from '$lib';
+	import CategoryBudgetProgress from '$lib/components/CategoryBudgetProgress.svelte';
+	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
+	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
+	import TransactionModal from '$lib/components/TransactionModal.svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { DataTable } from '$lib/components/ui/data-table';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import { months } from '$lib/utils';
+
+	import { columns } from './columns';
 
 	interface Props {
 		data: {

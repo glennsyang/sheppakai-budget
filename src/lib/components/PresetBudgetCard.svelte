@@ -1,8 +1,9 @@
 <script lang="ts">
+	import CheckIcon from '@lucide/svelte/icons/check';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import PencilIcon from '@lucide/svelte/icons/pencil';
-	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
+
 	import { Input } from '$lib/components/ui/input';
 
 	interface Props {

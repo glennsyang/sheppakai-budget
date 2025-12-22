@@ -1,17 +1,19 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
+	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import EditIcon from '@lucide/svelte/icons/edit';
+	import LockIcon from '@lucide/svelte/icons/lock';
+	import SaveIcon from '@lucide/svelte/icons/save';
+	import UserIcon from '@lucide/svelte/icons/user';
+	import XIcon from '@lucide/svelte/icons/x';
+	import type { SubmitFunction } from '@sveltejs/kit';
+
+	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Separator from '$lib/components/ui/separator';
-	import { enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import UserIcon from '@lucide/svelte/icons/user';
-	import LockIcon from '@lucide/svelte/icons/lock';
-	import EditIcon from '@lucide/svelte/icons/edit';
-	import SaveIcon from '@lucide/svelte/icons/save';
-	import XIcon from '@lucide/svelte/icons/x';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 

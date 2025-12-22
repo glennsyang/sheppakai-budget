@@ -1,11 +1,13 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
-	import { DataTable } from '$lib/components/ui/data-table';
-	import { columns } from './columns';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
+
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
+	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { DataTable } from '$lib/components/ui/data-table';
+
+	import type { PageProps } from './$types';
+	import { columns } from './columns';
 
 	let { data }: PageProps = $props();
 

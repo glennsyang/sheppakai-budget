@@ -1,11 +1,12 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import { getContext } from 'svelte';
+
+	import type { Category, Transaction } from '$lib';
+	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
+	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
-	import type { Category, Transaction } from '$lib';
-	import TransactionModal from '$lib/components/TransactionModal.svelte';
-	import { getContext } from 'svelte';
 
 	let { id, transactionData }: { id: string; transactionData: Transaction } = $props();
 

@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { toast } from 'svelte-sonner';
+
+	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import { enhance } from '$app/forms';
-	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		open: boolean;

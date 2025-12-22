@@ -1,10 +1,12 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+
+	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
+	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
+
 	import type { Income } from './columns';
-	import IncomeModal from '$lib/components/IncomeModal.svelte';
 
 	let { id, incomeData }: { id: string; incomeData: Income } = $props();
 

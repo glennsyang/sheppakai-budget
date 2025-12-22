@@ -1,7 +1,8 @@
-import { dev } from '$app/environment';
 import type { Handle } from '@sveltejs/kit';
-import { getDb } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
+
+import { dev } from '$app/environment';
+import { getDb } from '$lib/server/db';
 import { user } from '$lib/server/db/schema';
 
 export const handle: Handle = async ({ event, resolve }) => {

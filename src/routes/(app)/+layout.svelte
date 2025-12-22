@@ -1,13 +1,16 @@
 <script lang="ts">
 	import '../../app.css';
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+
+	import { setContext } from 'svelte';
+
+	import { navigating } from '$app/state';
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
-	import { navigating } from '$app/state';
-	import { setContext } from 'svelte';
-	import type { LayoutServerData } from './$types';
-	import type { User } from '$lib/types';
 	import SiteHeader from '$lib/components/SiteHeader.svelte';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import type { User } from '$lib/types';
+
+	import type { LayoutServerData } from './$types';
 	import { sidebarData } from './data';
 
 	interface Props {

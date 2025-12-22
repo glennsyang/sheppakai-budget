@@ -1,10 +1,11 @@
-import type { SidebarData } from '$lib/types';
 import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
-import PiggyBankIcon from '@lucide/svelte/icons/piggy-bank';
-import HouseIcon from '@lucide/svelte/icons/house';
-import ReceiptIcon from '@lucide/svelte/icons/receipt';
 import FolderTreeIcon from '@lucide/svelte/icons/folder-tree';
+import HouseIcon from '@lucide/svelte/icons/house';
+import PiggyBankIcon from '@lucide/svelte/icons/piggy-bank';
+import ReceiptIcon from '@lucide/svelte/icons/receipt';
 import RepeatIcon from '@lucide/svelte/icons/repeat';
+
+import type { SidebarData } from '$lib/types';
 
 export const sidebarData: SidebarData = {
 	navMain: [

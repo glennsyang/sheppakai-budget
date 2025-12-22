@@ -1,20 +1,22 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
-	import type { Category, Budget, ChartData } from '$lib';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import { getContext } from 'svelte';
+
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import type { Budget, Category, ChartData } from '$lib';
 	import CategoryDialog from '$lib/components/CategoryDialog.svelte';
+	import LineChart from '$lib/components/LineChart.svelte';
+	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
 	import SummaryRow from '$lib/components/SummaryRow.svelte';
-	import LineChart from '$lib/components/LineChart.svelte';
-	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import { months } from '$lib/utils';
-	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
+
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -293,7 +295,7 @@
 					</div>
 				</div>
 				<div class="p-0">
-					<div class="max-h-[600px] overflow-y-auto">
+					<div class="max-h-150 overflow-y-auto">
 						{#each sortedCategories as category (category.id)}
 							{@const categoryBudget = getBudgetForCategory(category.id)}
 							<button

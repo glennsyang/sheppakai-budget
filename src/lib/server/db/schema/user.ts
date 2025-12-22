@@ -1,8 +1,9 @@
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { generateId } from '../utils';
 import { relations, sql } from 'drizzle-orm';
-import expense from './transaction';
+import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
+import { generateId } from '../utils';
 import budget from './budget';
+import expense from './transaction';
 
 const user = sqliteTable('users', {
 	id: text('id').primaryKey().$defaultFn(generateId),
