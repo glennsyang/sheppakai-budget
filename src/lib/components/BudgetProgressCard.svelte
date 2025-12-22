@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Progress } from '$lib/components/ui/progress';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 
 	// Define props using Svelte 5 syntax
 	interface $$Props {
@@ -9,18 +11,10 @@
 		planned: number;
 		loading?: boolean;
 		label1?: string;
-		label2?: string;
 	}
 
 	// Define props with defaults
-	let {
-		title,
-		actual,
-		planned,
-		loading = false,
-		label1 = 'Budget',
-		label2 = 'Spent'
-	}: $$Props = $props();
+	let { title, actual, planned, loading = false, label1 = 'Spent' }: $$Props = $props();
 
 	// Calculate percentage with 2 decimal places
 	let percentage = $derived(planned > 0 ? (actual / planned) * 100 : 0);
@@ -31,38 +25,44 @@
 	let progressClass = $derived(isOverBudget ? 'progress-over' : 'progress-under');
 </script>
 
-<div class="overflow-hidden rounded-lg border shadow">
-	<div class="p-6">
-		<h2 class="mb-4 text-lg font-medium">{title}</h2>
-		{#if loading}
-			<Skeleton class="mb-2 h-4 w-full" />
-			<Skeleton class="mb-2 h-2 w-full" />
-			<Skeleton class="h-4 w-20" />
-		{:else}
-			<div class="mb-2">
-				<span class="text-sm text-muted-foreground">{label1}: ${planned.toFixed(2)}</span>
-				<div class="mb-1 flex items-baseline justify-between">
-					<span class="text-sm text-muted-foreground">{label2}: ${actual.toFixed(2)}</span>
-					<span class="text-sm font-semibold">{percentage.toFixed(2)}%</span>
-				</div>
-			</div>
+<Card.Root class="@container/card bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
+	{#if loading}
+		<Skeleton class="mb-2 h-4 w-full" />
+		<Skeleton class="mb-2 h-2 w-full" />
+		<Skeleton class="h-4 w-20" />
+	{:else}
+		<Card.Header>
+			<Card.Description>{title}</Card.Description>
+			<Card.Title class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+				${planned.toFixed(2)}
+			</Card.Title>
+			<Card.Action>
+				<Badge variant="outline">
+					{percentage.toFixed(1)}%
+				</Badge>
+			</Card.Action>
+		</Card.Header>
+		<Card.Footer class="flex-col items-start gap-1.5 text-sm">
 			<Progress
 				value={actual === 0 ? 0 : actual}
 				max={planned === 0 ? 100 : planned}
 				class={progressClass}
 			/>
+			<div class="mt-2">
+				<span class="text-sm text-muted-foreground">{label1}: ${actual.toFixed(2)}</span>
+			</div>
 			{#if isOverBudget}
-				<p class="mt-2 text-sm font-medium text-red-600">
+				<p class="text-sm font-medium text-red-600">
 					Over budget by ${overage.toFixed(2)}
 				</p>
 			{:else if isUnderBudget}
-				<p class="mt-2 text-sm font-medium text-green-600">
+				<p class="text-sm font-medium text-green-600">
 					Remaining: ${underage.toFixed(2)}
 				</p>
 			{/if}
-		{/if}
-	</div>
-</div>
+		</Card.Footer>
+	{/if}
+</Card.Root>
 
 <style>
 	:global(.progress-under [data-slot='progress-indicator']) {

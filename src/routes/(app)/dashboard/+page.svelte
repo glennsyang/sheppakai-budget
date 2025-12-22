@@ -42,7 +42,7 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard - Sheppakai-Budget</title>
+	<title>Dashboard</title>
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">
@@ -70,36 +70,33 @@
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 		<BudgetProgressCard
-			title={`Total Expenses - ${monthName}`}
+			title={`Budgeted`}
 			planned={plannedExpenses}
 			actual={data.actualExpensesTotal || 0}
 			{loading}
-			label1="Budget"
-			label2="Spent"
+			label1="Spent"
 		/>
 		<BudgetProgressCard
-			title={`Total Income - ${monthName}`}
+			title={`Income`}
 			planned={data.totalIncome || 0}
 			actual={data.actualExpensesTotal || 0}
 			{loading}
-			label1="Income"
-			label2="Expenses"
+			label1="Expenses"
 		/>
 	</div>
 
 	<!-- Category Expenses -->
 	<h2 class="mt-8 mb-4 text-xl font-semibold">Expenses by Category</h2>
-	<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 		{#each sortedCategories as category, index}
 			<BudgetProgressCard
 				title={category.name}
 				planned={getPlannedAmount(category.id)}
 				actual={getActualAmount(category.id)}
 				{loading}
-				label1="Budget"
-				label2="Spent"
+				label1="Spent"
 			/>
 		{/each}
 	</div>

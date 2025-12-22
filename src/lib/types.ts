@@ -1,4 +1,5 @@
-// Global type definitions for the budget application
+import type { Component } from 'svelte';
+import type { Icon } from '@lucide/svelte';
 
 export type User = {
 	id: string;
@@ -51,13 +52,16 @@ export type Income = {
 	date: string;
 	userId: string;
 	createdAt: string;
-	createdBy: string;
 	updatedAt: string;
-	updatedBy: string;
 };
 
 export type ChartData = {
 	date: Date;
 	actual: number;
 	planned: number;
+};
+
+export type SidebarData = {
+	navMain: { title: string; url: string; icon?: Component<Icon> }[];
+	navSetup: { title: string; url: string; icon?: Component<Icon> }[];
 };

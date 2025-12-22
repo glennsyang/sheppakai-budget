@@ -1,16 +1,31 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { getDb } from '$lib/server/db';
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, sql, and } from 'drizzle-orm';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { income } from '$lib/server/db/schema';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
 		return { incomes: [] };
 	}
 
+	// Get month and year from URL or use current month/year
+	const currentDate = new Date();
+	const monthParam = url.searchParams.get('month');
+	const yearParam = url.searchParams.get('year');
+
+	const month = monthParam ? Number.parseInt(monthParam) : currentDate.getMonth() + 1;
+	const year = yearParam ? Number.parseInt(yearParam) : currentDate.getFullYear();
+
+	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+
 	const incomes = await getDb().query.income.findMany({
+		where: and(
+			sql`date(${income.date}) >= date(${startDate})`,
+			sql`date(${income.date}) <= date(${endDate})`
+		),
 		orderBy: [asc(income.date)]
 	});
 

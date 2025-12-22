@@ -57,7 +57,7 @@
 </script>
 
 <svelte:head>
-	<title>Transactions - Sheppakai-Budget</title>
+	<title>Transactions</title>
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">

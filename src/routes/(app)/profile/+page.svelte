@@ -90,7 +90,7 @@
 </script>
 
 <svelte:head>
-	<title>Profile - Budget Tracker</title>
+	<title>Profile</title>
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">

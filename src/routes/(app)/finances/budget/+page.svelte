@@ -241,7 +241,7 @@
 </script>
 
 <svelte:head>
-	<title>Budgets - Sheppakai-Budget</title>
+	<title>Budgets</title>
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">
