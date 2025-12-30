@@ -33,6 +33,8 @@
 		categories
 	}: Props = $props();
 
+	let sortedCategories = $derived([...categories].sort((a, b) => a.name.localeCompare(b.name)));
+
 	let id = $state(initialData?.id || '');
 	let amount = $state(initialData?.amount ? initialData.amount.toString() : '');
 	let payee = $state(initialData?.payee || '');
@@ -149,12 +151,12 @@
 				<Select.Root type="single" name="categoryId" bind:value={categoryId} required>
 					<Select.Trigger class="w-full">
 						{categoryId
-							? categories.find((c) => c.id === categoryId)?.name || 'Select a category'
+							? sortedCategories.find((c) => c.id === categoryId)?.name || 'Select a category'
 							: 'Select a category'}
 					</Select.Trigger>
 					<Select.Content>
 						<Select.Label class="px-2 py-1 text-sm font-medium">Categories</Select.Label>
-						{#each categories as category (category.id)}
+						{#each sortedCategories as category (category.id)}
 							<Select.Item value={category.id} label={category.name}>
 								{category.name}
 							</Select.Item>
