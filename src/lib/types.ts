@@ -31,6 +31,7 @@ export type Budget = {
 	amount: number;
 	month: string;
 	year: string;
+	presetType?: string | null;
 	category: Category | null;
 	user: User;
 };

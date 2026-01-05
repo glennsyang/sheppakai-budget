@@ -10,6 +10,7 @@
 		title: string;
 		amount: number;
 		isSelected: boolean;
+		presetType: 'lastMonth' | 'lastMonthBudget' | 'average' | 'custom';
 		isCustom?: boolean;
 		isEditing?: boolean;
 		editAmount?: string;
@@ -26,6 +27,7 @@
 		title,
 		amount,
 		isSelected,
+		presetType,
 		isCustom = false,
 		isEditing = false,
 		editAmount = '',
@@ -75,6 +77,7 @@
 					<input type="hidden" name="month" value={selectedMonth.toString().padStart(2, '0')} />
 					<input type="hidden" name="year" value={selectedYear.toString()} />
 					<input type="hidden" name="categoryId" value={categoryId} />
+					<input type="hidden" name="presetType" value={presetType} />
 					<Input
 						type="number"
 						name="amount"
@@ -119,22 +122,36 @@
 	</div>
 {:else}
 	<!-- Preset Amount Card -->
-	<button
-		class="relative rounded-lg border bg-card p-4 shadow transition-all {isSelected
-			? 'border-green-500 hover:border-green-500'
-			: 'hover:border-primary'}"
-		onclick={onSelect}
-	>
-		<div class="absolute top-2 right-2">
-			{#if isSelected}
-				<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-			{:else}
-				<CheckCircleIcon class="h-5 w-5 text-gray-300" />
-			{/if}
-		</div>
-		<div class="flex flex-col items-center justify-center space-y-2 pt-2">
-			<p class="text-2xl font-bold">${amount.toFixed(2)}</p>
-			<p class="text-center text-sm text-muted-foreground">{title}</p>
-		</div>
-	</button>
-{/if}
+	<form method="POST" action={budgetId ? '?/update' : '?/create'} class="relative">
+		{#if budgetId}
+			<input type="hidden" name="id" value={budgetId} />
+		{/if}
+		<input type="hidden" name="month" value={selectedMonth.toString().padStart(2, '0')} />
+		<input type="hidden" name="year" value={selectedYear.toString()} />
+		<input type="hidden" name="categoryId" value={categoryId} />
+		<input type="hidden" name="amount" value={amount.toFixed(2)} />
+		<input type="hidden" name="presetType" value={presetType} />
+		<button
+			type="submit"
+			class="relative w-full rounded-lg border bg-card p-4 shadow transition-all {isSelected
+				? 'border-green-500 hover:border-green-500'
+				: 'hover:border-primary'}"
+			onclick={(e) => {
+				e.preventDefault();
+				onSelect();
+				(e.currentTarget.closest('form') as HTMLFormElement)?.requestSubmit();
+			}}
+		>
+			<div class="absolute top-2 right-2">
+				{#if isSelected}
+					<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
+				{:else}
+					<CheckCircleIcon class="h-5 w-5 text-gray-300" />
+				{/if}
+			</div>
+			<div class="flex flex-col items-center justify-center space-y-2 pt-2">
+				<p class="text-2xl font-bold">${amount.toFixed(2)}</p>
+				<p class="text-center text-sm text-muted-foreground">{title}</p>
+			</div>
+		</button>
+	</form>{/if}

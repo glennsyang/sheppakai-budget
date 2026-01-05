@@ -155,32 +155,40 @@
 	// Auto-select preset based on budget data
 	$effect(() => {
 		if (selectedCategoryId && selectedBudget) {
-			// If we haven't set a selection for this category yet, determine it automatically
+			// If we haven't set a selection for this category yet, determine it from database
 			if (!categoryPresetSelections[selectedCategoryId]) {
-				const budgetAmount = selectedBudget.amount;
-				const lastMonthSpent = getLastMonthSpent(selectedCategoryId);
-				const lastMonthBudget = getLastMonthBudget(selectedCategoryId);
-				const averageSpent = getAverageSpent(selectedCategoryId);
-
-				// Check if budget matches any preset
-				if (budgetAmount === lastMonthSpent && lastMonthSpent > 0) {
-					categoryPresetSelections[selectedCategoryId] = 'lastMonth';
-				} else if (budgetAmount === lastMonthBudget && lastMonthBudget > 0) {
-					categoryPresetSelections[selectedCategoryId] = 'lastMonthBudget';
-				} else if (budgetAmount === averageSpent && averageSpent > 0) {
-					categoryPresetSelections[selectedCategoryId] = 'average';
-				} else if (budgetAmount > 0) {
-					// Custom amount entered
-					categoryPresetSelections[selectedCategoryId] = 'custom';
+				if (selectedBudget.presetType) {
+					// Use presetType from database
+					categoryPresetSelections[selectedCategoryId] = selectedBudget.presetType as
+						| 'lastMonth'
+						| 'lastMonthBudget'
+						| 'average'
+						| 'custom';
 				} else {
-					// Budget is 0 or doesn't exist, default to lastMonthBudget
-					categoryPresetSelections[selectedCategoryId] = 'lastMonthBudget';
+					// Legacy budget without presetType - try to infer from amount
+					const budgetAmount = selectedBudget.amount;
+					const lastMonthSpent = getLastMonthSpent(selectedCategoryId);
+					const lastMonthBudget = getLastMonthBudget(selectedCategoryId);
+					const averageSpent = getAverageSpent(selectedCategoryId);
+
+					// Check if budget matches any preset
+					if (budgetAmount === lastMonthSpent && lastMonthSpent > 0) {
+						categoryPresetSelections[selectedCategoryId] = 'lastMonth';
+					} else if (budgetAmount === lastMonthBudget && lastMonthBudget > 0) {
+						categoryPresetSelections[selectedCategoryId] = 'lastMonthBudget';
+					} else if (budgetAmount === averageSpent && averageSpent > 0) {
+						categoryPresetSelections[selectedCategoryId] = 'average';
+					} else if (budgetAmount > 0) {
+						// Custom amount entered
+						categoryPresetSelections[selectedCategoryId] = 'custom';
+					}
 				}
 			}
 		} else if (selectedCategoryId && !selectedBudget) {
-			// No budget exists, default to lastMonthBudget
-			if (!categoryPresetSelections[selectedCategoryId]) {
-				categoryPresetSelections[selectedCategoryId] = 'lastMonthBudget';
+			// No budget exists - do not auto-select anything
+			if (categoryPresetSelections[selectedCategoryId]) {
+				// Clear any existing selection when switching to a category without budget
+				categoryPresetSelections[selectedCategoryId] = null;
 			}
 		}
 	});
@@ -207,18 +215,61 @@
 
 	// Calculate preset amounts for the selected category
 	function getLastMonthSpent(categoryId: string): number {
-		// TODO: Implement actual calculation from expenses
-		return 0;
+		// Calculate previous month and year
+		let prevMonth = selectedMonth - 1;
+		let prevYear = selectedYear;
+
+		if (prevMonth === 0) {
+			prevMonth = 12;
+			prevYear -= 1;
+		}
+
+		const prevMonthStr = prevMonth.toString().padStart(2, '0');
+		const prevYearStr = prevYear.toString();
+
+		// Find transaction total for previous month and category
+		const transaction = data.historicalTransactions?.find(
+			(t) => t.categoryId === categoryId && t.month === prevMonthStr && t.year === prevYearStr
+		);
+
+		return transaction?.total || 0;
 	}
 
 	function getLastMonthBudget(categoryId: string): number {
-		// TODO: Implement actual calculation from previous month's budget
-		return 0;
+		// Calculate previous month and year
+		let prevMonth = selectedMonth - 1;
+		let prevYear = selectedYear;
+
+		if (prevMonth === 0) {
+			prevMonth = 12;
+			prevYear -= 1;
+		}
+
+		const prevMonthStr = prevMonth.toString().padStart(2, '0');
+		const prevYearStr = prevYear.toString();
+
+		// Find budget for previous month and category
+		const budgetRecord = data.historicalBudgets?.find(
+			(b) => b.category?.id === categoryId && b.month === prevMonthStr && b.year === prevYearStr
+		);
+
+		return budgetRecord?.amount || 0;
 	}
 
 	function getAverageSpent(categoryId: string): number {
-		// TODO: Implement actual calculation from expenses history
-		return 0;
+		// Filter transactions for this category
+		const categoryTransactions =
+			data.historicalTransactions?.filter((t) => t.categoryId === categoryId) || [];
+
+		if (categoryTransactions.length === 0) {
+			return 0;
+		}
+
+		// Calculate average by summing totals and dividing by count
+		const sum = categoryTransactions.reduce((acc, t) => acc + t.total, 0);
+		const average = sum / categoryTransactions.length;
+
+		return Math.round(average * 100) / 100; // Round to 2 decimal places
 	}
 
 	// Derived preset amounts for selected category
@@ -338,6 +389,8 @@
 						title="How much I spent last month"
 						amount={presetAmounts.lastMonthSpent}
 						isSelected={selectedPresetAmount === 'lastMonth'}
+						presetType="lastMonth"
+						budgetId={selectedBudget?.id}
 						{selectedMonth}
 						{selectedYear}
 						categoryId={selectedCategory.id}
@@ -349,6 +402,8 @@
 						title="How much I budgeted last month"
 						amount={presetAmounts.lastMonthBudget}
 						isSelected={selectedPresetAmount === 'lastMonthBudget'}
+						presetType="lastMonthBudget"
+						budgetId={selectedBudget?.id}
 						{selectedMonth}
 						{selectedYear}
 						categoryId={selectedCategory.id}
@@ -360,6 +415,8 @@
 						title="How much I spend on average"
 						amount={presetAmounts.averageSpent}
 						isSelected={selectedPresetAmount === 'average'}
+						presetType="average"
+						budgetId={selectedBudget?.id}
 						{selectedMonth}
 						{selectedYear}
 						categoryId={selectedCategory.id}
@@ -375,6 +432,7 @@
 						isEditing={editingCustomAmount}
 						{editAmount}
 						budgetId={selectedBudget?.id}
+						presetType="custom"
 						{selectedMonth}
 						{selectedYear}
 						categoryId={selectedCategory.id}

@@ -11,6 +11,7 @@ const budget = sqliteTable('budget', {
 	amount: real('amount').notNull(),
 	month: text('month').notNull(),
 	year: text('year').notNull(),
+	presetType: text('preset_type'),
 	categoryId: text('category_id')
 		.notNull()
 		.references(() => category.id),

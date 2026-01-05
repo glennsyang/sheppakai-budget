@@ -129,6 +129,7 @@ export const actions = {
 
 		try {
 			const userId = locals.user.id.toString();
+			const presetType = data.get('presetType')?.toString() || null;
 
 			await getDb()
 				.insert(budget)
@@ -138,6 +139,7 @@ export const actions = {
 							amount: Number(data.get('amount')),
 							year: data.get('year')?.toString() || '',
 							month: data.get('month')?.toString() || '',
+							presetType: presetType,
 							categoryId: data.get('categoryId')?.toString() || '',
 							userId: userId
 						},
@@ -174,6 +176,7 @@ export const actions = {
 		const budgetId = data.get('id')!.toString();
 		try {
 			const userId = locals.user.id.toString();
+			const presetType = data.get('presetType')?.toString() || null;
 
 			await getDb()
 				.update(budget)
@@ -183,6 +186,7 @@ export const actions = {
 							amount: Number(data.get('amount')),
 							year: data.get('year')?.toString() || '',
 							month: data.get('month')?.toString() || '',
+							presetType: presetType,
 							categoryId: data.get('categoryId')?.toString()
 						},
 						userId
