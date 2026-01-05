@@ -25,9 +25,9 @@
 		isLoading = $bindable(false)
 	}: Props = $props();
 
-	let id = $state(initialData?.id || '');
-	let name = $state(initialData?.name || '');
-	let description = $state(initialData?.description || '');
+	let id = $state('');
+	let name = $state('');
+	let description = $state('');
 
 	$effect(() => {
 		if (open) {

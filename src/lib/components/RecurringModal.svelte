@@ -28,11 +28,11 @@
 		isLoading = $bindable(false)
 	}: Props = $props();
 
-	let id = $state(initialData?.id || '');
-	let merchant = $state(initialData?.merchant || '');
-	let description = $state(initialData?.description || '');
-	let cadence = $state<'Monthly' | 'Yearly'>(initialData?.cadence || 'Monthly');
-	let amount = $state(initialData?.amount ? initialData.amount.toString() : '');
+	let id = $state('');
+	let merchant = $state('');
+	let description = $state('');
+	let cadence = $state<'Monthly' | 'Yearly'>('Monthly');
+	let amount = $state('');
 
 	// Reset form when modal opens
 	$effect(() => {

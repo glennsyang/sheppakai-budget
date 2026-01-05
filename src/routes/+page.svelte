@@ -5,19 +5,18 @@
 	import { onMount } from 'svelte';
 
 	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 
 	// If user is authenticated, redirect to dashboard
 	onMount(() => {
 		if (page.data.user) {
-			goto(resolve('/dashboard'));
+			goto('/dashboard');
 		}
 	});
 
-	const handleSignIn = () => goto(resolve('/auth/sign-in'));
-	const handleRegister = () => goto(resolve('/auth/register'));
+	const handleSignIn = () => goto('/auth/sign-in');
+	const handleRegister = () => goto('/auth/register');
 </script>
 
 <div class="flex min-h-screen flex-col">

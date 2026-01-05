@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 </script>
 
@@ -16,7 +15,7 @@
 		</form>
 
 		<div class="text-center">
-			<a href={resolve('/dashboard')} class="text-sm"> Cancel </a>
+			<a href="/dashboard" class="text-sm"> Cancel </a>
 		</div>
 	</div>
 </div>

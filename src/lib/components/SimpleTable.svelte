@@ -8,7 +8,7 @@
 		label: string;
 		align?: 'left' | 'center' | 'right';
 		width?: string;
-		format?: (value: any, row: T) => string;
+		format?: (value: T[keyof T], row: T) => string;
 	};
 
 	interface Props<T> {
@@ -40,6 +40,7 @@
 		emptyMessage = 'No data available.',
 		tableClass = '',
 		actionButton
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	}: Props<any> = $props();
 </script>
 
@@ -73,17 +74,17 @@
 					class="grid gap-4 border-b border-white/20 pb-2"
 					style="grid-template-columns: repeat({columns.length}, 1fr);"
 				>
-					{#each columns as _}
+					{#each columns as _col, i (i)}
 						<Skeleton class="h-4 w-16 bg-white/30" />
 					{/each}
 				</div>
 				<!-- Table rows skeleton -->
-				{#each Array(3) as _}
+				{#each Array(3) as _row, rowIdx (rowIdx)}
 					<div
 						class="grid gap-4 py-2"
 						style="grid-template-columns: repeat({columns.length}, 1fr);"
 					>
-						{#each columns as _}
+						{#each columns as _col2, colIdx (colIdx)}
 							<Skeleton class="h-4 w-20 bg-white/30" />
 						{/each}
 					</div>
@@ -100,7 +101,7 @@
 				{/if}
 				<Table.Header>
 					<Table.Row>
-						{#each columns as column}
+						{#each columns as column (column.key)}
 							<Table.Head
 								class={column.align === 'right'
 									? 'text-right'
@@ -115,9 +116,9 @@
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
-					{#each data as row}
+					{#each data as row, rowIndex (rowIndex)}
 						<Table.Row>
-							{#each columns as column}
+							{#each columns as column (column.key)}
 								<Table.Cell
 									class={`${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : ''} ${column.key === columns[0].key ? 'font-medium' : ''}`}
 								>

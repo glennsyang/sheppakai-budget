@@ -15,7 +15,7 @@
 				<Sidebar.MenuButton tooltipContent={item.title}>
 					{#snippet child({ props })}
 						{@const IconComponent = item.icon}
-						<a href={item.url} {...props}>
+						<a href={item.url} data-sveltekit-preload-data="hover" {...props}>
 							<IconComponent />
 							<span>{item.title}</span>
 						</a>

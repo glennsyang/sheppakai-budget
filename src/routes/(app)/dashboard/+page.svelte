@@ -92,7 +92,7 @@
 	<!-- Category Expenses -->
 	<h2 class="mt-8 mb-4 text-xl font-semibold">Expenses by Category</h2>
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-		{#each sortedCategories as category}
+		{#each sortedCategories as category (category.id)}
 			<BudgetProgressCard
 				title={category.name}
 				planned={getPlannedAmount(category.id)}

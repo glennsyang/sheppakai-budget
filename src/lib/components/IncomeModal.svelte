@@ -27,11 +27,11 @@
 		isLoading = $bindable(false)
 	}: Props = $props();
 
-	let id = $state(initialData?.id || '');
-	let name = $state(initialData?.name || '');
-	let description = $state(initialData?.description || '');
-	let date = $state(initialData?.date || '');
-	let amount = $state(initialData?.amount?.toString() || '');
+	let id = $state('');
+	let name = $state('');
+	let description = $state('');
+	let date = $state('');
+	let amount = $state('');
 
 	$effect(() => {
 		if (open) {
@@ -53,7 +53,7 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="sm:max-w-[425px]">
+	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
 			<Dialog.Title>{isEditing ? 'Edit Income' : 'Add New Income'}</Dialog.Title>
 			<Dialog.Description>

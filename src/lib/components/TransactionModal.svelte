@@ -35,12 +35,12 @@
 
 	let sortedCategories = $derived([...categories].sort((a, b) => a.name.localeCompare(b.name)));
 
-	let id = $state(initialData?.id || '');
-	let amount = $state(initialData?.amount ? initialData.amount.toString() : '');
-	let payee = $state(initialData?.payee || '');
-	let notes = $state(initialData?.notes || '');
-	let date = $state(initialData?.date || '');
-	let categoryId = $state(initialData?.categoryId || '');
+	let id = $state('');
+	let amount = $state('');
+	let payee = $state('');
+	let notes = $state('');
+	let date = $state('');
+	let categoryId = $state('');
 
 	// Set default date to today
 	function setDefaultDate() {
@@ -72,7 +72,7 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="sm:max-w-[425px]">
+	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
 			<Dialog.Title>{isEditing ? 'Edit Transaction' : 'Add New Transaction'}</Dialog.Title>
 			<Dialog.Description>

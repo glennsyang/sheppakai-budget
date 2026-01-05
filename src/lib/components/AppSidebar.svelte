@@ -1,7 +1,6 @@
 <script lang="ts">
 	import CircleDollarSignIcon from '@lucide/svelte/icons/circle-dollar-sign';
 
-	import { resolve } from '$app/paths';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { SidebarData, User } from '$lib/types';
 
@@ -23,7 +22,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton class="data-[slot=sidebar-menu-button]:p-1.5!">
 					{#snippet child({ props })}
-						<a href={resolve('/')} {...props}>
+						<a href="/" data-sveltekit-preload-data="hover" {...props}>
 							<CircleDollarSignIcon class="size-5!" />
 							<span class="text-base font-semibold">Sheppakai Budget</span>
 						</a>

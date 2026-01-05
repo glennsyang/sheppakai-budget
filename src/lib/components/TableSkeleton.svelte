@@ -19,15 +19,15 @@
 <div class="space-y-4">
 	<!-- Table header skeleton -->
 	<div class="flex space-x-4">
-		{#each Array(columns) as _, i}
+		{#each Array(columns) as _col, i (i)}
 			<Skeleton class="h-6 {getColumnWidth(i)}" />
 		{/each}
 	</div>
 
 	<!-- Table rows skeleton -->
-	{#each Array(rows) as _, rowIndex}
+	{#each Array(rows) as _row, rowIndex (rowIndex)}
 		<div class="flex space-x-4">
-			{#each Array(columns) as _, colIndex}
+			{#each Array(columns) as _col2, colIndex (`${rowIndex}-${colIndex}`)}
 				<Skeleton class="h-4 {getColumnWidth(colIndex)}" />
 			{/each}
 		</div>

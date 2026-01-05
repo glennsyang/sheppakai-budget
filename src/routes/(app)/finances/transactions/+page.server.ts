@@ -43,7 +43,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			category: true,
 			user: true
 		},
-		where: and(eq(budget.month, month.toString()), eq(budget.year, year.toString()))
+		where: and(
+			eq(budget.month, month.toString().padStart(2, '0')),
+			eq(budget.year, year.toString())
+		)
 	})) as Budget[];
 
 	// Calculate spending per category
