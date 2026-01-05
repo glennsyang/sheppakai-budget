@@ -15,6 +15,7 @@
 		"lint:fix": "prettier --write . && eslint . --fix",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run",
+		"update-deps": "npm outdated || npm update",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio"
@@ -50,7 +51,7 @@
 		"svelte": "^5.46.0",
 		"svelte-check": "^4.3.4",
 		"svelte-sonner": "^1.0.7",
-		"sveltekit-superforms": "^2.28.1",
+		"sveltekit-superforms": "^2.29.1",
 		"tailwind-merge": "^3.4.0",
 		"tailwind-variants": "^3.2.2",
 		"tailwindcss": "^4.1.18",
@@ -59,7 +60,7 @@
 		"typescript-eslint": "^8.49.0",
 		"vite": "^7.2.7",
 		"vitest": "^4.0.15",
-		"zod": "^3.25.76"
+		"zod": "^4.3.5"
 	},
 	"dependencies": {
 		"bcryptjs": "^3.0.3",

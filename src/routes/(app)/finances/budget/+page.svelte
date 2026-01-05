@@ -23,14 +23,12 @@
 
 	let openCategoryDialog = $state<boolean>(false);
 	let selectedCategoryId = $state<string | null>(null);
-	let editingBudgetId = $state<string | null>(null);
 	let editAmount = $state<string>('');
 	let editingCustomAmount = $state<boolean>(false);
 	// Track selected preset amount per category
 	let categoryPresetSelections = $state<
 		Record<string, 'lastMonth' | 'lastMonthBudget' | 'average' | 'custom' | null>
 	>({});
-	let customAmount = $state<string>('');
 
 	// Calculate total recurring expenses
 	let totalRecurring = $derived((data.recurring || []).reduce((sum, item) => sum + item.amount, 0));
@@ -194,10 +192,8 @@
 	});
 
 	function cancelEditing() {
-		editingBudgetId = null;
 		editAmount = '';
 		editingCustomAmount = false;
-		customAmount = '';
 	}
 
 	function startEditingCustomAmount() {
@@ -206,7 +202,6 @@
 			categoryPresetSelections[selectedCategoryId] = 'custom';
 		}
 		if (selectedBudget) {
-			editingBudgetId = selectedBudget.id;
 			editAmount = selectedBudget.amount.toString();
 		} else {
 			editAmount = '';
@@ -286,9 +281,7 @@
 		if (selectedCategoryId) {
 			categoryPresetSelections[selectedCategoryId] = type;
 		}
-		if (type === 'custom') {
-			customAmount = '';
-		} else {
+		if (type !== 'custom') {
 			editAmount = amount.toString();
 		}
 	}

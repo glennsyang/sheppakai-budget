@@ -45,7 +45,7 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="sm:max-w-[425px]">
+	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
 			<Dialog.Title>{isEditing ? 'Edit Category' : 'Add New Category'}</Dialog.Title>
 			<Dialog.Description>

@@ -1,6 +1,6 @@
 import { fail, isRedirect, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
 import { authenticate } from '$lib/server/auth';
@@ -8,7 +8,7 @@ import { authenticate } from '$lib/server/auth';
 import type { Actions, PageServerLoad } from './$types';
 
 const signInSchema = z.object({
-	email: z.string().email('Please enter a valid email address'),
+	email: z.email('Please enter a valid email address'),
 	password: z.string().min(8, 'Password must be at least 8 characters')
 });
 
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		throw redirect(302, '/dashboard');
 	}
 
-	const form = await superValidate(zod(signInSchema));
+	const form = await superValidate(zod4(signInSchema));
 
 	// Check for success message from registration
 	const message = url.searchParams.get('message');
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 export const actions: Actions = {
 	default: async ({ request, cookies }) => {
-		const form = await superValidate(request, zod(signInSchema));
+		const form = await superValidate(request, zod4(signInSchema));
 
 		if (!form.valid) {
 			return fail(400, {

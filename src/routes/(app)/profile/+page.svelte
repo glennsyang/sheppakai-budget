@@ -27,10 +27,23 @@
 	let profileMessage = $state<{ type: 'success' | 'error'; text: string } | null>(null);
 	let passwordMessage = $state<{ type: 'success' | 'error'; text: string } | null>(null);
 
-	// Profile form values
-	let firstName = $state(data.user?.firstName || '');
-	let lastName = $state(data.user?.lastName || '');
-	let email = $state(data.user?.email || '');
+	// Derived values from data
+	const userFirstName = $derived(data.user?.firstName || '');
+	const userLastName = $derived(data.user?.lastName || '');
+	const userEmail = $derived(data.user?.email || '');
+	const userUpdatedAt = $derived(data.user?.updatedAt || '');
+
+	// Profile form values (editable state)
+	let firstName = $state('');
+	let lastName = $state('');
+	let email = $state('');
+
+	// Sync form values with data changes
+	$effect(() => {
+		firstName = userFirstName;
+		lastName = userLastName;
+		email = userEmail;
+	});
 
 	// Password form values
 	let currentPassword = $state('');
@@ -39,9 +52,9 @@
 
 	// Reset profile form
 	function resetProfileForm() {
-		firstName = data.user?.firstName || '';
-		lastName = data.user?.lastName || '';
-		email = data.user?.email || '';
+		firstName = userFirstName;
+		lastName = userLastName;
+		email = userEmail;
 		isEditingProfile = false;
 		profileMessage = null;
 	}
@@ -305,9 +318,7 @@
 				{:else}
 					<div class="text-sm text-muted-foreground">
 						<p>
-							Password was last updated on {new Date(
-								data.user?.updatedAt || ''
-							).toLocaleDateString()}
+							Password was last updated on {new Date(userUpdatedAt).toLocaleDateString()}
 						</p>
 						<p class="mt-1">Click "Change Password" to update your password.</p>
 					</div>

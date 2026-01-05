@@ -1,6 +1,6 @@
 import { fail, isRedirect, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
+import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
 import { register } from '$lib/server/auth';
@@ -9,7 +9,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 const registerSchema = z
 	.object({
-		email: z.string().email('Please enter a valid email address'),
+		email: z.email('Please enter a valid email address'),
 		password: z.string().min(8, 'Password must be at least 8 characters'),
 		confirmPassword: z.string()
 	})
@@ -25,13 +25,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	return {
-		form: await superValidate(zod(registerSchema))
+		form: await superValidate(zod4(registerSchema))
 	};
 };
 
 export const actions: Actions = {
 	default: async ({ request }) => {
-		const form = await superValidate(request, zod(registerSchema));
+		const form = await superValidate(request, zod4(registerSchema));
 
 		if (!form.valid) {
 			return fail(400, {
