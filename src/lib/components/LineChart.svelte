@@ -54,7 +54,12 @@
 				props={{
 					spline: { curve: curveNatural, motion: 'tween', strokeWidth: 2 },
 					xAxis: {
-						format: (v: Date) => v.toLocaleDateString('en-US', { month: 'short' })
+						format: (v: Date) => {
+							return new Date(v).toLocaleDateString('en-US', {
+								month: 'short',
+								timeZone: 'UTC' // Force UTC interpretation
+							});
+						}
 					},
 					highlight: { points: { r: 4 } }
 				}}

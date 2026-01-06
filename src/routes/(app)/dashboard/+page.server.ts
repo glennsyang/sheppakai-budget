@@ -1,7 +1,7 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 
 import { getDb } from '$lib/server/db';
-import { budget, income, recurring, transaction } from '$lib/server/db/schema';
+import { budget, income, transaction } from '$lib/server/db/schema';
 
 import type { PageServerLoad } from './$types';
 
@@ -58,14 +58,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const recurringExpenses: Recurring[] = (await getDb().query.recurring.findMany({
 		with: {
 			user: true
-		},
-		where: eq(recurring.userId, locals.user.id)
+		}
 	})) as Recurring[];
 
 	// Get income for the selected month
 	const incomeRecords: Income[] = (await getDb().query.income.findMany({
 		where: and(
-			eq(income.userId, locals.user.id),
 			sql`date(${income.date}) >= date(${startDate})`,
 			sql`date(${income.date}) <= date(${endDate})`
 		)

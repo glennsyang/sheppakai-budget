@@ -419,7 +419,9 @@
 					<!-- Custom Amount -->
 					<PresetBudgetCard
 						title="Custom"
-						amount={selectedBudget ? selectedBudget.amount : 0}
+						amount={selectedBudget && selectedBudget.presetType === 'custom'
+							? selectedBudget.amount
+							: 0}
 						isSelected={selectedPresetAmount === 'custom'}
 						isCustom={true}
 						isEditing={editingCustomAmount}

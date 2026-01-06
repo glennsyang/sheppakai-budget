@@ -12,9 +12,18 @@ function getLast6MonthsRange(currentMonth: number, currentYear: number) {
 	const months: Array<{ month: string; year: string; date: Date }> = [];
 
 	for (let i = 5; i >= 0; i--) {
-		const targetDate = new Date(currentYear, currentMonth - 1 - i, 1);
-		const targetMonth = targetDate.getMonth() + 1;
-		const targetYear = targetDate.getFullYear();
+		// Calculate target month and year, handling negative months
+		let targetMonth = currentMonth - i;
+		let targetYear = currentYear;
+
+		// Handle month underflow (going into previous year)
+		while (targetMonth <= 0) {
+			targetMonth += 12;
+			targetYear -= 1;
+		}
+
+		// Use UTC to avoid timezone issues during serialization
+		const targetDate = new Date(Date.UTC(targetYear, targetMonth - 1, 1));
 
 		months.push({
 			month: targetMonth.toString().padStart(2, '0'),
@@ -64,7 +73,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			user: true
 		},
 		where: and(
-			eq(budget.userId, locals.user.id),
 			sql`(${budget.year} || '-' || ${budget.month}) >= ${earliestMonth.year + '-' + earliestMonth.month}`,
 			sql`(${budget.year} || '-' || ${budget.month}) <= ${latestMonth.year + '-' + latestMonth.month}`
 		),
@@ -82,7 +90,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		.from(transaction)
 		.where(
 			and(
-				eq(transaction.userId, locals.user.id),
 				sql`date(${transaction.date}) >= date(${startDate})`,
 				sql`date(${transaction.date}) <= date(${endDateStr})`
 			)
@@ -130,6 +137,11 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 			const presetType = data.get('presetType')?.toString() || null;
+			const monthValue = data.get('month')?.toString() || '';
+			const yearValue = data.get('year')?.toString() || '';
+
+			// Ensure month is zero-padded
+			const paddedMonth = monthValue.padStart(2, '0');
 
 			await getDb()
 				.insert(budget)
@@ -137,8 +149,8 @@ export const actions = {
 					withAuditFieldsForCreate(
 						{
 							amount: Number(data.get('amount')),
-							year: data.get('year')?.toString() || '',
-							month: data.get('month')?.toString() || '',
+							year: yearValue,
+							month: paddedMonth,
 							presetType: presetType,
 							categoryId: data.get('categoryId')?.toString() || '',
 							userId: userId
@@ -177,6 +189,11 @@ export const actions = {
 		try {
 			const userId = locals.user.id.toString();
 			const presetType = data.get('presetType')?.toString() || null;
+			const monthValue = data.get('month')?.toString() || '';
+			const yearValue = data.get('year')?.toString() || '';
+
+			// Ensure month is zero-padded
+			const paddedMonth = monthValue.padStart(2, '0');
 
 			await getDb()
 				.update(budget)
@@ -184,8 +201,8 @@ export const actions = {
 					withAuditFieldsForUpdate(
 						{
 							amount: Number(data.get('amount')),
-							year: data.get('year')?.toString() || '',
-							month: data.get('month')?.toString() || '',
+							year: yearValue,
+							month: paddedMonth,
 							presetType: presetType,
 							categoryId: data.get('categoryId')?.toString()
 						},
