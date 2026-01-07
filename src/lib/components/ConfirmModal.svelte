@@ -18,7 +18,7 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="sm:max-w-[425px]">
+	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
 			<Dialog.Title>{title}</Dialog.Title>
 			<Dialog.Description>
@@ -34,6 +34,8 @@
 				return async ({ result, update }) => {
 					if (result.type === 'success') {
 						toast.success(`${title} successful!`);
+					} else if (result.type === 'failure' && result.data?.error) {
+						toast.error((result.data.error as string) || `${title} failed!`);
 					} else {
 						toast.error(`${title} failed!`);
 					}

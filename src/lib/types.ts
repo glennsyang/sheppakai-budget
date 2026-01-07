@@ -56,6 +56,43 @@ export type Income = {
 	updatedAt: string;
 };
 
+export type Savings = {
+	id: string;
+	title: string;
+	description: string | null;
+	amount: number;
+	userId: string;
+	user: User;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type SavingsGoal = {
+	id: string;
+	name: string;
+	description: string | null;
+	targetAmount: number;
+	targetDate: string | null;
+	status: 'active' | 'completed' | 'paused';
+	userId: string;
+	user: User;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type Contribution = {
+	id: string;
+	goalId: string;
+	amount: number;
+	date: string;
+	description: string | null;
+	userId: string;
+	goal: SavingsGoal;
+	user: User;
+	createdAt: string;
+	updatedAt: string;
+};
+
 export type ChartData = {
 	date: Date;
 	actual: number;
@@ -64,5 +101,6 @@ export type ChartData = {
 
 export type SidebarData = {
 	navMain: { title: string; url: string; icon?: Component<Icon> }[];
+	navSavings: { title: string; url: string; icon?: Component<Icon> }[];
 	navSetup: { title: string; url: string; icon?: Component<Icon> }[];
 };

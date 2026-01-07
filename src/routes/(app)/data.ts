@@ -4,6 +4,8 @@ import HouseIcon from '@lucide/svelte/icons/house';
 import PiggyBankIcon from '@lucide/svelte/icons/piggy-bank';
 import ReceiptIcon from '@lucide/svelte/icons/receipt';
 import RepeatIcon from '@lucide/svelte/icons/repeat';
+import TargetIcon from '@lucide/svelte/icons/target';
+import WalletIcon from '@lucide/svelte/icons/wallet';
 
 import type { SidebarData } from '$lib/types';
 
@@ -28,6 +30,23 @@ export const sidebarData: SidebarData = {
 			title: 'Income',
 			url: '/finances/income',
 			icon: DollarSignIcon
+		},
+		{
+			title: 'Recurring',
+			url: '/setup/recurring',
+			icon: RepeatIcon
+		}
+	],
+	navSavings: [
+		{
+			title: 'Overview',
+			url: '/savings',
+			icon: WalletIcon
+		},
+		{
+			title: 'Savings Goals',
+			url: '/savings/goals',
+			icon: TargetIcon
 		}
 	],
 	navSetup: [
@@ -35,11 +54,6 @@ export const sidebarData: SidebarData = {
 			title: 'Categories',
 			url: '/setup/categories',
 			icon: FolderTreeIcon
-		},
-		{
-			title: 'Recurring',
-			url: '/setup/recurring',
-			icon: RepeatIcon
 		}
 	]
 };

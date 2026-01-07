@@ -7,6 +7,7 @@
 	import NavMain from './NavMain.svelte';
 	import NavSetup from './NavSetup.svelte';
 	import NavUser from './NavUser.svelte';
+	import NavSavings from './NavSavings.svelte';
 
 	interface Props {
 		sidebarData: SidebarData;
@@ -33,6 +34,7 @@
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<NavMain items={sidebarData.navMain} />
+		<NavSavings items={sidebarData.navSavings} />
 		<NavSetup items={sidebarData.navSetup} />
 	</Sidebar.Content>
 	<Sidebar.Footer>
