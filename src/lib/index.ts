@@ -8,6 +8,7 @@ export type {
 	Contribution,
 	Income,
 	Recurring,
+	Savings,
 	SavingsGoal,
 	SavingsGoalWithProgress,
 	Transaction,
