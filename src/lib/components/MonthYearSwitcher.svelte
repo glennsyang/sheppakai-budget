@@ -58,7 +58,7 @@
 	<Button variant="outline" size="icon" onclick={handlePrevious}>
 		<ChevronLeftIcon class="h-4 w-4" />
 	</Button>
-	<div class="min-w-[180px] text-center">
+	<div class="min-w-45 text-center">
 		<span class="text-lg font-semibold">{displayText}</span>
 	</div>
 	<Button variant="outline" size="icon" onclick={handleNext}>
