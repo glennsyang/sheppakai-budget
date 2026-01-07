@@ -6,7 +6,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
-	import type { Income } from './columns';
+	import type { Income } from '$lib';
 
 	let { id, incomeData }: { id: string; incomeData: Income } = $props();
 

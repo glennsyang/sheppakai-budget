@@ -2,6 +2,7 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import SavingsModal from '$lib/components/SavingsModal.svelte';
+	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { DataTable } from '$lib/components/ui/data-table';
