@@ -16,7 +16,6 @@
 		type VisibilityState
 	} from '@tanstack/table-core';
 
-	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -29,9 +28,10 @@
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
 		data: TData[];
+		showCategoryFilter?: boolean;
 	};
 
-	let { data, columns }: DataTableProps<TData, TValue> = $props();
+	let { data, columns, showCategoryFilter = false }: DataTableProps<TData, TValue> = $props();
 
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 	let sorting = $state<SortingState>([]);
@@ -103,7 +103,7 @@
 				oninput={(e) => table.setGlobalFilter(e.currentTarget.value)}
 				class="max-w-sm"
 			/>
-			{#if table.getColumn('category')}
+			{#if showCategoryFilter && table.getColumn('category')}
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}

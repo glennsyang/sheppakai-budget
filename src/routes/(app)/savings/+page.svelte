@@ -22,9 +22,7 @@
 	let loading = $state(false);
 
 	// Calculate total savings
-	let totalSavings = $derived(
-		data.savings.reduce((sum, saving) => sum + saving.amount, 0)
-	);
+	let totalSavings = $derived(data.savings.reduce((sum, saving) => sum + saving.amount, 0));
 </script>
 
 <svelte:head>
@@ -65,10 +63,14 @@
 				<CardContent>
 					<div class="text-center">
 						<p class="text-4xl font-bold text-green-600 dark:text-green-400">
-							${totalSavings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+							${totalSavings.toLocaleString('en-US', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							})}
 						</p>
 						<p class="mt-2 text-sm text-muted-foreground">
-							{data.savings.length} {data.savings.length === 1 ? 'account' : 'accounts'}
+							{data.savings.length}
+							{data.savings.length === 1 ? 'account' : 'accounts'}
 						</p>
 					</div>
 				</CardContent>

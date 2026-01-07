@@ -9,6 +9,7 @@ export type {
 	Income,
 	Recurring,
 	SavingsGoal,
+	SavingsGoalWithProgress,
 	Transaction,
 	User
 } from './types';

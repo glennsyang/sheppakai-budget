@@ -5,9 +5,9 @@
 	import type { SidebarData, User } from '$lib/types';
 
 	import NavMain from './NavMain.svelte';
+	import NavSavings from './NavSavings.svelte';
 	import NavSetup from './NavSetup.svelte';
 	import NavUser from './NavUser.svelte';
-	import NavSavings from './NavSavings.svelte';
 
 	interface Props {
 		sidebarData: SidebarData;

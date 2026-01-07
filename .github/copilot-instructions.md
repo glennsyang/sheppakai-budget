@@ -58,6 +58,7 @@ npm test               # Run Vitest unit tests
 ## Code Conventions
 
 - **TypeScript**: Use for all new files with semicolons and single quotes
+- **No 'any' types**: Avoid using `any` type entirely - use proper typing, generics, or `unknown` instead
 - **Naming**: `snake_case` for DB columns, `camelCase` for TypeScript
 - **Styling**: Tailwind classes via `cn()` utility from `$lib/utils.ts`
 - **Type imports**: Use `type` keyword: `import type { PageServerLoad } from './$types'`

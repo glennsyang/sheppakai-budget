@@ -80,6 +80,11 @@ export type SavingsGoal = {
 	updatedAt: string;
 };
 
+export type SavingsGoalWithProgress = SavingsGoal & {
+	currentAmount: number;
+	percentage: number;
+};
+
 export type Contribution = {
 	id: string;
 	goalId: string;

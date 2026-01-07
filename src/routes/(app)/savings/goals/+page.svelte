@@ -12,16 +12,11 @@
 
 	import { columns } from './columns';
 
-	import type { Contribution, SavingsGoal } from '$lib';
+	import type { Contribution, SavingsGoalWithProgress } from '$lib';
 
 	interface Props {
 		data: {
-			goals: Array<
-				SavingsGoal & {
-					currentAmount: number;
-					percentage: number;
-				}
-			>;
+			goals: Array<SavingsGoalWithProgress>;
 			contributions: Contribution[];
 		};
 	}
@@ -36,13 +31,7 @@
 	let openDeleteModal = $state<boolean>(false);
 	let loading = $state(false);
 
-	let editingGoal = $state<
-		| (SavingsGoal & {
-				currentAmount: number;
-				percentage: number;
-		  })
-		| null
-	>(null);
+	let editingGoal = $state<SavingsGoalWithProgress | null>(null);
 	let selectedGoalId = $state<string>('');
 	let deletingGoalId = $state<string>('');
 
@@ -51,7 +40,7 @@
 		openGoalModal = true;
 	}
 
-	function handleEditGoal(goal: any) {
+	function handleEditGoal(goal: SavingsGoalWithProgress) {
 		editingGoal = goal;
 		openGoalModal = true;
 	}

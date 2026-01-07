@@ -72,7 +72,9 @@
 							isEditing ? 'Savings updated successfully!' : 'Savings created successfully!'
 						);
 					} else {
-						toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the savings entry.`);
+						toast.error(
+							`There was an error ${isEditing ? 'updating' : 'creating'} the savings entry.`
+						);
 					}
 					isLoading = false;
 					await update();

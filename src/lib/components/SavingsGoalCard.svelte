@@ -5,19 +5,12 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Progress } from '$lib/components/ui/progress';
 
+	import type { SavingsGoalWithProgress } from '$lib';
+
 	interface Props {
-		goal: {
-			id: string;
-			name: string;
-			description: string | null;
-			targetAmount: number;
-			targetDate: string | null;
-			status: 'active' | 'completed' | 'paused';
-			currentAmount: number;
-			percentage: number;
-		};
+		goal: SavingsGoalWithProgress;
 		onAddContribution: (goalId: string) => void;
-		onEditGoal: (goal: any) => void;
+		onEditGoal: (goal: SavingsGoalWithProgress) => void;
 		onDeleteGoal: (goalId: string) => void;
 	}
 

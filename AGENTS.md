@@ -46,6 +46,7 @@ This is a SvelteKit web application for tracking monthly budgets, managing expen
 
 - Use semicolons at the end of each statement.
 - Use single quotes for strings.
+- Avoid using `any` type entirely - use proper typing, generics, or `unknown` instead.
 - Follows ESLint (`eslint.config.js`) and Prettier conventions.
 - Uses Tailwind CSS for consistent styling.
 

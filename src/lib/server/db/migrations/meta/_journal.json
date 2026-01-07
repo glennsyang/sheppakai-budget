@@ -1,48 +1,48 @@
 {
-  "version": "7",
-  "dialect": "sqlite",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "6",
-      "when": 1760797755960,
-      "tag": "0000_needy_catseye",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1765434347616,
-      "tag": "0001_new_mockingbird",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1765435595863,
-      "tag": "0003_smiling_prowler",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1767638889555,
-      "tag": "0003_tidy_absorbing_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1767746870247,
-      "tag": "0004_overrated_bushwacker",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1767748806990,
-      "tag": "0005_wakeful_iron_man",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "sqlite",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "6",
+			"when": 1760797755960,
+			"tag": "0000_needy_catseye",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1765434347616,
+			"tag": "0001_new_mockingbird",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1765435595863,
+			"tag": "0003_smiling_prowler",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "6",
+			"when": 1767638889555,
+			"tag": "0003_tidy_absorbing_man",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "6",
+			"when": 1767746870247,
+			"tag": "0004_overrated_bushwacker",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "6",
+			"when": 1767748806990,
+			"tag": "0005_wakeful_iron_man",
+			"breakpoints": true
+		}
+	]
 }
