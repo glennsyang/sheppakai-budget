@@ -1,17 +1,12 @@
 import type { ColumnDef } from '@tanstack/table-core';
+import { createRawSnippet } from 'svelte';
 
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import { renderComponent } from '$lib/components/ui/data-table/index.js';
+import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
 
 import DataTableActions from './data-table-actions.svelte';
 
-export type Income = {
-	id: string;
-	name: string;
-	description: string;
-	date: string;
-	amount: number;
-};
+import type { Income } from '$lib';
 
 export const columns: ColumnDef<Income>[] = [
 	{
@@ -43,11 +38,26 @@ export const columns: ColumnDef<Income>[] = [
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
 				columnName: 'Amount',
-				onclick: column.getToggleSortingHandler()
+				onclick: column.getToggleSortingHandler(),
+				class: 'justify-end w-full'
 			}),
 		cell: ({ row }) => {
-			const amount = row.getValue('amount') as number;
-			return `$${amount.toFixed(2)}`;
+			const formatter = new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD'
+			});
+
+			const amountCellSnippet = createRawSnippet<[string]>((getAmount) => {
+				const amount = getAmount();
+				return {
+					render: () => `<div class="text-right font-medium">${amount}</div>`
+				};
+			});
+
+			return renderSnippet(
+				amountCellSnippet,
+				formatter.format(Number.parseFloat(row.getValue('amount')))
+			);
 		}
 	},
 	{

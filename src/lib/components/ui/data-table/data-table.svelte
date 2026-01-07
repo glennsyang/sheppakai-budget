@@ -28,12 +28,14 @@
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
 		data: TData[];
+		defaultPageSize?: number;
 		showCategoryFilter?: boolean;
 	};
 
-	let { data, columns, showCategoryFilter = false }: DataTableProps<TData, TValue> = $props();
+	let { data, columns, defaultPageSize = 10, showCategoryFilter = false }: DataTableProps<TData, TValue> = $props();
 
-	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
+	// svelte-ignore state_referenced_locally
+	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: defaultPageSize });
 	let sorting = $state<SortingState>([]);
 	let globalFilter = $state<string>('');
 	let columnVisibility = $state<VisibilityState>({});

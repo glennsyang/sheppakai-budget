@@ -164,7 +164,7 @@
 				</Button>
 			</div>
 			{#if data.contributions.length > 0}
-				<DataTable {columns} data={data.contributions} />
+				<DataTable {columns} data={data.contributions} defaultPageSize={5} />
 			{:else}
 				<div class="py-8 text-center text-muted-foreground">
 					No contributions yet. Start adding contributions to track your progress!

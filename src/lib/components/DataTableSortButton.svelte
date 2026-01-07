@@ -6,12 +6,23 @@
 
 	interface DataTableSortButtonProps extends ComponentProps<typeof Button> {
 		columnName: string;
+		iconPosition?: 'left' | 'right';
 	}
 
-	let { variant = 'ghost', columnName, ...restProps }: DataTableSortButtonProps = $props();
+	let {
+		variant = 'ghost',
+		columnName,
+		iconPosition = 'right',
+		...restProps
+	}: DataTableSortButtonProps = $props();
 </script>
 
 <Button {variant} {...restProps}>
-	{columnName}
-	<ArrowUpDownIcon class="ms-2" />
+	{#if iconPosition === 'left'}
+		<ArrowUpDownIcon class="me-2" />
+		{columnName}
+	{:else}
+		{columnName}
+		<ArrowUpDownIcon class="ms-2" />
+	{/if}
 </Button>

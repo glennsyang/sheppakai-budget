@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { desc, eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 
 import { getDb } from '$lib/server/db';
 import { savings } from '$lib/server/db/schema';
@@ -18,8 +18,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		with: {
 			user: true
 		},
-		where: eq(savings.userId, locals.user.id),
-		orderBy: [desc(savings.createdAt)]
+		orderBy: [asc(savings.title)]
 	})) as Savings[];
 
 	return {

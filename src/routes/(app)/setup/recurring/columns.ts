@@ -31,12 +31,13 @@ export const columns: ColumnDef<Recurring>[] = [
 	},
 	{
 		accessorKey: 'amount',
-		header: () => {
-			const amountHeaderSnippet = createRawSnippet(() => ({
-				render: () => `<div class="text-right">Amount</div>`
-			}));
-			return renderSnippet(amountHeaderSnippet, '');
-		},
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Amount',
+				onclick: column.getToggleSortingHandler(),
+				class: 'justify-end w-full',
+				iconPosition: 'right'
+			}),
 		cell: ({ row }) => {
 			const formatter = new Intl.NumberFormat('en-US', {
 				style: 'currency',

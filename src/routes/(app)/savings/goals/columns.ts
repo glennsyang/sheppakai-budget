@@ -24,18 +24,24 @@ export const columns: ColumnDef<Contribution>[] = [
 				columnName: 'Goal',
 				onclick: column.getToggleSortingHandler()
 			}),
+		accessorFn: (row) => row.goal?.name,
 		cell: ({ row }) => {
 			return row.original.goal ? row.original.goal.name : 'Unknown';
 		}
 	},
 	{
+		accessorKey: 'description',
+		header: 'Description',
+		accessorFn: (row) => row.description || '-'
+	},
+	{
 		accessorKey: 'amount',
-		header: () => {
-			const amountHeaderSnippet = createRawSnippet(() => ({
-				render: () => `<div class="text-right">Amount</div>`
-			}));
-			return renderSnippet(amountHeaderSnippet, '');
-		},
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Amount',
+				onclick: column.getToggleSortingHandler(),
+				class: 'justify-end w-full'
+			}),
 		cell: ({ row }) => {
 			const formatter = new Intl.NumberFormat('en-US', {
 				style: 'currency',
@@ -53,13 +59,6 @@ export const columns: ColumnDef<Contribution>[] = [
 				amountCellSnippet,
 				formatter.format(Number.parseFloat(row.getValue('amount')))
 			);
-		}
-	},
-	{
-		accessorKey: 'description',
-		header: 'Notes',
-		cell: ({ row }) => {
-			return row.original.description || '-';
 		}
 	},
 	{

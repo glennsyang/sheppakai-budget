@@ -38,9 +38,7 @@
 					<div class="mb-4 flex items-center justify-between">
 						<div>
 							<h1 class="text-3xl font-bold tracking-tight">Savings</h1>
-							<p class="mt-2 text-muted-foreground">
-								Track and manage your savings goals and accounts
-							</p>
+							<p class="mt-2 text-muted-foreground">Track and manage your savings accounts</p>
 						</div>
 						<div class="flex items-center gap-2">
 							<Button size="sm" onclick={() => (openModal = true)}>
@@ -49,7 +47,11 @@
 							</Button>
 						</div>
 					</div>
-					<DataTable {columns} data={data.savings} />
+					{#if loading}
+						<TableSkeleton rows={5} columns={4} />
+					{:else}
+						<DataTable {columns} data={data.savings} />
+					{/if}
 				</div>
 			</div>
 		</div>

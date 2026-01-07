@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { desc, eq } from 'drizzle-orm';
+import { asc, desc, eq } from 'drizzle-orm';
 
 import { getDb } from '$lib/server/db';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
@@ -12,18 +12,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return { goals: [], contributions: [] };
 	}
 
-	const userId = locals.user.id.toString();
-
-	// Fetch all goals for the current user
+	// Fetch all goals
 	const goals = await getDb().query.savingsGoal.findMany({
 		with: {
 			user: true
 		},
-		where: eq(savingsGoal.userId, userId),
-		orderBy: [desc(savingsGoal.createdAt)]
+		orderBy: [asc(savingsGoal.name)]
 	});
 
-	// Fetch all contributions for the current user
+	// Fetch all contributions
 	const contributions = await getDb().query.contribution.findMany({
 		with: {
 			goal: {
@@ -33,7 +30,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 			},
 			user: true
 		},
-		where: eq(contribution.userId, userId),
 		orderBy: [desc(contribution.date)]
 	});
 

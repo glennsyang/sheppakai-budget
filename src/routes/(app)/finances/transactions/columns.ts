@@ -24,6 +24,7 @@ export const columns: ColumnDef<Transaction>[] = [
 				columnName: 'Category',
 				onclick: column.getToggleSortingHandler()
 			}),
+		accessorFn: (row) => row.category?.name,
 		cell: ({ row }) => {
 			return row.original.category ? row.original.category.name : 'Uncategorized';
 		}
@@ -42,12 +43,12 @@ export const columns: ColumnDef<Transaction>[] = [
 	},
 	{
 		accessorKey: 'amount',
-		header: () => {
-			const amountHeaderSnippet = createRawSnippet(() => ({
-				render: () => `<div class="text-right">Amount</div>`
-			}));
-			return renderSnippet(amountHeaderSnippet, '');
-		},
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Amount',
+				onclick: column.getToggleSortingHandler(),
+				class: 'justify-end w-full'
+			}),
 		cell: ({ row }) => {
 			const formatter = new Intl.NumberFormat('en-US', {
 				style: 'currency',
