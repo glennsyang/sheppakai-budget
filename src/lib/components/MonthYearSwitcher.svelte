@@ -55,13 +55,13 @@
 </script>
 
 <div class="flex items-center gap-2">
-	<Button variant="outline" size="icon" onclick={handlePrevious}>
+	<Button variant="outline" size="icon" class="h-11 w-11 md:h-9 md:w-9" onclick={handlePrevious}>
 		<ChevronLeftIcon class="h-4 w-4" />
 	</Button>
 	<div class="min-w-45 text-center">
-		<span class="text-lg font-semibold">{displayText}</span>
+		<span class="text-base font-semibold md:text-lg">{displayText}</span>
 	</div>
-	<Button variant="outline" size="icon" onclick={handleNext}>
+	<Button variant="outline" size="icon" class="h-11 w-11 md:h-9 md:w-9" onclick={handleNext}>
 		<ChevronRightIcon class="h-4 w-4" />
 	</Button>
 </div>

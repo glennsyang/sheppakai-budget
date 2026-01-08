@@ -119,3 +119,8 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+/* Smooth scrolling for iOS devices */
+.table-scroll-container {
+	-webkit-overflow-scrolling: touch;
+}

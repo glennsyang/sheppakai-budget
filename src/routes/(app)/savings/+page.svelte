@@ -31,7 +31,7 @@
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+	<div class="flex flex-col gap-6 lg:grid lg:grid-cols-4">
 		<!-- Table Column (larger) -->
 		<div class="lg:col-span-3">
 			<div class="overflow-hidden rounded-lg border shadow">

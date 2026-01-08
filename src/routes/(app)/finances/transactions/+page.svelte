@@ -71,17 +71,15 @@
 
 <div class="px-4 py-6 sm:px-0">
 	<div class="mb-8">
-		<div class="flex items-center justify-between">
-			<div class="flex flex-col gap-4">
-				<div>
-					<MonthYearSwitcher
-						currentMonth={selectedMonth}
-						currentYear={selectedYear}
-						onMonthChange={onMonthYearChange}
-					/>
-				</div>
+		<div class="flex items-center justify-between gap-4">
+			<div class="hidden md:flex">
+				<MonthYearSwitcher
+					currentMonth={selectedMonth}
+					currentYear={selectedYear}
+					onMonthChange={onMonthYearChange}
+				/>
 			</div>
-			<div class="w-44">
+			<div class="w-full md:w-44">
 				<Select.Root type="single" value={selectedMonth.toString()} onValueChange={onMonthJump}>
 					<Select.Trigger class="w-full">
 						{months.find((m) => m.value === selectedMonth.toString())?.label || 'Jump to Month'}
@@ -99,7 +97,7 @@
 		</div>
 	</div>
 
-	<div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+	<div class="flex flex-col gap-6 lg:grid lg:grid-cols-4">
 		<!-- Table Column (larger) -->
 		<div class="lg:col-span-3">
 			<div class="overflow-hidden rounded-lg border shadow">
