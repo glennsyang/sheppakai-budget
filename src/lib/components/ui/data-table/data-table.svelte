@@ -152,7 +152,7 @@
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
 	</div>
-	<div class="rounded-md border">
+	<div class="rounded-md border table-scroll-container">
 		<Table.Root>
 			<Table.Header class="sticky top-0 z-10 bg-muted">
 				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
