@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, url }) => {
 		const form = await superValidate(request, zod4(forgotSchema));
 
 		if (!form.valid) {
@@ -42,7 +42,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			const redirectTo = `http://localhost:5173/auth/reset-password`;
+			const redirectTo = `${url.origin}/auth/reset-password`;
 
 			await auth.api.requestPasswordReset({
 				body: {

@@ -24,7 +24,7 @@ const registerSchema = z
 	});
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	// Redir	ect if already signed in
+	// Redirect if already signed in
 	if (locals.user) {
 		throw redirect(302, '/dashboard');
 	}
