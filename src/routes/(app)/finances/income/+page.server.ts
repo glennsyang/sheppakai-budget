@@ -4,6 +4,7 @@ import { and, asc, eq, sql } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { income } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { getLocalMonthAsUTCRange, localDateToUTCTimestamp } from '$lib/utils/dates';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -20,13 +21,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const month = monthParam ? Number.parseInt(monthParam) : currentDate.getMonth() + 1;
 	const year = yearParam ? Number.parseInt(yearParam) : currentDate.getFullYear();
 
-	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+	// Get UTC range for the user's local month
+	const { startUTC, endUTC } = getLocalMonthAsUTCRange(month, year);
 
 	const incomes = await getDb().query.income.findMany({
 		where: and(
-			sql`date(${income.date}) >= date(${startDate})`,
-			sql`date(${income.date}) <= date(${endDate})`
+			sql`datetime(${income.date}) >= datetime(${startUTC})`,
+			sql`datetime(${income.date}) < datetime(${endUTC})`
 		),
 		orderBy: [asc(income.date)]
 	});
@@ -60,7 +61,7 @@ export const actions = {
 						{
 							name: data.get('name')?.toString() || '',
 							description: data.get('description')?.toString() || '',
-							date: data.get('date')?.toString() || '',
+							date: localDateToUTCTimestamp(data.get('date')?.toString() || ''),
 							amount: Number(data.get('amount')),
 							userId: userId
 						},
@@ -106,7 +107,7 @@ export const actions = {
 						{
 							name: data.get('name')?.toString() || '',
 							description: data.get('description')?.toString() || '',
-							date: data.get('date')?.toString() || '',
+							date: localDateToUTCTimestamp(data.get('date')?.toString() || ''),
 							amount: Number(data.get('amount'))
 						},
 						userId

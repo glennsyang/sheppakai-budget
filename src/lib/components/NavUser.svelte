@@ -31,13 +31,11 @@
 					>
 						<Avatar.Root class="size-8 rounded-lg grayscale">
 							<Avatar.Fallback class="rounded-lg">
-								{user?.firstName?.[0] || ''}{user?.lastName?.[0] || ''}
+								{user?.name?.[0] || ''}
 							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-start text-sm leading-tight">
-							<span class="truncate font-medium"
-								>{user?.firstName || ''} {user?.lastName || ''}</span
-							>
+							<span class="truncate font-medium">{user?.name || ''}</span>
 							<span class="truncate text-xs text-muted-foreground">
 								{user.email}
 							</span>
@@ -56,13 +54,11 @@
 					<div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
 						<Avatar.Root class="size-8 rounded-lg">
 							<Avatar.Fallback class="rounded-lg">
-								{user?.firstName?.[0] || ''}{user?.lastName?.[0] || ''}
+								{user?.name?.[0] || ''}
 							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-start text-sm leading-tight">
-							<span class="truncate font-medium"
-								>{user?.firstName || ''} {user?.lastName || ''}</span
-							>
+							<span class="truncate font-medium">{user?.name || ''}</span>
 							<span class="truncate text-xs text-muted-foreground">
 								{user.email}
 							</span>

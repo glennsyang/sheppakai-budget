@@ -23,8 +23,8 @@
 		class="mx-4 w-full max-w-md space-y-6 rounded-xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md"
 	>
 		<div class="text-center">
-			<h1 class="text-3xl font-bold">Register</h1>
-			<p class="mt-2">Create your account to get started</p>
+			<h1 class="text-3xl font-bold">Reset Password</h1>
+			<p class="mt-2">Enter your new password</p>
 		</div>
 
 		<form method="POST" class="space-y-4">
@@ -42,43 +42,15 @@
 				</div>
 			{/if}
 
-			<div class="space-y-2">
-				<label for="email" class="block text-sm font-medium">Email</label>
-				<Input
-					id="email"
-					name="email"
-					type="email"
-					placeholder="Enter your email"
-					bind:value={$form.email}
-					class={$errors.email ? 'border-red-400 bg-white/80' : 'bg-white/80'}
-					autocomplete="email"
-					required
-				/>
-			</div>
+			<input type="hidden" name="token" bind:value={data.token} />
 
 			<div class="space-y-2">
-				<label for="name" class="block text-sm font-medium">Name</label>
-				<Input
-					id="name"
-					name="name"
-					type="text"
-					placeholder="Enter your name"
-					bind:value={$form.name}
-					class={$errors.name ? 'border-red-400 bg-white/80' : 'bg-white/80'}
-					autocomplete="given-name"
-				/>
-				{#if $errors.name}
-					<p class="text-sm text-red-200">{$errors.name}</p>
-				{/if}
-			</div>
-
-			<div class="space-y-2">
-				<label for="password" class="block text-sm font-medium">Password</label>
+				<label for="password" class="block text-sm font-medium">New Password</label>
 				<Input
 					id="password"
 					name="password"
 					type="password"
-					placeholder="Create a password"
+					placeholder="Enter new password (min 8 characters)"
 					bind:value={$form.password}
 					class={$errors.password ? 'border-red-400 bg-white/80' : 'bg-white/80'}
 					autocomplete="new-password"
@@ -95,7 +67,7 @@
 					id="confirmPassword"
 					name="confirmPassword"
 					type="password"
-					placeholder="Confirm your password"
+					placeholder="Confirm new password"
 					bind:value={$form.confirmPassword}
 					class={$errors.confirmPassword ? 'border-red-400 bg-white/80' : 'bg-white/80'}
 					autocomplete="new-password"
@@ -107,14 +79,13 @@
 			</div>
 
 			<Button type="submit" class="w-full" disabled={$submitting}>
-				{$submitting ? 'Creating Account...' : 'Register'}
+				{$submitting ? 'Resetting...' : 'Reset Password'}
 			</Button>
 		</form>
 
 		<div class="text-center">
 			<p class="text-sm">
-				Already have an account?
-				<a href="/auth/sign-in" class="font-medium underline"> Sign in here </a>
+				<a href="/auth/sign-in" class="font-medium underline"> Back to sign in </a>
 			</p>
 		</div>
 	</div>

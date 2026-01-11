@@ -7,6 +7,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { utcTimestampToLocalDate } from '$lib/utils/dates';
 
 	import type { Category } from '$lib';
 
@@ -42,11 +43,14 @@
 	let date = $state('');
 	let categoryId = $state('');
 
-	// Set default date to today
+	// Set default date to today (local)
 	function setDefaultDate() {
 		if (!initialData?.date) {
 			const today = new Date();
-			date = today.toISOString().split('T')[0];
+			const year = today.getFullYear();
+			const month = String(today.getMonth() + 1).padStart(2, '0');
+			const day = String(today.getDate()).padStart(2, '0');
+			date = `${year}-${month}-${day}`;
 		}
 	}
 
@@ -57,7 +61,8 @@
 				amount = initialData.amount ? initialData.amount.toString() : '';
 				payee = initialData.payee || '';
 				notes = initialData.notes || '';
-				date = initialData.date || '';
+				// Convert UTC timestamp to local date for editing
+				date = initialData.date ? utcTimestampToLocalDate(initialData.date) : '';
 				categoryId = initialData.categoryId || '';
 			} else {
 				id = '';
