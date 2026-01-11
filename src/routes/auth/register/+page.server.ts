@@ -13,7 +13,7 @@ const registerSchema = z
 		email: z.email('Please enter a valid email address'),
 		name: z
 			.string()
-			.min(5, 'Name must be at least 5 characters')
+			.min(2, 'Name must be at least 2 characters')
 			.max(100, 'Name must be at most 100 characters'),
 		password: z.string().min(8, 'Password must be at least 8 characters'),
 		confirmPassword: z.string().min(8, 'Password must be at least 8 characters')

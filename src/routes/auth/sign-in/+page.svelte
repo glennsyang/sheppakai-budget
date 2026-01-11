@@ -54,6 +54,9 @@
 					autocomplete="email"
 					required
 				/>
+				{#if $errors.email}
+					<p class="text-sm text-red-200">{$errors.email}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">

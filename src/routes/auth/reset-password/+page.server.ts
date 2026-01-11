@@ -15,8 +15,19 @@ const resetPasswordSchema = z
 		// Hidden field for token
 		token: z.string().optional()
 	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords don't match"
+	.superRefine((data, ctx) => {
+		if (data.password !== data.confirmPassword) {
+			ctx.addIssue({
+				code: 'custom',
+				message: "Passwords don't match",
+				path: ['password']
+			});
+			ctx.addIssue({
+				code: 'custom',
+				message: "Passwords don't match",
+				path: ['confirmPassword']
+			});
+		}
 	});
 
 export const load: PageServerLoad = async ({ locals, url }) => {
