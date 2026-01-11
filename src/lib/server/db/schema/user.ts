@@ -1,5 +1,5 @@
-import { relations, sql } from 'drizzle-orm';
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { relations } from 'drizzle-orm';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { generateId } from '../utils';
 
@@ -9,15 +9,15 @@ import expense from './transaction';
 const user = sqliteTable('users', {
 	id: text('id').primaryKey().$defaultFn(generateId),
 	email: text('email').notNull().unique(),
-	firstName: text('firstName'),
-	lastName: text('lastName'),
-	hashed_password: text('hashed_password').notNull(),
-	createdAt: text('created_at')
+	emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false),
+	name: text('name'),
+	image: text('image'),
+	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
-		.default(sql`(current_timestamp)`),
-	updatedAt: text('updated_at')
+		.$defaultFn(() => new Date()),
+	updatedAt: integer('updated_at', { mode: 'timestamp' })
 		.notNull()
-		.default(sql`(current_timestamp)`)
+		.$defaultFn(() => new Date())
 });
 
 export const userRelations = relations(user, ({ many }) => ({

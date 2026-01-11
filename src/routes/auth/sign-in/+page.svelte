@@ -9,7 +9,7 @@
 	let { data }: { data: PageData } = $props();
 
 	// svelte-ignore state_referenced_locally
-	const { form, errors, message, enhance, submitting } = superForm(data.form, {
+	const { form, errors, message, submitting } = superForm(data.form, {
 		onUpdated: ({ form }) => {
 			if (form.message) {
 				// The error message will be displayed below
@@ -27,7 +27,7 @@
 			<p class="mt-2">Enter your credentials to access your account</p>
 		</div>
 
-		<form method="POST" use:enhance class="space-y-4">
+		<form method="POST" class="space-y-4">
 			{#if $message}
 				<div
 					class="rounded-md p-4 {$message.includes('successful')
@@ -54,9 +54,6 @@
 					autocomplete="email"
 					required
 				/>
-				{#if $errors.email}
-					<p class="text-sm text-red-200">{$errors.email}</p>
-				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -81,7 +78,10 @@
 			</Button>
 		</form>
 
-		<div class="text-center">
+		<div class="space-y-2 text-center">
+			<p class="text-sm">
+				<a href="/auth/forgot-password" class="font-medium underline"> Forgot password? </a>
+			</p>
 			<p class="text-sm">
 				Don't have an account?
 				<a href="/auth/register" class="font-medium underline"> Register here </a>

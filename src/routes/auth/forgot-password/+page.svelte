@@ -23,8 +23,8 @@
 		class="mx-4 w-full max-w-md space-y-6 rounded-xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md"
 	>
 		<div class="text-center">
-			<h1 class="text-3xl font-bold">Register</h1>
-			<p class="mt-2">Create your account to get started</p>
+			<h1 class="text-3xl font-bold">Forgot Password</h1>
+			<p class="mt-2">Enter your email to receive a password reset link</p>
 		</div>
 
 		<form method="POST" class="space-y-4">
@@ -56,64 +56,14 @@
 				/>
 			</div>
 
-			<div class="space-y-2">
-				<label for="name" class="block text-sm font-medium">Name</label>
-				<Input
-					id="name"
-					name="name"
-					type="text"
-					placeholder="Enter your name"
-					bind:value={$form.name}
-					class={$errors.name ? 'border-red-400 bg-white/80' : 'bg-white/80'}
-					autocomplete="given-name"
-				/>
-				{#if $errors.name}
-					<p class="text-sm text-red-200">{$errors.name}</p>
-				{/if}
-			</div>
-
-			<div class="space-y-2">
-				<label for="password" class="block text-sm font-medium">Password</label>
-				<Input
-					id="password"
-					name="password"
-					type="password"
-					placeholder="Create a password"
-					bind:value={$form.password}
-					class={$errors.password ? 'border-red-400 bg-white/80' : 'bg-white/80'}
-					autocomplete="new-password"
-					required
-				/>
-				{#if $errors.password}
-					<p class="text-sm text-red-200">{$errors.password}</p>
-				{/if}
-			</div>
-
-			<div class="space-y-2">
-				<label for="confirmPassword" class="block text-sm font-medium">Confirm Password</label>
-				<Input
-					id="confirmPassword"
-					name="confirmPassword"
-					type="password"
-					placeholder="Confirm your password"
-					bind:value={$form.confirmPassword}
-					class={$errors.confirmPassword ? 'border-red-400 bg-white/80' : 'bg-white/80'}
-					autocomplete="new-password"
-					required
-				/>
-				{#if $errors.confirmPassword}
-					<p class="text-sm text-red-200">{$errors.confirmPassword}</p>
-				{/if}
-			</div>
-
 			<Button type="submit" class="w-full" disabled={$submitting}>
-				{$submitting ? 'Creating Account...' : 'Register'}
+				{$submitting ? 'Sending...' : 'Send Reset Link'}
 			</Button>
 		</form>
 
 		<div class="text-center">
 			<p class="text-sm">
-				Already have an account?
+				Remember your password?
 				<a href="/auth/sign-in" class="font-medium underline"> Sign in here </a>
 			</p>
 		</div>

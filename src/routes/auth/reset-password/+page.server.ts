@@ -8,70 +8,66 @@ import { getBetterAuthErrorMessage } from '$lib/utils';
 
 import type { Actions, PageServerLoad } from './$types';
 
-const registerSchema = z
+const resetPasswordSchema = z
 	.object({
-		email: z.email('Please enter a valid email address'),
-		name: z
-			.string()
-			.min(5, 'Name must be at least 5 characters')
-			.max(100, 'Name must be at most 100 characters'),
 		password: z.string().min(8, 'Password must be at least 8 characters'),
-		confirmPassword: z.string().min(8, 'Password must be at least 8 characters')
+		confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+		// Hidden field for token
+		token: z.string().optional()
 	})
 	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords don't match",
-		path: ['confirmPassword']
+		message: "Passwords don't match"
 	});
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	// Redir	ect if already signed in
+	// Redirect if already signed in
 	if (locals.user) {
 		throw redirect(302, '/dashboard');
 	}
-	const form = await superValidate(zod4(registerSchema));
+	const token = url.searchParams.get('token');
 
-	// Check for success message from registration
-	const message = url.searchParams.get('message');
-	if (message) {
-		form.message = message;
+	if (!token) {
+		throw redirect(302, '/auth/forgot-password');
 	}
 
+	const form = await superValidate(zod4(resetPasswordSchema));
+
 	return {
+		token,
 		form
 	};
 };
 
 export const actions: Actions = {
 	default: async ({ request }) => {
-		const form = await superValidate(request, zod4(registerSchema));
+		const form = await superValidate(request, zod4(resetPasswordSchema));
 
-		if (!form.valid) {
+		if (!form.data.token || !form.valid) {
 			return fail(400, {
 				form
 			});
 		}
 
 		try {
-			await auth.api.signUpEmail({
+			await auth.api.resetPassword({
 				body: {
-					email: form.data.email,
-					password: form.data.password,
-					name: form.data.name
+					token: form.data.token,
+					newPassword: form.data.password
 				}
 			});
 
-			throw redirect(302, '/auth/sign-in?message=Registration successful! Please sign in.');
+			throw redirect(302, '/auth/sign-in?message=Password reset successful! Please sign in.');
 		} catch (error) {
 			// Don't catch redirects as errors - re-throw them
 			if (isRedirect(error)) {
 				throw error;
 			}
 
-			console.error('Registration error:', error);
+			console.error('Reset password error:', error);
 			// Get user-friendly error message from better-auth error
 			const errorMessage = getBetterAuthErrorMessage(
 				error,
-				'Registration failed. Please try again.'
+				'Failed to reset password. Please try again.'
 			);
 
 			return fail(400, {
