@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Progress } from '$lib/components/ui/progress';
+	import { formatUTCTimestampAsLocalDate } from '$lib/utils/dates';
 
 	import type { SavingsGoalWithProgress } from '$lib';
 
@@ -118,7 +119,7 @@
 		<!-- Target Date -->
 		{#if goal.targetDate}
 			<div class="text-center text-sm text-muted-foreground">
-				Target: {new Date(goal.targetDate).toLocaleDateString('en-US', {
+				Target: {formatUTCTimestampAsLocalDate(goal.targetDate, {
 					year: 'numeric',
 					month: 'long',
 					day: 'numeric'

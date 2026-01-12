@@ -1,16 +1,37 @@
 import { fail } from '@sveltejs/kit';
-import bcrypt from 'bcryptjs';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { z } from 'zod';
 
+import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
-import { user } from '$lib/server/db/schema';
+import { account, user } from '$lib/server/db/schema';
 
 import type { Actions, PageServerLoad } from './$types';
+
+const updateProfileSchema = z.object({
+	name: z.string().min(1, 'Name is required').max(100, 'Name must be at most 100 characters')
+});
+
+const changePasswordSchema = z
+	.object({
+		currentPassword: z.string().min(1, 'Current password is required'),
+		newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+		confirmPassword: z.string().min(1, 'Please confirm your password')
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: "Passwords don't match",
+		path: ['confirmPassword']
+	});
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
 		return {
-			user: null
+			user: null,
+			profileForm: await superValidate(zod4(updateProfileSchema)),
+			passwordForm: await superValidate(zod4(changePasswordSchema)),
+			passwordUpdatedAt: null
 		};
 	}
 
@@ -19,8 +40,23 @@ export const load: PageServerLoad = async ({ locals }) => {
 		where: eq(user.id, locals.user.id)
 	});
 
+	// Get the account data to find when password was last updated
+	const accountData = await getDb().query.account.findFirst({
+		where: and(eq(account.userId, locals.user.id), eq(account.providerId, 'credential'))
+	});
+
+	// Initialize profile form with current user data
+	const profileForm = await superValidate(
+		{ name: fullUserData?.name || '' },
+		zod4(updateProfileSchema)
+	);
+	const passwordForm = await superValidate(zod4(changePasswordSchema));
+
 	return {
-		user: fullUserData || locals.user
+		user: fullUserData || locals.user,
+		profileForm,
+		passwordForm,
+		passwordUpdatedAt: accountData?.updatedAt || fullUserData?.updatedAt || null
 	};
 };
 
@@ -30,27 +66,31 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
-		const firstName = data.get('firstName')?.toString();
-		const lastName = data.get('lastName')?.toString();
+		const form = await superValidate(request, zod4(updateProfileSchema));
 
-		try {
-			await getDb()
-				.update(user)
-				.set({
-					firstName: firstName || null,
-					lastName: lastName || null,
-					updatedAt: new Date().toISOString()
-				})
-				.where(eq(user.id, locals.user.id));
-
-			console.log('Updated user profile:', locals.user.id);
-		} catch (error) {
-			console.error('Error updating user profile:', error);
-			return fail(500, { error: 'Failed to update profile' });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		return { success: true, message: 'Profile updated successfully' };
+		try {
+			await getDb().update(user).set({ name: form.data.name }).where(eq(user.id, locals.user.id));
+
+			console.log('Updated user profile:', locals.user.id);
+			return {
+				form: {
+					...form,
+					message: 'Profile updated successfully'
+				}
+			};
+		} catch (error) {
+			console.error('Error updating user profile:', error);
+			return fail(500, {
+				form: {
+					...form,
+					message: 'Failed to update profile'
+				}
+			});
+		}
 	},
 
 	changePassword: async ({ request, locals }) => {
@@ -58,59 +98,36 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
-		const currentPassword = data.get('currentPassword')?.toString();
-		const newPassword = data.get('newPassword')?.toString();
-		const confirmPassword = data.get('confirmPassword')?.toString();
+		const form = await superValidate(request, zod4(changePasswordSchema));
 
-		if (!currentPassword || !newPassword || !confirmPassword) {
-			return fail(400, { error: 'All password fields are required' });
-		}
-
-		if (newPassword !== confirmPassword) {
-			return fail(400, { error: 'New passwords do not match' });
-		}
-
-		if (newPassword.length < 8) {
-			return fail(400, { error: 'New password must be at least 8 characters long' });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
-			// Get current user data including hashed password
-			const currentUser = await getDb().select().from(user).where(eq(user.id, locals.user.id));
+			await auth.api.changePassword({
+				body: {
+					currentPassword: form.data.currentPassword,
+					newPassword: form.data.newPassword,
+					revokeOtherSessions: false
+				},
+				headers: request.headers
+			});
 
-			if (currentUser.length === 0) {
-				return fail(404, { error: 'User not found' });
-			}
-
-			// Verify current password
-			const isCurrentPasswordValid = await bcrypt.compare(
-				currentPassword,
-				currentUser[0].hashed_password
-			);
-
-			if (!isCurrentPasswordValid) {
-				return fail(400, { error: 'Current password is incorrect' });
-			}
-
-			// Hash new password
-			const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-			// Update password in database
-			await getDb()
-				.update(user)
-				.set({
-					hashed_password: hashedNewPassword,
-					updatedAt: new Date().toISOString()
-				})
-				.where(eq(user.id, locals.user.id));
-
-			console.log('Updated password for user:', locals.user.id);
+			return {
+				form: {
+					...form,
+					message: 'Password changed successfully'
+				}
+			};
 		} catch (error) {
 			console.error('Error changing password:', error);
-			return fail(500, { error: 'Failed to change password' });
+			return fail(400, {
+				form: {
+					...form,
+					message: 'Current password is incorrect or password change failed'
+				}
+			});
 		}
-
-		return { success: true, message: 'Password changed successfully' };
 	}
 } satisfies Actions;

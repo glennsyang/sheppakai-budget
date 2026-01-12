@@ -1,38 +1,29 @@
 import type { Handle } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { svelteKitHandler } from 'better-auth/svelte-kit';
 
-import { dev } from '$app/environment';
-import { getDb } from '$lib/server/db';
-import { user } from '$lib/server/db/schema';
+import { building, dev } from '$app/environment';
+import { auth } from '$lib/server/auth';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	if (dev && event.url.pathname === '/.well-known/appspecific/com.chrome.devtools.json') {
 		return new Response(undefined, { status: 404 });
 	}
 
-	const sessionCookie = event.cookies.get('session');
+	// Fetch current session from Better Auth
+	const session = await auth.api.getSession({
+		headers: event.request.headers
+	});
 
-	if (sessionCookie) {
-		try {
-			const sessionData = JSON.parse(sessionCookie);
-			const foundUser = await getDb().query.user.findFirst({
-				where: eq(user.id, sessionData.userId)
-			});
-
-			if (foundUser) {
-				event.locals.user = {
-					id: foundUser.id,
-					firstName: foundUser.firstName ?? '',
-					lastName: foundUser.lastName ?? '',
-					email: foundUser.email,
-					updatedAt: foundUser.updatedAt
-				};
-			}
-		} catch {
-			// Invalid session cookie, clear it
-			event.cookies.delete('session', { path: '/' });
-		}
+	// Make session and user available on server
+	if (session) {
+		event.locals.session = session.session;
+		event.locals.user = {
+			id: session.user.id,
+			name: session.user.name ?? '',
+			email: session.user.email,
+			updatedAt: session.user.updatedAt?.toString() ?? ''
+		};
 	}
 
-	return resolve(event);
+	return svelteKitHandler({ event, resolve, auth, building });
 };
