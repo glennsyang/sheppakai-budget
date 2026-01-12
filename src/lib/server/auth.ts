@@ -97,7 +97,8 @@ export const auth = betterAuth({
 });
 
 // Initialize Resend email client
-const resend = new Resend(env.RESEND_API_KEY);
+const resend = new Resend(env.RESEND_API_KEY || 'dummy_key_for_build');
+
 async function sendEmail({ to, subject, text }: { to: string; subject: string; text: string }) {
 	console.log('📧 Email sent to:', to);
 
