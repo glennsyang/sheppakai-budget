@@ -12,10 +12,11 @@ let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
 export function getDb() {
 	if (!_db) {
-		if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+		// Fallback to a temporary database during build time when DATABASE_URL is not available
+		const dbUrl = env.DATABASE_URL || 'file:///tmp/build.db';
 
 		// Extract file path from DATABASE_URL (remove 'file://' prefix if present)
-		const dbPath = env.DATABASE_URL.replace(/^file:\/\//, '');
+		const dbPath = dbUrl.replace(/^file:\/\//, '');
 
 		// Ensure the directory exists
 		const dir = dirname(dbPath);
