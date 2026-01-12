@@ -9,7 +9,7 @@ import { getRequestEvent } from '$app/server';
 import * as schema from './db/schema';
 import { getDb } from './db';
 
-import { RESEND_API_KEY, RESEND_FROM_ADDRESS, RESEND_NEW_USER_ADDRESS } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const auth = betterAuth({
 	database: drizzleAdapter(getDb(), {
@@ -45,7 +45,7 @@ export const auth = betterAuth({
 				const newSession = ctx.context.newSession;
 				if (newSession) {
 					void sendEmail({
-						to: RESEND_NEW_USER_ADDRESS,
+						to: env.RESEND_NEW_USER_ADDRESS,
 						subject: '[Sheppakai Budget] New User was registered!',
 						text: `Hi ${newSession.user.name || newSession.user.email}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
 					});
@@ -97,13 +97,13 @@ export const auth = betterAuth({
 });
 
 // Initialize Resend email client
-const resend = new Resend(RESEND_API_KEY);
+const resend = new Resend(env.RESEND_API_KEY);
 async function sendEmail({ to, subject, text }: { to: string; subject: string; text: string }) {
 	console.log('📧 Email sent to:', to);
 
 	try {
 		const { data, error } = await resend.emails.send({
-			from: RESEND_FROM_ADDRESS,
+			from: env.RESEND_FROM_ADDRESS,
 			to,
 			subject,
 			html: text
