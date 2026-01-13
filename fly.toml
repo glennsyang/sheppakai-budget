@@ -8,8 +8,8 @@ primary_region = 'yyz'
 
 [build]
 
-[deploy]
-  release_command = "npx drizzle-kit migrate"
+# [deploy]
+#   release_command = "npx drizzle-kit migrate"
 
 [[mounts]]
   source = 'sheppakai_budget_data'
