@@ -12,6 +12,7 @@ import { getDb } from './db';
 import { env } from '$env/dynamic/private';
 
 export const auth = betterAuth({
+	secret: env.BETTER_AUTH_SECRET || 'build_time_dummy_secret_min_32_chars_long',
 	database: drizzleAdapter(getDb(), {
 		provider: 'sqlite',
 		schema: {
