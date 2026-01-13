@@ -23,8 +23,8 @@ primary_region = 'yyz'
   min_machines_running = 0
   processes = ['app']
 
-[processes]
-  app = "./start.sh"
+# [processes]
+#   app = "./start.sh"
   
 [[vm]]
   memory = '1gb'
