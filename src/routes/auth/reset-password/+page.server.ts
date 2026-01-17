@@ -10,8 +10,8 @@ import type { Actions, PageServerLoad } from './$types';
 
 const resetPasswordSchema = z
 	.object({
-		password: z.string().min(8, 'Password must be at least 8 characters'),
-		confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+		password: z.string().min(12, 'Password must be at least 12 characters'),
+		confirmPassword: z.string().min(12, 'Password must be at least 12 characters'),
 		// Hidden field for token
 		token: z.string().optional()
 	})

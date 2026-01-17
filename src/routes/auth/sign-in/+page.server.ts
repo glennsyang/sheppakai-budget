@@ -10,7 +10,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 const signInSchema = z.object({
 	email: z.email('Please enter a valid email address'),
-	password: z.string().min(8, 'Password must be at least 8 characters')
+	password: z.string().min(12, 'Password must be at least 12 characters')
 });
 
 export const load: PageServerLoad = async ({ locals, url }) => {
