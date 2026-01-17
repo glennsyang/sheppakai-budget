@@ -15,6 +15,13 @@
 			"when": 1767902014625,
 			"tag": "0001_eager_blockbuster",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1737079200000,
+			"tag": "0002_convert_utc_to_local",
+			"breakpoints": true
 		}
 	]
 }

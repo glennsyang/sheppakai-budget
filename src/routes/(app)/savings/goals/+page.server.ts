@@ -4,7 +4,7 @@ import { asc, desc, eq } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
-import { localDateToUTCTimestamp } from '$lib/utils/dates';
+import { formatDateForStorage } from '$lib/utils/dates';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -79,7 +79,7 @@ export const actions = {
 							description: data.get('description')?.toString() || null,
 							targetAmount: Number(data.get('targetAmount')),
 							targetDate: data.get('targetDate')?.toString()
-								? localDateToUTCTimestamp(data.get('targetDate')!.toString())
+								? formatDateForStorage(data.get('targetDate')!.toString())
 								: null,
 							status:
 								(data.get('status')?.toString() as 'active' | 'completed' | 'paused') || 'active',
@@ -125,7 +125,7 @@ export const actions = {
 							description: data.get('description')?.toString() || null,
 							targetAmount: Number(data.get('targetAmount')),
 							targetDate: data.get('targetDate')?.toString()
-								? localDateToUTCTimestamp(data.get('targetDate')!.toString())
+								? formatDateForStorage(data.get('targetDate')!.toString())
 								: null,
 							status:
 								(data.get('status')?.toString() as 'active' | 'completed' | 'paused') || 'active'
@@ -206,7 +206,7 @@ export const actions = {
 						{
 							goalId: data.get('goalId')?.toString() || '',
 							amount: Number(data.get('amount')),
-							date: localDateToUTCTimestamp(data.get('date')?.toString() || ''),
+							date: formatDateForStorage(data.get('date')?.toString() || ''),
 							description: data.get('description')?.toString() || null,
 							userId: userId
 						},
@@ -249,7 +249,7 @@ export const actions = {
 						{
 							goalId: data.get('goalId')?.toString() || '',
 							amount: Number(data.get('amount')),
-							date: localDateToUTCTimestamp(data.get('date')?.toString() || ''),
+							date: formatDateForStorage(data.get('date')?.toString() || ''),
 							description: data.get('description')?.toString() || null
 						},
 						userId

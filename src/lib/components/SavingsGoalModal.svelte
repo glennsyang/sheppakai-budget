@@ -7,7 +7,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { utcTimestampToLocalDate } from '$lib/utils/dates';
+	import { extractDateFromTimestamp } from '$lib/utils/dates';
 
 	interface Props {
 		open: boolean;
@@ -44,8 +44,8 @@
 				name = initialData.name || '';
 				description = initialData.description || '';
 				targetAmount = initialData.targetAmount ? initialData.targetAmount.toString() : '';
-				// Convert UTC timestamp to local date for editing
-				targetDate = initialData.targetDate ? utcTimestampToLocalDate(initialData.targetDate) : '';
+				// Extract date portion from timestamp for editing
+				targetDate = initialData.targetDate ? extractDateFromTimestamp(initialData.targetDate) : '';
 				status = initialData.status || 'active';
 			} else {
 				id = '';

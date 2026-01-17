@@ -7,7 +7,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { utcTimestampToLocalDate } from '$lib/utils/dates';
+	import { extractDateFromTimestamp, getTodayDate } from '$lib/utils/dates';
 
 	import type { SavingsGoal } from '$lib';
 
@@ -43,32 +43,21 @@
 	let date = $state('');
 	let description = $state('');
 
-	// Set default date to today (local)
-	function setDefaultDate() {
-		if (!initialData?.date) {
-			const today = new Date();
-			const year = today.getFullYear();
-			const month = String(today.getMonth() + 1).padStart(2, '0');
-			const day = String(today.getDate()).padStart(2, '0');
-			date = `${year}-${month}-${day}`;
-		}
-	}
-
 	$effect(() => {
 		if (open) {
 			if (initialData) {
 				id = initialData.id || '';
 				goalId = initialData.goalId || '';
 				amount = initialData.amount ? initialData.amount.toString() : '';
-				// Convert UTC timestamp to local date for editing
-				date = initialData.date ? utcTimestampToLocalDate(initialData.date) : '';
+				// Extract date portion from timestamp for editing
+				date = initialData.date ? extractDateFromTimestamp(initialData.date) : '';
 				description = initialData.description || '';
 			} else {
 				id = '';
 				goalId = preselectedGoalId || '';
 				amount = '';
 				description = '';
-				setDefaultDate();
+				date = getTodayDate();
 			}
 		}
 	});

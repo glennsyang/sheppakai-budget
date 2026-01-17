@@ -33,6 +33,10 @@ jobs:
       - name: Run check
         run: npm run check
 
+      # Run tests
+      - name: Run tests
+        run: npm test
+
       # Deploy only if all checks pass
       - uses: superfly/flyctl-actions/setup-flyctl@master
 

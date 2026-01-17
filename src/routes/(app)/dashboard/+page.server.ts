@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { budget, income, transaction } from '$lib/server/db/schema';
-import { getLocalMonthAsUTCRange } from '$lib/utils/dates';
+import { getMonthDateRange } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -33,8 +33,8 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 		month = Number.parseInt(monthParam);
 	}
 
-	// Get UTC range for the user's local month
-	const { startUTC, endUTC } = getLocalMonthAsUTCRange(month, year);
+	// Get date range for the user's local month
+	const { startDate, endDate } = getMonthDateRange(month, year);
 
 	const actualExpenses: Transaction[] = (await getDb().query.transaction.findMany({
 		with: {
@@ -42,8 +42,8 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 			user: true
 		},
 		where: and(
-			sql`datetime(${transaction.date}) >= datetime(${startUTC})`,
-			sql`datetime(${transaction.date}) < datetime(${endUTC})`
+			sql`date(${transaction.date}) >= date(${startDate})`,
+			sql`date(${transaction.date}) <= date(${endDate})`
 		),
 		orderBy: [desc(transaction.date)]
 	})) as Transaction[];
@@ -69,8 +69,8 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 	// Get income for the selected month
 	const incomeRecords: Income[] = (await getDb().query.income.findMany({
 		where: and(
-			sql`datetime(${income.date}) >= datetime(${startUTC})`,
-			sql`datetime(${income.date}) < datetime(${endUTC})`
+			sql`date(${income.date}) >= date(${startDate})`,
+			sql`date(${income.date}) <= date(${endDate})`
 		)
 	})) as Income[];
 

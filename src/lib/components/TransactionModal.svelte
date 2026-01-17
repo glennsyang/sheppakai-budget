@@ -7,7 +7,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { utcTimestampToLocalDate } from '$lib/utils/dates';
+	import { extractDateFromTimestamp, getTodayDate } from '$lib/utils/dates';
 
 	import type { Category } from '$lib';
 
@@ -43,17 +43,6 @@
 	let date = $state('');
 	let categoryId = $state('');
 
-	// Set default date to today (local)
-	function setDefaultDate() {
-		if (!initialData?.date) {
-			const today = new Date();
-			const year = today.getFullYear();
-			const month = String(today.getMonth() + 1).padStart(2, '0');
-			const day = String(today.getDate()).padStart(2, '0');
-			date = `${year}-${month}-${day}`;
-		}
-	}
-
 	$effect(() => {
 		if (open) {
 			if (initialData) {
@@ -61,8 +50,8 @@
 				amount = initialData.amount ? initialData.amount.toString() : '';
 				payee = initialData.payee || '';
 				notes = initialData.notes || '';
-				// Convert UTC timestamp to local date for editing
-				date = initialData.date ? utcTimestampToLocalDate(initialData.date) : '';
+				// Extract date portion from timestamp for editing
+				date = initialData.date ? extractDateFromTimestamp(initialData.date) : '';
 				categoryId = initialData.categoryId || '';
 			} else {
 				id = '';
@@ -70,7 +59,7 @@
 				payee = '';
 				notes = '';
 				categoryId = '';
-				setDefaultDate();
+				date = getTodayDate();
 			}
 		}
 	});

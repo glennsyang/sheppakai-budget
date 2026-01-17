@@ -3,7 +3,7 @@ import { createRawSnippet } from 'svelte';
 
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
-import { formatUTCTimestampAsLocalDate } from '$lib/utils/dates';
+import { formatLocalTimestamp } from '$lib/utils/dates';
 
 import DataTableActions from './data-table-actions.svelte';
 
@@ -18,11 +18,7 @@ export const columns: ColumnDef<Transaction>[] = [
 				onclick: column.getToggleSortingHandler()
 			}),
 		cell: ({ row }) => {
-			return formatUTCTimestampAsLocalDate(row.original.date, {
-				year: 'numeric',
-				month: 'short',
-				day: 'numeric'
-			});
+			return formatLocalTimestamp(row.original.date);
 		}
 	},
 	{

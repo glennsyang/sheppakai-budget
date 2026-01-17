@@ -3,6 +3,7 @@ import { createRawSnippet } from 'svelte';
 
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import { formatLocalTimestamp } from '$lib/utils/dates';
 
 import DataTableActions from './data-table-actions.svelte';
 
@@ -31,7 +32,10 @@ export const columns: ColumnDef<Income>[] = [
 			renderComponent(DataTableSortButton, {
 				columnName: 'Date',
 				onclick: column.getToggleSortingHandler()
-			})
+			}),
+		cell: ({ row }) => {
+			return formatLocalTimestamp(row.original.date);
+		}
 	},
 	{
 		accessorKey: 'amount',

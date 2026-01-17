@@ -6,7 +6,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { utcTimestampToLocalDate } from '$lib/utils/dates';
+	import { extractDateFromTimestamp } from '$lib/utils/dates';
 
 	interface Props {
 		open: boolean;
@@ -40,8 +40,8 @@
 				id = initialData.id || '';
 				name = initialData?.name || '';
 				description = initialData?.description || '';
-				// Convert UTC timestamp to local date for editing
-				date = initialData?.date ? utcTimestampToLocalDate(initialData.date) : '';
+				// Extract date portion from timestamp for editing
+				date = initialData?.date ? extractDateFromTimestamp(initialData.date) : '';
 				amount = initialData?.amount?.toString() || '';
 			} else {
 				id = '';
