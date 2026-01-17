@@ -6,10 +6,19 @@ declare global {
 		interface Locals {
 			user?: {
 				id: string;
-				firstName: string | undefined;
-				lastName: string | undefined;
+				name: string | undefined;
 				email: string;
 				updatedAt?: string;
+			};
+			session?: {
+				id: string;
+				createdAt: Date;
+				updatedAt: Date;
+				userId: string;
+				expiresAt: Date;
+				token: string;
+				ipAddress?: string | null | undefined;
+				userAgent?: string | null | undefined;
 			};
 		}
 		// interface PageData {}

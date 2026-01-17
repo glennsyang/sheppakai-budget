@@ -8,6 +8,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { ChartData } from '$lib/types';
+	import { formatUTCTimestampAsLocalDate } from '$lib/utils/dates';
 
 	interface Props {
 		categoryName: string;
@@ -55,9 +56,10 @@
 					spline: { curve: curveNatural, motion: 'tween', strokeWidth: 2 },
 					xAxis: {
 						format: (v: Date) => {
-							return new Date(v).toLocaleDateString('en-US', {
-								month: 'short',
-								timeZone: 'UTC' // Force UTC interpretation
+							// Format UTC date to local timezone
+							const dateStr = v.toISOString().replace('T', ' ').split('.')[0];
+							return formatUTCTimestampAsLocalDate(dateStr, {
+								month: 'short'
 							});
 						}
 					},

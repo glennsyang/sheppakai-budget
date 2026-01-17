@@ -6,9 +6,8 @@
 	import SaveIcon from '@lucide/svelte/icons/save';
 	import UserIcon from '@lucide/svelte/icons/user';
 	import XIcon from '@lucide/svelte/icons/x';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { superForm } from 'sveltekit-superforms';
 
-	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Separator from '$lib/components/ui/separator';
@@ -17,91 +16,68 @@
 
 	let { data }: PageProps = $props();
 
+	// Profile form
+	// svelte-ignore state_referenced_locally
+	const profileFormStore = superForm(data.profileForm, {
+		onUpdated: ({ form }) => {
+			if (form.message) {
+				// Reset editing state on success
+				if (form.message.includes('successfully')) {
+					isEditingProfile = false;
+				}
+			}
+		}
+	});
+
+	const {
+		form: profileForm,
+		errors: profileErrors,
+		message: profileMessage,
+		submitting: profileSubmitting
+	} = profileFormStore;
+
+	// Password form
+	// svelte-ignore state_referenced_locally
+	const passwordFormStore = superForm(data.passwordForm, {
+		resetForm: true,
+		onUpdated: ({ form }) => {
+			if (form.message) {
+				// Reset editing state and form on success
+				if (form.message.includes('successfully')) {
+					isEditingPassword = false;
+				}
+			}
+		}
+	});
+
+	const {
+		form: passwordForm,
+		errors: passwordErrors,
+		message: passwordMessage,
+		submitting: passwordSubmitting
+	} = passwordFormStore;
+
 	// Profile editing state
 	let isEditingProfile = $state(false);
 	let isEditingPassword = $state(false);
-	let isLoadingProfile = $state(false);
-	let isLoadingPassword = $state(false);
-
-	// Message states
-	let profileMessage = $state<{ type: 'success' | 'error'; text: string } | null>(null);
-	let passwordMessage = $state<{ type: 'success' | 'error'; text: string } | null>(null);
 
 	// Derived values from data
-	const userFirstName = $derived(data.user?.firstName || '');
-	const userLastName = $derived(data.user?.lastName || '');
 	const userEmail = $derived(data.user?.email || '');
-	const userUpdatedAt = $derived(data.user?.updatedAt || '');
-
-	// Profile form values (editable state)
-	let firstName = $state('');
-	let lastName = $state('');
-	let email = $state('');
-
-	// Sync form values with data changes
-	$effect(() => {
-		firstName = userFirstName;
-		lastName = userLastName;
-		email = userEmail;
-	});
-
-	// Password form values
-	let currentPassword = $state('');
-	let newPassword = $state('');
-	let confirmPassword = $state('');
+	const passwordUpdatedAt = $derived(data.passwordUpdatedAt || '');
 
 	// Reset profile form
 	function resetProfileForm() {
-		firstName = userFirstName;
-		lastName = userLastName;
-		email = userEmail;
+		$profileForm.name = data.user?.name || '';
 		isEditingProfile = false;
-		profileMessage = null;
 	}
 
 	// Reset password form
 	function resetPasswordForm() {
-		currentPassword = '';
-		newPassword = '';
-		confirmPassword = '';
+		$passwordForm.currentPassword = '';
+		$passwordForm.newPassword = '';
+		$passwordForm.confirmPassword = '';
 		isEditingPassword = false;
-		passwordMessage = null;
 	}
-
-	// Profile form submission
-	const submitProfileForm: SubmitFunction = () => {
-		isLoadingProfile = true;
-		profileMessage = null;
-		return async ({ result, update }) => {
-			isLoadingProfile = false;
-			if (result.type === 'success') {
-				isEditingProfile = false;
-				profileMessage = { type: 'success', text: 'Profile updated successfully' };
-			} else if (result.type === 'failure') {
-				profileMessage = { type: 'error', text: result.data?.error || 'Failed to update profile' };
-			}
-			await update();
-		};
-	};
-
-	// Password form submission
-	const submitPasswordForm: SubmitFunction = () => {
-		isLoadingPassword = true;
-		passwordMessage = null;
-		return async ({ result, update }) => {
-			isLoadingPassword = false;
-			if (result.type === 'success') {
-				resetPasswordForm();
-				passwordMessage = { type: 'success', text: 'Password changed successfully' };
-			} else if (result.type === 'failure') {
-				passwordMessage = {
-					type: 'error',
-					text: result.data?.error || 'Failed to change password'
-				};
-			}
-			await update();
-		};
-	};
 </script>
 
 <svelte:head>
@@ -131,44 +107,39 @@
 					{/if}
 				</div>
 
-				<form method="POST" action="?/update" use:enhance={submitProfileForm}>
+				<form method="POST" action="?/update">
 					<div class="space-y-4">
-						{#if profileMessage}
+						{#if $profileMessage}
 							<div
-								class="flex items-center gap-2 rounded-md p-3 {profileMessage.type === 'success'
+								class="flex items-center gap-2 rounded-md p-3 {$profileMessage.includes(
+									'successfully'
+								)
 									? 'border border-green-200 bg-green-50 text-green-700'
 									: 'border border-red-200 bg-red-50 text-red-700'}"
 							>
-								{#if profileMessage.type === 'success'}
+								{#if $profileMessage.includes('successfully')}
 									<CheckCircleIcon class="h-4 w-4" />
 								{:else}
 									<AlertCircleIcon class="h-4 w-4" />
 								{/if}
-								<span class="text-sm">{profileMessage.text}</span>
+								<span class="text-sm">{$profileMessage}</span>
 							</div>
 						{/if}
 						<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 							<div>
-								<label for="firstName" class="mb-2 block text-sm font-medium"> First Name </label>
+								<label for="name" class="mb-2 block text-sm font-medium"> Name </label>
 								<Input
-									id="firstName"
-									name="firstName"
+									id="name"
+									name="name"
 									type="text"
-									bind:value={firstName}
+									bind:value={$profileForm.name}
 									disabled={!isEditingProfile}
 									placeholder="Enter your first name"
+									class={$profileErrors.name ? 'border-red-400' : ''}
 								/>
-							</div>
-							<div>
-								<label for="lastName" class="mb-2 block text-sm font-medium"> Last Name </label>
-								<Input
-									id="lastName"
-									name="lastName"
-									type="text"
-									bind:value={lastName}
-									disabled={!isEditingProfile}
-									placeholder="Enter your last name"
-								/>
+								{#if $profileErrors.name}
+									<p class="mt-1 text-sm text-red-600">{$profileErrors.name}</p>
+								{/if}
 							</div>
 						</div>
 
@@ -177,7 +148,7 @@
 							<Input
 								id="email"
 								type="email"
-								bind:value={email}
+								value={userEmail}
 								disabled={true}
 								placeholder="Email cannot be changed"
 								class="bg-muted"
@@ -187,8 +158,8 @@
 
 						{#if isEditingProfile}
 							<div class="flex gap-2 pt-4">
-								<Button type="submit" size="sm" disabled={isLoadingProfile}>
-									{#if isLoadingProfile}
+								<Button type="submit" size="sm" disabled={$profileSubmitting}>
+									{#if $profileSubmitting}
 										<div
 											class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"
 										></div>
@@ -202,7 +173,7 @@
 									size="sm"
 									variant="outline"
 									onclick={resetProfileForm}
-									disabled={isLoadingProfile}
+									disabled={$profileSubmitting}
 								>
 									<XIcon class="mr-2 h-4 w-4" />
 									Cancel
@@ -233,20 +204,22 @@
 				</div>
 
 				{#if isEditingPassword}
-					<form method="POST" action="?/changePassword" use:enhance={submitPasswordForm}>
+					<form method="POST" action="?/changePassword">
 						<div class="space-y-4">
-							{#if passwordMessage}
+							{#if $passwordMessage}
 								<div
-									class="flex items-center gap-2 rounded-md p-3 {passwordMessage.type === 'success'
+									class="flex items-center gap-2 rounded-md p-3 {$passwordMessage.includes(
+										'successfully'
+									)
 										? 'border border-green-200 bg-green-50 text-green-700'
 										: 'border border-red-200 bg-red-50 text-red-700'}"
 								>
-									{#if passwordMessage.type === 'success'}
+									{#if $passwordMessage.includes('successfully')}
 										<CheckCircleIcon class="h-4 w-4" />
 									{:else}
 										<AlertCircleIcon class="h-4 w-4" />
 									{/if}
-									<span class="text-sm">{passwordMessage.text}</span>
+									<span class="text-sm">{$passwordMessage}</span>
 								</div>
 							{/if}
 							<div>
@@ -257,10 +230,14 @@
 									id="currentPassword"
 									name="currentPassword"
 									type="password"
-									bind:value={currentPassword}
+									bind:value={$passwordForm.currentPassword}
 									placeholder="Enter your current password"
+									class={$passwordErrors.currentPassword ? 'border-red-400' : ''}
 									required
 								/>
+								{#if $passwordErrors.currentPassword}
+									<p class="mt-1 text-sm text-red-600">{$passwordErrors.currentPassword}</p>
+								{/if}
 							</div>
 
 							<div>
@@ -271,10 +248,14 @@
 									id="newPassword"
 									name="newPassword"
 									type="password"
-									bind:value={newPassword}
+									bind:value={$passwordForm.newPassword}
 									placeholder="Enter your new password"
+									class={$passwordErrors.newPassword ? 'border-red-400' : ''}
 									required
 								/>
+								{#if $passwordErrors.newPassword}
+									<p class="mt-1 text-sm text-red-600">{$passwordErrors.newPassword}</p>
+								{/if}
 							</div>
 
 							<div>
@@ -285,15 +266,19 @@
 									id="confirmPassword"
 									name="confirmPassword"
 									type="password"
-									bind:value={confirmPassword}
+									bind:value={$passwordForm.confirmPassword}
 									placeholder="Confirm your new password"
+									class={$passwordErrors.confirmPassword ? 'border-red-400' : ''}
 									required
 								/>
+								{#if $passwordErrors.confirmPassword}
+									<p class="mt-1 text-sm text-red-600">{$passwordErrors.confirmPassword}</p>
+								{/if}
 							</div>
 
 							<div class="flex gap-2 pt-4">
-								<Button type="submit" size="sm" disabled={isLoadingPassword}>
-									{#if isLoadingPassword}
+								<Button type="submit" size="sm" disabled={$passwordSubmitting}>
+									{#if $passwordSubmitting}
 										<div
 											class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"
 										></div>
@@ -307,7 +292,7 @@
 									size="sm"
 									variant="outline"
 									onclick={resetPasswordForm}
-									disabled={isLoadingPassword}
+									disabled={$passwordSubmitting}
 								>
 									<XIcon class="mr-2 h-4 w-4" />
 									Cancel
@@ -318,7 +303,7 @@
 				{:else}
 					<div class="text-sm text-muted-foreground">
 						<p>
-							Password was last updated on {new Date(userUpdatedAt).toLocaleDateString()}
+							Password was last updated on {new Date(passwordUpdatedAt).toLocaleDateString()}
 						</p>
 						<p class="mt-1">Click "Change Password" to update your password.</p>
 					</div>
