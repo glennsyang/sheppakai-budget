@@ -4,6 +4,7 @@ import { asc, eq } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { category } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -49,9 +50,9 @@ export const actions = {
 					)
 				);
 
-			console.log('Created category for user:', userId);
+			logger.info('category created successfully');
 		} catch (error) {
-			console.error('Error creating category:', error);
+			logger.error('Failed to create category', error);
 			return fail(500, { error: 'Failed to create category' });
 		}
 
@@ -91,9 +92,9 @@ export const actions = {
 				)
 				.where(eq(category.id, categoryId));
 
-			console.log('Updated category:', categoryId);
+			logger.info('Resource updated successfully');
 		} catch (error) {
-			console.error('Error updating category:', error);
+			logger.error('Failed to update category', error);
 			return fail(500, { error: 'Failed to update category' });
 		}
 
@@ -128,9 +129,9 @@ export const actions = {
 
 			await getDb().delete(category).where(eq(category.id, categoryId));
 
-			console.log('Deleted category:', categoryId);
+			logger.info('Resource deleted successfully');
 		} catch (error) {
-			console.error('Error deleting category:', error);
+			logger.error('Failed to delete category', error);
 			return fail(500, { error: 'Failed to delete category' });
 		}
 

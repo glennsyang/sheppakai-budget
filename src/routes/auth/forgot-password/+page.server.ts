@@ -4,6 +4,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
 import { auth } from '$lib/server/auth';
+import { logger } from '$lib/server/logger';
 import { getBetterAuthErrorMessage } from '$lib/utils';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -62,7 +63,7 @@ export const actions: Actions = {
 				throw error;
 			}
 
-			console.error('Forgot password error:', error);
+			logger.error('Password reset request failed', error);
 			// Get user-friendly error message from better-auth error
 			// Don't reveal if the email exists or not for security reasons
 			const errorMessage = getBetterAuthErrorMessage(

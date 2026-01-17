@@ -1,4 +1,5 @@
 import { getDb } from '$lib/server/db';
+import { logger } from '$lib/server/logger';
 
 import type { RequestHandler } from './$types';
 
@@ -10,7 +11,7 @@ export const GET: RequestHandler = async () => {
 
 		return new Response('OK', { status: 200, headers: { 'Cache-Control': 'no-cache' } });
 	} catch (e) {
-		console.error('Health check failed:', e);
+		logger.error('Health check failed', e);
 
 		// Returning a non-200 status tells Fly.io the instance is unhealthy
 		return new Response('Service Unavailable', { status: 503 });

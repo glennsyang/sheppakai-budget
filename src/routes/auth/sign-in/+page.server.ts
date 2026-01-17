@@ -4,6 +4,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
 import { auth } from '$lib/server/auth';
+import { logger } from '$lib/server/logger';
 import { getBetterAuthErrorMessage } from '$lib/utils';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -57,7 +58,7 @@ export const actions: Actions = {
 				throw error;
 			}
 
-			console.error('Sign-in error:', error);
+			logger.error('Sign-in failed', error);
 			// Get user-friendly error message from better-auth error
 			const errorMessage = getBetterAuthErrorMessage(
 				error,

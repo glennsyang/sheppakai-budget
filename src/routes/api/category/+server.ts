@@ -3,6 +3,7 @@ import { json } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
 import { category } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 
 import type { RequestHandler } from './$types';
 
@@ -16,7 +17,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
 		return json(allCategories);
 	} catch (error) {
-		console.error('Error fetching categories:', error);
+		logger.error('Failed to fetch categories', error);
 		return new Response('Internal Server Error', { status: 500 });
 	}
 };
@@ -50,7 +51,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		return json(newCategory[0]);
 	} catch (error) {
-		console.error('Error creating category:', error);
+		logger.error('Failed to create category', error);
 		return new Response('Internal Server Error', { status: 500 });
 	}
 };

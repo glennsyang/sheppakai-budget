@@ -4,6 +4,7 @@ import { asc, eq } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { savings } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -57,9 +58,9 @@ export const actions = {
 					)
 				);
 
-			console.log('Created savings entry for user:', userId);
+			logger.info('savings created successfully');
 		} catch (error) {
-			console.error('Error creating savings entry:', error);
+			logger.error('Failed to create savings', error);
 			return fail(500, { error: 'Failed to create savings entry' });
 		}
 
@@ -98,9 +99,9 @@ export const actions = {
 				)
 				.where(eq(savings.id, savingsId));
 
-			console.log('Updated savings entry:', savingsId);
+			logger.info('savings updated successfully');
 		} catch (error) {
-			console.error('Error updating savings entry:', error);
+			logger.error('Failed to update savings', error);
 			return fail(500, { error: 'Failed to update savings entry' });
 		}
 
@@ -123,9 +124,9 @@ export const actions = {
 		try {
 			await getDb().delete(savings).where(eq(savings.id, savingsId));
 
-			console.log('Deleted savings entry:', savingsId);
+			logger.info('savings deleted successfully');
 		} catch (error) {
-			console.error('Error deleting savings entry:', error);
+			logger.error('Failed to delete savings', error);
 			return fail(500, { error: 'Failed to delete savings entry' });
 		}
 

@@ -5,6 +5,7 @@ import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 
 import { getEnv } from '$lib/../env';
+import { logger } from '$lib/server/logger';
 
 import * as schema from './schema';
 
@@ -38,7 +39,7 @@ export default getDb;
 // but if you need to perform any cleanup, you can do it here.
 const shutdown = () => {
 	if (_db) {
-		console.log('Closing SQLite connection...');
+		logger.info('Closing SQLite connection');
 		_db.$client.close(); // Closes the better-sqlite3 connection safely
 		process.exit(0);
 	}

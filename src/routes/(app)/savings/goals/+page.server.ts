@@ -4,6 +4,7 @@ import { asc, desc, eq } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 import { formatDateForStorage } from '$lib/utils/dates';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -89,9 +90,9 @@ export const actions = {
 					)
 				);
 
-			console.log('Created savings goal for user:', userId);
+			logger.info('Resource created successfully');
 		} catch (error) {
-			console.error('Error creating savings goal:', error);
+			logger.error('Failed to create resource', error);
 			return fail(500, { error: 'Failed to create savings goal' });
 		}
 
@@ -135,9 +136,9 @@ export const actions = {
 				)
 				.where(eq(savingsGoal.id, goalId));
 
-			console.log('Updated savings goal:', goalId);
+			logger.info('Resource updated successfully');
 		} catch (error) {
-			console.error('Error updating savings goal:', error);
+			logger.error('Failed to update resource', error);
 			return fail(500, { error: 'Failed to update savings goal' });
 		}
 
@@ -173,9 +174,9 @@ export const actions = {
 			// Delete the goal (only if no contributions exist)
 			await getDb().delete(savingsGoal).where(eq(savingsGoal.id, goalId));
 
-			console.log('Deleted savings goal:', goalId);
+			logger.info('Resource deleted successfully');
 		} catch (error) {
-			console.error('Error deleting savings goal:', error);
+			logger.error('Failed to delete resource', error);
 			return fail(500, { error: 'Failed to delete savings goal' });
 		}
 
@@ -214,9 +215,9 @@ export const actions = {
 					)
 				);
 
-			console.log('Created contribution for user:', userId);
+			logger.info('contribution created successfully');
 		} catch (error) {
-			console.error('Error creating contribution:', error);
+			logger.error('Failed to create contribution', error);
 			return fail(500, { error: 'Failed to create contribution' });
 		}
 
@@ -257,9 +258,9 @@ export const actions = {
 				)
 				.where(eq(contribution.id, contributionId));
 
-			console.log('Updated contribution:', contributionId);
+			logger.info('Resource updated successfully');
 		} catch (error) {
-			console.error('Error updating contribution:', error);
+			logger.error('Failed to update contribution', error);
 			return fail(500, { error: 'Failed to update contribution' });
 		}
 
@@ -282,9 +283,9 @@ export const actions = {
 		try {
 			await getDb().delete(contribution).where(eq(contribution.id, contributionId));
 
-			console.log('Deleted contribution:', contributionId);
+			logger.info('Resource deleted successfully');
 		} catch (error) {
-			console.error('Error deleting contribution:', error);
+			logger.error('Failed to delete contribution', error);
 			return fail(500, { error: 'Failed to delete contribution' });
 		}
 

@@ -4,6 +4,7 @@ import { and, asc, eq, sql } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { income } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 import { formatDateForStorage, getMonthDateRange } from '$lib/utils/dates';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -69,9 +70,9 @@ export const actions = {
 					)
 				);
 
-			console.log('Created income for user:', userId);
+			logger.info('Income created successfully');
 		} catch (error) {
-			console.error('Error creating income:', error);
+			logger.error('Failed to create income', error);
 			return fail(500, { error: 'Failed to create income' });
 		}
 
@@ -115,9 +116,9 @@ export const actions = {
 				)
 				.where(eq(income.id, incomeId));
 
-			console.log('Updated income:', incomeId);
+			logger.info('Income updated successfully');
 		} catch (error) {
-			console.error('Error updating income:', error);
+			logger.error('Failed to update income', error);
 			return fail(500, { error: 'Failed to update income' });
 		}
 
@@ -141,9 +142,9 @@ export const actions = {
 		try {
 			await getDb().delete(income).where(eq(income.id, incomeId));
 
-			console.log('Deleted income:', incomeId);
+			logger.info('Income deleted successfully');
 		} catch (error) {
-			console.error('Error deleting income:', error);
+			logger.error('Failed to delete income', error);
 			return fail(500, { error: 'Failed to delete income' });
 		}
 

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { account, user } from '$lib/server/db/schema';
+import { logger } from '$lib/server/logger';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -75,7 +76,7 @@ export const actions = {
 		try {
 			await getDb().update(user).set({ name: form.data.name }).where(eq(user.id, locals.user.id));
 
-			console.log('Updated user profile:', locals.user.id);
+			logger.info('User profile updated successfully');
 			return {
 				form: {
 					...form,
@@ -83,7 +84,7 @@ export const actions = {
 				}
 			};
 		} catch (error) {
-			console.error('Error updating user profile:', error);
+			logger.error('Failed to update user profile', error);
 			return fail(500, {
 				form: {
 					...form,
@@ -121,7 +122,7 @@ export const actions = {
 				}
 			};
 		} catch (error) {
-			console.error('Error changing password:', error);
+			logger.error('Failed to change password', error);
 			return fail(400, {
 				form: {
 					...form,

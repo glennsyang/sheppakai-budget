@@ -5,6 +5,7 @@ import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { Resend } from 'resend';
 
 import { getRequestEvent } from '$app/server';
+import { logger } from '$lib/server/logger';
 
 import { getEnv } from '../../env';
 
@@ -54,14 +55,14 @@ export const auth = betterAuth({
 			});
 		},
 		onPasswordReset: async ({ user }) => {
-			console.log(`📧 Password for user ${user.email} has been reset.`);
+			logger.debug('Password reset completed for user:', user.email);
 		}
 	},
 	emailVerification: {
 		sendOnSignUp: true,
 		autoSignInAfterVerification: true,
 		sendVerificationEmail: async ({ user, url, token }) => {
-			console.log(`📧 Email verification: url=${url}, token=${token}`);
+			logger.debug('Email verification sent');
 			const verifyUrl = `${url}?token=${token}`;
 			void sendEmail({
 				to: user.email,
@@ -107,12 +108,12 @@ export const auth = betterAuth({
 			}
 			// Audit logging
 			if (ctx.path.includes('/sign-in')) {
-				console.log(
+				logger.debug(
 					`✅ Sign-in successful: ${ctx.context.session?.user.email} from IP: ${ctx.request?.headers.get('x-forwarded-for')}`
 				);
 			}
 			if (ctx.path.includes('/reset-password')) {
-				console.log(`🔐 Password reset requested: ${ctx.context.user?.email}`);
+				logger.info('Password reset requested');
 			}
 		})
 	},
@@ -154,7 +155,7 @@ export const auth = betterAuth({
 const resend = new Resend(env.RESEND_API_KEY);
 
 async function sendEmail({ to, subject, text }: { to: string; subject: string; text: string }) {
-	console.log('📧 Email sent to:', to);
+	logger.debug('Email sent');
 
 	try {
 		const { data, error } = await resend.emails.send({
@@ -165,13 +166,13 @@ async function sendEmail({ to, subject, text }: { to: string; subject: string; t
 		});
 
 		if (error) {
-			console.error('Error sending email via Resend:', error);
+			logger.error('Failed to send email', error);
 			return error;
 		}
 
 		return data;
 	} catch (error) {
-		console.error('Error sending email via Resend:', error);
+		logger.error('Failed to send email', error);
 		return error;
 	}
 }

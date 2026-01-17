@@ -4,6 +4,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 import { formatDateForStorage, getMonthDateRange } from '$lib/utils/dates';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -105,9 +106,9 @@ export const actions = {
 					)
 				);
 
-			console.log('Created transaction entry for user:', userId);
+			logger.info('transaction created successfully');
 		} catch (error) {
-			console.error('Error creating transaction entry:', error);
+			logger.error('Failed to create transaction', error);
 			return fail(500, { error: 'Failed to create transaction entry' });
 		}
 
@@ -152,9 +153,9 @@ export const actions = {
 				)
 				.where(eq(transaction.id, transactionId));
 
-			console.log('Updated transaction entry:', transactionId);
+			logger.info('Transaction updated successfully');
 		} catch (error) {
-			console.error('Error updating transaction entry:', error);
+			logger.error('Failed to update transaction', error);
 			return fail(500, { error: 'Failed to update transaction entry' });
 		}
 
@@ -177,9 +178,9 @@ export const actions = {
 		try {
 			await getDb().delete(transaction).where(eq(transaction.id, transactionId));
 
-			console.log('Deleted transaction entry:', transactionId);
+			logger.info('Transaction deleted successfully');
 		} catch (error) {
-			console.error('Error deleting transaction entry:', error);
+			logger.error('Failed to delete transaction', error);
 			return fail(500, { error: 'Failed to delete transaction entry' });
 		}
 

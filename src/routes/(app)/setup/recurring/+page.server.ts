@@ -4,6 +4,7 @@ import { asc, eq } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { recurring } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -57,9 +58,9 @@ export const actions = {
 					)
 				);
 
-			console.log('Created recurring entry for user:', userId);
+			logger.info('recurring created successfully');
 		} catch (error) {
-			console.error('Error creating recurring entry:', error);
+			logger.error('Failed to create recurring', error);
 			return fail(500, { error: 'Failed to create recurring entry' });
 		}
 
@@ -103,9 +104,9 @@ export const actions = {
 				)
 				.where(eq(recurring.id, recurringId));
 
-			console.log('Updated recurring entry:', recurringId);
+			logger.info('recurring updated successfully');
 		} catch (error) {
-			console.error('Error updating recurring entry:', error);
+			logger.error('Failed to update recurring', error);
 			return fail(500, { error: 'Failed to update recurring entry' });
 		}
 
@@ -128,9 +129,9 @@ export const actions = {
 		try {
 			await getDb().delete(recurring).where(eq(recurring.id, recurringId));
 
-			console.log('Deleted recurring entry:', recurringId);
+			logger.info('recurring deleted successfully');
 		} catch (error) {
-			console.error('Error deleting recurring entry:', error);
+			logger.error('Failed to delete recurring', error);
 			return fail(500, { error: 'Failed to delete recurring entry' });
 		}
 

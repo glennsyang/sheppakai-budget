@@ -4,6 +4,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -124,7 +125,7 @@ export const actions = {
 		}
 
 		const data = await request.formData();
-		console.log('data:', JSON.stringify(Object.fromEntries(data.entries())));
+		logger.debug('Form data received');
 		const hasAmount = data.has('amount');
 		const hasYear = data.has('year');
 		const hasMonth = data.has('month');
@@ -159,9 +160,9 @@ export const actions = {
 					)
 				);
 
-			console.log('Created budget entry for user:', userId);
+			logger.info('budget created successfully');
 		} catch (error) {
-			console.error('Error creating budget entry:', error);
+			logger.error('Failed to create budget', error);
 			return fail(500, { error: 'Failed to create budget entry' });
 		}
 
@@ -211,9 +212,9 @@ export const actions = {
 				)
 				.where(eq(budget.id, budgetId));
 
-			console.log('Updated budget entry:', budgetId);
+			logger.info('budget updated successfully');
 		} catch (error) {
-			console.error('Error updating budget entry:', error);
+			logger.error('Failed to update budget', error);
 			return fail(500, { error: 'Failed to update budget entry' });
 		}
 
@@ -236,9 +237,9 @@ export const actions = {
 		try {
 			await getDb().delete(budget).where(eq(budget.id, budgetId));
 
-			console.log('Deleted budget entry:', budgetId);
+			logger.info('budget deleted successfully');
 		} catch (error) {
-			console.error('Error deleting budget entry:', error);
+			logger.error('Failed to delete budget', error);
 			return fail(500, { error: 'Failed to delete budget entry' });
 		}
 
