@@ -4,16 +4,16 @@ import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 
-import * as schema from './schema';
+import { getEnv } from '$lib/../env';
 
-import { env } from '$env/dynamic/private';
+import * as schema from './schema';
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
 export function getDb() {
 	if (!_db) {
-		// Fallback to a temporary database during build time when DATABASE_URL is not available
-		const dbUrl = env.DATABASE_URL || 'file:///tmp/build.db';
+		const env = getEnv();
+		const dbUrl = env.DATABASE_URL;
 
 		// Extract file path from DATABASE_URL (remove 'file://' prefix if present)
 		const dbPath = dbUrl.replace(/^file:\/\//, '');
@@ -32,3 +32,19 @@ export function getDb() {
 export type DB = ReturnType<typeof getDb>;
 
 export default getDb;
+
+// --- Graceful shutdown for DB connection (if needed) ---
+// Note: better-sqlite3 doesn't have a built-in close method on the connection object,
+// but if you need to perform any cleanup, you can do it here.
+const shutdown = () => {
+	if (_db) {
+		console.log('Closing SQLite connection...');
+		_db.$client.close(); // Closes the better-sqlite3 connection safely
+		process.exit(0);
+	}
+	process.exit(0);
+};
+
+// Listen for Fly.io termination signals
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);

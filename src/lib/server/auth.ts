@@ -6,14 +6,16 @@ import { Resend } from 'resend';
 
 import { getRequestEvent } from '$app/server';
 
+import { getEnv } from '../../env';
+
 import * as schema from './db/schema';
 import { getDb } from './db';
 
-import { env } from '$env/dynamic/private';
+const env = getEnv();
 
 export const auth = betterAuth({
 	appName: 'Sheppakai Budget',
-	secret: env.BETTER_AUTH_SECRET || 'build_time_dummy_secret_min_32_chars_long',
+	secret: env.BETTER_AUTH_SECRET,
 	database: drizzleAdapter(getDb(), {
 		provider: 'sqlite',
 		schema: {
@@ -149,7 +151,7 @@ export const auth = betterAuth({
 });
 
 // Initialize Resend email client
-const resend = new Resend(env.RESEND_API_KEY || 'dummy_key_for_build');
+const resend = new Resend(env.RESEND_API_KEY);
 
 async function sendEmail({ to, subject, text }: { to: string; subject: string; text: string }) {
 	console.log('📧 Email sent to:', to);

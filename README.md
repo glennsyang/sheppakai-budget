@@ -17,6 +17,39 @@ Whether you want to save more, spend less, or just understand your financial pic
 
 ## Getting Started 🚀
 
+### Prerequisites
+
+- **Node.js version 22.13.1** (required for better-sqlite3 compatibility)
+  - Use nvm: `nvm use 22.13.1` or `nvm install 22.13.1`
+
+### Environment Variables
+
+Create a `.env` file in the root directory with the following required variables:
+
+```env
+# Database
+DATABASE_URL=file://./local-copy.db
+
+# Authentication (required in production, min 32 characters)
+BETTER_AUTH_SECRET=your-secure-secret-key-minimum-32-characters-long
+
+# Email (Resend API for transactional emails)
+RESEND_API_KEY=re_your_api_key_here
+RESEND_FROM_ADDRESS=noreply@yourdomain.com
+RESEND_NEW_USER_ADDRESS=admin@yourdomain.com
+
+# Node Environment
+NODE_ENV=development
+```
+
+**Important Notes:**
+
+- `BETTER_AUTH_SECRET` is **required** in production and must be at least 32 characters
+- In development, fallback values are used for convenience
+- The app will fail fast on startup if required variables are missing in production
+
+### Installation
+
 1. **Install dependencies**
 
    ```bash
