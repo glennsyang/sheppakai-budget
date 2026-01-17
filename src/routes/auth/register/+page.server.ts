@@ -60,7 +60,8 @@ export const actions: Actions = {
 				}
 			});
 
-			throw redirect(302, '/auth/sign-in?message=Registration successful! Please sign in.');
+			// Redirect to verify-email page with user's email
+			throw redirect(302, `/auth/verify-email?email=${encodeURIComponent(form.data.email)}`);
 		} catch (error) {
 			// Don't catch redirects as errors - re-throw them
 			if (isRedirect(error)) {
