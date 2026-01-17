@@ -4,6 +4,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { getLocalMonthAsUTCRange, localDateToUTCTimestamp } from '$lib/utils/dates';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -22,8 +23,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const month = monthParam ? Number.parseInt(monthParam) : currentDate.getMonth() + 1;
 	const year = yearParam ? Number.parseInt(yearParam) : currentDate.getFullYear();
 
-	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+	// Get UTC range for the user's local month
+	const { startUTC, endUTC } = getLocalMonthAsUTCRange(month, year);
 
 	const transactions: Transaction[] = (await getDb().query.transaction.findMany({
 		with: {
@@ -31,8 +32,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			user: true
 		},
 		where: and(
-			sql`date(${transaction.date}) >= date(${startDate})`,
-			sql`date(${transaction.date}) <= date(${endDate})`
+			sql`datetime(${transaction.date}) >= datetime(${startUTC})`,
+			sql`datetime(${transaction.date}) < datetime(${endUTC})`
 		),
 		orderBy: [desc(transaction.date)]
 	})) as Transaction[];
@@ -96,7 +97,7 @@ export const actions = {
 							amount: Number(data.get('amount')),
 							payee: data.get('payee')?.toString() || '',
 							notes: data.get('notes')?.toString() || '',
-							date: data.get('date')?.toString() || '',
+							date: localDateToUTCTimestamp(data.get('date')?.toString() || ''),
 							categoryId: data.get('categoryId')?.toString() || '',
 							userId: userId
 						},
@@ -143,7 +144,7 @@ export const actions = {
 							amount: Number(data.get('amount')),
 							payee: data.get('payee')?.toString() || '',
 							notes: data.get('notes')?.toString() || '',
-							date: data.get('date')?.toString() || '',
+							date: localDateToUTCTimestamp(data.get('date')?.toString() || ''),
 							categoryId: data.get('categoryId')?.toString() || ''
 						},
 						userId

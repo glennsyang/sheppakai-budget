@@ -1,15 +1,20 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 
+import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { budget, income, transaction } from '$lib/server/db/schema';
+import { getLocalMonthAsUTCRange } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
 import type { Budget, Income, Recurring, Transaction } from '$lib';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
-	if (!locals.user) {
-		return [];
+export const load: PageServerLoad = async ({ request, locals, url }) => {
+	const session = await auth.api.getSession({
+		headers: request.headers
+	});
+	if (!locals.user && !session?.user) {
+		return {};
 	}
 
 	// Get month from URL or use current month
@@ -28,8 +33,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		month = Number.parseInt(monthParam);
 	}
 
-	const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-	const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+	// Get UTC range for the user's local month
+	const { startUTC, endUTC } = getLocalMonthAsUTCRange(month, year);
 
 	const actualExpenses: Transaction[] = (await getDb().query.transaction.findMany({
 		with: {
@@ -37,8 +42,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			user: true
 		},
 		where: and(
-			sql`date(${transaction.date}) >= date(${startDate})`,
-			sql`date(${transaction.date}) <= date(${endDate})`
+			sql`datetime(${transaction.date}) >= datetime(${startUTC})`,
+			sql`datetime(${transaction.date}) < datetime(${endUTC})`
 		),
 		orderBy: [desc(transaction.date)]
 	})) as Transaction[];
@@ -64,8 +69,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	// Get income for the selected month
 	const incomeRecords: Income[] = (await getDb().query.income.findMany({
 		where: and(
-			sql`date(${income.date}) >= date(${startDate})`,
-			sql`date(${income.date}) <= date(${endDate})`
+			sql`datetime(${income.date}) >= datetime(${startUTC})`,
+			sql`datetime(${income.date}) < datetime(${endUTC})`
 		)
 	})) as Income[];
 

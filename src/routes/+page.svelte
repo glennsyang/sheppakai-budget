@@ -23,7 +23,7 @@
 	<!-- Navigation Bar -->
 	<header class="w-full border-b border-white/20 bg-white/10 shadow-lg backdrop-blur-md">
 		<div class="container mx-auto flex items-center justify-between px-4 py-3">
-			<div class="text-xl font-bold">Budget Tracker</div>
+			<div class="text-xl font-bold"><a href="/">Budget Tracker</a></div>
 			<div class="space-x-2">
 				<Button variant="outline" onclick={handleSignIn}>Sign In</Button>
 				<Button onclick={handleRegister}>Register</Button>
