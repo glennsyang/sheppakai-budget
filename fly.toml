@@ -25,7 +25,7 @@ primary_region = 'yyz'
 
 [[http_service.checks]]
   grace_period = "10s"     # How long to wait for the app to start
-    interval = "30s"       # How often to check
+    interval = "60s"       # How often to check
     method = "get"
     path = "/api/healthz"  # The URL we created above
     timeout = "5s"         # Max time allowed for a response
