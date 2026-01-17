@@ -40,12 +40,6 @@ jobs:
       # Deploy only if all checks pass
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
-      # Run migrations before deployment
-      - name: Run database migrations
-        run: flyctl ssh console -C "cd /app && npx drizzle-kit migrate"
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
       - name: Deploy to Fly.io
         run: flyctl deploy --remote-only
         env:

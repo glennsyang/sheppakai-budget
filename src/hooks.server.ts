@@ -25,5 +25,34 @@ export const handle: Handle = async ({ event, resolve }) => {
 		};
 	}
 
-	return svelteKitHandler({ event, resolve, auth, building });
+	const response = await svelteKitHandler({ event, resolve, auth, building });
+
+	// Security headers
+	response.headers.set('X-Frame-Options', 'DENY');
+	response.headers.set('X-Content-Type-Options', 'nosniff');
+	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+	response.headers.set('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
+
+	// HSTS only in production
+	if (!dev) {
+		response.headers.set(
+			'Strict-Transport-Security',
+			'max-age=31536000; includeSubDomains; preload'
+		);
+	}
+
+	// Content Security Policy (adjust as needed)
+	const csp = [
+		"default-src 'self'",
+		"script-src 'self' 'unsafe-inline'", // Consider removing unsafe-inline
+		"style-src 'self' 'unsafe-inline'",
+		"img-src 'self' data: https:",
+		"font-src 'self'",
+		"connect-src 'self'",
+		"frame-ancestors 'none'"
+	].join('; ');
+
+	response.headers.set('Content-Security-Policy', csp);
+
+	return response;
 };

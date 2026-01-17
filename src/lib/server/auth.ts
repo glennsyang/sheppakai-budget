@@ -55,14 +55,14 @@ export const auth = betterAuth({
 			});
 		},
 		onPasswordReset: async ({ user }) => {
-			logger.debug('Password reset completed for user:', user.email);
+			logger.debug('🔐 Password reset completed for user:', user.email);
 		}
 	},
 	emailVerification: {
 		sendOnSignUp: true,
 		autoSignInAfterVerification: true,
 		sendVerificationEmail: async ({ user, url, token }) => {
-			logger.debug('Email verification sent');
+			logger.debug('✉️ Email verification sent');
 			const verifyUrl = `${url}?token=${token}`;
 			void sendEmail({
 				to: user.email,
@@ -113,7 +113,7 @@ export const auth = betterAuth({
 				);
 			}
 			if (ctx.path.includes('/reset-password')) {
-				logger.info('Password reset requested');
+				logger.info('🔑 Password reset requested');
 			}
 		})
 	},
@@ -155,7 +155,7 @@ export const auth = betterAuth({
 const resend = new Resend(env.RESEND_API_KEY);
 
 async function sendEmail({ to, subject, text }: { to: string; subject: string; text: string }) {
-	logger.debug('Email sent');
+	logger.debug('📧 Email sent');
 
 	try {
 		const { data, error } = await resend.emails.send({
@@ -166,13 +166,13 @@ async function sendEmail({ to, subject, text }: { to: string; subject: string; t
 		});
 
 		if (error) {
-			logger.error('Failed to send email', error);
+			logger.error('❌ Failed to send email', error);
 			return error;
 		}
 
 		return data;
 	} catch (error) {
-		logger.error('Failed to send email', error);
+		logger.error('❌ Failed to send email', error);
 		return error;
 	}
 }
