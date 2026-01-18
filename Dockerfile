@@ -37,6 +37,11 @@ RUN npm prune --omit=dev
 # Final stage for app image
 FROM base
 
+# Install sqlite3 CLI for database backups
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y sqlite3 && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy built application
 COPY --from=build /app/build /app/build
 COPY --from=build /app/node_modules /app/node_modules
