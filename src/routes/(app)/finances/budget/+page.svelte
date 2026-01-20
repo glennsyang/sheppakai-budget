@@ -14,11 +14,11 @@
 	import SummaryRow from '$lib/components/SummaryRow.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { months } from '$lib/utils';
+	import { padMonth } from '$lib/utils/dates';
 
 	import type { PageProps } from './$types';
 
 	import type { Budget, Category, ChartData } from '$lib';
-	import { padMonth } from '$lib/utils/dates';
 
 	let { data }: PageProps = $props();
 

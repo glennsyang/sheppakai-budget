@@ -1,16 +1,13 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { transactionSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
-import { getDb } from '$lib/server/db';
-import { budget, transaction } from '$lib/server/db/schema';
-import { formatDateForStorage, getMonthRangeFromUrl, padMonth } from '$lib/utils/dates';
+import { budgetQueries, transactionQueries } from '$lib/server/db/queries';
+import { transaction } from '$lib/server/db/schema';
+import { formatDateForStorage, getMonthRangeFromUrl } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
-
-import type { Budget, Transaction } from '$lib';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
@@ -20,26 +17,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	// Get month, year, and date range from URL params or use current month/year
 	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
-	const transactions: Transaction[] = (await getDb().query.transaction.findMany({
-		with: {
-			category: true,
-			user: true
-		},
-		where: and(
-			sql`date(${transaction.date}) >= date(${startDate})`,
-			sql`date(${transaction.date}) <= date(${endDate})`
-		),
-		orderBy: [desc(transaction.date)]
-	})) as Transaction[];
+	const transactions = await transactionQueries.findByDateRange(startDate, endDate);
 
 	// Load budgets for the current month/year
-	const budgets: Budget[] = (await getDb().query.budget.findMany({
-		with: {
-			category: true,
-			user: true
-		},
-		where: and(eq(budget.month, padMonth(month.toString())), eq(budget.year, year.toString()))
-	})) as Budget[];
+	const budgets = await budgetQueries.findByMonthYear(month, year);
 
 	// Calculate spending per category
 	const categorySpending = transactions.reduce(

@@ -1,10 +1,11 @@
-import { asc, desc, eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { contributionSchema, deleteSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
 import { createAction, deleteAction, updateAction } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';
+import { savingsGoalQueries } from '$lib/server/db/queries';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
 import { formatDateForStorage } from '$lib/utils/dates';
 
@@ -16,12 +17,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Fetch all goals
-	const goals = await getDb().query.savingsGoal.findMany({
-		with: {
-			user: true
-		},
-		orderBy: [asc(savingsGoal.name)]
-	});
+	const goals = await savingsGoalQueries.findAll();
 
 	// Fetch all contributions
 	const contributions = await getDb().query.contribution.findMany({

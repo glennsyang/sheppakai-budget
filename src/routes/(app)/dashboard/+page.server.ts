@@ -1,13 +1,13 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
-
 import { auth } from '$lib/server/auth';
-import { getDb } from '$lib/server/db';
-import { budget, income, transaction } from '$lib/server/db/schema';
-import { getMonthRangeFromUrl, padMonth } from '$lib/utils/dates';
+import {
+	budgetQueries,
+	incomeQueries,
+	recurringQueries,
+	transactionQueries
+} from '$lib/server/db/queries';
+import { getMonthRangeFromUrl } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
-
-import type { Budget, Income, Recurring, Transaction } from '$lib';
 
 export const load: PageServerLoad = async ({ request, locals, url }) => {
 	const session = await auth.api.getSession({
@@ -20,40 +20,15 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 	// Get month, year, and date range from URL params or use current month/year
 	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
-	const actualExpenses: Transaction[] = (await getDb().query.transaction.findMany({
-		with: {
-			category: true,
-			user: true
-		},
-		where: and(
-			sql`date(${transaction.date}) >= date(${startDate})`,
-			sql`date(${transaction.date}) <= date(${endDate})`
-		),
-		orderBy: [desc(transaction.date)]
-	})) as Transaction[];
+	const actualExpenses = await transactionQueries.findByDateRange(startDate, endDate);
 
-	const plannedExpenses: Budget[] = (await getDb().query.budget.findMany({
-		with: {
-			category: true,
-			user: true
-		},
-		where: and(eq(budget.year, year.toString()), eq(budget.month, padMonth(month.toString())))
-	})) as Budget[];
+	const plannedExpenses = await budgetQueries.findByMonthYear(month, year);
 
 	// Get recurring expenses for the user
-	const recurringExpenses: Recurring[] = (await getDb().query.recurring.findMany({
-		with: {
-			user: true
-		}
-	})) as Recurring[];
+	const recurringExpenses = await recurringQueries.findAll();
 
 	// Get income for the selected month
-	const incomeRecords: Income[] = (await getDb().query.income.findMany({
-		where: and(
-			sql`date(${income.date}) >= date(${startDate})`,
-			sql`date(${income.date}) <= date(${endDate})`
-		)
-	})) as Income[];
+	const incomeRecords = await incomeQueries.findByDateRange(startDate, endDate);
 
 	// Calculate monthly recurring total (yearly expenses divided by 12)
 	const recurringMonthlyTotal = recurringExpenses.reduce((sum, item) => {

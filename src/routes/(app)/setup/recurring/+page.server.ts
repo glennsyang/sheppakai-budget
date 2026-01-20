@@ -1,10 +1,9 @@
-import { asc } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { recurringSchema } from '$lib/formSchemas/finances';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
-import { getDb } from '$lib/server/db';
+import { recurringQueries } from '$lib/server/db/queries';
 import { recurring } from '$lib/server/db/schema';
 
 import type { PageServerLoad } from './$types';
@@ -14,12 +13,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return [];
 	}
 
-	const recurrings = await getDb().query.recurring.findMany({
-		with: {
-			user: true
-		},
-		orderBy: [asc(recurring.merchant)]
-	});
+	const recurrings = await recurringQueries.findAll();
 
 	const form = await superValidate(zod4(recurringSchema));
 

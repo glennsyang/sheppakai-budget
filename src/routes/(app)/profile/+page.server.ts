@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -6,7 +6,8 @@ import { changePasswordSchema, updateProfileSchema } from '$lib/formSchemas';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
-import { account, user } from '$lib/server/db/schema';
+import { accountQueries, userQueries } from '$lib/server/db/queries';
+import { user } from '$lib/server/db/schema';
 import { logger } from '$lib/server/logger';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -22,14 +23,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Get the full user data including updatedAt
-	const fullUserData = await getDb().query.user.findFirst({
-		where: eq(user.id, locals.user.id)
-	});
+	const fullUserData = await userQueries.findById(locals.user.id);
 
 	// Get the account data to find when password was last updated
-	const accountData = await getDb().query.account.findFirst({
-		where: and(eq(account.userId, locals.user.id), eq(account.providerId, 'credential'))
-	});
+	const accountData = await accountQueries.findByUserId(locals.user.id);
 
 	// Initialize profile form with current user data
 	const profileForm = await superValidate(
@@ -42,7 +39,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		user: fullUserData || locals.user,
 		profileForm,
 		passwordForm,
-		passwordUpdatedAt: accountData?.updatedAt || fullUserData?.updatedAt || null
+		passwordUpdatedAt: accountData?.updatedAt || null
 	};
 };
 

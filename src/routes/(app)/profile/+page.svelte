@@ -302,9 +302,11 @@
 					</form>
 				{:else}
 					<div class="text-sm text-muted-foreground">
-						<p>
-							Password was last updated on {new Date(passwordUpdatedAt).toLocaleDateString()}
-						</p>
+						{#if passwordUpdatedAt}
+							<p>
+								Password was last updated on {new Date(passwordUpdatedAt).toLocaleDateString()}
+							</p>
+						{/if}
 						<p class="mt-1">Click "Change Password" to update your password.</p>
 					</div>
 				{/if}

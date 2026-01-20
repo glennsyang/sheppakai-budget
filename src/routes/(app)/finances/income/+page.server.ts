@@ -1,10 +1,9 @@
-import { and, asc, sql } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { incomeSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
-import { getDb } from '$lib/server/db';
+import { incomeQueries } from '$lib/server/db/queries';
 import { income } from '$lib/server/db/schema';
 import { formatDateForStorage, getMonthRangeFromUrl } from '$lib/utils/dates';
 
@@ -18,13 +17,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	// Get month, year, and date range from URL params or use current month/year
 	const { startDate, endDate } = getMonthRangeFromUrl(url);
 
-	const incomes = await getDb().query.income.findMany({
-		where: and(
-			sql`date(${income.date}) >= date(${startDate})`,
-			sql`date(${income.date}) <= date(${endDate})`
-		),
-		orderBy: [asc(income.date)]
-	});
+	const incomes = await incomeQueries.findByDateRange(startDate, endDate);
 
 	const form = await superValidate(zod4(incomeSchema));
 

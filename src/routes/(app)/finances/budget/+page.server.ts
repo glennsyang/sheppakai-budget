@@ -1,11 +1,12 @@
 import { fail } from '@sveltejs/kit';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { budgetSchema } from '$lib/formSchemas';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
+import { budgetQueries, categoryQueries, recurringQueries } from '$lib/server/db/queries';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
@@ -93,19 +94,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const form = await superValidate(zod4(budgetSchema));
 
 	return {
-		budget: await getDb().query.budget.findMany({
-			with: {
-				category: true,
-				user: true
-			},
-			where: and(eq(budget.year, year.toString()), eq(budget.month, padMonth(month.toString()))),
-			orderBy: [desc(budget.year), desc(budget.month)]
-		}),
+		budget: await budgetQueries.findByMonthYear(month, year),
 		historicalBudgets,
 		historicalTransactions,
 		last6Months,
-		categories: await getDb().query.category.findMany(),
-		recurring: await getDb().query.recurring.findMany(),
+		categories: await categoryQueries.findAll(),
+		recurring: await recurringQueries.findAll(),
 		form
 	};
 };
