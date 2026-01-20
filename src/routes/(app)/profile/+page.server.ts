@@ -1,6 +1,5 @@
-import { fail } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
-import { superValidate } from 'sveltekit-superforms';
+import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { changePasswordSchema, updateProfileSchema } from '$lib/formSchemas';
@@ -52,27 +51,25 @@ export const actions = {
 		const form = await superValidate(request, zod4(updateProfileSchema));
 
 		if (!form.valid) {
-			return fail(400, { form });
+			return message(
+				form,
+				{ type: 'error', text: 'Please correct the errors in the form.' },
+				{ status: 400 }
+			);
 		}
 
 		try {
 			await getDb().update(user).set({ name: form.data.name }).where(eq(user.id, currentUser.id));
 
 			logger.info('User profile updated successfully');
-			return {
-				form: {
-					...form,
-					message: 'Profile updated successfully'
-				}
-			};
+			return message(form, { type: 'success', text: 'Profile updated successfully.' });
 		} catch (error) {
 			logger.error('Failed to update user profile', error);
-			return fail(500, {
-				form: {
-					...form,
-					message: 'Failed to update profile'
-				}
-			});
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update profile. Please try again.' },
+				{ status: 500 }
+			);
 		}
 	}),
 
@@ -80,7 +77,11 @@ export const actions = {
 		const form = await superValidate(request, zod4(changePasswordSchema));
 
 		if (!form.valid) {
-			return fail(400, { form });
+			return message(
+				form,
+				{ type: 'error', text: 'Please correct the errors in the form.' },
+				{ status: 400 }
+			);
 		}
 
 		try {
@@ -93,20 +94,17 @@ export const actions = {
 				headers: request.headers
 			});
 
-			return {
-				form: {
-					...form,
-					message: `Password changed successfully for user ${currentUser.name}.`
-				}
-			};
+			return message(form, {
+				type: 'success',
+				text: `Password changed successfully for user ${currentUser.name}.`
+			});
 		} catch (error) {
 			logger.error('Failed to change password', error);
-			return fail(400, {
-				form: {
-					...form,
-					message: 'Current password is incorrect or password change failed'
-				}
-			});
+			return message(
+				form,
+				{ type: 'error', text: 'Current password is incorrect or password change failed.' },
+				{ status: 400 }
+			);
 		}
 	})
 } satisfies Actions;

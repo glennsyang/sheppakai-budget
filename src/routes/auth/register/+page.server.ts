@@ -1,5 +1,5 @@
-import { fail, isRedirect, redirect } from '@sveltejs/kit';
-import { superValidate } from 'sveltekit-superforms';
+import { isRedirect, redirect } from '@sveltejs/kit';
+import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { registerSchema } from '$lib/formSchemas';
@@ -32,9 +32,11 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(registerSchema));
 
 		if (!form.valid) {
-			return fail(400, {
-				form
-			});
+			return message(
+				form,
+				{ type: 'error', text: 'Please correct the errors in the form.' },
+				{ status: 400 }
+			);
 		}
 
 		try {
@@ -61,12 +63,7 @@ export const actions: Actions = {
 				'Registration failed. Please try again.'
 			);
 
-			return fail(400, {
-				form: {
-					...form,
-					message: errorMessage
-				}
-			});
+			return message(form, { type: 'error', text: errorMessage }, { status: 400 });
 		}
 	}
 } satisfies Actions;

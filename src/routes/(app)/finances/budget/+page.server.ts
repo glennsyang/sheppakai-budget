@@ -115,7 +115,11 @@ export const actions = {
 		const form = await superValidate(request, zod4(budgetSchema));
 
 		if (!form.valid) {
-			return fail(400, { form });
+			return message(
+				form,
+				{ type: 'error', text: 'Please correct the errors in the form.' },
+				{ status: 400 }
+			);
 		}
 
 		try {
@@ -152,7 +156,11 @@ export const actions = {
 		const form = await superValidate(request, zod4(budgetSchema));
 
 		if (!form.valid) {
-			return fail(400, { form });
+			return message(
+				form,
+				{ type: 'error', text: 'Please correct the errors in the form.' },
+				{ status: 400 }
+			);
 		}
 
 		const budgetId = form.data.id!;
@@ -192,7 +200,7 @@ export const actions = {
 		const budgetId = data.get('id')?.toString();
 
 		if (!budgetId) {
-			return fail(400, { error: 'Budget ID is required' });
+			return fail(400, { error: 'Budget ID is required', type: 'error' });
 		}
 
 		try {
@@ -201,7 +209,7 @@ export const actions = {
 			logger.info('budget deleted successfully by:', user.id);
 		} catch (error) {
 			logger.error('Failed to delete budget', error);
-			return fail(500, { error: 'Failed to delete budget entry' });
+			return fail(500, { error: 'Failed to delete budget entry.', type: 'error' });
 		}
 
 		return { success: true, delete: true };
