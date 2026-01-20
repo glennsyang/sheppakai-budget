@@ -1,17 +1,14 @@
-import { fail } from '@sveltejs/kit';
 import { asc, desc, eq } from 'drizzle-orm';
-import { message, superValidate } from 'sveltekit-superforms';
+import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { contributionSchema, deleteSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
-import { requireAuth } from '$lib/server/actions/auth-guard';
+import { createAction, deleteAction, updateAction } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
-import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
-import { logger } from '$lib/server/logger';
 import { formatDateForStorage } from '$lib/utils/dates';
 
-import type { Actions, PageServerLoad } from './$types';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -64,217 +61,80 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions = {
-	createGoal: requireAuth(async ({ request }, user) => {
-		const form = await superValidate(request, zod4(savingsGoalSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		try {
-			await getDb()
-				.insert(savingsGoal)
-				.values(
-					withAuditFieldsForCreate(
-						{
-							name: form.data.name,
-							description: form.data.description || null,
-							targetAmount: form.data.targetAmount,
-							targetDate: form.data.targetDate ? formatDateForStorage(form.data.targetDate) : null,
-							status: (form.data.status as 'active' | 'completed' | 'paused') || 'active',
-							userId: user.id.toString()
-						},
-						user
-					)
-				);
-
-			logger.info('Resource created successfully');
-		} catch (error) {
-			logger.error('Failed to create resource', error);
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to create savings goal. A database error occurred.' },
-				{ status: 400 }
-			);
-		}
-
-		return { success: true, createGoal: true, form };
+	createGoal: createAction({
+		schema: savingsGoalSchema,
+		table: savingsGoal,
+		entityName: 'Savings goal',
+		transformCreate: (data, userId) => ({
+			name: data.name,
+			description: data.description || null,
+			targetAmount: data.targetAmount,
+			targetDate: data.targetDate ? formatDateForStorage(data.targetDate) : null,
+			status: (data.status as 'active' | 'completed' | 'paused') || 'active',
+			userId
+		})
 	}),
 
-	updateGoal: requireAuth(async ({ request }, user) => {
-		const form = await superValidate(request, zod4(savingsGoalSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		const goalId = form.data.id!;
-		try {
-			await getDb()
-				.update(savingsGoal)
-				.set(
-					withAuditFieldsForUpdate(
-						{
-							name: form.data.name,
-							description: form.data.description || null,
-							targetAmount: form.data.targetAmount,
-							targetDate: form.data.targetDate ? formatDateForStorage(form.data.targetDate) : null,
-							status: form.data.status || 'active'
-						},
-						user
-					)
-				)
-				.where(eq(savingsGoal.id, goalId));
-
-			logger.info('Resource updated successfully');
-		} catch (error) {
-			logger.error('Failed to update resource', error);
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to update savings goal. A database error occurred.' },
-				{ status: 400 }
-			);
-		}
-
-		return { success: true, updateGoal: true, form };
+	updateGoal: updateAction({
+		schema: savingsGoalSchema,
+		table: savingsGoal,
+		entityName: 'Savings goal',
+		transformUpdate: (data) => ({
+			name: data.name,
+			description: data.description || null,
+			targetAmount: data.targetAmount,
+			targetDate: data.targetDate ? formatDateForStorage(data.targetDate) : null,
+			status: data.status || 'active'
+		})
 	}),
 
-	deleteGoal: requireAuth(async ({ request }, user) => {
-		const form = await superValidate(request, zod4(deleteSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		const goalId = form.data.id;
-		try {
+	deleteGoal: deleteAction({
+		table: savingsGoal,
+		entityName: 'Savings goal',
+		deleteSchema: deleteSchema,
+		beforeDelete: async (id) => {
 			// Check if contributions exist for this goal
 			const existingContributions = await getDb()
 				.select()
 				.from(contribution)
-				.where(eq(contribution.goalId, goalId));
+				.where(eq(contribution.goalId, id));
 
 			if (existingContributions.length > 0) {
-				return message(
-					form,
-					{
-						type: 'error',
-						text: `Cannot delete goal. Please delete all ${existingContributions.length} contribution(s) first.`
-					},
-					{ status: 400 }
-				);
+				return {
+					error: `Cannot delete goal. Please delete all ${existingContributions.length} contribution(s) first.`
+				};
 			}
-
-			// Delete the goal (only if no contributions exist)
-			await getDb().delete(savingsGoal).where(eq(savingsGoal.id, goalId));
-
-			logger.info('Resource deleted successfully by:', user.id);
-		} catch (error) {
-			logger.error('Failed to delete resource', error);
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to delete savings goal. A database error occurred.' },
-				{ status: 500 }
-			);
 		}
-
-		return { success: true, deleteGoal: true, form };
 	}),
 
-	createContribution: requireAuth(async ({ request }, user) => {
-		const form = await superValidate(request, zod4(contributionSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		try {
-			await getDb()
-				.insert(contribution)
-				.values(
-					withAuditFieldsForCreate(
-						{
-							goalId: form.data.goalId,
-							amount: form.data.amount,
-							date: formatDateForStorage(form.data.date),
-							description: form.data.description || null,
-							userId: user.id.toString()
-						},
-						user
-					)
-				);
-
-			logger.info('contribution created successfully');
-		} catch (error) {
-			logger.error('Failed to create contribution', error);
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to create contribution. A database error occurred.' },
-				{ status: 400 }
-			);
-		}
-
-		return { success: true, createContribution: true, form };
+	createContribution: createAction({
+		schema: contributionSchema,
+		table: contribution,
+		entityName: 'Contribution',
+		transformCreate: (data, userId) => ({
+			goalId: data.goalId,
+			amount: data.amount,
+			date: formatDateForStorage(data.date),
+			description: data.description || null,
+			userId
+		})
 	}),
 
-	updateContribution: requireAuth(async ({ request }, user) => {
-		const form = await superValidate(request, zod4(contributionSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		const contributionId = form.data.id!;
-		try {
-			await getDb()
-				.update(contribution)
-				.set(
-					withAuditFieldsForUpdate(
-						{
-							goalId: form.data.goalId,
-							amount: form.data.amount,
-							date: formatDateForStorage(form.data.date),
-							description: form.data.description || null
-						},
-						user
-					)
-				)
-				.where(eq(contribution.id, contributionId));
-
-			logger.info('Resource updated successfully');
-		} catch (error) {
-			logger.error('Failed to update contribution', error);
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to update contribution. A database error occurred.' },
-				{ status: 400 }
-			);
-		}
-
-		return { success: true, updateContribution: true, form };
+	updateContribution: updateAction({
+		schema: contributionSchema,
+		table: contribution,
+		entityName: 'Contribution',
+		transformUpdate: (data) => ({
+			goalId: data.goalId,
+			amount: data.amount,
+			date: formatDateForStorage(data.date),
+			description: data.description || null
+		})
 	}),
 
-	deleteContribution: requireAuth(async ({ request }, user) => {
-		const form = await superValidate(request, zod4(deleteSchema));
-
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-
-		const contributionId = form.data.id;
-		try {
-			await getDb().delete(contribution).where(eq(contribution.id, contributionId));
-
-			logger.info('Resource deleted successfully by:', user.id);
-		} catch (error) {
-			logger.error('Failed to delete contribution', error);
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to delete contribution. A database error occurred.' },
-				{ status: 500 }
-			);
-		}
-
-		return { success: true, deleteContribution: true, form };
+	deleteContribution: deleteAction({
+		table: contribution,
+		entityName: 'Contribution',
+		deleteSchema: deleteSchema
 	})
-} satisfies Actions;
+};
