@@ -4,6 +4,7 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { incomeSchema } from '$lib/formSchemas';
+import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
 import { income } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -42,11 +43,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions = {
-	create: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	create: requireAuth(async ({ request }, user) => {
 		const form = await superValidate(request, zod4(incomeSchema));
 
 		if (!form.valid) {
@@ -54,8 +51,6 @@ export const actions = {
 		}
 
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.insert(income)
 				.values(
@@ -65,9 +60,9 @@ export const actions = {
 							description: form.data.description,
 							date: formatDateForStorage(form.data.date),
 							amount: form.data.amount,
-							userId: userId
+							userId: user.id.toString()
 						},
-						userId
+						user
 					)
 				);
 
@@ -82,13 +77,9 @@ export const actions = {
 		}
 
 		return { success: true, create: true, form };
-	},
+	}),
 
-	update: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	update: requireAuth(async ({ request }, user) => {
 		const form = await superValidate(request, zod4(incomeSchema));
 
 		if (!form.valid) {
@@ -96,10 +87,7 @@ export const actions = {
 		}
 
 		const incomeId = form.data.id!;
-
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.update(income)
 				.set(
@@ -110,7 +98,7 @@ export const actions = {
 							date: formatDateForStorage(form.data.date),
 							amount: form.data.amount
 						},
-						userId
+						user
 					)
 				)
 				.where(eq(income.id, incomeId));
@@ -126,13 +114,9 @@ export const actions = {
 		}
 
 		return { success: true, update: true, form };
-	},
+	}),
 
-	delete: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	delete: requireAuth(async ({ request }, user) => {
 		const data = await request.formData();
 		const hasId = data.has('id');
 
@@ -145,12 +129,12 @@ export const actions = {
 		try {
 			await getDb().delete(income).where(eq(income.id, incomeId));
 
-			logger.info('Income deleted successfully');
+			logger.info('Income deleted successfully by:', user.id);
 		} catch (error) {
 			logger.error('Failed to delete income', error);
 			return fail(500, { error: 'Failed to delete income' });
 		}
 
 		return { success: true, delete: true };
-	}
+	})
 } satisfies Actions;

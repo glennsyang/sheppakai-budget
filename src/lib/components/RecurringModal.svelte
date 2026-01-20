@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 
-	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { superForm, type SuperValidated } from 'sveltekit-superforms';
+	import type { recurringSchema } from '$lib/formSchemas/finances';
+	import z from 'zod';
 
 	interface Props {
 		open: boolean;
@@ -19,36 +21,61 @@
 		};
 		isEditing?: boolean;
 		isLoading?: boolean;
+		recurringForm: SuperValidated<z.infer<typeof recurringSchema>>;
 	}
 
 	let {
 		open = $bindable(),
 		initialData = undefined,
 		isEditing = false,
-		isLoading = $bindable(false)
+		isLoading = $bindable(false),
+		recurringForm
 	}: Props = $props();
 
-	let id = $state('');
-	let merchant = $state('');
-	let description = $state('');
-	let cadence = $state<'Monthly' | 'Yearly'>('Monthly');
-	let amount = $state('');
+	const formInstance = $derived(
+		superForm(recurringForm, {
+			resetForm: true,
+			onUpdate: ({ form }) => {
+				if (form.valid) {
+					open = false;
+					toast.success(
+						isEditing
+							? 'Recurring expense updated successfully!'
+							: 'Recurring expense created successfully!'
+					);
+				}
+				if ($message?.type === 'error') {
+					toast.error(
+						`Error ${isEditing ? 'updating' : 'creating'} recurring expense. Reason: ${$message.text}`
+					);
+				}
+			},
+			onError: ({ result }) => {
+				// Catastrophic DB crashes (Form data is lost)
+				toast.error(
+					`There was an error ${isEditing ? 'updating' : 'creating'} the recurring expense. Reason: ${result.error.message}`
+				);
+			}
+		})
+	);
+
+	const { form, errors, enhance, message, submitting } = $derived(formInstance);
 
 	// Reset form when modal opens
 	$effect(() => {
 		if (open) {
 			if (initialData) {
-				id = initialData.id || '';
-				merchant = initialData.merchant || '';
-				description = initialData.description || '';
-				cadence = initialData.cadence || 'Monthly';
-				amount = initialData.amount ? initialData.amount.toString() : '';
+				$form.id = initialData.id || '';
+				$form.merchant = initialData.merchant || '';
+				$form.description = initialData.description || '';
+				$form.cadence = initialData.cadence || 'Monthly';
+				$form.amount = initialData?.amount || 0;
 			} else {
-				id = '';
-				merchant = '';
-				description = '';
-				cadence = 'Monthly';
-				amount = '';
+				$form.id = '';
+				$form.merchant = '';
+				$form.description = '';
+				$form.cadence = 'Monthly';
+				$form.amount = 0;
 			}
 		}
 	});
@@ -70,41 +97,23 @@
 			class="space-y-4"
 			method="POST"
 			action={isEditing ? '/setup/recurring?/update' : '/setup/recurring?/create'}
-			use:enhance={() => {
-				open = false;
-				isLoading = true;
-				toast.success(
-					isEditing
-						? 'Recurring expense updated successfully!'
-						: 'Recurring expense created successfully!'
-				);
-
-				return async ({ result, update }) => {
-					if (result.type === 'success') {
-						toast.success(
-							isEditing
-								? 'Recurring expense updated successfully!'
-								: 'Recurring expense created successfully!'
-						);
-					} else {
-						toast.error(
-							`There was an error ${isEditing ? 'updating' : 'creating'} the recurring expense.`
-						);
-					}
-					isLoading = false;
-					await update();
-				};
-			}}
+			use:enhance
 		>
-			<input type="hidden" name="id" value={id} />
+			<input type="hidden" name="id" bind:value={$form.id} />
+
 			<div class="space-y-2">
 				<label for="recurring-merchant" class="text-sm font-medium">Merchant</label>
 				<Input
 					id="recurring-merchant"
 					name="merchant"
-					bind:value={merchant}
+					bind:value={$form.merchant}
 					placeholder="Where is this recurring expense charged?"
+					class={$errors.merchant ? 'border-red-400' : ''}
+					required
 				/>
+				{#if $errors.merchant}
+					<p class="text-sm text-red-500">{$errors.merchant}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -112,17 +121,22 @@
 				<Textarea
 					id="recurring-description"
 					name="description"
-					bind:value={description}
+					bind:value={$form.description}
 					placeholder="What was this recurring expense for?"
+					class={$errors.description ? 'border-red-400' : ''}
 					rows={2}
+					required
 				/>
+				{#if $errors.description}
+					<p class="text-sm text-red-500">{$errors.description}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
 				<label for="recurring-cadence" class="text-sm font-medium">Cadence</label>
-				<Select.Root type="single" name="cadence" bind:value={cadence} required>
-					<Select.Trigger class="w-full">
-						{cadence ? cadence : 'Select a cadence'}
+				<Select.Root type="single" name="cadence" bind:value={$form.cadence} required>
+					<Select.Trigger class="w-full {$errors.cadence ? 'border-red-400' : ''}">
+						{$form.cadence ? $form.cadence : 'Select a cadence'}
 					</Select.Trigger>
 					<Select.Content>
 						<Select.Label class="px-2 py-1 text-sm font-medium">Cadence</Select.Label>
@@ -130,6 +144,9 @@
 						<Select.Item value="Yearly">Yearly</Select.Item>
 					</Select.Content>
 				</Select.Root>
+				{#if $errors.cadence}
+					<p class="text-sm text-red-500">{$errors.cadence}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -140,16 +157,20 @@
 					type="number"
 					step="0.01"
 					min="0"
-					bind:value={amount}
+					bind:value={$form.amount}
 					placeholder="0.00"
+					class={$errors.amount ? 'border-red-400' : ''}
 					required
 				/>
+				{#if $errors.amount}
+					<p class="text-sm text-red-500">{$errors.amount}</p>
+				{/if}
 			</div>
 
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
-				<Button type="submit" disabled={!amount || !description || !cadence || !merchant}>
-					{isEditing ? 'Save' : 'Create'}
+				<Button type="submit" disabled={$submitting}>
+					{$submitting ? 'Saving...' : isEditing ? 'Save' : 'Create'}
 				</Button>
 			</Dialog.Footer>
 		</form>

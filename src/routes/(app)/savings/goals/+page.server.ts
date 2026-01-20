@@ -1,6 +1,10 @@
 import { fail } from '@sveltejs/kit';
 import { asc, desc, eq } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
+import { contributionSchema, deleteSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
+import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -48,90 +52,76 @@ export const load: PageServerLoad = async ({ locals }) => {
 		};
 	});
 
+	const savingsGoalForm = await superValidate(zod4(savingsGoalSchema));
+	const contributionForm = await superValidate(zod4(contributionSchema));
+
 	return {
 		goals: goalsWithProgress,
-		contributions
+		contributions,
+		savingsGoalForm,
+		contributionForm
 	};
 };
 
 export const actions = {
-	createGoal: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
+	createGoal: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(savingsGoalSchema));
 
-		const data = await request.formData();
-		const hasName = data.has('name');
-		const hasTargetAmount = data.has('targetAmount');
-
-		if (!hasName || !hasTargetAmount) {
-			return fail(400, { hasName, hasTargetAmount });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.insert(savingsGoal)
 				.values(
 					withAuditFieldsForCreate(
 						{
-							name: data.get('name')?.toString() || '',
-							description: data.get('description')?.toString() || null,
-							targetAmount: Number(data.get('targetAmount')),
-							targetDate: data.get('targetDate')?.toString()
-								? formatDateForStorage(data.get('targetDate')!.toString())
-								: null,
-							status:
-								(data.get('status')?.toString() as 'active' | 'completed' | 'paused') || 'active',
-							userId: userId
+							name: form.data.name,
+							description: form.data.description || null,
+							targetAmount: form.data.targetAmount,
+							targetDate: form.data.targetDate ? formatDateForStorage(form.data.targetDate) : null,
+							status: (form.data.status as 'active' | 'completed' | 'paused') || 'active',
+							userId: user.id.toString()
 						},
-						userId
+						user
 					)
 				);
 
 			logger.info('Resource created successfully');
 		} catch (error) {
 			logger.error('Failed to create resource', error);
-			return fail(500, { error: 'Failed to create savings goal' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to create savings goal. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, createGoal: true };
-	},
+		return { success: true, createGoal: true, form };
+	}),
 
-	updateGoal: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+	updateGoal: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(savingsGoalSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const data = await request.formData();
-		const hasId = data.has('id');
-		const hasName = data.has('name');
-		const hasTargetAmount = data.has('targetAmount');
-
-		if (!hasId || !hasName || !hasTargetAmount) {
-			return fail(400, { hasId, hasName, hasTargetAmount });
-		}
-
-		const goalId = data.get('id')!.toString();
+		const goalId = form.data.id!;
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.update(savingsGoal)
 				.set(
 					withAuditFieldsForUpdate(
 						{
-							name: data.get('name')?.toString() || '',
-							description: data.get('description')?.toString() || null,
-							targetAmount: Number(data.get('targetAmount')),
-							targetDate: data.get('targetDate')?.toString()
-								? formatDateForStorage(data.get('targetDate')!.toString())
-								: null,
-							status:
-								(data.get('status')?.toString() as 'active' | 'completed' | 'paused') || 'active'
+							name: form.data.name,
+							description: form.data.description || null,
+							targetAmount: form.data.targetAmount,
+							targetDate: form.data.targetDate ? formatDateForStorage(form.data.targetDate) : null,
+							status: form.data.status || 'active'
 						},
-						userId
+						user
 					)
 				)
 				.where(eq(savingsGoal.id, goalId));
@@ -139,25 +129,24 @@ export const actions = {
 			logger.info('Resource updated successfully');
 		} catch (error) {
 			logger.error('Failed to update resource', error);
-			return fail(500, { error: 'Failed to update savings goal' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update savings goal. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, updateGoal: true };
-	},
+		return { success: true, updateGoal: true, form };
+	}),
 
-	deleteGoal: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+	deleteGoal: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(deleteSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const data = await request.formData();
-		const hasId = data.has('id');
-
-		if (!hasId) {
-			return fail(400, { hasId });
-		}
-
-		const goalId = data.get('id')!.toString();
+		const goalId = form.data.id;
 		try {
 			// Check if contributions exist for this goal
 			const existingContributions = await getDb()
@@ -166,94 +155,88 @@ export const actions = {
 				.where(eq(contribution.goalId, goalId));
 
 			if (existingContributions.length > 0) {
-				return fail(400, {
-					error: `Cannot delete goal. Please delete all ${existingContributions.length} contribution(s) first.`
-				});
+				return message(
+					form,
+					{
+						type: 'error',
+						text: `Cannot delete goal. Please delete all ${existingContributions.length} contribution(s) first.`
+					},
+					{ status: 400 }
+				);
 			}
 
 			// Delete the goal (only if no contributions exist)
 			await getDb().delete(savingsGoal).where(eq(savingsGoal.id, goalId));
 
-			logger.info('Resource deleted successfully');
+			logger.info('Resource deleted successfully by:', user.id);
 		} catch (error) {
 			logger.error('Failed to delete resource', error);
-			return fail(500, { error: 'Failed to delete savings goal' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to delete savings goal. A database error occurred.' },
+				{ status: 500 }
+			);
 		}
 
-		return { success: true, deleteGoal: true };
-	},
+		return { success: true, deleteGoal: true, form };
+	}),
 
-	createContribution: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
+	createContribution: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(contributionSchema));
 
-		const data = await request.formData();
-		const hasGoalId = data.has('goalId');
-		const hasAmount = data.has('amount');
-		const hasDate = data.has('date');
-
-		if (!hasGoalId || !hasAmount || !hasDate) {
-			return fail(400, { hasGoalId, hasAmount, hasDate });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.insert(contribution)
 				.values(
 					withAuditFieldsForCreate(
 						{
-							goalId: data.get('goalId')?.toString() || '',
-							amount: Number(data.get('amount')),
-							date: formatDateForStorage(data.get('date')?.toString() || ''),
-							description: data.get('description')?.toString() || null,
-							userId: userId
+							goalId: form.data.goalId,
+							amount: form.data.amount,
+							date: formatDateForStorage(form.data.date),
+							description: form.data.description || null,
+							userId: user.id.toString()
 						},
-						userId
+						user
 					)
 				);
 
 			logger.info('contribution created successfully');
 		} catch (error) {
 			logger.error('Failed to create contribution', error);
-			return fail(500, { error: 'Failed to create contribution' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to create contribution. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, createContribution: true };
-	},
+		return { success: true, createContribution: true, form };
+	}),
 
-	updateContribution: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+	updateContribution: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(contributionSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const data = await request.formData();
-		const hasId = data.has('id');
-		const hasGoalId = data.has('goalId');
-		const hasAmount = data.has('amount');
-		const hasDate = data.has('date');
-
-		if (!hasId || !hasGoalId || !hasAmount || !hasDate) {
-			return fail(400, { hasId, hasGoalId, hasAmount, hasDate });
-		}
-
-		const contributionId = data.get('id')!.toString();
+		const contributionId = form.data.id!;
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.update(contribution)
 				.set(
 					withAuditFieldsForUpdate(
 						{
-							goalId: data.get('goalId')?.toString() || '',
-							amount: Number(data.get('amount')),
-							date: formatDateForStorage(data.get('date')?.toString() || ''),
-							description: data.get('description')?.toString() || null
+							goalId: form.data.goalId,
+							amount: form.data.amount,
+							date: formatDateForStorage(form.data.date),
+							description: form.data.description || null
 						},
-						userId
+						user
 					)
 				)
 				.where(eq(contribution.id, contributionId));
@@ -261,34 +244,37 @@ export const actions = {
 			logger.info('Resource updated successfully');
 		} catch (error) {
 			logger.error('Failed to update contribution', error);
-			return fail(500, { error: 'Failed to update contribution' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update contribution. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, updateContribution: true };
-	},
+		return { success: true, updateContribution: true, form };
+	}),
 
-	deleteContribution: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+	deleteContribution: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(deleteSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const data = await request.formData();
-		const hasId = data.has('id');
-
-		if (!hasId) {
-			return fail(400, { hasId });
-		}
-
-		const contributionId = data.get('id')!.toString();
+		const contributionId = form.data.id;
 		try {
 			await getDb().delete(contribution).where(eq(contribution.id, contributionId));
 
-			logger.info('Resource deleted successfully');
+			logger.info('Resource deleted successfully by:', user.id);
 		} catch (error) {
 			logger.error('Failed to delete contribution', error);
-			return fail(500, { error: 'Failed to delete contribution' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to delete contribution. A database error occurred.' },
+				{ status: 500 }
+			);
 		}
 
-		return { success: true, deleteContribution: true };
-	}
+		return { success: true, deleteContribution: true, form };
+	})
 } satisfies Actions;

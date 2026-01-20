@@ -25,3 +25,17 @@ export const incomeSchema = z.object({
 		.regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
 	amount: z.number().positive('Amount must be positive')
 });
+
+export const recurringSchema = z.object({
+	id: z.string().optional(),
+	amount: z.number().positive('Amount must be positive'),
+	description: z
+		.string()
+		.min(1, 'Description is required')
+		.max(500, 'Description must be at most 500 characters'),
+	merchant: z
+		.string()
+		.min(1, 'Merchant is required')
+		.max(100, 'Merchant must be at most 100 characters'),
+	cadence: z.string().min(1, 'Cadence is required').max(50, 'Cadence must be at most 50 characters')
+});

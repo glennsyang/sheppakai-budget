@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
-	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import type { savingsGoalSchema } from '$lib/formSchemas/savings';
 	import { extractDateFromTimestamp } from '$lib/utils/dates';
 
 	interface Props {
@@ -21,39 +24,61 @@
 		};
 		isEditing?: boolean;
 		isLoading?: boolean;
+		savingsGoalForm: SuperValidated<z.infer<typeof savingsGoalSchema>>;
 	}
 
 	let {
 		open = $bindable(),
 		initialData,
 		isEditing,
-		isLoading = $bindable(false)
+		isLoading = $bindable(false),
+		savingsGoalForm
 	}: Props = $props();
 
-	let id = $state('');
-	let name = $state('');
-	let description = $state('');
-	let targetAmount = $state('');
-	let targetDate = $state('');
-	let status = $state<'active' | 'completed' | 'paused'>('active');
+	const formInstance = $derived(
+		superForm(savingsGoalForm, {
+			resetForm: true,
+			onUpdate: ({ form }) => {
+				if (form.valid) {
+					open = false;
+					toast.success(
+						isEditing ? 'Savings goal updated successfully!' : 'Savings goal created successfully!'
+					);
+				}
+				if ($message?.type === 'error') {
+					toast.error(
+						`Error ${isEditing ? 'updating' : 'creating'} savings goal. Reason: ${$message.text}`
+					);
+				}
+			},
+			onError: ({ result }) => {
+				toast.error(
+					`There was an error ${isEditing ? 'updating' : 'creating'} the savings goal. Reason: ${result.error.message}`
+				);
+			}
+		})
+	);
+
+	const { form, errors, enhance, message, submitting } = $derived(formInstance);
 
 	$effect(() => {
 		if (open) {
 			if (initialData) {
-				id = initialData.id || '';
-				name = initialData.name || '';
-				description = initialData.description || '';
-				targetAmount = initialData.targetAmount ? initialData.targetAmount.toString() : '';
-				// Extract date portion from timestamp for editing
-				targetDate = initialData.targetDate ? extractDateFromTimestamp(initialData.targetDate) : '';
-				status = initialData.status || 'active';
+				$form.id = initialData.id || '';
+				$form.name = initialData.name || '';
+				$form.description = initialData.description || '';
+				$form.targetAmount = initialData.targetAmount || 0;
+				$form.targetDate = initialData.targetDate
+					? extractDateFromTimestamp(initialData.targetDate)
+					: '';
+				$form.status = initialData.status || 'active';
 			} else {
-				id = '';
-				name = '';
-				description = '';
-				targetAmount = '';
-				targetDate = '';
-				status = 'active';
+				$form.id = '';
+				$form.name = '';
+				$form.description = '';
+				$form.targetAmount = 0;
+				$form.targetDate = '';
+				$form.status = 'active';
 			}
 		}
 	});
@@ -73,38 +98,22 @@
 			class="space-y-4"
 			method="POST"
 			action={isEditing ? '/savings/goals?/updateGoal' : '/savings/goals?/createGoal'}
-			use:enhance={() => {
-				open = false;
-				isLoading = true;
-
-				return async ({ result, update }) => {
-					if (result.type === 'success') {
-						toast.success(
-							isEditing
-								? 'Savings goal updated successfully!'
-								: 'Savings goal created successfully!'
-						);
-					} else {
-						toast.error(
-							`There was an error ${isEditing ? 'updating' : 'creating'} the savings goal.`
-						);
-					}
-					isLoading = false;
-					await update();
-				};
-			}}
+			use:enhance
 		>
-			<input type="hidden" name="id" value={id} />
+			<input type="hidden" name="id" bind:value={$form.id} />
 
 			<div class="space-y-2">
 				<label for="goal-name" class="text-sm font-medium">Goal Name</label>
 				<Input
 					id="goal-name"
 					name="name"
-					bind:value={name}
+					bind:value={$form.name}
 					placeholder="e.g., Dream Vacation to Bali"
 					required
 				/>
+				{#if $errors.name}
+					<p class="text-sm text-destructive">{$errors.name}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -112,10 +121,13 @@
 				<Textarea
 					id="goal-description"
 					name="description"
-					bind:value={description}
+					bind:value={$form.description}
 					placeholder="Add details about your goal..."
 					rows={2}
 				/>
+				{#if $errors.description}
+					<p class="text-sm text-destructive">{$errors.description}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -126,22 +138,28 @@
 					type="number"
 					step="0.01"
 					min="0"
-					bind:value={targetAmount}
+					bind:value={$form.targetAmount}
 					placeholder="0.00"
 					required
 				/>
+				{#if $errors.targetAmount}
+					<p class="text-sm text-destructive">{$errors.targetAmount}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
 				<label for="goal-target-date" class="text-sm font-medium">Target Date (Optional)</label>
-				<Input id="goal-target-date" name="targetDate" type="date" bind:value={targetDate} />
+				<Input id="goal-target-date" name="targetDate" type="date" bind:value={$form.targetDate} />
+				{#if $errors.targetDate}
+					<p class="text-sm text-destructive">{$errors.targetDate}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
 				<label for="goal-status" class="text-sm font-medium">Status</label>
-				<Select.Root type="single" name="status" bind:value={status} required>
+				<Select.Root type="single" name="status" bind:value={$form.status} required>
 					<Select.Trigger class="w-full">
-						{status.charAt(0).toUpperCase() + status.slice(1)}
+						{$form.status.charAt(0).toUpperCase() + $form.status.slice(1)}
 					</Select.Trigger>
 					<Select.Content>
 						<Select.Item value="active" label="Active">Active</Select.Item>
@@ -149,11 +167,14 @@
 						<Select.Item value="paused" label="Paused">Paused</Select.Item>
 					</Select.Content>
 				</Select.Root>
+				{#if $errors.status}
+					<p class="text-sm text-destructive">{$errors.status}</p>
+				{/if}
 			</div>
 
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
-				<Button type="submit" disabled={!name || !targetAmount}>
+				<Button type="submit" disabled={$submitting || !$form.name || !$form.targetAmount}>
 					{isEditing ? 'Save Changes' : 'Create Goal'}
 				</Button>
 			</Dialog.Footer>

@@ -4,6 +4,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { changePasswordSchema, updateProfileSchema } from '$lib/formSchemas';
+import { requireAuth } from '$lib/server/actions/auth-guard';
 import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { account, user } from '$lib/server/db/schema';
@@ -47,11 +48,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions = {
-	update: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	update: requireAuth(async ({ request }, currentUser) => {
 		const form = await superValidate(request, zod4(updateProfileSchema));
 
 		if (!form.valid) {
@@ -59,7 +56,7 @@ export const actions = {
 		}
 
 		try {
-			await getDb().update(user).set({ name: form.data.name }).where(eq(user.id, locals.user.id));
+			await getDb().update(user).set({ name: form.data.name }).where(eq(user.id, currentUser.id));
 
 			logger.info('User profile updated successfully');
 			return {
@@ -77,13 +74,9 @@ export const actions = {
 				}
 			});
 		}
-	},
+	}),
 
-	changePassword: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	changePassword: requireAuth(async ({ request }, currentUser) => {
 		const form = await superValidate(request, zod4(changePasswordSchema));
 
 		if (!form.valid) {
@@ -103,7 +96,7 @@ export const actions = {
 			return {
 				form: {
 					...form,
-					message: 'Password changed successfully'
+					message: `Password changed successfully for user ${currentUser.name}.`
 				}
 			};
 		} catch (error) {
@@ -115,5 +108,5 @@ export const actions = {
 				}
 			});
 		}
-	}
+	})
 } satisfies Actions;

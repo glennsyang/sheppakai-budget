@@ -4,6 +4,7 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { transactionSchema } from '$lib/formSchemas';
+import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -77,11 +78,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions = {
-	create: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	create: requireAuth(async ({ request }, user) => {
 		const form = await superValidate(request, zod4(transactionSchema));
 
 		if (!form.valid) {
@@ -89,8 +86,6 @@ export const actions = {
 		}
 
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.insert(transaction)
 				.values(
@@ -101,9 +96,9 @@ export const actions = {
 							notes: form.data.notes,
 							date: formatDateForStorage(form.data.date),
 							categoryId: form.data.categoryId,
-							userId: userId
+							userId: user.id.toString()
 						},
-						userId
+						user
 					)
 				);
 
@@ -118,13 +113,9 @@ export const actions = {
 		}
 
 		return { success: true, create: true, form };
-	},
+	}),
 
-	update: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	update: requireAuth(async ({ request }, user) => {
 		const form = await superValidate(request, zod4(transactionSchema));
 
 		if (!form.valid) {
@@ -133,8 +124,6 @@ export const actions = {
 
 		const transactionId = form.data.id!;
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.update(transaction)
 				.set(
@@ -146,7 +135,7 @@ export const actions = {
 							date: formatDateForStorage(form.data.date),
 							categoryId: form.data.categoryId
 						},
-						userId
+						user
 					)
 				)
 				.where(eq(transaction.id, transactionId));
@@ -162,13 +151,9 @@ export const actions = {
 		}
 
 		return { success: true, update: true, form };
-	},
+	}),
 
-	delete: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	delete: requireAuth(async ({ request }, user) => {
 		const data = await request.formData();
 		const hasId = data.has('id');
 
@@ -181,12 +166,12 @@ export const actions = {
 		try {
 			await getDb().delete(transaction).where(eq(transaction.id, transactionId));
 
-			logger.info('Transaction deleted successfully');
+			logger.info('Transaction deleted successfully by:', user.id);
 		} catch (error) {
 			logger.error('Failed to delete transaction', error);
 			return fail(500, { error: 'Failed to delete transaction entry' });
 		}
 
 		return { success: true, update: true };
-	}
+	})
 } satisfies Actions;

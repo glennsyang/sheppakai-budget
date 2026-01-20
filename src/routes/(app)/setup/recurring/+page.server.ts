@@ -1,6 +1,10 @@
 import { fail } from '@sveltejs/kit';
 import { asc, eq } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
+import { recurringSchema } from '$lib/formSchemas/finances';
+import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
 import { recurring } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -13,93 +17,76 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return [];
 	}
 
-	return {
-		recurring: await getDb().query.recurring.findMany({
-			with: {
-				user: true
-			},
-			orderBy: [asc(recurring.merchant)]
-		})
-	};
+	const recurrings = await getDb().query.recurring.findMany({
+		with: {
+			user: true
+		},
+		orderBy: [asc(recurring.merchant)]
+	});
+
+	const form = await superValidate(zod4(recurringSchema));
+
+	return { recurrings, form };
 };
 
 export const actions = {
-	create: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
+	create: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(recurringSchema));
 
-		const data = await request.formData();
-		const hasAmount = data.has('amount');
-		const hasDescription = data.has('description');
-		const hasMerchant = data.has('merchant');
-		const hasCadence = data.has('cadence');
-
-		if (!hasAmount || !hasDescription || !hasMerchant) {
-			return fail(400, { hasAmount, hasDescription, hasMerchant, hasCadence });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.insert(recurring)
 				.values(
 					withAuditFieldsForCreate(
 						{
-							amount: Number(data.get('amount')),
-							description: data.get('description')?.toString() || '',
-							date: data.get('date')?.toString() || '',
-							merchant: data.get('merchant')?.toString() || '',
-							cadence: data.get('cadence')?.toString() || '',
-							userId: userId
+							amount: Number(form.data.amount),
+							description: form.data.description,
+							merchant: form.data.merchant,
+							cadence: form.data.cadence,
+							userId: user.id.toString()
 						},
-						userId
+						user
 					)
 				);
 
 			logger.info('recurring created successfully');
 		} catch (error) {
 			logger.error('Failed to create recurring', error);
-			return fail(500, { error: 'Failed to create recurring entry' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to create recurring expense. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, create: true };
-	},
-	update: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		return { success: true, create: true, form };
+	}),
+
+	update: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(recurringSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const data = await request.formData();
+		const recurringId = form.data.id!;
 
-		const hasId = data.has('id');
-		const hasAmount = data.has('amount');
-		const hasDescription = data.has('description');
-		const hasMerchant = data.has('merchant');
-		const hasCadence = data.has('cadence');
-
-		if (!hasId || !hasAmount || !hasDescription || !hasMerchant || !hasCadence) {
-			return fail(400, { hasId, hasDescription, hasAmount, hasMerchant, hasCadence });
-		}
-
-		// Update the recurring entry in the database
-		const recurringId = data.get('id')!.toString();
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.update(recurring)
 				.set(
 					withAuditFieldsForUpdate(
 						{
-							amount: Number(data.get('amount')),
-							description: data.get('description')?.toString() || '',
-							date: data.get('date')?.toString() || '',
-							merchant: data.get('merchant')?.toString() || '',
-							cadence: data.get('cadence')?.toString() || ''
+							amount: form.data.amount,
+							description: form.data.description,
+							merchant: form.data.merchant,
+							cadence: form.data.cadence
 						},
-						userId
+						user
 					)
 				)
 				.where(eq(recurring.id, recurringId));
@@ -107,16 +94,17 @@ export const actions = {
 			logger.info('recurring updated successfully');
 		} catch (error) {
 			logger.error('Failed to update recurring', error);
-			return fail(500, { error: 'Failed to update recurring entry' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update recurring expense. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, update: true };
-	},
-	delete: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
+		return { success: true, update: true, form };
+	}),
 
+	delete: requireAuth(async ({ request }, user) => {
 		const data = await request.formData();
 		const hasId = data.has('id');
 
@@ -129,12 +117,12 @@ export const actions = {
 		try {
 			await getDb().delete(recurring).where(eq(recurring.id, recurringId));
 
-			logger.info('recurring deleted successfully');
+			logger.info('recurring deleted successfully by:', user.id);
 		} catch (error) {
 			logger.error('Failed to delete recurring', error);
 			return fail(500, { error: 'Failed to delete recurring entry' });
 		}
 
 		return { success: true, update: true };
-	}
+	})
 } satisfies Actions;

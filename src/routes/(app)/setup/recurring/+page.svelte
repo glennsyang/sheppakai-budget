@@ -10,15 +10,19 @@
 	import { columns } from './columns';
 
 	import type { Recurring } from '$lib';
+	import { setContext } from 'svelte';
 
 	let { data }: PageProps = $props();
+
+	// svelte-ignore state_referenced_locally
+	setContext('recurringForm', data.form);
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
 
 	// Calculate total recurring expenses
 	let totalRecurring = $derived(
-		((data.recurring as Recurring[]) || []).reduce((sum, item) => sum + item.amount, 0)
+		((data.recurrings as Recurring[]) || []).reduce((sum, item) => sum + item.amount, 0)
 	);
 </script>
 
@@ -49,7 +53,7 @@
 					{#if loading}
 						<TableSkeleton rows={5} columns={4} />
 					{:else}
-						<DataTable {columns} data={data.recurring as Recurring[]} />
+						<DataTable {columns} data={data.recurrings as Recurring[]} />
 					{/if}
 				</div>
 			</div>
@@ -71,4 +75,4 @@
 	</div>
 </div>
 
-<RecurringModal bind:open={openModal} bind:isLoading={loading} />
+<RecurringModal bind:open={openModal} bind:isLoading={loading} recurringForm={data.form!} />

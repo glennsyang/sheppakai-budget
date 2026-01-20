@@ -3,6 +3,8 @@
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
 	import { getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { superForm } from 'sveltekit-superforms';
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -18,6 +20,28 @@
 	import type { Budget, Category, ChartData } from '$lib';
 
 	let { data }: PageProps = $props();
+
+	// Initialize superform
+	const formInstance = $derived(
+		superForm(data.form!, {
+			resetForm: false,
+			onUpdate: ({ form }) => {
+				if (form.valid) {
+					toast.success('Budget saved successfully!');
+					// Reset editing states
+					editingCustomAmount = false;
+				}
+				if ($message?.type === 'error') {
+					toast.error(`Error saving budget: ${$message.text}`);
+				}
+			},
+			onError: ({ result }) => {
+				toast.error(`Failed to save budget: ${result.error.message}`);
+			}
+		})
+	);
+
+	const { form, errors, enhance, message, submitting } = $derived(formInstance);
 
 	let selectedCategoryId = $state<string | null>(null);
 	let editAmount = $state<string>('');

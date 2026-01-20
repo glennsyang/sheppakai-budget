@@ -4,6 +4,7 @@
 	import PencilIcon from '@lucide/svelte/icons/pencil';
 	import XIcon from '@lucide/svelte/icons/x';
 
+	import { enhance as enhanceAction } from '$app/forms';
 	import { Input } from '$lib/components/ui/input';
 
 	interface Props {
@@ -69,6 +70,7 @@
 				<form
 					method="POST"
 					action={budgetId ? '?/update' : '?/create'}
+					use:enhanceAction
 					class="flex flex-col items-center gap-2"
 				>
 					{#if budgetId}
@@ -122,7 +124,12 @@
 	</div>
 {:else}
 	<!-- Preset Amount Card -->
-	<form method="POST" action={budgetId ? '?/update' : '?/create'} class="relative">
+	<form
+		method="POST"
+		action={budgetId ? '?/update' : '?/create'}
+		use:enhanceAction
+		class="relative"
+	>
 		{#if budgetId}
 			<input type="hidden" name="id" value={budgetId} />
 		{/if}

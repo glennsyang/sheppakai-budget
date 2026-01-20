@@ -1,6 +1,10 @@
 import { fail } from '@sveltejs/kit';
 import { and, desc, eq, sql } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
+import { budgetSchema } from '$lib/formSchemas';
+import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -98,6 +102,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		.groupBy(transaction.categoryId, sql`substr(${transaction.date}, 1, 7)`)
 		.all();
 
+	const form = await superValidate(zod4(budgetSchema));
+
 	return {
 		budget: await getDb().query.budget.findMany({
 			with: {
@@ -114,100 +120,71 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		historicalTransactions,
 		last6Months,
 		categories: await getDb().query.category.findMany(),
-		recurring: await getDb().query.recurring.findMany()
+		recurring: await getDb().query.recurring.findMany(),
+		form
 	};
 };
 
 export const actions = {
-	create: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
+	create: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(budgetSchema));
 
-		const data = await request.formData();
-		logger.debug('Form data received');
-		const hasAmount = data.has('amount');
-		const hasYear = data.has('year');
-		const hasMonth = data.has('month');
-		const hasCategoryId = data.has('categoryId');
-
-		if (!hasAmount || !hasYear || !hasMonth || !hasCategoryId) {
-			return fail(400, { hasAmount, hasYear, hasMonth, hasCategoryId });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
-			const userId = locals.user.id.toString();
-			const presetType = data.get('presetType')?.toString() || null;
-			const monthValue = data.get('month')?.toString() || '';
-			const yearValue = data.get('year')?.toString() || '';
-
-			// Ensure month is zero-padded
-			const paddedMonth = monthValue.padStart(2, '0');
-
 			await getDb()
 				.insert(budget)
 				.values(
 					withAuditFieldsForCreate(
 						{
-							amount: Number(data.get('amount')),
-							year: yearValue,
-							month: paddedMonth,
-							presetType: presetType,
-							categoryId: data.get('categoryId')?.toString() || '',
-							userId: userId
+							amount: form.data.amount,
+							year: form.data.year,
+							month: form.data.month,
+							presetType: form.data.presetType || null,
+							categoryId: form.data.categoryId,
+							userId: user.id.toString()
 						},
-						userId
+						user
 					)
 				);
 
 			logger.info('budget created successfully');
 		} catch (error) {
 			logger.error('Failed to create budget', error);
-			return fail(500, { error: 'Failed to create budget entry' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to create budget. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, create: true };
-	},
-	update: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		return { success: true, create: true, form };
+	}),
+
+	update: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(budgetSchema));
+
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const data = await request.formData();
+		const budgetId = form.data.id!;
 
-		const hasId = data.has('id');
-		const hasAmount = data.has('amount');
-		const hasYear = data.has('year');
-		const hasMonth = data.has('month');
-		const hasCategoryId = data.has('categoryId');
-
-		if (!hasId || !hasAmount || !hasYear || !hasMonth || !hasCategoryId) {
-			return fail(400, { hasId, hasAmount, hasYear, hasMonth, hasCategoryId });
-		}
-
-		// Update the budget entry in the database
-		const budgetId = data.get('id')!.toString();
 		try {
-			const userId = locals.user.id.toString();
-			const presetType = data.get('presetType')?.toString() || null;
-			const monthValue = data.get('month')?.toString() || '';
-			const yearValue = data.get('year')?.toString() || '';
-
-			// Ensure month is zero-padded
-			const paddedMonth = monthValue.padStart(2, '0');
-
 			await getDb()
 				.update(budget)
 				.set(
 					withAuditFieldsForUpdate(
 						{
-							amount: Number(data.get('amount')),
-							year: yearValue,
-							month: paddedMonth,
-							presetType: presetType,
-							categoryId: data.get('categoryId')?.toString()
+							amount: form.data.amount,
+							year: form.data.year,
+							month: form.data.month,
+							presetType: form.data.presetType || null,
+							categoryId: form.data.categoryId
 						},
-						userId
+						user
 					)
 				)
 				.where(eq(budget.id, budgetId));
@@ -215,34 +192,33 @@ export const actions = {
 			logger.info('budget updated successfully');
 		} catch (error) {
 			logger.error('Failed to update budget', error);
-			return fail(500, { error: 'Failed to update budget entry' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update budget. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, update: true };
-	},
-	delete: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
+		return { success: true, update: true, form };
+	}),
 
+	delete: requireAuth(async ({ request }, user) => {
 		const data = await request.formData();
-		const hasId = data.has('id');
+		const budgetId = data.get('id')?.toString();
 
-		if (!hasId) {
-			return fail(400, { hasId });
+		if (!budgetId) {
+			return fail(400, { error: 'Budget ID is required' });
 		}
-
-		const budgetId = data.get('id')!.toString();
 
 		try {
 			await getDb().delete(budget).where(eq(budget.id, budgetId));
 
-			logger.info('budget deleted successfully');
+			logger.info('budget deleted successfully by:', user.id);
 		} catch (error) {
 			logger.error('Failed to delete budget', error);
 			return fail(500, { error: 'Failed to delete budget entry' });
 		}
 
-		return { success: true, update: true };
-	}
+		return { success: true, delete: true };
+	})
 } satisfies Actions;

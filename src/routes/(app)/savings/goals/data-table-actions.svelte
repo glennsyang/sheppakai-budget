@@ -1,11 +1,14 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import { getContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import ContributionModal from '$lib/components/ContributionModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import type { contributionSchema } from '$lib/formSchemas/savings';
 
 	import type { Contribution, SavingsGoal } from '$lib';
 
@@ -15,6 +18,9 @@
 	let openDeleteModal = $state<boolean>(false);
 
 	const goals = getContext('savingsGoals') as () => SavingsGoal[];
+	const contributionForm = getContext('contributionForm') as SuperValidated<
+		z.infer<typeof contributionSchema>
+	>;
 </script>
 
 <DropdownMenu.Root>
@@ -43,6 +49,7 @@
 	}}
 	isEditing
 	goals={goals()}
+	{contributionForm}
 />
 
 <ConfirmModal

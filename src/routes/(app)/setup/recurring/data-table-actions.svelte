@@ -1,14 +1,22 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import { getContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import type { recurringSchema } from '$lib/formSchemas';
 
 	import type { Recurring } from '$lib';
 
 	let { id, recurringData }: { id: string; recurringData: Recurring } = $props();
+
+	const recurringForm = getContext('recurringForm') as SuperValidated<
+		z.infer<typeof recurringSchema>
+	>;
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
@@ -38,6 +46,7 @@
 		cadence: recurringData?.cadence,
 		amount: recurringData?.amount
 	}}
+	{recurringForm}
 	isEditing
 />
 

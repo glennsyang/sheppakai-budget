@@ -14,7 +14,7 @@ SvelteKit budget tracking app using Svelte 5, Tailwind CSS, SQLite (better-sqlit
 ### Database Patterns
 
 - **Audit fields**: All tables have `createdBy`, `updatedBy`, `createdAt`, `updatedAt`
-- Use `withAuditFieldsForCreate(data, userId)` and `withAuditFieldsForUpdate(data, userId)` from `$lib/server/db/utils.ts`
+- Use `withAuditFieldsForCreate(data, user)` and `withAuditFieldsForUpdate(data, user)` from `$lib/server/db/utils.ts`
 - Foreign keys reference `user.id` for audit fields
 - Schema defined in `/src/lib/server/db/schema/` with separate files per table
 - Use Drizzle's relational query API: `db.query.transaction.findMany({ with: { category: true, user: true } })`

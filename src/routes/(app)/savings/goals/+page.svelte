@@ -13,15 +13,25 @@
 	import { columns } from './columns';
 
 	import type { Contribution, SavingsGoalWithProgress } from '$lib';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { contributionSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
+	import type { z } from 'zod';
 
 	interface Props {
 		data: {
 			goals: Array<SavingsGoalWithProgress>;
 			contributions: Contribution[];
+			savingsGoalForm: SuperValidated<z.infer<typeof savingsGoalSchema>>;
+			contributionForm: SuperValidated<z.infer<typeof contributionSchema>>;
 		};
 	}
 
 	let { data }: Props = $props();
+
+	// svelte-ignore state_referenced_locally
+	setContext('savingsGoalForm', data.savingsGoalForm);
+	// svelte-ignore state_referenced_locally
+	setContext('contributionForm', data.contributionForm);
 
 	// Make goals available to child components via context
 	setContext('savingsGoals', () => data.goals);
@@ -189,6 +199,7 @@
 			}
 		: undefined}
 	isEditing={editingGoal !== null}
+	savingsGoalForm={data.savingsGoalForm}
 />
 
 <ContributionModal
@@ -196,6 +207,7 @@
 	bind:isLoading={loading}
 	goals={data.goals}
 	preselectedGoalId={selectedGoalId}
+	contributionForm={data.contributionForm}
 />
 
 <ConfirmModal

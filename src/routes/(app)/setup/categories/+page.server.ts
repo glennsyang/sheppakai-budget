@@ -4,6 +4,7 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { categorySchema } from '$lib/formSchemas';
+import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
 import { category } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -26,11 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions = {
-	create: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	create: requireAuth(async ({ request }, user) => {
 		const form = await superValidate(request, zod4(categorySchema));
 
 		if (!form.valid) {
@@ -38,8 +35,6 @@ export const actions = {
 		}
 
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.insert(category)
 				.values(
@@ -47,9 +42,9 @@ export const actions = {
 						{
 							name: form.data.name,
 							description: form.data.description,
-							userId: userId
+							userId: user.id.toString()
 						},
-						userId
+						user
 					)
 				);
 
@@ -64,13 +59,9 @@ export const actions = {
 		}
 
 		return { success: true, create: true, form };
-	},
+	}),
 
-	update: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	update: requireAuth(async ({ request }, user) => {
 		const form = await superValidate(request, zod4(categorySchema));
 
 		if (!form.valid) {
@@ -80,8 +71,6 @@ export const actions = {
 		const categoryId = form.data.id!;
 
 		try {
-			const userId = locals.user.id.toString();
-
 			await getDb()
 				.update(category)
 				.set(
@@ -90,7 +79,7 @@ export const actions = {
 							name: form.data.name,
 							description: form.data.description
 						},
-						userId
+						user
 					)
 				)
 				.where(eq(category.id, categoryId));
@@ -106,13 +95,9 @@ export const actions = {
 		}
 
 		return { success: true, update: true, form };
-	},
+	}),
 
-	delete: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
+	delete: requireAuth(async ({ request }, user) => {
 		const data = await request.formData();
 		const hasId = data.has('id');
 
@@ -136,12 +121,12 @@ export const actions = {
 
 			await getDb().delete(category).where(eq(category.id, categoryId));
 
-			logger.info('Resource deleted successfully');
+			logger.info('Resource deleted successfully by:', user.id);
 		} catch (error) {
 			logger.error('Failed to delete category', error);
 			return fail(500, { error: 'Failed to delete category' });
 		}
 
 		return { success: true, delete: true };
-	}
+	})
 } satisfies Actions;
