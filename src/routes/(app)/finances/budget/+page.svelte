@@ -41,7 +41,7 @@
 		})
 	);
 
-	const { form, errors, enhance, message, submitting } = $derived(formInstance);
+	const { message } = $derived(formInstance);
 
 	let selectedCategoryId = $state<string | null>(null);
 	let editAmount = $state<string>('');
