@@ -12,7 +12,7 @@
 
 	let { data }: PageProps = $props();
 
-	// Provide categoryForm to data-table-actions
+	// svelte-ignore state_referenced_locally
 	setContext('categoryForm', data.form);
 
 	let openModal = $state<boolean>(false);

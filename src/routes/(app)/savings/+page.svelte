@@ -24,7 +24,7 @@
 
 	let { data }: Props = $props();
 
-	// Provide savingsForm to data-table-actions
+	// svelte-ignore state_referenced_locally
 	setContext('savingsForm', data.savingsForm);
 
 	let openModal = $state<boolean>(false);

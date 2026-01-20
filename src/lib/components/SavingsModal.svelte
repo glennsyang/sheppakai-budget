@@ -49,7 +49,9 @@
 			},
 			onError: ({ result }) => {
 				// Catastrophic DB crashes (Form data is lost)
-				toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the savings entry.`);
+				toast.error(
+					`There was an error ${isEditing ? 'updating' : 'creating'} the savings entry. Reason: ${result.error.message}`
+				);
 			}
 		})
 	);

@@ -17,7 +17,7 @@
 
 	let { data }: PageProps = $props();
 
-	// Provide incomeForm to data-table-actions
+	// svelte-ignore state_referenced_locally
 	setContext('incomeForm', data.form);
 
 	let openModal = $state<boolean>(false);
