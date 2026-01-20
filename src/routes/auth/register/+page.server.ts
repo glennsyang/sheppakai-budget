@@ -1,28 +1,13 @@
 import { fail, isRedirect, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
 
+import { registerSchema } from '$lib/formSchemas';
 import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import { getBetterAuthErrorMessage } from '$lib/utils';
 
 import type { Actions, PageServerLoad } from './$types';
-
-const registerSchema = z
-	.object({
-		email: z.email('Please enter a valid email address'),
-		name: z
-			.string()
-			.min(2, 'Name must be at least 2 characters')
-			.max(100, 'Name must be at most 100 characters'),
-		password: z.string().min(12, 'Password must be at least 12 characters'),
-		confirmPassword: z.string().min(12, 'Password must be at least 12 characters')
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords don't match",
-		path: ['confirmPassword']
-	});
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Redirect if already signed in

@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
-	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import type { savingsSchema } from '$lib/formSchemas';
+	import { logger } from '$lib/server/logger';
 
 	interface Props {
 		open: boolean;
@@ -17,32 +21,55 @@
 		};
 		isEditing?: boolean;
 		isLoading?: boolean;
+		savingsForm: SuperValidated<z.infer<typeof savingsSchema>>;
 	}
 
 	let {
 		open = $bindable(),
 		initialData,
 		isEditing,
-		isLoading = $bindable(false)
+		isLoading = $bindable(false),
+		savingsForm
 	}: Props = $props();
 
-	let id = $state('');
-	let title = $state('');
-	let description = $state('');
-	let amount = $state('');
+	const formInstance = $derived(
+		superForm(savingsForm, {
+			resetForm: true,
+			onUpdate: ({ form }) => {
+				if (form.valid) {
+					open = false;
+					toast.success(
+						isEditing ? 'Savings updated successfully!' : 'Savings created successfully!'
+					);
+				}
+				if ($message?.type === 'error') {
+					toast.error(
+						`Error ${isEditing ? 'updating' : 'creating'} savings. Reason: ${$message.text}`
+					);
+				}
+			},
+			onError: ({ result }) => {
+				// Catastrophic DB crashes (Form data is lost)
+				logger.error('Savings form submission error', result.error.message);
+				toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the savings entry.`);
+			}
+		})
+	);
+
+	const { form, errors, enhance, message, submitting } = $derived(formInstance);
 
 	$effect(() => {
 		if (open) {
 			if (initialData) {
-				id = initialData.id || '';
-				title = initialData.title || '';
-				description = initialData.description || '';
-				amount = initialData.amount ? initialData.amount.toString() : '';
+				$form.id = initialData.id || '';
+				$form.title = initialData.title || '';
+				$form.description = initialData.description || '';
+				$form.amount = initialData.amount || 0;
 			} else {
-				id = '';
-				title = '';
-				description = '';
-				amount = '';
+				$form.id = '';
+				$form.title = '';
+				$form.description = '';
+				$form.amount = 0;
 			}
 		}
 	});
@@ -62,35 +89,22 @@
 			class="space-y-4"
 			method="POST"
 			action={isEditing ? '/savings?/update' : '/savings?/create'}
-			use:enhance={() => {
-				open = false;
-				isLoading = true;
-
-				return async ({ result, update }) => {
-					if (result.type === 'success') {
-						toast.success(
-							isEditing ? 'Savings updated successfully!' : 'Savings created successfully!'
-						);
-					} else {
-						toast.error(
-							`There was an error ${isEditing ? 'updating' : 'creating'} the savings entry.`
-						);
-					}
-					isLoading = false;
-					await update();
-				};
-			}}
+			use:enhance
 		>
-			<input type="hidden" name="id" value={id} />
+			<input type="hidden" name="id" bind:value={$form.id} />
 			<div class="space-y-2">
 				<label for="savings-title" class="text-sm font-medium">Title</label>
 				<Input
 					id="savings-title"
 					name="title"
-					bind:value={title}
+					bind:value={$form.title}
 					placeholder="e.g., Emergency Fund, Vacation Savings"
+					class={$errors.title ? 'border-red-400' : ''}
 					required
 				/>
+				{#if $errors.title}
+					<p class="text-sm text-red-500">{$errors.title}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -98,10 +112,14 @@
 				<Textarea
 					id="savings-description"
 					name="description"
-					bind:value={description}
+					bind:value={$form.description}
 					placeholder="Add additional details about this savings account"
+					class={$errors.description ? 'border-red-400' : ''}
 					rows={2}
 				/>
+				{#if $errors.description}
+					<p class="text-sm text-red-500">{$errors.description}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -112,16 +130,20 @@
 					type="number"
 					step="0.01"
 					min="0"
-					bind:value={amount}
+					bind:value={$form.amount}
 					placeholder="0.00"
+					class={$errors.amount ? 'border-red-400' : ''}
 					required
 				/>
+				{#if $errors.amount}
+					<p class="text-sm text-red-500">{$errors.amount}</p>
+				{/if}
 			</div>
 
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
-				<Button type="submit" disabled={!title || !amount}>
-					{isEditing ? 'Save' : 'Create'}
+				<Button type="submit" disabled={$submitting}>
+					{$submitting ? 'Saving...' : isEditing ? 'Save' : 'Create'}
 				</Button>
 			</Dialog.Footer>
 		</form>

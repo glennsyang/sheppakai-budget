@@ -2,29 +2,14 @@ import { fail } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
 
+import { changePasswordSchema, updateProfileSchema } from '$lib/formSchemas';
 import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { account, user } from '$lib/server/db/schema';
 import { logger } from '$lib/server/logger';
 
 import type { Actions, PageServerLoad } from './$types';
-
-const updateProfileSchema = z.object({
-	name: z.string().min(1, 'Name is required').max(100, 'Name must be at most 100 characters')
-});
-
-const changePasswordSchema = z
-	.object({
-		currentPassword: z.string().min(1, 'Current password is required'),
-		newPassword: z.string().min(12, 'New password must be at least 12 characters'),
-		confirmPassword: z.string().min(1, 'Please confirm your password')
-	})
-	.refine((data) => data.newPassword === data.confirmPassword, {
-		message: "Passwords don't match",
-		path: ['confirmPassword']
-	});
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {

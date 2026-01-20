@@ -1,6 +1,8 @@
 <script lang="ts">
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { getContext } from 'svelte';
+	import { getContext, setContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -11,6 +13,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import type { transactionSchema } from '$lib/formSchemas';
 	import { months } from '$lib/utils';
 
 	import { columns } from './columns';
@@ -22,10 +25,14 @@
 			transactions: Transaction[];
 			budgets: Budget[];
 			categorySpending: Record<string, number>;
+			transactionForm: SuperValidated<z.infer<typeof transactionSchema>>;
 		};
 	}
 
 	let { data }: Props = $props();
+
+	// Provide transactionForm to data-table-actions
+	setContext('transactionForm', data.transactionForm);
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
@@ -150,4 +157,9 @@
 	</div>
 </div>
 
-<TransactionModal bind:open={openModal} bind:isLoading={loading} categories={categories()} />
+<TransactionModal
+	bind:open={openModal}
+	bind:isLoading={loading}
+	categories={categories()}
+	transactionForm={data.transactionForm}
+/>

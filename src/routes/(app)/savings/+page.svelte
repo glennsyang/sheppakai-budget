@@ -1,11 +1,15 @@
 <script lang="ts">
 	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { setContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import SavingsModal from '$lib/components/SavingsModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { DataTable } from '$lib/components/ui/data-table';
+	import type { savingsSchema } from '$lib/formSchemas';
 
 	import { columns } from './columns';
 
@@ -14,10 +18,14 @@
 	interface Props {
 		data: {
 			savings: Savings[];
+			savingsForm: SuperValidated<z.infer<typeof savingsSchema>>;
 		};
 	}
 
 	let { data }: Props = $props();
+
+	// Provide savingsForm to data-table-actions
+	setContext('savingsForm', data.savingsForm);
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
@@ -82,4 +90,4 @@
 	</div>
 </div>
 
-<SavingsModal bind:open={openModal} bind:isLoading={loading} />
+<SavingsModal bind:open={openModal} bind:isLoading={loading} savingsForm={data.savingsForm} />

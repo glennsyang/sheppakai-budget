@@ -19,7 +19,7 @@
 	// Profile form
 	// svelte-ignore state_referenced_locally
 	const profileFormStore = superForm(data.profileForm, {
-		onUpdated: ({ form }) => {
+		onUpdate: ({ form }) => {
 			if (form.message) {
 				// Reset editing state on success
 				if (form.message.includes('successfully')) {
@@ -40,7 +40,7 @@
 	// svelte-ignore state_referenced_locally
 	const passwordFormStore = superForm(data.passwordForm, {
 		resetForm: true,
-		onUpdated: ({ form }) => {
+		onUpdate: ({ form }) => {
 			if (form.message) {
 				// Reset editing state and form on success
 				if (form.message.includes('successfully')) {

@@ -1,18 +1,13 @@
 import { fail, isRedirect, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
 
+import { signInSchema } from '$lib/formSchemas';
 import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import { getBetterAuthErrorMessage } from '$lib/utils';
 
 import type { Actions, PageServerLoad } from './$types';
-
-const signInSchema = z.object({
-	email: z.email('Please enter a valid email address'),
-	password: z.string().min(12, 'Password must be at least 12 characters')
-});
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Redirect if already signed in

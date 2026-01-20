@@ -1,6 +1,9 @@
 import { fail } from '@sveltejs/kit';
 import { asc, eq } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
+import { categorySchema } from '$lib/formSchemas';
 import { getDb } from '$lib/server/db';
 import { category } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -17,7 +20,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		orderBy: [asc(category.name)]
 	});
 
-	return { categories };
+	const form = await superValidate(zod4(categorySchema));
+
+	return { categories, form };
 };
 
 export const actions = {
@@ -26,12 +31,10 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
-		const hasName = data.has('name');
-		const hasDescription = data.has('description');
+		const form = await superValidate(request, zod4(categorySchema));
 
-		if (!hasName || !hasDescription) {
-			return fail(400, { hasName, hasDescription });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
@@ -42,8 +45,8 @@ export const actions = {
 				.values(
 					withAuditFieldsForCreate(
 						{
-							name: data.get('name')?.toString() || '',
-							description: data.get('description')?.toString() || '',
+							name: form.data.name,
+							description: form.data.description,
 							userId: userId
 						},
 						userId
@@ -53,10 +56,14 @@ export const actions = {
 			logger.info('category created successfully');
 		} catch (error) {
 			logger.error('Failed to create category', error);
-			return fail(500, { error: 'Failed to create category' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to create category. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, create: true };
+		return { success: true, create: true, form };
 	},
 
 	update: async ({ request, locals }) => {
@@ -64,17 +71,13 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
+		const form = await superValidate(request, zod4(categorySchema));
 
-		const hasId = data.has('id');
-		const hasName = data.has('name');
-		const hasDescription = data.has('description');
-
-		if (!hasId || !hasName || !hasDescription) {
-			return fail(400, { hasId, hasName, hasDescription });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const categoryId = data.get('id')!.toString();
+		const categoryId = form.data.id!;
 
 		try {
 			const userId = locals.user.id.toString();
@@ -84,8 +87,8 @@ export const actions = {
 				.set(
 					withAuditFieldsForUpdate(
 						{
-							name: data.get('name')?.toString() || '',
-							description: data.get('description')?.toString() || ''
+							name: form.data.name,
+							description: form.data.description
 						},
 						userId
 					)
@@ -95,10 +98,14 @@ export const actions = {
 			logger.info('Resource updated successfully');
 		} catch (error) {
 			logger.error('Failed to update category', error);
-			return fail(500, { error: 'Failed to update category' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update category. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, update: true };
+		return { success: true, update: true, form };
 	},
 
 	delete: async ({ request, locals }) => {

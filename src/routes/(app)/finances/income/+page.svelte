@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { setContext } from 'svelte';
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -15,6 +16,9 @@
 	import { columns } from './columns';
 
 	let { data }: PageProps = $props();
+
+	// Provide incomeForm to data-table-actions
+	setContext('incomeForm', data.form);
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
@@ -98,4 +102,4 @@
 	</div>
 </div>
 
-<IncomeModal bind:open={openModal} bind:isLoading={loading} />
+<IncomeModal bind:open={openModal} bind:isLoading={loading} incomeForm={data.form!} />

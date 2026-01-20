@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { setContext } from 'svelte';
 
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
@@ -10,6 +11,9 @@
 	import { columns } from './columns';
 
 	let { data }: PageProps = $props();
+
+	// Provide categoryForm to data-table-actions
+	setContext('categoryForm', data.form);
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
@@ -45,4 +49,4 @@
 	</div>
 </div>
 
-<CategoryModal bind:open={openModal} bind:isLoading={loading} />
+<CategoryModal bind:open={openModal} bind:isLoading={loading} categoryForm={data.form!} />

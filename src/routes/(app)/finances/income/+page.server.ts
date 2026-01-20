@@ -1,6 +1,9 @@
 import { fail } from '@sveltejs/kit';
 import { and, asc, eq, sql } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
+import { incomeSchema } from '$lib/formSchemas';
 import { getDb } from '$lib/server/db';
 import { income } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -33,7 +36,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		orderBy: [asc(income.date)]
 	});
 
-	return { incomes };
+	const form = await superValidate(zod4(incomeSchema));
+
+	return { incomes, form };
 };
 
 export const actions = {
@@ -42,14 +47,10 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
-		const hasName = data.has('name');
-		const hasDescription = data.has('description');
-		const hasDate = data.has('date');
-		const hasAmount = data.has('amount');
+		const form = await superValidate(request, zod4(incomeSchema));
 
-		if (!hasName || !hasDescription || !hasDate || !hasAmount) {
-			return fail(400, { hasName, hasDescription, hasDate, hasAmount });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
@@ -60,10 +61,10 @@ export const actions = {
 				.values(
 					withAuditFieldsForCreate(
 						{
-							name: data.get('name')?.toString() || '',
-							description: data.get('description')?.toString() || '',
-							date: formatDateForStorage(data.get('date')?.toString() || ''),
-							amount: Number(data.get('amount')),
+							name: form.data.name,
+							description: form.data.description,
+							date: formatDateForStorage(form.data.date),
+							amount: form.data.amount,
 							userId: userId
 						},
 						userId
@@ -73,10 +74,14 @@ export const actions = {
 			logger.info('Income created successfully');
 		} catch (error) {
 			logger.error('Failed to create income', error);
-			return fail(500, { error: 'Failed to create income' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to create income. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, create: true };
+		return { success: true, create: true, form };
 	},
 
 	update: async ({ request, locals }) => {
@@ -84,19 +89,13 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
+		const form = await superValidate(request, zod4(incomeSchema));
 
-		const hasId = data.has('id');
-		const hasName = data.has('name');
-		const hasDescription = data.has('description');
-		const hasDate = data.has('date');
-		const hasAmount = data.has('amount');
-
-		if (!hasId || !hasName || !hasDescription || !hasDate || !hasAmount) {
-			return fail(400, { hasId, hasName, hasDescription, hasDate, hasAmount });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const incomeId = data.get('id')!.toString();
+		const incomeId = form.data.id!;
 
 		try {
 			const userId = locals.user.id.toString();
@@ -106,10 +105,10 @@ export const actions = {
 				.set(
 					withAuditFieldsForUpdate(
 						{
-							name: data.get('name')?.toString() || '',
-							description: data.get('description')?.toString() || '',
-							date: formatDateForStorage(data.get('date')?.toString() || ''),
-							amount: Number(data.get('amount'))
+							name: form.data.name,
+							description: form.data.description,
+							date: formatDateForStorage(form.data.date),
+							amount: form.data.amount
 						},
 						userId
 					)
@@ -119,10 +118,14 @@ export const actions = {
 			logger.info('Income updated successfully');
 		} catch (error) {
 			logger.error('Failed to update income', error);
-			return fail(500, { error: 'Failed to update income' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update income. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, update: true };
+		return { success: true, update: true, form };
 	},
 
 	delete: async ({ request, locals }) => {

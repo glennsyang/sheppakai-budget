@@ -1,13 +1,11 @@
 <script lang="ts">
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
 	import { getContext } from 'svelte';
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import CategoryDialog from '$lib/components/CategoryDialog.svelte';
 	import LineChart from '$lib/components/LineChart.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
@@ -21,7 +19,6 @@
 
 	let { data }: PageProps = $props();
 
-	let openCategoryDialog = $state<boolean>(false);
 	let selectedCategoryId = $state<string | null>(null);
 	let editAmount = $state<string>('');
 	let editingCustomAmount = $state<boolean>(false);
@@ -328,13 +325,6 @@
 				<div class="border-b p-6">
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Categories</h3>
-						<button
-							type="button"
-							class="rounded p-1 hover:bg-muted"
-							onclick={() => (openCategoryDialog = true)}
-						>
-							<SettingsIcon class="h-4 w-4" />
-						</button>
 					</div>
 				</div>
 				<div class="p-0">
@@ -508,5 +498,3 @@
 		</div>
 	</div>
 </div>
-
-<CategoryDialog bind:open={openCategoryDialog} />

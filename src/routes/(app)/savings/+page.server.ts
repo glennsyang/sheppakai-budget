@@ -1,6 +1,9 @@
 import { fail } from '@sveltejs/kit';
 import { asc, eq } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
+import { savingsSchema } from '$lib/formSchemas';
 import { getDb } from '$lib/server/db';
 import { savings } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -22,8 +25,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 		orderBy: [asc(savings.title)]
 	})) as Savings[];
 
+	const form = await superValidate(zod4(savingsSchema));
+
 	return {
-		savings: allSavings
+		savings: allSavings,
+		form
 	};
 };
 
@@ -33,12 +39,10 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
-		const hasTitle = data.has('title');
-		const hasAmount = data.has('amount');
+		const form = await superValidate(request, zod4(savingsSchema));
 
-		if (!hasTitle || !hasAmount) {
-			return fail(400, { hasTitle, hasAmount });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
@@ -49,9 +53,9 @@ export const actions = {
 				.values(
 					withAuditFieldsForCreate(
 						{
-							title: data.get('title')?.toString() || '',
-							description: data.get('description')?.toString() || null,
-							amount: Number(data.get('amount')),
+							title: form.data.title,
+							description: form.data.description || null,
+							amount: form.data.amount,
 							userId: userId
 						},
 						userId
@@ -61,27 +65,28 @@ export const actions = {
 			logger.info('savings created successfully');
 		} catch (error) {
 			logger.error('Failed to create savings', error);
-			return fail(500, { error: 'Failed to create savings entry' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to create savings. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, create: true };
+		return { success: true, create: true, form };
 	},
+
 	update: async ({ request, locals }) => {
 		if (!locals.user) {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
+		const form = await superValidate(request, zod4(savingsSchema));
 
-		const hasId = data.has('id');
-		const hasTitle = data.has('title');
-		const hasAmount = data.has('amount');
-
-		if (!hasId || !hasTitle || !hasAmount) {
-			return fail(400, { hasId, hasTitle, hasAmount });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		const savingsId = data.get('id')!.toString();
+		const savingsId = form.data.id!;
 		try {
 			const userId = locals.user.id.toString();
 
@@ -90,9 +95,9 @@ export const actions = {
 				.set(
 					withAuditFieldsForUpdate(
 						{
-							title: data.get('title')?.toString() || '',
-							description: data.get('description')?.toString() || null,
-							amount: Number(data.get('amount'))
+							title: form.data.title,
+							description: form.data.description || null,
+							amount: form.data.amount
 						},
 						userId
 					)
@@ -102,11 +107,16 @@ export const actions = {
 			logger.info('savings updated successfully');
 		} catch (error) {
 			logger.error('Failed to update savings', error);
-			return fail(500, { error: 'Failed to update savings entry' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update savings. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, update: true };
+		return { success: true, update: true, form };
 	},
+
 	delete: async ({ request, locals }) => {
 		if (!locals.user) {
 			return fail(401, { error: 'Unauthorized' });

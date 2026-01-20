@@ -1,6 +1,9 @@
 import { fail } from '@sveltejs/kit';
 import { and, desc, eq, sql } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
+import { transactionSchema } from '$lib/formSchemas';
 import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -63,10 +66,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		{} as Record<string, number>
 	);
 
+	const form = await superValidate(zod4(transactionSchema));
+
 	return {
 		transactions,
 		budgets,
-		categorySpending
+		categorySpending,
+		form
 	};
 };
 
@@ -76,15 +82,10 @@ export const actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
-		const hasAmount = data.has('amount');
-		const hasPayee = data.has('payee');
-		const hasNotes = data.has('notes');
-		const hasDate = data.has('date');
-		const hasCategoryId = data.has('categoryId');
+		const form = await superValidate(request, zod4(transactionSchema));
 
-		if (!hasAmount || !hasNotes || !hasDate || !hasCategoryId || !hasPayee) {
-			return fail(400, { hasAmount, hasNotes, hasDate, hasCategoryId, hasPayee });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		try {
@@ -95,11 +96,11 @@ export const actions = {
 				.values(
 					withAuditFieldsForCreate(
 						{
-							amount: Number(data.get('amount')),
-							payee: data.get('payee')?.toString() || '',
-							notes: data.get('notes')?.toString() || '',
-							date: formatDateForStorage(data.get('date')?.toString() || ''),
-							categoryId: data.get('categoryId')?.toString() || '',
+							amount: form.data.amount,
+							payee: form.data.payee,
+							notes: form.data.notes,
+							date: formatDateForStorage(form.data.date),
+							categoryId: form.data.categoryId,
 							userId: userId
 						},
 						userId
@@ -109,31 +110,28 @@ export const actions = {
 			logger.info('transaction created successfully');
 		} catch (error) {
 			logger.error('Failed to create transaction', error);
-			return fail(500, { error: 'Failed to create transaction entry' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to create transaction. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, create: true };
+		return { success: true, create: true, form };
 	},
+
 	update: async ({ request, locals }) => {
 		if (!locals.user) {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const data = await request.formData();
+		const form = await superValidate(request, zod4(transactionSchema));
 
-		const hasId = data.has('id');
-		const hasAmount = data.has('amount');
-		const hasPayee = data.has('payee');
-		const hasNotes = data.has('notes');
-		const hasDate = data.has('date');
-		const hasCategoryId = data.has('categoryId');
-
-		if (!hasId || !hasAmount || !hasPayee || !hasNotes || !hasDate || !hasCategoryId) {
-			return fail(400, { hasId, hasAmount, hasPayee, hasNotes, hasDate, hasCategoryId });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
-		// Update the transaction entry in the database
-		const transactionId = data.get('id')!.toString();
+		const transactionId = form.data.id!;
 		try {
 			const userId = locals.user.id.toString();
 
@@ -142,11 +140,11 @@ export const actions = {
 				.set(
 					withAuditFieldsForUpdate(
 						{
-							amount: Number(data.get('amount')),
-							payee: data.get('payee')?.toString() || '',
-							notes: data.get('notes')?.toString() || '',
-							date: formatDateForStorage(data.get('date')?.toString() || ''),
-							categoryId: data.get('categoryId')?.toString() || ''
+							amount: form.data.amount,
+							payee: form.data.payee,
+							notes: form.data.notes,
+							date: formatDateForStorage(form.data.date),
+							categoryId: form.data.categoryId
 						},
 						userId
 					)
@@ -156,11 +154,16 @@ export const actions = {
 			logger.info('Transaction updated successfully');
 		} catch (error) {
 			logger.error('Failed to update transaction', error);
-			return fail(500, { error: 'Failed to update transaction entry' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update transaction. A database error occurred.' },
+				{ status: 400 }
+			);
 		}
 
-		return { success: true, update: true };
+		return { success: true, update: true, form };
 	},
+
 	delete: async ({ request, locals }) => {
 		if (!locals.user) {
 			return fail(401, { error: 'Unauthorized' });

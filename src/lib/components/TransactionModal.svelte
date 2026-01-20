@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
-	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import type { transactionSchema } from '$lib/formSchemas';
 	import { extractDateFromTimestamp, getTodayDate } from '$lib/utils/dates';
 
 	import type { Category } from '$lib';
+	import { logger } from '$lib/server/logger';
 
 	interface Props {
 		open: boolean;
@@ -24,6 +28,7 @@
 		isEditing?: boolean;
 		isLoading?: boolean;
 		categories: Category[];
+		transactionForm: SuperValidated<z.infer<typeof transactionSchema>>;
 	}
 
 	let {
@@ -31,35 +36,54 @@
 		initialData,
 		isEditing,
 		isLoading = $bindable(false),
-		categories
+		categories,
+		transactionForm
 	}: Props = $props();
 
 	let sortedCategories = $derived([...categories].sort((a, b) => a.name.localeCompare(b.name)));
 
-	let id = $state('');
-	let amount = $state('');
-	let payee = $state('');
-	let notes = $state('');
-	let date = $state('');
-	let categoryId = $state('');
+	const formInstance = $derived(
+		superForm(transactionForm, {
+			resetForm: true,
+			onUpdate: ({ form }) => {
+				if (form.valid) {
+					open = false;
+					toast.success(
+						isEditing ? 'Transaction updated successfully!' : 'Transaction created successfully!'
+					);
+				}
+				if ($message?.type === 'error') {
+					toast.error(
+						`Error ${isEditing ? 'updating' : 'creating'} transaction. Reason: ${$message.text}`
+					);
+				}
+			},
+			onError: ({ result }) => {
+				// Catastrophic DB crashes (Form data is lost)
+				logger.error('Transaction form submission error', result.error.message);
+				toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the transaction.`);
+			}
+		})
+	);
+
+	const { form, errors, enhance, message, submitting } = $derived(formInstance);
 
 	$effect(() => {
 		if (open) {
 			if (initialData) {
-				id = initialData.id || '';
-				amount = initialData.amount ? initialData.amount.toString() : '';
-				payee = initialData.payee || '';
-				notes = initialData.notes || '';
-				// Extract date portion from timestamp for editing
-				date = initialData.date ? extractDateFromTimestamp(initialData.date) : '';
-				categoryId = initialData.categoryId || '';
+				$form.id = initialData.id || '';
+				$form.amount = initialData.amount || 0;
+				$form.payee = initialData.payee || '';
+				$form.notes = initialData.notes || '';
+				$form.date = initialData.date ? extractDateFromTimestamp(initialData.date) : '';
+				$form.categoryId = initialData.categoryId || '';
 			} else {
-				id = '';
-				amount = '';
-				payee = '';
-				notes = '';
-				categoryId = '';
-				date = getTodayDate();
+				$form.id = '';
+				$form.amount = 0;
+				$form.payee = '';
+				$form.notes = '';
+				$form.categoryId = '';
+				$form.date = getTodayDate();
 			}
 		}
 	});
@@ -79,26 +103,9 @@
 			class="space-y-4"
 			method="POST"
 			action={isEditing ? '/finances/transactions?/update' : '/finances/transactions?/create'}
-			use:enhance={() => {
-				open = false;
-				isLoading = true;
-
-				return async ({ result, update }) => {
-					if (result.type === 'success') {
-						toast.success(
-							isEditing ? 'Transaction updated successfully!' : 'Transaction created successfully!'
-						);
-					} else {
-						toast.error(
-							`There was an error ${isEditing ? 'updating' : 'creating'} the transaction.`
-						);
-					}
-					isLoading = false;
-					await update();
-				};
-			}}
+			use:enhance
 		>
-			<input type="hidden" name="id" value={id} />
+			<input type="hidden" name="id" bind:value={$form.id} />
 			<div class="space-y-2">
 				<label for="transaction-amount" class="text-sm font-medium">Amount</label>
 				<Input
@@ -107,10 +114,14 @@
 					type="number"
 					step="0.01"
 					min="0"
-					bind:value={amount}
+					bind:value={$form.amount}
 					placeholder="0.00"
+					class={$errors.amount ? 'border-red-400' : ''}
 					required
 				/>
+				{#if $errors.amount}
+					<p class="text-sm text-red-500">{$errors.amount}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -118,10 +129,14 @@
 				<Input
 					id="transaction-payee"
 					name="payee"
-					bind:value={payee}
+					bind:value={$form.payee}
 					placeholder="Who did you pay?"
+					class={$errors.payee ? 'border-red-400' : ''}
 					required
 				/>
+				{#if $errors.payee}
+					<p class="text-sm text-red-500">{$errors.payee}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -129,23 +144,37 @@
 				<Textarea
 					id="transaction-notes"
 					name="notes"
-					bind:value={notes}
+					bind:value={$form.notes}
 					placeholder="What was this transaction for?"
+					class={$errors.notes ? 'border-red-400' : ''}
 					rows={2}
 				/>
+				{#if $errors.notes}
+					<p class="text-sm text-red-500">{$errors.notes}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
 				<label for="transaction-date" class="text-sm font-medium">Date</label>
-				<Input id="transaction-date" name="date" type="date" bind:value={date} required />
+				<Input
+					id="transaction-date"
+					name="date"
+					type="date"
+					bind:value={$form.date}
+					class={$errors.date ? 'border-red-400' : ''}
+					required
+				/>
+				{#if $errors.date}
+					<p class="text-sm text-red-500">{$errors.date}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
 				<label for="transaction-category" class="text-sm font-medium">Category</label>
-				<Select.Root type="single" name="categoryId" bind:value={categoryId} required>
-					<Select.Trigger class="w-full">
-						{categoryId
-							? sortedCategories.find((c) => c.id === categoryId)?.name || 'Select a category'
+				<Select.Root type="single" name="categoryId" bind:value={$form.categoryId} required>
+					<Select.Trigger class="w-full {$errors.categoryId ? 'border-red-400' : ''}">
+						{$form.categoryId
+							? sortedCategories.find((c) => c.id === $form.categoryId)?.name || 'Select a category'
 							: 'Select a category'}
 					</Select.Trigger>
 					<Select.Content>
@@ -157,12 +186,15 @@
 						{/each}
 					</Select.Content>
 				</Select.Root>
+				{#if $errors.categoryId}
+					<p class="text-sm text-red-500">{$errors.categoryId}</p>
+				{/if}
 			</div>
 
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
-				<Button type="submit" disabled={!amount || !payee || !notes || !date || !categoryId}>
-					{isEditing ? 'Save' : 'Create'}
+				<Button type="submit" disabled={$submitting}>
+					{$submitting ? 'Saving...' : isEditing ? 'Save' : 'Create'}
 				</Button>
 			</Dialog.Footer>
 		</form>

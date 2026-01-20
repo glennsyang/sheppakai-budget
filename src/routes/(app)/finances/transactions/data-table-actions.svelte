@@ -1,11 +1,14 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import { getContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import type { transactionSchema } from '$lib/formSchemas';
 
 	import type { Category, Transaction } from '$lib';
 
@@ -15,6 +18,9 @@
 	let openDeleteModal = $state<boolean>(false);
 
 	const categories = getContext('categories') as () => Category[];
+	const transactionForm = getContext('transactionForm') as SuperValidated<
+		z.infer<typeof transactionSchema>
+	>;
 </script>
 
 <DropdownMenu.Root>
@@ -44,6 +50,7 @@
 	}}
 	isEditing
 	categories={categories()}
+	{transactionForm}
 />
 
 <ConfirmModal
