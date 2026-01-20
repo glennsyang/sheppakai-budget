@@ -6,6 +6,7 @@
 
 	import { enhance as enhanceAction } from '$app/forms';
 	import { Input } from '$lib/components/ui/input';
+	import { padMonth } from '$lib/utils/dates';
 
 	interface Props {
 		title: string;
@@ -76,7 +77,7 @@
 					{#if budgetId}
 						<input type="hidden" name="id" value={budgetId} />
 					{/if}
-					<input type="hidden" name="month" value={selectedMonth.toString().padStart(2, '0')} />
+					<input type="hidden" name="month" value={padMonth(selectedMonth.toString())} />
 					<input type="hidden" name="year" value={selectedYear.toString()} />
 					<input type="hidden" name="categoryId" value={categoryId} />
 					<input type="hidden" name="presetType" value={presetType} />
@@ -133,7 +134,7 @@
 		{#if budgetId}
 			<input type="hidden" name="id" value={budgetId} />
 		{/if}
-		<input type="hidden" name="month" value={selectedMonth.toString().padStart(2, '0')} />
+		<input type="hidden" name="month" value={padMonth(selectedMonth.toString())} />
 		<input type="hidden" name="year" value={selectedYear.toString()} />
 		<input type="hidden" name="categoryId" value={categoryId} />
 		<input type="hidden" name="amount" value={amount.toFixed(2)} />

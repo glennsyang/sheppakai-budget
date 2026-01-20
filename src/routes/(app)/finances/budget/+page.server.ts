@@ -9,7 +9,7 @@ import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
-import { getMonthYearFromUrl } from '$lib/utils/dates';
+import { getMonthYearFromUrl, padMonth } from '$lib/utils/dates';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -32,7 +32,7 @@ function getLast6MonthsRange(currentMonth: number, currentYear: number) {
 		const targetDate = new Date(Date.UTC(targetYear, targetMonth - 1, 1));
 
 		months.push({
-			month: targetMonth.toString().padStart(2, '0'),
+			month: padMonth(targetMonth.toString()),
 			year: targetYear.toString(),
 			date: targetDate
 		});
@@ -57,7 +57,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	// Calculate start and end dates for transaction filtering
 	const startDate = `${earliestMonth.year}-${earliestMonth.month}-01`;
 	const endDate = new Date(Number(latestMonth.year), Number(latestMonth.month), 0);
-	const endDateStr = `${latestMonth.year}-${latestMonth.month}-${endDate.getDate().toString().padStart(2, '0')}`;
+	const endDateStr = `${latestMonth.year}-${latestMonth.month}-${padMonth(endDate.getDate().toString())}`;
 
 	// Fetch historical budgets for the last 6 months
 	const historicalBudgets = await getDb().query.budget.findMany({
@@ -98,10 +98,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 				category: true,
 				user: true
 			},
-			where: and(
-				eq(budget.year, year.toString()),
-				eq(budget.month, month.toString().padStart(2, '0'))
-			),
+			where: and(eq(budget.year, year.toString()), eq(budget.month, padMonth(month.toString()))),
 			orderBy: [desc(budget.year), desc(budget.month)]
 		}),
 		historicalBudgets,

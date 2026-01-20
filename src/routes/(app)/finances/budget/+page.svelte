@@ -18,6 +18,7 @@
 	import type { PageProps } from './$types';
 
 	import type { Budget, Category, ChartData } from '$lib';
+	import { padMonth } from '$lib/utils/dates';
 
 	let { data }: PageProps = $props();
 
@@ -240,7 +241,7 @@
 			prevYear -= 1;
 		}
 
-		const prevMonthStr = prevMonth.toString().padStart(2, '0');
+		const prevMonthStr = padMonth(prevMonth.toString());
 		const prevYearStr = prevYear.toString();
 
 		// Find transaction total for previous month and category
@@ -261,7 +262,7 @@
 			prevYear -= 1;
 		}
 
-		const prevMonthStr = prevMonth.toString().padStart(2, '0');
+		const prevMonthStr = padMonth(prevMonth.toString());
 		const prevYearStr = prevYear.toString();
 
 		// Find budget for previous month and category
@@ -482,8 +483,8 @@
 					<div class="flex flex-col items-center justify-center space-y-2">
 						<SlidersHorizontalIcon class="h-5 w-5 text-muted-foreground" />
 						<p class="text-lg font-semibold">
-							Set {months.find((m) => m.value === selectedMonth.toString().padStart(2, '0'))
-								?.label || 'Monthly'} Budget
+							Set {months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label ||
+								'Monthly'} Budget
 						</p>
 						{#if categoriesWithoutBudget.length > 0}
 							<p class="text-sm text-muted-foreground">
@@ -501,8 +502,8 @@
 			<div class="rounded-lg border bg-card shadow">
 				<div class="border-b p-6">
 					<h3 class="text-lg font-semibold">
-						{months.find((m) => m.value === selectedMonth.toString().padStart(2, '0'))?.label ||
-							'Monthly'} Spending Overview
+						{months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label || 'Monthly'} Spending
+						Overview
 					</h3>
 				</div>
 				<div class="p-6">

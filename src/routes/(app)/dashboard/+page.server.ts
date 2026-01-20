@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { budget, income, transaction } from '$lib/server/db/schema';
-import { getMonthRangeFromUrl } from '$lib/utils/dates';
+import { getMonthRangeFromUrl, padMonth } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -37,10 +37,7 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 			category: true,
 			user: true
 		},
-		where: and(
-			eq(budget.year, year.toString()),
-			eq(budget.month, month.toString().padStart(2, '0'))
-		)
+		where: and(eq(budget.year, year.toString()), eq(budget.month, padMonth(month.toString())))
 	})) as Budget[];
 
 	// Get recurring expenses for the user

@@ -19,9 +19,9 @@
 export function formatDateForStorage(dateString: string): string {
 	const now = new Date();
 	const datePart = dateString;
-	const hours = String(now.getHours()).padStart(2, '0');
-	const minutes = String(now.getMinutes()).padStart(2, '0');
-	const seconds = String(now.getSeconds()).padStart(2, '0');
+	const hours = padMonth(String(now.getHours()));
+	const minutes = padMonth(String(now.getMinutes()));
+	const seconds = padMonth(String(now.getSeconds()));
 	return `${datePart} ${hours}:${minutes}:${seconds}`;
 }
 
@@ -49,7 +49,7 @@ export function formatLocalTimestamp(timestamp: string, format: string = 'MMM DD
 
 	if (format === 'MMM DD, YYYY') {
 		const month = date.toLocaleString('en-US', { month: 'short' });
-		const day = String(date.getDate()).padStart(2, '0');
+		const day = padMonth(String(date.getDate()));
 		const year = date.getFullYear();
 		return `${month} ${day}, ${year}`;
 	}
@@ -69,13 +69,13 @@ export function formatLocalTimestamp(timestamp: string, format: string = 'MMM DD
  *   → endDate: "2026-02-28"
  */
 export function getMonthDateRange(month: number, year: number) {
-	const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+	const startDate = `${year}-${padMonth(String(month))}-01`;
 
 	// Get last day of month
 	const nextMonth = month === 12 ? 1 : month + 1;
 	const nextYear = month === 12 ? year + 1 : year;
 	const lastDay = new Date(nextYear, nextMonth - 1, 0).getDate();
-	const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+	const endDate = `${year}-${padMonth(String(month))}-${padMonth(String(lastDay))}`;
 
 	return { startDate, endDate };
 }
@@ -87,8 +87,8 @@ export function getMonthDateRange(month: number, year: number) {
 export function getTodayDate(): string {
 	const now = new Date();
 	const year = now.getFullYear();
-	const month = String(now.getMonth() + 1).padStart(2, '0');
-	const day = String(now.getDate()).padStart(2, '0');
+	const month = padMonth(String(now.getMonth() + 1));
+	const day = padMonth(String(now.getDate()));
 	return `${year}-${month}-${day}`;
 }
 

@@ -6,7 +6,7 @@ import { transactionSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
-import { formatDateForStorage, getMonthRangeFromUrl } from '$lib/utils/dates';
+import { formatDateForStorage, getMonthRangeFromUrl, padMonth } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -38,10 +38,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			category: true,
 			user: true
 		},
-		where: and(
-			eq(budget.month, month.toString().padStart(2, '0')),
-			eq(budget.year, year.toString())
-		)
+		where: and(eq(budget.month, padMonth(month.toString())), eq(budget.year, year.toString()))
 	})) as Budget[];
 
 	// Calculate spending per category
