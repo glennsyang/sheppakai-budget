@@ -18,14 +18,14 @@
 	interface Props {
 		data: {
 			savings: Savings[];
-			savingsForm: SuperValidated<z.infer<typeof savingsSchema>>;
+			form: SuperValidated<z.infer<typeof savingsSchema>>;
 		};
 	}
 
 	let { data }: Props = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('savingsForm', data.savingsForm);
+	setContext('savingsForm', data.form);
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
@@ -90,4 +90,4 @@
 	</div>
 </div>
 
-<SavingsModal bind:open={openModal} bind:isLoading={loading} savingsForm={data.savingsForm} />
+<SavingsModal bind:open={openModal} bind:isLoading={loading} savingsForm={data.form} />

@@ -25,14 +25,14 @@
 			transactions: Transaction[];
 			budgets: Budget[];
 			categorySpending: Record<string, number>;
-			transactionForm: SuperValidated<z.infer<typeof transactionSchema>>;
+			form: SuperValidated<z.infer<typeof transactionSchema>>;
 		};
 	}
 
 	let { data }: Props = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('transactionForm', data.transactionForm);
+	setContext('transactionForm', data.form);
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
@@ -161,5 +161,5 @@
 	bind:open={openModal}
 	bind:isLoading={loading}
 	categories={categories()}
-	transactionForm={data.transactionForm}
+	transactionForm={data.form}
 />
