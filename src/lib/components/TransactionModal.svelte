@@ -13,7 +13,6 @@
 	import { extractDateFromTimestamp, getTodayDate } from '$lib/utils/dates';
 
 	import type { Category } from '$lib';
-	import { logger } from '$lib/server/logger';
 
 	interface Props {
 		open: boolean;
@@ -60,7 +59,6 @@
 			},
 			onError: ({ result }) => {
 				// Catastrophic DB crashes (Form data is lost)
-				logger.error('Transaction form submission error', result.error.message);
 				toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the transaction.`);
 			}
 		})

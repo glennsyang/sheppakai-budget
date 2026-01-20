@@ -10,7 +10,6 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { incomeSchema } from '$lib/formSchemas';
 	import { extractDateFromTimestamp } from '$lib/utils/dates';
-	import { logger } from '$lib/server/logger';
 
 	interface Props {
 		open: boolean;
@@ -52,7 +51,6 @@
 			},
 			onError: ({ result }) => {
 				// Catastrophic DB crashes (Form data is lost)
-				logger.error('Income form submission error', result.error.message);
 				toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the income.`);
 			}
 		})

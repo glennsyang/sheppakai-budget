@@ -9,7 +9,6 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { savingsSchema } from '$lib/formSchemas';
-	import { logger } from '$lib/server/logger';
 
 	interface Props {
 		open: boolean;
@@ -50,7 +49,6 @@
 			},
 			onError: ({ result }) => {
 				// Catastrophic DB crashes (Form data is lost)
-				logger.error('Savings form submission error', result.error.message);
 				toast.error(`There was an error ${isEditing ? 'updating' : 'creating'} the savings entry.`);
 			}
 		})
