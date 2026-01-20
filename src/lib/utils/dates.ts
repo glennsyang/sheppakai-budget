@@ -99,3 +99,47 @@ export function getTodayDate(): string {
 export function getCurrentUTCTimestamp(): string {
 	return new Date().toISOString().replace('T', ' ').split('.')[0];
 }
+
+/**
+ * Pad month number with leading zero
+ * @param month - Month number (1-12)
+ * @returns Padded month string (e.g., "03" for March)
+ */
+export function padMonth(month: number | string): string {
+	return month.toString().padStart(2, '0');
+}
+
+/**
+ * Extract month and year from URL search params with fallback to current date
+ * @param url - URL object containing searchParams
+ * @returns Object with month (1-12) and year
+ *
+ * Example: URL with ?month=3&year=2025 → { month: 3, year: 2025 }
+ * Example: URL with no params → { month: 1, year: 2026 } (current date)
+ */
+export function getMonthYearFromUrl(url: URL): { month: number; year: number } {
+	const currentDate = new Date();
+	const monthParam = url.searchParams.get('month');
+	const yearParam = url.searchParams.get('year');
+
+	return {
+		month: monthParam ? Number.parseInt(monthParam) : currentDate.getMonth() + 1,
+		year: yearParam ? Number.parseInt(yearParam) : currentDate.getFullYear()
+	};
+}
+
+/**
+ * Extract month, year, and date range from URL search params
+ * Combines getMonthYearFromUrl() with getMonthDateRange()
+ * @param url - URL object containing searchParams
+ * @returns Object with month, year, startDate, and endDate
+ *
+ * Example: URL with ?month=3&year=2025
+ *   → { month: 3, year: 2025, startDate: "2025-03-01", endDate: "2025-03-31" }
+ */
+export function getMonthRangeFromUrl(url: URL) {
+	const { month, year } = getMonthYearFromUrl(url);
+	const { startDate, endDate } = getMonthDateRange(month, year);
+
+	return { month, year, startDate, endDate };
+}

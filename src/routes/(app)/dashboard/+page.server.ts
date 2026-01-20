@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { budget, income, transaction } from '$lib/server/db/schema';
-import { getMonthDateRange } from '$lib/utils/dates';
+import { getMonthRangeFromUrl } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -17,24 +17,8 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 		return {};
 	}
 
-	// Get month from URL or use current month
-	const monthParam = url.searchParams.get('month');
-	const currentDate = new Date();
-	const currentMonth = currentDate.getMonth() + 1;
-
-	// Get year from URL or use current year
-	const yearParam = url.searchParams.get('year');
-	const currentYear = currentDate.getFullYear();
-
-	let year = currentYear;
-	let month = currentMonth;
-	if (monthParam && yearParam) {
-		year = Number.parseInt(yearParam);
-		month = Number.parseInt(monthParam);
-	}
-
-	// Get date range for the user's local month
-	const { startDate, endDate } = getMonthDateRange(month, year);
+	// Get month, year, and date range from URL params or use current month/year
+	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
 	const actualExpenses: Transaction[] = (await getDb().query.transaction.findMany({
 		with: {

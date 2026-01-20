@@ -9,6 +9,7 @@ import { getDb } from '$lib/server/db';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
+import { getMonthYearFromUrl } from '$lib/utils/dates';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -45,21 +46,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		return [];
 	}
 
-	// Get month from URL or use current month
-	const monthParam = url.searchParams.get('month');
-	const currentDate = new Date();
-	const currentMonth = currentDate.getMonth() + 1;
-
-	// Get year from URL or use current year
-	const yearParam = url.searchParams.get('year');
-	const currentYear = currentDate.getFullYear();
-
-	let year = currentYear;
-	let month = currentMonth;
-	if (monthParam && yearParam) {
-		year = Number.parseInt(yearParam);
-		month = Number.parseInt(monthParam);
-	}
+	// Get month and year from URL params or use current month/year
+	const { month, year } = getMonthYearFromUrl(url);
 
 	// Calculate date range for last 6 months
 	const last6Months = getLast6MonthsRange(month, year);

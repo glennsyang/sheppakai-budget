@@ -6,7 +6,7 @@ import { incomeSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';
 import { income } from '$lib/server/db/schema';
-import { formatDateForStorage, getMonthDateRange } from '$lib/utils/dates';
+import { formatDateForStorage, getMonthRangeFromUrl } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -15,16 +15,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		return { incomes: [] };
 	}
 
-	// Get month and year from URL or use current month/year
-	const currentDate = new Date();
-	const monthParam = url.searchParams.get('month');
-	const yearParam = url.searchParams.get('year');
-
-	const month = monthParam ? Number.parseInt(monthParam) : currentDate.getMonth() + 1;
-	const year = yearParam ? Number.parseInt(yearParam) : currentDate.getFullYear();
-
-	// Get date range for the user's local month
-	const { startDate, endDate } = getMonthDateRange(month, year);
+	// Get month, year, and date range from URL params or use current month/year
+	const { startDate, endDate } = getMonthRangeFromUrl(url);
 
 	const incomes = await getDb().query.income.findMany({
 		where: and(

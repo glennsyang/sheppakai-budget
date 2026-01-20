@@ -6,6 +6,8 @@ import {
 	formatLocalTimestamp,
 	getCurrentUTCTimestamp,
 	getMonthDateRange,
+	getMonthRangeFromUrl,
+	getMonthYearFromUrl,
 	getTodayDate
 } from './dates';
 
@@ -171,6 +173,131 @@ describe('Date Utilities - Local Timezone Storage', () => {
 			const result = getCurrentUTCTimestamp();
 			expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
 			expect(result).toBe('2026-03-20 09:05:03');
+		});
+	});
+
+	describe('getMonthYearFromUrl', () => {
+		beforeEach(() => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date('2026-01-20T14:30:45'));
+		});
+
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it('should extract both month and year from URL params', () => {
+			const url = new URL('http://localhost/?month=3&year=2025');
+			const result = getMonthYearFromUrl(url);
+			expect(result).toEqual({ month: 3, year: 2025 });
+		});
+
+		it('should use current month and year when no params provided', () => {
+			const url = new URL('http://localhost/');
+			const result = getMonthYearFromUrl(url);
+			expect(result).toEqual({ month: 1, year: 2026 });
+		});
+
+		it('should use current year when only month provided', () => {
+			const url = new URL('http://localhost/?month=6');
+			const result = getMonthYearFromUrl(url);
+			expect(result).toEqual({ month: 6, year: 2026 });
+		});
+
+		it('should use current month when only year provided', () => {
+			const url = new URL('http://localhost/?year=2025');
+			const result = getMonthYearFromUrl(url);
+			expect(result).toEqual({ month: 1, year: 2025 });
+		});
+
+		it('should parse numeric strings correctly', () => {
+			const url = new URL('http://localhost/?month=12&year=2024');
+			const result = getMonthYearFromUrl(url);
+			expect(result).toEqual({ month: 12, year: 2024 });
+		});
+
+		it('should handle different current dates', () => {
+			vi.setSystemTime(new Date('2025-07-15T10:00:00'));
+			const url = new URL('http://localhost/');
+			const result = getMonthYearFromUrl(url);
+			expect(result).toEqual({ month: 7, year: 2025 });
+		});
+	});
+
+	describe('getMonthRangeFromUrl', () => {
+		beforeEach(() => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date('2026-01-20T14:30:45'));
+		});
+
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it('should return complete object with month, year, startDate, and endDate', () => {
+			const url = new URL('http://localhost/?month=3&year=2025');
+			const result = getMonthRangeFromUrl(url);
+			expect(result).toEqual({
+				month: 3,
+				year: 2025,
+				startDate: '2025-03-01',
+				endDate: '2025-03-31'
+			});
+		});
+
+		it('should use current month/year when no params provided', () => {
+			const url = new URL('http://localhost/');
+			const result = getMonthRangeFromUrl(url);
+			expect(result).toEqual({
+				month: 1,
+				year: 2026,
+				startDate: '2026-01-01',
+				endDate: '2026-01-31'
+			});
+		});
+
+		it('should handle February in non-leap year', () => {
+			const url = new URL('http://localhost/?month=2&year=2026');
+			const result = getMonthRangeFromUrl(url);
+			expect(result).toEqual({
+				month: 2,
+				year: 2026,
+				startDate: '2026-02-01',
+				endDate: '2026-02-28'
+			});
+		});
+
+		it('should handle February in leap year', () => {
+			const url = new URL('http://localhost/?month=2&year=2024');
+			const result = getMonthRangeFromUrl(url);
+			expect(result).toEqual({
+				month: 2,
+				year: 2024,
+				startDate: '2024-02-01',
+				endDate: '2024-02-29'
+			});
+		});
+
+		it('should handle December correctly', () => {
+			const url = new URL('http://localhost/?month=12&year=2025');
+			const result = getMonthRangeFromUrl(url);
+			expect(result).toEqual({
+				month: 12,
+				year: 2025,
+				startDate: '2025-12-01',
+				endDate: '2025-12-31'
+			});
+		});
+
+		it('should handle months with 30 days', () => {
+			const url = new URL('http://localhost/?month=4&year=2026');
+			const result = getMonthRangeFromUrl(url);
+			expect(result).toEqual({
+				month: 4,
+				year: 2026,
+				startDate: '2026-04-01',
+				endDate: '2026-04-30'
+			});
 		});
 	});
 });
