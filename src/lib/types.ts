@@ -95,7 +95,7 @@ export type SavingsGoal = {
 	description: string | null;
 	targetAmount: number;
 	targetDate: string | null;
-	status: 'active' | 'completed' | 'paused';
+	status: 'active' | 'completed' | 'paused' | 'archived';
 	userId: string;
 	user: User;
 	createdAt: string;

@@ -30,7 +30,7 @@
 		contributionForm
 	}: Props = $props();
 
-	let activeGoals = $derived(goals.filter((g) => g.status === 'active'));
+	let activeGoals = $derived(goals.filter((g) => g.status !== 'archived'));
 
 	const formInstance = $derived(
 		superForm(contributionForm, {

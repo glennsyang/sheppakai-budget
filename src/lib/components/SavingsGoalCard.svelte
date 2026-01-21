@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { PenIcon, PlusIcon, Trash2Icon } from '@lucide/svelte/icons';
+	import { ArchiveIcon, PenIcon, PlusIcon, Trash2Icon } from '@lucide/svelte/icons';
 
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Progress } from '$lib/components/ui/progress';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
 
@@ -13,9 +15,11 @@
 		onAddContribution: (goalId: string) => void;
 		onEditGoal: (goal: SavingsGoalWithProgress) => void;
 		onDeleteGoal: (goalId: string) => void;
+		onArchiveGoal: (goalId: string) => void;
 	}
 
-	let { goal, onAddContribution, onEditGoal, onDeleteGoal }: Props = $props();
+	let { goal, onAddContribution, onEditGoal, onDeleteGoal, onArchiveGoal }: Props = $props();
+	let showArchiveDialog = $state(false);
 
 	// Determine card color based on status
 	let statusColor = $derived(
@@ -23,7 +27,9 @@
 			? 'border-green-500'
 			: goal.status === 'paused'
 				? 'border-gray-400'
-				: 'border-blue-500'
+				: goal.status === 'archived'
+					? 'border-gray-300 dark:border-gray-600'
+					: 'border-blue-500'
 	);
 
 	// Determine progress color based on percentage
@@ -46,17 +52,49 @@
 				{/if}
 			</div>
 			<div class="flex gap-1">
-				<Button variant="ghost" size="icon" onclick={() => onEditGoal(goal)} class="h-8 w-8">
-					<PenIcon class="h-4 w-4" />
-				</Button>
-				<Button
-					variant="ghost"
-					size="icon"
-					onclick={() => onDeleteGoal(goal.id)}
-					class="h-8 w-8 text-destructive hover:text-destructive"
-				>
-					<Trash2Icon class="h-4 w-4" />
-				</Button>
+				<Tooltip.Root>
+					<Tooltip.Trigger
+						class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'h-8 w-8' })}
+						onclick={() => onEditGoal(goal)}
+					>
+						<PenIcon class="h-4 w-4" />
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Edit</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+				{#if goal.status === 'completed'}
+					<Tooltip.Root>
+						<Tooltip.Trigger
+							class={buttonVariants({
+								variant: 'ghost',
+								size: 'icon',
+								class: 'h-8 w-8 text-muted-foreground hover:text-muted-foreground'
+							})}
+							onclick={() => (showArchiveDialog = true)}
+						>
+							<ArchiveIcon class="h-4 w-4" />
+						</Tooltip.Trigger>
+						<Tooltip.Content>
+							<p>Archive</p>
+						</Tooltip.Content>
+					</Tooltip.Root>
+				{/if}
+				<Tooltip.Root>
+					<Tooltip.Trigger
+						class={buttonVariants({
+							variant: 'ghost',
+							size: 'icon',
+							class: 'h-8 w-8 text-destructive hover:text-destructive'
+						})}
+						onclick={() => onDeleteGoal(goal.id)}
+					>
+						<Trash2Icon class="h-4 w-4" />
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Delete</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
 			</div>
 		</div>
 	</CardHeader>
@@ -130,7 +168,9 @@
 					? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
 					: goal.status === 'paused'
 						? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-						: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}"
+						: goal.status === 'archived'
+							? 'bg-gray-50 text-gray-600 dark:bg-gray-900 dark:text-gray-400'
+							: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}"
 			>
 				{goal.status.charAt(0).toUpperCase() + goal.status.slice(1)}
 			</span>
@@ -148,3 +188,25 @@
 		</Button>
 	</CardContent>
 </Card>
+
+<!-- Archive Confirmation Dialog -->
+<Dialog.Root bind:open={showArchiveDialog}>
+	<Dialog.Content class="sm:max-w-106.25">
+		<Dialog.Header>
+			<Dialog.Title>Archive Goal</Dialog.Title>
+			<Dialog.Description>
+				Are you sure you want to archive this goal? Archived goals will be hidden from the main
+				view.
+			</Dialog.Description>
+		</Dialog.Header>
+		<Dialog.Footer>
+			<Dialog.Close><Button variant="outline">Cancel</Button></Dialog.Close>
+			<Button
+				onclick={() => {
+					showArchiveDialog = false;
+					onArchiveGoal(goal.id);
+				}}>Archive</Button
+			>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>

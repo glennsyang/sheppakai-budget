@@ -52,6 +52,22 @@
 
 	const { form, errors, enhance, message, submitting } = $derived(formInstance);
 
+	// Determine available status options based on current status
+	const availableStatuses = $derived(() => {
+		const baseStatuses = [
+			{ value: 'active', label: 'Active' },
+			{ value: 'completed', label: 'Completed' },
+			{ value: 'paused', label: 'Paused' }
+		];
+
+		// Only show archived option if current status is completed
+		if (initialData?.status === 'completed') {
+			baseStatuses.push({ value: 'archived', label: 'Archived' });
+		}
+
+		return baseStatuses;
+	});
+
 	$effect(() => {
 		if (open) {
 			if (initialData) {
@@ -153,9 +169,9 @@
 						{$form.status.charAt(0).toUpperCase() + $form.status.slice(1)}
 					</Select.Trigger>
 					<Select.Content>
-						<Select.Item value="active" label="Active">Active</Select.Item>
-						<Select.Item value="completed" label="Completed">Completed</Select.Item>
-						<Select.Item value="paused" label="Paused">Paused</Select.Item>
+						{#each availableStatuses() as status (status.value)}
+							<Select.Item value={status.value} label={status.label}>{status.label}</Select.Item>
+						{/each}
 					</Select.Content>
 				</Select.Root>
 				{#if $errors.status}

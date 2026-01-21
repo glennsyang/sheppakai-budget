@@ -32,6 +32,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		orderBy: [desc(contribution.date)]
 	});
 
+	// Filter out contributions linked to archived goals
+	const activeContributions = contributions.filter((c) => c.goal.status !== 'archived');
+
 	// Calculate progress for each goal
 	const goalsWithProgress = goals.map((goal) => {
 		const goalContributions = contributions.filter((c) => c.goalId === goal.id);
@@ -50,7 +53,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	return {
 		goals: goalsWithProgress,
-		contributions,
+		contributions: activeContributions,
 		savingsGoalForm,
 		contributionForm
 	};
@@ -75,6 +78,22 @@ export const actions = {
 		schema: savingsGoalSchema,
 		table: savingsGoal,
 		entityName: 'Savings goal',
+		beforeUpdate: async (id, data) => {
+			// Only allow archiving if goal is completed
+			if (data.status === 'archived') {
+				const currentGoal = await getDb().query.savingsGoal.findFirst({
+					where: eq(savingsGoal.id, id)
+				});
+
+				if (!currentGoal) {
+					throw new Error('Goal not found');
+				}
+
+				if (currentGoal.status !== 'completed') {
+					throw new Error('Only completed goals can be archived');
+				}
+			}
+		},
 		transformUpdate: (data) => ({
 			name: data.name,
 			description: data.description || null,

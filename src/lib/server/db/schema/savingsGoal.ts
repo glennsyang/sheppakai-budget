@@ -5,7 +5,7 @@ import { generateId } from '../utils';
 
 import user from './user';
 
-export const savingsGoalStatusEnum = ['active', 'completed', 'paused'] as const;
+export const savingsGoalStatusEnum = ['active', 'completed', 'paused', 'archived'] as const;
 export type SavingsGoalStatus = (typeof savingsGoalStatusEnum)[number];
 
 const savingsGoal = sqliteTable('savings_goals', {

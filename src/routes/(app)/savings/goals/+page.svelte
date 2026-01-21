@@ -65,6 +65,31 @@
 		openDeleteModal = true;
 	}
 
+	async function handleArchiveGoal(goalId: string) {
+		const formData = new FormData();
+		const goalToArchive = data.goals.find((g) => g.id === goalId);
+
+		if (!goalToArchive) return;
+
+		formData.append('id', goalId);
+		formData.append('name', goalToArchive.name);
+		formData.append('targetAmount', goalToArchive.targetAmount.toString());
+		formData.append('targetDate', goalToArchive.targetDate || '');
+		formData.append('status', 'archived');
+		if (goalToArchive.description) {
+			formData.append('description', goalToArchive.description);
+		}
+
+		const response = await fetch('/savings/goals?/updateGoal', {
+			method: 'POST',
+			body: formData
+		});
+
+		if (response.ok) {
+			window.location.reload();
+		}
+	}
+
 	// Calculate totals
 	let totalTargetAmount = $derived(data.goals.reduce((sum, goal) => sum + goal.targetAmount, 0));
 	let totalCurrentAmount = $derived(data.goals.reduce((sum, goal) => sum + goal.currentAmount, 0));
@@ -136,6 +161,7 @@
 					onAddContribution={handleAddContribution}
 					onEditGoal={handleEditGoal}
 					onDeleteGoal={handleDeleteGoal}
+					onArchiveGoal={handleArchiveGoal}
 				/>
 			{/each}
 		</div>

@@ -1,4 +1,4 @@
-import { asc } from 'drizzle-orm';
+import { asc, ne } from 'drizzle-orm';
 
 import type { SavingsGoal } from '$lib/types';
 
@@ -13,5 +13,11 @@ const baseBuilder = createQueryBuilder<typeof savingsGoal, SavingsGoal>({
 });
 
 export const savingsGoalQueries = {
-	...baseBuilder
+	...baseBuilder,
+	findAll: async (options?: Parameters<typeof baseBuilder.findAll>[0]) => {
+		return baseBuilder.findAll({
+			...options,
+			where: ne(savingsGoal.status, 'archived')
+		});
+	}
 };

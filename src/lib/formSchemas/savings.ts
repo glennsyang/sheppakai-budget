@@ -24,7 +24,7 @@ export const savingsGoalSchema = z.object({
 		.string()
 		.min(1, 'Target date is required')
 		.regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
-	status: z.enum(['active', 'completed', 'paused']).default('active')
+	status: z.enum(['active', 'completed', 'paused', 'archived']).default('active')
 });
 
 export const contributionSchema = z.object({
