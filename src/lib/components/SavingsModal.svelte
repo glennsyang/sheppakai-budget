@@ -10,16 +10,9 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { savingsSchema } from '$lib/formSchemas';
 
-	interface Props {
-		open: boolean;
-		initialData?: {
-			id?: string;
-			title?: string;
-			description?: string | null;
-			amount?: number;
-		};
-		isEditing?: boolean;
-		isLoading?: boolean;
+	import type { BaseModalProps, Savings } from '$lib';
+
+	interface Props extends BaseModalProps<z.infer<typeof savingsSchema>> {
 		savingsForm: SuperValidated<z.infer<typeof savingsSchema>>;
 	}
 

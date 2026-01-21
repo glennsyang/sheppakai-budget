@@ -12,18 +12,9 @@
 	import type { savingsGoalSchema } from '$lib/formSchemas/savings';
 	import { extractDateFromTimestamp } from '$lib/utils/dates';
 
-	interface Props {
-		open: boolean;
-		initialData?: {
-			id?: string;
-			name?: string;
-			description?: string | null;
-			targetAmount?: number;
-			targetDate?: string | null;
-			status?: 'active' | 'completed' | 'paused';
-		};
-		isEditing?: boolean;
-		isLoading?: boolean;
+	import type { BaseModalProps } from '$lib';
+
+	interface Props extends BaseModalProps<z.infer<typeof savingsGoalSchema>> {
 		savingsGoalForm: SuperValidated<z.infer<typeof savingsGoalSchema>>;
 	}
 

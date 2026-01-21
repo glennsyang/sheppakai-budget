@@ -1,6 +1,29 @@
 import type { Icon } from '@lucide/svelte';
 import type { Component } from 'svelte';
 
+/**
+ * Base props for all modal/dialog components in the application.
+ * Provides common interface for open state, data initialization, and loading states.
+ *
+ * @template T - The entity type for initialData (e.g., Transaction, Income, Category)
+ */
+export interface BaseModalProps<T> {
+	/** Controls modal visibility (bindable) */
+	open: boolean;
+
+	/** Modal title displayed in the dialog header */
+	title?: string;
+
+	/** Initial data for editing mode - partial to allow creating with subset of fields */
+	initialData?: Partial<T>;
+
+	/** Whether modal is in edit mode (true) or create mode (false) */
+	isEditing?: boolean;
+
+	/** Loading state for async operations (bindable) */
+	isLoading?: boolean;
+}
+
 export type User = {
 	id: string;
 	email: string;

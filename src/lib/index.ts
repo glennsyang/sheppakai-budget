@@ -2,6 +2,7 @@
 
 // Re-export types for easier importing
 export type {
+	BaseModalProps,
 	Budget,
 	Category,
 	ChartData,

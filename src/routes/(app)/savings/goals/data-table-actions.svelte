@@ -45,7 +45,7 @@
 		goalId: contributionData?.goalId,
 		amount: contributionData?.amount,
 		date: contributionData?.date,
-		description: contributionData?.description
+		description: contributionData?.description ?? undefined
 	}}
 	isEditing
 	goals={goals()}

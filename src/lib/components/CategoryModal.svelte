@@ -10,15 +10,9 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { categorySchema } from '$lib/formSchemas';
 
-	interface Props {
-		open: boolean;
-		initialData?: {
-			id?: string;
-			name?: string;
-			description?: string;
-		};
-		isEditing?: boolean;
-		isLoading?: boolean;
+	import type { BaseModalProps } from '$lib';
+
+	interface Props extends BaseModalProps<z.infer<typeof categorySchema>> {
 		categoryForm: SuperValidated<z.infer<typeof categorySchema>>;
 	}
 

@@ -192,9 +192,9 @@
 		? {
 				id: editingGoal.id,
 				name: editingGoal.name,
-				description: editingGoal.description,
+				description: editingGoal.description ?? undefined,
 				targetAmount: editingGoal.targetAmount,
-				targetDate: editingGoal.targetDate,
+				targetDate: editingGoal.targetDate ?? undefined,
 				status: editingGoal.status
 			}
 		: undefined}

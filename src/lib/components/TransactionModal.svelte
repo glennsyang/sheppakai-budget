@@ -12,20 +12,10 @@
 	import type { transactionSchema } from '$lib/formSchemas';
 	import { extractDateFromTimestamp, getTodayDate } from '$lib/utils/dates';
 
-	import type { Category } from '$lib';
+	import type { BaseModalProps, Category } from '$lib';
 
-	interface Props {
-		open: boolean;
-		initialData?: {
-			id?: string;
-			amount?: number;
-			payee?: string;
-			notes?: string;
-			date?: string;
-			categoryId?: string;
-		};
-		isEditing?: boolean;
-		isLoading?: boolean;
+	interface Props extends Omit<BaseModalProps<z.infer<typeof transactionSchema>>, 'initialData'> {
+		initialData?: Partial<z.infer<typeof transactionSchema>>;
 		categories: Category[];
 		transactionForm: SuperValidated<z.infer<typeof transactionSchema>>;
 	}

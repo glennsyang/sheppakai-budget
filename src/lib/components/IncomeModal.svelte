@@ -11,17 +11,9 @@
 	import type { incomeSchema } from '$lib/formSchemas';
 	import { extractDateFromTimestamp } from '$lib/utils/dates';
 
-	interface Props {
-		open: boolean;
-		initialData?: {
-			id?: string;
-			name?: string;
-			description?: string;
-			date?: string;
-			amount?: number;
-		};
-		isEditing?: boolean;
-		isLoading?: boolean;
+	import type { BaseModalProps } from '$lib';
+
+	interface Props extends BaseModalProps<z.infer<typeof incomeSchema>> {
 		incomeForm: SuperValidated<z.infer<typeof incomeSchema>>;
 	}
 

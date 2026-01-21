@@ -40,7 +40,7 @@
 	initialData={{
 		id,
 		title: savingsData?.title,
-		description: savingsData?.description,
+		description: savingsData?.description ?? undefined,
 		amount: savingsData?.amount
 	}}
 	isEditing

@@ -10,17 +10,9 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { recurringSchema } from '$lib/formSchemas/finances';
 
-	interface Props {
-		open: boolean;
-		initialData?: {
-			id?: string;
-			merchant?: string;
-			description?: string;
-			cadence?: 'Monthly' | 'Yearly';
-			amount?: number;
-		};
-		isEditing?: boolean;
-		isLoading?: boolean;
+	import type { BaseModalProps } from '$lib';
+
+	interface Props extends BaseModalProps<z.infer<typeof recurringSchema>> {
 		recurringForm: SuperValidated<z.infer<typeof recurringSchema>>;
 	}
 
