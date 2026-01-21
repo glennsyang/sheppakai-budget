@@ -1,6 +1,5 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import { getContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
@@ -8,6 +7,7 @@
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { incomeFormContext } from '$lib/contexts';
 	import type { incomeSchema } from '$lib/formSchemas';
 
 	import type { Income } from '$lib';
@@ -17,7 +17,7 @@
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
 
-	const incomeForm = getContext('incomeForm') as SuperValidated<z.infer<typeof incomeSchema>>;
+	const incomeForm = incomeFormContext.get() as SuperValidated<z.infer<typeof incomeSchema>>;
 </script>
 
 <DropdownMenu.Root>

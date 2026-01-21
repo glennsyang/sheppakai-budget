@@ -1,6 +1,5 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import { getContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
@@ -8,17 +7,18 @@
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
 
-	import type { Category, Transaction } from '$lib';
+	import type { Transaction } from '$lib';
 
 	let { id, transactionData }: { id: string; transactionData: Transaction } = $props();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
 
-	const categories = getContext('categories') as () => Category[];
-	const transactionForm = getContext('transactionForm') as SuperValidated<
+	const categories = getCategoriesContext();
+	const transactionForm = transactionFormContext.get() as SuperValidated<
 		z.infer<typeof transactionSchema>
 	>;
 </script>

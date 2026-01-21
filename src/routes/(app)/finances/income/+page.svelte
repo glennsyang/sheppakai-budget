@@ -1,6 +1,5 @@
 <script lang="ts">
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -10,6 +9,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { incomeFormContext } from '$lib/contexts';
 	import { months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
@@ -18,7 +18,9 @@
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('incomeForm', data.form);
+	if (data.form) {
+		incomeFormContext.set(data.form);
+	}
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);

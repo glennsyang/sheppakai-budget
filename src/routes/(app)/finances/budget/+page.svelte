@@ -2,7 +2,6 @@
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
-	import { getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 
@@ -13,12 +12,13 @@
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
 	import SummaryRow from '$lib/components/SummaryRow.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { getCategoriesContext } from '$lib/contexts';
 	import { months } from '$lib/utils';
 	import { padMonth } from '$lib/utils/dates';
 
 	import type { PageProps } from './$types';
 
-	import type { Budget, Category, ChartData } from '$lib';
+	import type { Budget, ChartData } from '$lib';
 
 	let { data }: PageProps = $props();
 
@@ -72,7 +72,7 @@
 		}
 	}
 
-	const categories = getContext('categories') as () => Category[];
+	const categories = getCategoriesContext();
 
 	// Sort categories alphabetically
 	let sortedCategories = $derived([...categories()].sort((a, b) => a.name.localeCompare(b.name)));

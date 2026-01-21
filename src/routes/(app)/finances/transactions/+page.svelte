@@ -1,6 +1,5 @@
 <script lang="ts">
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { getContext, setContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
@@ -13,12 +12,13 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
 	import { months } from '$lib/utils';
 
 	import { columns } from './columns';
 
-	import type { Budget, Category, Transaction } from '$lib';
+	import type { Budget, Transaction } from '$lib';
 
 	interface Props {
 		data: {
@@ -32,7 +32,9 @@
 	let { data }: Props = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('transactionForm', data.form);
+	if (data.form) {
+		transactionFormContext.set(data.form);
+	}
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
@@ -60,7 +62,7 @@
 		}
 	}
 
-	const categories = getContext('categories') as () => Category[];
+	const categories = getCategoriesContext();
 
 	// Sort budgets alphabetically by category name
 	let sortedBudgets = $derived(

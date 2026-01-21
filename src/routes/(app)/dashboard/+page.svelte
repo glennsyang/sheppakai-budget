@@ -1,15 +1,12 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { getCategoriesContext } from '$lib/contexts';
 	import { months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
-
-	import type { Category } from '$lib';
 
 	let { data }: PageProps = $props();
 
@@ -25,7 +22,7 @@
 
 	let plannedExpenses: number = $derived(data.plannedExpensesTotal || 0);
 
-	const categories = getContext('categories') as () => Category[];
+	const categories = getCategoriesContext();
 
 	// Sort categories alphabetically
 	let sortedCategories = $derived([...categories()].sort((a, b) => a.name.localeCompare(b.name)));

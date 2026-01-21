@@ -1,6 +1,5 @@
 <script lang="ts">
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
@@ -9,6 +8,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { DataTable } from '$lib/components/ui/data-table';
+	import { savingsFormContext } from '$lib/contexts';
 	import type { savingsSchema } from '$lib/formSchemas';
 
 	import { columns } from './columns';
@@ -25,7 +25,9 @@
 	let { data }: Props = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('savingsForm', data.form);
+	if (data.form) {
+		savingsFormContext.set(data.form);
+	}
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);

@@ -10,7 +10,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { savingsSchema } from '$lib/formSchemas';
 
-	import type { BaseModalProps, Savings } from '$lib';
+	import type { BaseModalProps } from '$lib';
 
 	interface Props extends BaseModalProps<z.infer<typeof savingsSchema>> {
 		savingsForm: SuperValidated<z.infer<typeof savingsSchema>>;

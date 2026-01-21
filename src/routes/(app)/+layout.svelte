@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { setContext } from 'svelte';
-
 	import { navigating } from '$app/state';
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import SiteHeader from '$lib/components/SiteHeader.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { setCategoriesContext } from '$lib/contexts';
 	import type { User } from '$lib/types';
 
 	import type { LayoutServerData } from './$types';
@@ -21,7 +20,8 @@
 
 	let { data, children }: Props = $props();
 
-	setContext('categories', () => data.categories);
+	// svelte-ignore state_referenced_locally
+	setCategoriesContext(data.categories ?? []);
 </script>
 
 <Sidebar.Provider style="--header-height: calc(var(--spacing) * 12);">
