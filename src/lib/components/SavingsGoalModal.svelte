@@ -181,8 +181,8 @@
 
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
-				<Button type="submit" disabled={$submitting || !$form.name || !$form.targetAmount}>
-					{isEditing ? 'Save Changes' : 'Create Goal'}
+				<Button type="submit" disabled={$submitting}>
+					{$submitting ? 'Saving...' : isEditing ? 'Save' : 'Create'}
 				</Button>
 			</Dialog.Footer>
 		</form>

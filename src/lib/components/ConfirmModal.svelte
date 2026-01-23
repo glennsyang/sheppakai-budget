@@ -45,6 +45,7 @@
 			}}
 		>
 			<input type="hidden" name="id" value={id} />
+			<input type="hidden" name="status" value="archived" />
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
 				<Button type="submit">{confirmButtonText}</Button>

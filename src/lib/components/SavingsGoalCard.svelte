@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArchiveIcon, PenIcon, PlusIcon, Trash2Icon } from '@lucide/svelte/icons';
+	import { PenIcon, PlusIcon, Trash2Icon } from '@lucide/svelte/icons';
 
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
@@ -14,10 +14,9 @@
 		onAddContribution: (goalId: string) => void;
 		onEditGoal: (goal: SavingsGoalWithProgress) => void;
 		onDeleteGoal: (goalId: string) => void;
-		onArchiveGoal: (goalId: string) => void;
 	}
 
-	let { goal, onAddContribution, onEditGoal, onDeleteGoal, onArchiveGoal }: Props = $props();
+	let { goal, onAddContribution, onEditGoal, onDeleteGoal }: Props = $props();
 
 	// Determine card color based on status
 	let statusColor = $derived(
@@ -52,7 +51,11 @@
 			<div class="flex gap-1">
 				<Tooltip.Root>
 					<Tooltip.Trigger
-						class={buttonVariants({ variant: 'ghost', size: 'icon', class: 'h-8 w-8' })}
+						class={buttonVariants({
+							variant: 'ghost',
+							size: 'icon',
+							class: 'h-8 w-8 hover:text-muted-foreground'
+						})}
 						onclick={() => onEditGoal(goal)}
 					>
 						<PenIcon class="h-4 w-4" />
@@ -61,23 +64,6 @@
 						<p>Edit</p>
 					</Tooltip.Content>
 				</Tooltip.Root>
-				{#if goal.status === 'completed'}
-					<Tooltip.Root>
-						<Tooltip.Trigger
-							class={buttonVariants({
-								variant: 'ghost',
-								size: 'icon',
-								class: 'h-8 w-8 text-muted-foreground hover:text-muted-foreground'
-							})}
-							onclick={() => onArchiveGoal(goal.id)}
-						>
-							<ArchiveIcon class="h-4 w-4" />
-						</Tooltip.Trigger>
-						<Tooltip.Content>
-							<p>Archive</p>
-						</Tooltip.Content>
-					</Tooltip.Root>
-				{/if}
 				<Tooltip.Root>
 					<Tooltip.Trigger
 						class={buttonVariants({

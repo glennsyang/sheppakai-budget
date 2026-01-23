@@ -143,7 +143,6 @@
 					onAddContribution={handleAddContribution}
 					onEditGoal={handleEditGoal}
 					onDeleteGoal={handleDeleteGoal}
-					onArchiveGoal={handleArchiveGoal}
 				/>
 			{/each}
 		</div>
@@ -225,13 +224,4 @@
 	title="Delete Savings Goal"
 	message="Are you sure you want to delete this goal? You can only delete goals with no contributions."
 	confirmButtonText="Delete Goal"
-/>
-
-<ConfirmModal
-	bind:open={openArchiveModal}
-	id={archivingGoalId}
-	actionUrl="/savings/goals?/updateGoal"
-	title="Archive Savings Goal"
-	message="Are you sure you want to archive this goal? Archived goals will be hidden from the main view."
-	confirmButtonText="Archive Goal"
 />
