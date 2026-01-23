@@ -2,10 +2,9 @@
 	import { ArchiveIcon, PenIcon, PlusIcon, Trash2Icon } from '@lucide/svelte/icons';
 
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import { Progress } from '$lib/components/ui/progress';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
 
 	import type { SavingsGoalWithProgress } from '$lib';
@@ -19,7 +18,6 @@
 	}
 
 	let { goal, onAddContribution, onEditGoal, onDeleteGoal, onArchiveGoal }: Props = $props();
-	let showArchiveDialog = $state(false);
 
 	// Determine card color based on status
 	let statusColor = $derived(
@@ -71,7 +69,7 @@
 								size: 'icon',
 								class: 'h-8 w-8 text-muted-foreground hover:text-muted-foreground'
 							})}
-							onclick={() => (showArchiveDialog = true)}
+							onclick={() => onArchiveGoal(goal.id)}
 						>
 							<ArchiveIcon class="h-4 w-4" />
 						</Tooltip.Trigger>
@@ -188,25 +186,3 @@
 		</Button>
 	</CardContent>
 </Card>
-
-<!-- Archive Confirmation Dialog -->
-<Dialog.Root bind:open={showArchiveDialog}>
-	<Dialog.Content class="sm:max-w-106.25">
-		<Dialog.Header>
-			<Dialog.Title>Archive Goal</Dialog.Title>
-			<Dialog.Description>
-				Are you sure you want to archive this goal? Archived goals will be hidden from the main
-				view.
-			</Dialog.Description>
-		</Dialog.Header>
-		<Dialog.Footer>
-			<Dialog.Close><Button variant="outline">Cancel</Button></Dialog.Close>
-			<Button
-				onclick={() => {
-					showArchiveDialog = false;
-					onArchiveGoal(goal.id);
-				}}>Archive</Button
-			>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>

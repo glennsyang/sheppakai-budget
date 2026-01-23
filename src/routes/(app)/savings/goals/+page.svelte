@@ -39,11 +39,13 @@
 	let openGoalModal = $state<boolean>(false);
 	let openContributionModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
+	let openArchiveModal = $state<boolean>(false);
 	let loading = $state(false);
 
 	let editingGoal = $state<SavingsGoalWithProgress | null>(null);
 	let selectedGoalId = $state<string>('');
 	let deletingGoalId = $state<string>('');
+	let archivingGoalId = $state<string>('');
 
 	function handleCreateGoal() {
 		editingGoal = null;
@@ -65,29 +67,9 @@
 		openDeleteModal = true;
 	}
 
-	async function handleArchiveGoal(goalId: string) {
-		const formData = new FormData();
-		const goalToArchive = data.goals.find((g) => g.id === goalId);
-
-		if (!goalToArchive) return;
-
-		formData.append('id', goalId);
-		formData.append('name', goalToArchive.name);
-		formData.append('targetAmount', goalToArchive.targetAmount.toString());
-		formData.append('targetDate', goalToArchive.targetDate || '');
-		formData.append('status', 'archived');
-		if (goalToArchive.description) {
-			formData.append('description', goalToArchive.description);
-		}
-
-		const response = await fetch('/savings/goals?/updateGoal', {
-			method: 'POST',
-			body: formData
-		});
-
-		if (response.ok) {
-			window.location.reload();
-		}
+	function handleArchiveGoal(goalId: string) {
+		archivingGoalId = goalId;
+		openArchiveModal = true;
 	}
 
 	// Calculate totals
@@ -243,4 +225,13 @@
 	title="Delete Savings Goal"
 	message="Are you sure you want to delete this goal? You can only delete goals with no contributions."
 	confirmButtonText="Delete Goal"
+/>
+
+<ConfirmModal
+	bind:open={openArchiveModal}
+	id={archivingGoalId}
+	actionUrl="/savings/goals?/updateGoal"
+	title="Archive Savings Goal"
+	message="Are you sure you want to archive this goal? Archived goals will be hidden from the main view."
+	confirmButtonText="Archive Goal"
 />
