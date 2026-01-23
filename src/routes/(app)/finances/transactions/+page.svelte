@@ -128,7 +128,7 @@
 					{#if loading}
 						<TableSkeleton rows={5} columns={4} />
 					{:else}
-						<DataTable {columns} data={data.transactions as Transaction[]} showCategoryFilter />
+						<DataTable {columns} data={data.transactions as Transaction[]} />
 					{/if}
 				</div>
 			</div>

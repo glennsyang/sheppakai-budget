@@ -14,6 +14,7 @@
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
+	import type { Income } from '$lib';
 
 	let { data }: PageProps = $props();
 
@@ -24,6 +25,11 @@
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
+
+	// Calculate total income
+	let totalIncome = $derived(
+		((data.incomes as Income[]) || []).reduce((sum, item) => sum + item.amount, 0)
+	);
 
 	const currentDate = new Date();
 	const defaultMonth = currentDate.getMonth() + 1;
@@ -81,25 +87,44 @@
 		</div>
 	</div>
 
-	<div class="overflow-hidden rounded-lg border shadow">
-		<div class="p-6">
-			<div class="mb-4 flex items-center justify-between">
-				<div>
-					<h1 class="text-3xl font-bold tracking-tight">Income</h1>
-					<p class="mt-2 text-muted-foreground">Manage your income sources</p>
-				</div>
-				<div class="flex items-center gap-2">
-					<Button size="sm" onclick={() => (openModal = true)}>
-						<PlusIcon />
-						Add
-					</Button>
+	<div class="flex flex-col gap-6 lg:grid lg:grid-cols-4">
+		<!-- Table Column (larger) -->
+		<div class="lg:col-span-3">
+			<div class="overflow-hidden rounded-lg border shadow">
+				<div class="p-6">
+					<div class="mb-4 flex items-center justify-between">
+						<div>
+							<h1 class="text-3xl font-bold tracking-tight">Income</h1>
+							<p class="mt-2 text-muted-foreground">Manage your income sources</p>
+						</div>
+						<div class="flex items-center gap-2">
+							<Button size="sm" onclick={() => (openModal = true)}>
+								<PlusIcon />
+								Add
+							</Button>
+						</div>
+					</div>
+					{#if loading}
+						<TableSkeleton rows={5} columns={3} />
+					{:else}
+						<DataTable {columns} data={data.incomes} />
+					{/if}
 				</div>
 			</div>
-			{#if loading}
-				<TableSkeleton rows={5} columns={3} />
-			{:else}
-				<DataTable {columns} data={data.incomes} />
-			{/if}
+		</div>
+
+		<!-- Summary Card Column -->
+		<div class="lg:col-span-1">
+			<div class="overflow-hidden rounded-lg border shadow">
+				<div class="p-6">
+					<h2 class="text-center text-2xl font-bold tracking-tight">Summary</h2>
+					<div class="my-4 border-t"></div>
+					<div class="flex items-center justify-between">
+						<span class="text-base font-medium">Total Income: </span>
+						<span class="text-2xl font-bold">${totalIncome.toFixed(2)}</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
+	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
 	import { months } from '$lib/utils';
@@ -16,13 +17,35 @@
 	let loading: boolean = $state(false);
 	let selectedMonth: string = $derived(page.url.searchParams.get('month') ?? currentMonth);
 
+	// State for transaction drawer
+	let openTransactionSheet = $state(false);
+	let selectedCategoryId = $state<string | null>(null);
+
+	const categories = getCategoriesContext();
+
+	// Derived values for transaction drawer
+	let filteredTransactions = $derived(
+		selectedCategoryId
+			? (data.actualExpenses || [])
+					.filter((t) => t?.category?.id === selectedCategoryId)
+					.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+			: []
+	);
+
+	let selectedCategory = $derived(
+		selectedCategoryId ? categories().find((c) => c.id === selectedCategoryId) : null
+	);
+
+	function openCategoryDetails(categoryId: string) {
+		selectedCategoryId = categoryId;
+		openTransactionSheet = true;
+	}
+
 	function onMonthChange(month: string | undefined) {
 		goto(`?month=${month}&year=${currentYear}`, { keepFocus: true, replaceState: true });
 	}
 
 	let plannedExpenses: number = $derived(data.plannedExpensesTotal || 0);
-
-	const categories = getCategoriesContext();
 
 	// Sort categories alphabetically
 	let sortedCategories = $derived([...categories()].sort((a, b) => a.name.localeCompare(b.name)));
@@ -90,13 +113,29 @@
 	<h2 class="mt-8 mb-4 text-xl font-semibold">Expenses by Category</h2>
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 		{#each sortedCategories as category (category.id)}
-			<BudgetProgressCard
-				title={category.name}
-				planned={getPlannedAmount(category.id)}
-				actual={getActualAmount(category.id)}
-				{loading}
-				label1="Spent"
-			/>
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div
+				onclick={() => openCategoryDetails(category.id)}
+				class="cursor-pointer transition-shadow hover:shadow-md"
+			>
+				<BudgetProgressCard
+					title={category.name}
+					planned={getPlannedAmount(category.id)}
+					actual={getActualAmount(category.id)}
+					{loading}
+					label1="Spent"
+				/>
+			</div>
 		{/each}
 	</div>
 </div>
+
+<!-- Transaction Details Sheet -->
+<CategoryTransactionSheet
+	bind:open={openTransactionSheet}
+	transactions={filteredTransactions}
+	category={selectedCategory}
+	month={selectedMonth}
+	year={currentYear}
+/>

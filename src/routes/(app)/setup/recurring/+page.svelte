@@ -66,7 +66,7 @@
 					<h2 class="text-center text-2xl font-bold tracking-tight">Summary</h2>
 					<div class="my-4 border-t"></div>
 					<div class="flex items-center justify-between">
-						<span class="text-base font-medium">Recurring Total</span>
+						<span class="text-base font-medium">Total Recurring: </span>
 						<span class="text-2xl font-bold">${totalRecurring.toFixed(2)}</span>
 					</div>
 				</div>
