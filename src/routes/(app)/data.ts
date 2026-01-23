@@ -1,5 +1,7 @@
+import BriefcaseBusinessIcon from '@lucide/svelte/icons/briefcase-business';
 import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
 import FolderTreeIcon from '@lucide/svelte/icons/folder-tree';
+import FuelIcon from '@lucide/svelte/icons/fuel';
 import HouseIcon from '@lucide/svelte/icons/house';
 import PiggyBankIcon from '@lucide/svelte/icons/piggy-bank';
 import ReceiptIcon from '@lucide/svelte/icons/receipt';
@@ -47,6 +49,18 @@ export const sidebarData: SidebarData = {
 			title: 'Savings Goals',
 			url: '/savings/goals',
 			icon: TargetIcon
+		}
+	],
+	navReceipts: [
+		{
+			title: 'Business Receipts',
+			url: '/receipts',
+			icon: BriefcaseBusinessIcon
+		},
+		{
+			title: 'Fuel Receipts',
+			url: '/receipts/upload',
+			icon: FuelIcon
 		}
 	],
 	navSetup: [

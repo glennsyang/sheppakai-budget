@@ -5,6 +5,7 @@
 	import type { SidebarData, User } from '$lib/types';
 
 	import NavMain from './NavMain.svelte';
+	import NavReceipts from './NavReceipts.svelte';
 	import NavSavings from './NavSavings.svelte';
 	import NavSetup from './NavSetup.svelte';
 	import NavUser from './NavUser.svelte';
@@ -35,6 +36,7 @@
 	<Sidebar.Content>
 		<NavMain items={sidebarData.navMain} />
 		<NavSavings items={sidebarData.navSavings} />
+		<NavReceipts items={sidebarData.navReceipts} />
 		<NavSetup items={sidebarData.navSetup} />
 	</Sidebar.Content>
 	<Sidebar.Footer>

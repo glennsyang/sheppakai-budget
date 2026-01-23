@@ -14,6 +14,7 @@
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
+
 	import type { Income } from '$lib';
 
 	let { data }: PageProps = $props();

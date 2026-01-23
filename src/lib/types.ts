@@ -129,5 +129,6 @@ export type ChartData = {
 export type SidebarData = {
 	navMain: { title: string; url: string; icon?: Component<Icon> }[];
 	navSavings: { title: string; url: string; icon?: Component<Icon> }[];
+	navReceipts: { title: string; url: string; icon?: Component<Icon> }[];
 	navSetup: { title: string; url: string; icon?: Component<Icon> }[];
 };

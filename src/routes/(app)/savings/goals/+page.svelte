@@ -39,13 +39,11 @@
 	let openGoalModal = $state<boolean>(false);
 	let openContributionModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
-	let openArchiveModal = $state<boolean>(false);
 	let loading = $state(false);
 
 	let editingGoal = $state<SavingsGoalWithProgress | null>(null);
 	let selectedGoalId = $state<string>('');
 	let deletingGoalId = $state<string>('');
-	let archivingGoalId = $state<string>('');
 
 	function handleCreateGoal() {
 		editingGoal = null;
@@ -65,11 +63,6 @@
 	function handleDeleteGoal(goalId: string) {
 		deletingGoalId = goalId;
 		openDeleteModal = true;
-	}
-
-	function handleArchiveGoal(goalId: string) {
-		archivingGoalId = goalId;
-		openArchiveModal = true;
 	}
 
 	// Calculate totals
