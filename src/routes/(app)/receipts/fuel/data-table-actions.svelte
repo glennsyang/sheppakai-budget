@@ -57,8 +57,8 @@
 <ConfirmModal
 	bind:open={openDeleteModal}
 	{id}
-	actionUrl="/finances/transactions?/delete"
+	actionUrl="/receipts/fuel?/delete"
 	title="Delete Transaction"
-	message="Are you sure you want to delete this transaction?"
+	message="Are you sure you want to delete this fuel receipt?"
 	confirmButtonText="Delete"
 />

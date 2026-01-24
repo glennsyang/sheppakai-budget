@@ -44,6 +44,7 @@ export type Transaction = {
 	payee: string;
 	notes: string;
 	date: string;
+	gstAmount?: number | null;
 	category: Category | null;
 	user: User;
 };

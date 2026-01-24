@@ -12,6 +12,7 @@ const transaction = sqliteTable('transactions', {
 	payee: text('payee').notNull(),
 	notes: text('notes').notNull(),
 	date: text('date').notNull(),
+	gstAmount: real('gst_amount'),
 	categoryId: text('category_id')
 		.notNull()
 		.references(() => category.id),

@@ -22,31 +22,12 @@ export const columns: ColumnDef<Transaction>[] = [
 		}
 	},
 	{
-		accessorKey: 'category',
-		header: ({ column }) =>
-			renderComponent(DataTableSortButton, {
-				columnName: 'Category',
-				onclick: column.getToggleSortingHandler()
-			}),
-		accessorFn: (row) => row.category?.name,
-		cell: ({ row }) => {
-			return row.original.category ? row.original.category.name : 'Uncategorized';
-		}
-	},
-	{
 		accessorKey: 'payee',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
 				columnName: 'Payee',
 				onclick: column.getToggleSortingHandler()
 			})
-	},
-	{
-		accessorKey: 'notes',
-		header: 'Notes',
-		cell: ({ row }) => {
-			return row.original.notes;
-		}
 	},
 	{
 		accessorKey: 'amount',
@@ -76,9 +57,33 @@ export const columns: ColumnDef<Transaction>[] = [
 		}
 	},
 	{
+		accessorKey: 'gstAmount',
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'GST Amount',
+				onclick: column.getToggleSortingHandler(),
+				class: 'justify-end w-full'
+			}),
+		cell: ({ row }) => {
+			const formatter = new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD'
+			});
+
+			const gstAmountCellSnippet = createRawSnippet<[string]>((getGstAmount) => {
+				const gstAmount = getGstAmount();
+				return {
+					render: () => `<div class="text-right font-medium">${gstAmount}</div>`
+				};
+			});
+
+			const gstValue = row.original.gstAmount ?? 0;
+			return renderSnippet(gstAmountCellSnippet, formatter.format(gstValue));
+		}
+	},
+	{
 		id: 'actions',
 		cell: ({ row }) => {
-			// Pass both the ID and the entire expense data for editing
 			return renderComponent(DataTableActions, {
 				id: row.original.id.toString(),
 				transactionData: row.original

@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, ne, sql } from 'drizzle-orm';
 
 import type { Transaction } from '$lib/types';
 
@@ -48,5 +48,25 @@ export const transactionQueries = {
 			: eq(transaction.categoryId, categoryId);
 
 		return baseBuilder.findAll({ where });
+	},
+
+	// Find by date range excluding a specific category (for business receipts)
+	findByDateRangeExcludingCategory: async (
+		startDate: string,
+		endDate: string,
+		excludeCategoryId: string,
+		requireGst: boolean = false
+	): Promise<Transaction[]> => {
+		const conditions = [
+			sql`date(${transaction.date}) >= date(${startDate})`,
+			sql`date(${transaction.date}) <= date(${endDate})`,
+			ne(transaction.categoryId, excludeCategoryId)
+		];
+
+		if (requireGst) {
+			conditions.push(isNotNull(transaction.gstAmount), sql`${transaction.gstAmount} > 0`);
+		}
+
+		return baseBuilder.findAll({ where: and(...conditions) });
 	}
 };

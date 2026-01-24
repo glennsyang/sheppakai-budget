@@ -50,6 +50,7 @@ export const actions = createCrudActions({
 	entityName: 'Transaction',
 	transformCreate: (data, userId) => ({
 		amount: data.amount,
+		gstAmount: data.gstAmount,
 		payee: data.payee,
 		notes: data.notes,
 		date: formatDateForStorage(data.date),
@@ -58,6 +59,7 @@ export const actions = createCrudActions({
 	}),
 	transformUpdate: (data) => ({
 		amount: data.amount,
+		gstAmount: data.gstAmount,
 		payee: data.payee,
 		notes: data.notes,
 		date: formatDateForStorage(data.date),

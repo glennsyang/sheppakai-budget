@@ -81,6 +81,22 @@ export function getMonthDateRange(month: number, year: number) {
 }
 
 /**
+ * Get date range for a full year using local dates
+ * @param year - Year
+ * @returns { startDate, endDate } as YYYY-MM-DD strings
+ *
+ * Example: year=2026
+ *   → startDate: "2026-01-01"
+ *   → endDate: "2026-12-31"
+ */
+export function getYearDateRange(year: number) {
+	const startDate = `${year}-01-01`;
+	const endDate = `${year}-12-31`;
+
+	return { startDate, endDate };
+}
+
+/**
  * Get current date in YYYY-MM-DD format
  * For default values in date input fields
  */

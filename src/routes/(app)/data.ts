@@ -53,14 +53,14 @@ export const sidebarData: SidebarData = {
 	],
 	navReceipts: [
 		{
-			title: 'Business Receipts',
-			url: '/receipts',
-			icon: BriefcaseBusinessIcon
+			title: 'Fuel',
+			url: '/receipts/fuel',
+			icon: FuelIcon
 		},
 		{
-			title: 'Fuel Receipts',
-			url: '/receipts/upload',
-			icon: FuelIcon
+			title: 'Business',
+			url: '/receipts/business',
+			icon: BriefcaseBusinessIcon
 		}
 	],
 	navSetup: [

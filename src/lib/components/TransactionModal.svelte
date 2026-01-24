@@ -66,12 +66,14 @@
 				$form.payee = initialData.payee || '';
 				$form.notes = initialData.notes || '';
 				$form.date = initialData.date ? extractDateFromTimestamp(initialData.date) : '';
+				$form.gstAmount = initialData.gstAmount || 0;
 				$form.categoryId = initialData.categoryId || '';
 			} else {
 				$form.id = '';
 				$form.amount = 0;
 				$form.payee = '';
 				$form.notes = '';
+				$form.gstAmount = 0;
 				$form.categoryId = '';
 				$form.date = getTodayDate();
 			}
@@ -86,7 +88,7 @@
 			<Dialog.Description>
 				{isEditing
 					? 'Update this transaction entry. Modify the amount, payee, notes, date, or category as needed.'
-					: 'Record a new transaction entry. Fill in the amount, payee, notes, date, and optionally select a category.'}
+					: 'Record a new transaction entry. Fill in the amount, payee, notes, date, and select a category.'}
 			</Dialog.Description>
 		</Dialog.Header>
 		<form
@@ -96,22 +98,41 @@
 			use:enhance
 		>
 			<input type="hidden" name="id" bind:value={$form.id} />
-			<div class="space-y-2">
-				<label for="transaction-amount" class="text-sm font-medium">Amount</label>
-				<Input
-					id="transaction-amount"
-					name="amount"
-					type="number"
-					step="0.01"
-					min="0"
-					bind:value={$form.amount}
-					placeholder="0.00"
-					class={$errors.amount ? 'border-red-400' : ''}
-					required
-				/>
-				{#if $errors.amount}
-					<p class="text-sm text-red-500">{$errors.amount}</p>
-				{/if}
+
+			<div class="flex gap-4">
+				<div class="flex-3 space-y-2">
+					<label for="transaction-amount" class="text-sm font-medium">Amount</label>
+					<Input
+						id="transaction-amount"
+						name="amount"
+						type="number"
+						step="0.01"
+						min="0"
+						bind:value={$form.amount}
+						placeholder="0.00"
+						class={$errors.amount ? 'border-red-400' : ''}
+						required
+					/>
+					{#if $errors.amount}
+						<p class="text-sm text-red-500">{$errors.amount}</p>
+					{/if}
+				</div>
+				<div class="flex-2 space-y-2">
+					<label for="transaction-gst-amount" class="text-sm font-medium">GST</label>
+					<Input
+						id="transaction-gst-amount"
+						name="gstAmount"
+						type="number"
+						step="0.01"
+						min="0"
+						bind:value={$form.gstAmount}
+						placeholder="0.00"
+						class={$errors.gstAmount ? 'border-red-400' : ''}
+					/>
+					{#if $errors.gstAmount}
+						<p class="text-sm text-red-500">{$errors.gstAmount}</p>
+					{/if}
+				</div>
 			</div>
 
 			<div class="space-y-2">

@@ -1,0 +1,1 @@
+ALTER TABLE `transactions` ADD `gst_amount` real;

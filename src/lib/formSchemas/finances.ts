@@ -9,6 +9,7 @@ export const transactionSchema = z.object({
 		.string()
 		.min(1, 'Date is required')
 		.regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
+	gstAmount: z.number().optional(),
 	categoryId: z.string().min(1, 'Category is required')
 });
 
