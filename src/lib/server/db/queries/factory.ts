@@ -35,7 +35,7 @@ export function createQueryBuilder<_TTable, TReturn = _TTable>(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			return (db.query as any)[config.tableName].findFirst({
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				where: (table: any) => table.id === id,
+				where: (table: any, { eq }: any) => eq(table.id, id),
 				with: withRelations ? config.defaultRelations : undefined
 			}) as Promise<TReturn | undefined>;
 		},
