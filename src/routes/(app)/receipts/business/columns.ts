@@ -60,7 +60,7 @@ export const columns: ColumnDef<Transaction>[] = [
 		accessorKey: 'gstAmount',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
-				columnName: 'GST Amount',
+				columnName: 'GST',
 				onclick: column.getToggleSortingHandler(),
 				class: 'justify-end w-full'
 			}),
