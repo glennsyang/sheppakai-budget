@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import BarChart from '$lib/components/BarChart.svelte';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
+	import type { BarChartData } from '$lib/types';
 	import { months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
@@ -31,6 +33,49 @@
 					.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 			: []
 	);
+
+	let chartData: BarChartData[] = $derived.by(() => {
+		const month = parseInt(selectedMonth);
+		const year = currentYear;
+
+		// Get the number of days in the month
+		const lastDay = new Date(year, month, 0);
+		const daysInMonth = lastDay.getDate();
+
+		// Create a map of date strings to amounts
+		const dataMap = (data.actualExpenses || []).reduce(
+			(acc, transaction) => {
+				// Extract just the date part (YYYY-MM-DD) - handle both space and T separator
+				const dateKey = transaction.date.split(' ')[0];
+				// Extract the day portion and add 1 day to it to account for timezone issues
+				const dateObj = new Date(transaction.date);
+				dateObj.setDate(dateObj.getDate() + 1);
+				const adjustedDateKey = dateObj.toISOString().split('T')[0];
+				if (!acc[adjustedDateKey]) {
+					acc[adjustedDateKey] = 0;
+				}
+				acc[adjustedDateKey] += transaction.amount;
+				return acc;
+			},
+			{} as Record<string, number>
+		);
+
+		// Generate array for all days in the month
+		const result: BarChartData[] = [];
+		for (let day = 1; day <= daysInMonth; day++) {
+			// Format day with leading zero if needed
+			const dayStr = day.toString().padStart(2, '0');
+			const monthStr = month.toString().padStart(2, '0');
+			const dateStr = `${year}-${monthStr}-${dayStr}`;
+
+			result.push({
+				date: new Date(dateStr),
+				spent: dataMap[dateStr] || 0
+			});
+		}
+
+		return result;
+	});
 
 	let selectedCategory = $derived(
 		selectedCategoryId ? categories().find((c) => c.id === selectedCategoryId) : null
@@ -128,6 +173,15 @@
 				/>
 			</div>
 		{/each}
+	</div>
+
+	<!-- Area Chart -->
+	<div class="mt-6">
+		<BarChart
+			monthName={months.find((m) => m.value === selectedMonth)?.label}
+			{currentYear}
+			{chartData}
+		/>
 	</div>
 </div>
 

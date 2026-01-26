@@ -127,6 +127,16 @@ export type ChartData = {
 	planned: number;
 };
 
+export type AreaChartData = {
+	date: Date;
+	spent: number;
+};
+
+export type BarChartData = {
+	date: Date;
+	spent: number;
+};
+
 export type SidebarData = {
 	navMain: { title: string; url: string; icon?: Component<Icon> }[];
 	navSavings: { title: string; url: string; icon?: Component<Icon> }[];
