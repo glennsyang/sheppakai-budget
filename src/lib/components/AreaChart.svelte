@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { AreaChart } from 'layerchart';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
-	import { curveNatural } from 'd3-shape';
 	import { scaleUtc } from 'd3-scale';
-	import * as Chart from '$lib/components/ui/chart/index.js';
+	import { curveNatural } from 'd3-shape';
+	import { AreaChart } from 'layerchart';
+
 	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { AreaChartData } from '$lib/types';
 
 	interface Props {

@@ -1,9 +1,10 @@
 <script lang="ts">
-	import * as Chart from '$lib/components/ui/chart/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
 	import { scaleUtc } from 'd3-scale';
 	import { BarChart, type ChartContextValue, Highlight } from 'layerchart';
 	import { cubicInOut } from 'svelte/easing';
+
+	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { BarChartData } from '$lib/types';
 
 	interface Props {
@@ -14,8 +15,6 @@
 
 	let { monthName, currentYear, chartData }: Props = $props();
 
-	$inspect(chartData);
-
 	const chartConfig = {
 		views: { label: 'Total Spent: ', color: '' },
 		spent: { label: 'Spent', color: 'var(--chart-2)' }
@@ -23,10 +22,6 @@
 	let context = $state<ChartContextValue>();
 
 	let activeChart = $state<keyof typeof chartConfig>('spent');
-
-	const total = $derived({
-		spent: chartData.reduce((acc, curr) => acc + curr.spent, 0)
-	});
 
 	const activeSeries = $derived([
 		{

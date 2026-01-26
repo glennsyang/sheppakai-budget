@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { SvelteDate } from 'svelte/reactivity';
+
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import BarChart from '$lib/components/BarChart.svelte';
@@ -45,10 +47,8 @@
 		// Create a map of date strings to amounts
 		const dataMap = (data.actualExpenses || []).reduce(
 			(acc, transaction) => {
-				// Extract just the date part (YYYY-MM-DD) - handle both space and T separator
-				const dateKey = transaction.date.split(' ')[0];
 				// Extract the day portion and add 1 day to it to account for timezone issues
-				const dateObj = new Date(transaction.date);
+				const dateObj = new SvelteDate(transaction.date);
 				dateObj.setDate(dateObj.getDate() + 1);
 				const adjustedDateKey = dateObj.toISOString().split('T')[0];
 				if (!acc[adjustedDateKey]) {
