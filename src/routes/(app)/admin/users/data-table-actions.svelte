@@ -1,5 +1,6 @@
 <script lang="ts">
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 	import { toast } from 'svelte-sonner';
 	import { superForm, type SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
@@ -22,7 +23,6 @@
 	import { formatLocalTimestamp } from '$lib/utils/dates';
 
 	import type { UserWithSessions } from '$lib';
-	import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 
 	let { user }: { user: UserWithSessions } = $props();
 
