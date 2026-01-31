@@ -5,7 +5,7 @@ import {
 	recurringQueries,
 	transactionQueries
 } from '$lib/server/db/queries';
-import type { MonthlyInOutData } from '$lib/types';
+import type { TimeRangeInOutData } from '$lib/types';
 import { monthNames } from '$lib/utils';
 import { getMonthDateRange, getMonthRangeFromUrl } from '$lib/utils/dates';
 
@@ -53,7 +53,7 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 	const remainingBalance = totalIncome - plannedExpensesTotal;
 
 	// Generate monthly in/out data for the last 6 months
-	const monthlyInOutData: MonthlyInOutData[] = [];
+	const monthlyInOutData: TimeRangeInOutData[] = [];
 
 	// Loop through current month and 5 previous months
 	for (let i = 5; i >= 0; i--) {

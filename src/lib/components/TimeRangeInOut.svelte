@@ -5,12 +5,12 @@
 
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import type { MonthlyInOutData } from '$lib/types';
+	import type { TimeRangeInOutData } from '$lib/types';
 
 	interface Props {
 		chartTitle: string;
 		chartDescription: string;
-		chartData?: MonthlyInOutData[];
+		chartData?: TimeRangeInOutData[];
 	}
 
 	let { chartTitle, chartDescription, chartData }: Props = $props();

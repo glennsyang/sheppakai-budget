@@ -1,26 +1,17 @@
 <script lang="ts">
-	import { SvelteDate } from 'svelte/reactivity';
-
 	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
-	import BarChart from '$lib/components/BarChart.svelte';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
 	import TimeRangeInOut from '$lib/components/TimeRangeInOut.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
-	import type { BarChartData } from '$lib/types';
-	import { months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	const currentMonth = (new Date().getMonth() + 1).toString();
-	const currentYear = new Date().getFullYear();
-
 	let loading: boolean = $state(false);
-	let selectedMonth: string = $derived(page.url.searchParams.get('month') ?? currentMonth);
 
 	// State for transaction drawer
 	let openTransactionSheet = $state(false);
@@ -37,47 +28,6 @@
 			: []
 	);
 
-	let chartData: BarChartData[] = $derived.by(() => {
-		const month = parseInt(selectedMonth);
-		const year = currentYear;
-
-		// Get the number of days in the month
-		const lastDay = new Date(year, month, 0);
-		const daysInMonth = lastDay.getDate();
-
-		// Create a map of date strings to amounts
-		const dataMap = (data.actualExpenses || []).reduce(
-			(acc, transaction) => {
-				// Extract the day portion and add 1 day to it to account for timezone issues
-				const dateObj = new SvelteDate(transaction.date);
-				dateObj.setDate(dateObj.getDate() + 1);
-				const adjustedDateKey = dateObj.toISOString().split('T')[0];
-				if (!acc[adjustedDateKey]) {
-					acc[adjustedDateKey] = 0;
-				}
-				acc[adjustedDateKey] += transaction.amount;
-				return acc;
-			},
-			{} as Record<string, number>
-		);
-
-		// Generate array for all days in the month
-		const result: BarChartData[] = [];
-		for (let day = 1; day <= daysInMonth; day++) {
-			// Format day with leading zero if needed
-			const dayStr = day.toString().padStart(2, '0');
-			const monthStr = month.toString().padStart(2, '0');
-			const dateStr = `${year}-${monthStr}-${dayStr}`;
-
-			result.push({
-				date: new Date(dateStr),
-				spent: dataMap[dateStr] || 0
-			});
-		}
-
-		return result;
-	});
-
 	let selectedCategory = $derived(
 		selectedCategoryId ? categories().find((c) => c.id === selectedCategoryId) : null
 	);
@@ -87,8 +37,14 @@
 		openTransactionSheet = true;
 	}
 
-	function onMonthChange(month: string | undefined) {
-		goto(`?month=${month}&year=${currentYear}`, { keepFocus: true, replaceState: true });
+	function onViewChange(value: string | undefined) {
+		if (!value) return;
+		goto(`?view=${value}&year=${data.year}`, { keepFocus: true, replaceState: true });
+	}
+
+	function onYearChange(value: string | undefined) {
+		if (!value) return;
+		goto(`?view=${data.view}&year=${value}`, { keepFocus: true, replaceState: true });
 	}
 
 	let plannedExpenses: number = $derived(data.plannedExpensesTotal || 0);
@@ -97,7 +53,7 @@
 	let sortedCategories = $derived([...categories()].sort((a, b) => a.name.localeCompare(b.name)));
 
 	function getPlannedAmount(categoryId: string): number {
-		return data.plannedExpenses?.find((b) => b?.category?.id === categoryId)?.amount || 0;
+		return data.yearlyBudgets?.find((b) => b.categoryId === categoryId)?.amount || 0;
 	}
 
 	function getActualAmount(categoryId: string): number {
@@ -107,33 +63,55 @@
 			.filter((e) => e?.category?.id === categoryId)
 			.reduce((sum, e) => sum + e.amount, 0);
 	}
+
+	// Generate year options (2025-2026)
+	const yearOptions = [
+		{ label: '2025', value: '2025' },
+		{ label: '2026', value: '2026' }
+	];
+
+	let viewLabel = $derived(data.view === 'current' ? 'Last 6 Months' : 'Full Year');
+	let timeRangeDescription = $derived(
+		data.view === 'current' ? `Last 6 Months of ${data.year}` : `Full Year ${data.year}`
+	);
 </script>
 
 <svelte:head>
-	<title>Dashboard</title>
+	<title>Yearly Dashboard</title>
 </svelte:head>
 
 <div class="px-4 py-6 sm:px-0">
 	<div class="mb-8">
 		<div class="flex items-center justify-between">
 			<div>
-				<h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
-				<p class="mt-2 text-muted-foreground">Overview of your budget and expenses</p>
+				<h1 class="text-3xl font-bold tracking-tight">Yearly Dashboard</h1>
+				<p class="mt-2 text-muted-foreground">Annual overview of your budget and expenses</p>
 			</div>
-			<div class="w-44">
-				<Select.Root type="single" value={selectedMonth} onValueChange={onMonthChange}>
-					<Select.Trigger class="w-full">
-						{selectedMonth ? months.find((m) => m.value === selectedMonth)?.label : 'Select Month'}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Label>Jump to Month</Select.Label>
-						{#each months as month (month.value)}
-							<Select.Item value={month.value} label={month.label}>
-								{month.label}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
+			<div class="flex gap-4">
+				<!-- Year Selector -->
+				<div class="w-32">
+					<Select.Root type="single" value={data.year?.toString()} onValueChange={onYearChange}>
+						<Select.Trigger class="w-full">
+							{data.year}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Label>Select Year</Select.Label>
+							{#each yearOptions as yearOption (yearOption.value)}
+								<Select.Item value={yearOption.value} label={yearOption.label}>
+									{yearOption.label}
+								</Select.Item>
+							{/each}
+						</Select.Content>
+					</Select.Root>
+				</div>
+
+				<!-- View Toggle -->
+				<Tabs.Root value={data.view} onValueChange={onViewChange} class="w-100">
+					<Tabs.List class="grid w-full grid-cols-2">
+						<Tabs.Trigger value="current">Last 6 Months</Tabs.Trigger>
+						<Tabs.Trigger value="full">Full Year</Tabs.Trigger>
+					</Tabs.List>
+				</Tabs.Root>
 			</div>
 		</div>
 	</div>
@@ -176,21 +154,12 @@
 		{/each}
 	</div>
 
-	<!-- Daily Spending Chart -->
-	<div class="mt-6">
-		<BarChart
-			chartTitle="Daily Spending Trend"
-			chartDescription="Showing daily spending trend for the month"
-			{chartData}
-		/>
-	</div>
-
-	<!-- Monthly In/Out Chart -->
+	<!-- Time Range Chart -->
 	<div class="mt-6">
 		<TimeRangeInOut
-			chartTitle="Monthly In & Out"
-			chartDescription="Overview of monthly income and expenses"
-			chartData={data.monthlyInOutData}
+			chartTitle="{viewLabel} In & Out"
+			chartDescription="Overview of {timeRangeDescription.toLowerCase()}"
+			chartData={data.timeRangeData}
 		/>
 	</div>
 </div>
@@ -200,6 +169,5 @@
 	bind:open={openTransactionSheet}
 	transactions={filteredTransactions}
 	category={selectedCategory}
-	month={selectedMonth}
-	year={currentYear}
+	timeRange={timeRangeDescription}
 />

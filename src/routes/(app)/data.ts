@@ -16,8 +16,11 @@ export const sidebarData: SidebarData = {
 	navMain: [
 		{
 			title: 'Dashboard',
-			url: '/dashboard',
-			icon: HouseIcon
+			icon: HouseIcon,
+			items: [
+				{ title: 'Monthly', url: '/dashboard' },
+				{ title: 'Yearly', url: '/dashboard/yearly' }
+			]
 		},
 		{
 			title: 'Transactions',

@@ -159,3 +159,60 @@ export function getMonthRangeFromUrl(url: URL) {
 
 	return { month, year, startDate, endDate };
 }
+
+/**
+ * Get date ranges for the previous N months from current date (skipping future months)
+ * @param count - Number of months to include
+ * @returns Array of month ranges with month, year, startDate, endDate
+ *
+ * Example: count=6 (called on Jan 30, 2026)
+ *   → Returns data for Aug 2025, Sep 2025, Oct 2025, Nov 2025, Dec 2025, Jan 2026
+ */
+export function getPreviousMonthsRange(count: number) {
+	const currentDate = new Date();
+	const currentMonth = currentDate.getMonth() + 1;
+	const currentYear = currentDate.getFullYear();
+	const ranges = [];
+
+	for (let i = count - 1; i >= 0; i--) {
+		const targetDate = new Date(currentYear, currentMonth - 1 - i, 1);
+
+		// Skip if future month
+		if (targetDate > currentDate) continue;
+
+		const targetMonth = targetDate.getMonth() + 1;
+		const targetYear = targetDate.getFullYear();
+		const { startDate, endDate } = getMonthDateRange(targetMonth, targetYear);
+
+		ranges.push({ month: targetMonth, year: targetYear, startDate, endDate });
+	}
+
+	return ranges;
+}
+
+/**
+ * Get date ranges for all months in a calendar year (Jan-Dec or up to current month)
+ * @param year - The year to get month ranges for
+ * @returns Array of month ranges with month, year, startDate, endDate
+ *
+ * Example: year=2026 (called on Jan 30, 2026)
+ *   → Returns only January 2026
+ * Example: year=2025 (called on Jan 30, 2026)
+ *   → Returns all 12 months of 2025
+ */
+export function getCalendarYearMonthsRange(year: number) {
+	const currentDate = new Date();
+	const ranges = [];
+
+	for (let month = 1; month <= 12; month++) {
+		const monthDate = new Date(year, month - 1, 1);
+
+		// Skip future months
+		if (monthDate > currentDate) break;
+
+		const { startDate, endDate } = getMonthDateRange(month, year);
+		ranges.push({ month, year, startDate, endDate });
+	}
+
+	return ranges;
+}

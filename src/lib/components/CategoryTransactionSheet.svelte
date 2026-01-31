@@ -12,10 +12,19 @@
 		category: Category | null | undefined;
 		month?: string;
 		year?: number;
+		timeRange?: string;
 		footer?: import('svelte').Snippet;
 	}
 
-	let { open = $bindable(), transactions, category, month, year, footer }: Props = $props();
+	let {
+		open = $bindable(),
+		transactions,
+		category,
+		month,
+		year,
+		timeRange,
+		footer
+	}: Props = $props();
 
 	let categoryTotal = $derived(transactions.reduce((sum, t) => sum + t.amount, 0));
 </script>
@@ -25,8 +34,12 @@
 		<Sheet.Header>
 			<Sheet.Title>{category?.name} Transactions</Sheet.Title>
 			<Sheet.Description>
-				Transactions for {month ? months.find((m) => m.value === month)?.label : ''}
-				{year || ''}
+				{#if timeRange}
+					{timeRange}
+				{:else}
+					Transactions for {month ? months.find((m) => m.value === month)?.label : ''}
+					{year || ''}
+				{/if}
 			</Sheet.Description>
 		</Sheet.Header>
 

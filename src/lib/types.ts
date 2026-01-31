@@ -151,14 +151,19 @@ export type BarChartData = {
 	spent: number;
 };
 
-export type MonthlyInOutData = {
+export type TimeRangeInOutData = {
 	month: string;
 	in: number;
 	out: number;
 };
 
 export type SidebarData = {
-	navMain: { title: string; url: string; icon?: Component<Icon> }[];
+	navMain: {
+		title: string;
+		url?: string;
+		icon?: Component<Icon>;
+		items?: { title: string; url: string }[];
+	}[];
 	navSavings: { title: string; url: string; icon?: Component<Icon> }[];
 	navReceipts: { title: string; url: string; icon?: Component<Icon> }[];
 	navSetup: {
