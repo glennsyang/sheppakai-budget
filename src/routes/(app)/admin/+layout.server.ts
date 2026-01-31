@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
-import { logger } from 'better-auth';
 
 import { requireAdmin } from '$lib/server/auth';
+import { logger } from '$lib/server/logger';
 
 import type { LayoutServerLoad } from './$types';
 
