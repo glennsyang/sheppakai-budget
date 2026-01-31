@@ -14,11 +14,11 @@
 
 	import { columns } from './columns';
 
-	import type { User } from '$lib';
+	import type { UserWithSessions } from '$lib';
 
 	interface Props {
 		data: {
-			users: User[];
+			usersWithSessions: UserWithSessions[];
 			setRoleForm: SuperValidated<z.infer<typeof setUserRoleSchema>>;
 			setPasswordForm: SuperValidated<z.infer<typeof setPasswordSchema>>;
 			banUserForm: SuperValidated<z.infer<typeof banUserSchema>>;
@@ -30,8 +30,8 @@
 	let loading = $state<boolean>(true);
 
 	// Type guard to ensure role is defined and banned is boolean
-	const usersWithRole = $derived(
-		data.users.map((user) => ({
+	const usersWithSessionsAndRole = $derived(
+		data.usersWithSessions.map((user) => ({
 			...user,
 			role: user.role || 'user',
 			banned: Boolean(user.banned),
@@ -64,6 +64,6 @@
 	{#if loading}
 		<TableSkeleton rows={5} columns={6} />
 	{:else}
-		<DataTable {columns} data={usersWithRole} />
+		<DataTable {columns} data={usersWithSessionsAndRole} />
 	{/if}
 </div>

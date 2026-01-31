@@ -14,7 +14,8 @@ export type {
 	SavingsGoalWithProgress,
 	Session,
 	Transaction,
-	User
+	User,
+	UserWithSessions
 } from './types';
 
 // Re-export components for easier importing

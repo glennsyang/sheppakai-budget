@@ -5,6 +5,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
 import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
+import type { UserWithSessions } from '$lib/types';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -28,15 +29,37 @@ export const load: PageServerLoad = async ({ request }) => {
 
 		if (!result || !result.users) {
 			return {
-				users: [],
+				usersWithSessions: [],
 				setRoleForm,
 				setPasswordForm,
 				banUserForm
 			};
 		}
 
+		// Loop through all the users and get their user sessions
+		const usersWithSessions: UserWithSessions[] = await Promise.all(
+			result.users.map(async (user) => {
+				try {
+					const sessionsResult = await auth.api.listUserSessions({
+						body: { userId: user.id },
+						headers: request.headers
+					});
+					return {
+						...user,
+						sessions: sessionsResult.sessions || []
+					};
+				} catch (error) {
+					logger.error(`Failed to get sessions for user ${user.id}:`, error);
+					return {
+						...user,
+						sessions: []
+					};
+				}
+			})
+		);
+
 		return {
-			users: result.users,
+			usersWithSessions,
 			setRoleForm,
 			setPasswordForm,
 			banUserForm
@@ -44,7 +67,7 @@ export const load: PageServerLoad = async ({ request }) => {
 	} catch (error) {
 		logger.error('Failed to load users:', error);
 		return {
-			users: [],
+			usersWithSessions: [],
 			setRoleForm,
 			setPasswordForm,
 			banUserForm
@@ -221,32 +244,6 @@ export const actions: Actions = {
 		} catch (error) {
 			logger.error('Failed to delete user:', error);
 			return fail(400, { error: 'Failed to delete user' });
-		}
-	},
-
-	listSessions: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
-		}
-
-		const formData = await request.formData();
-		const userId = formData.get('userId') as string;
-
-		if (!userId) {
-			return fail(400, { error: 'User ID is required' });
-		}
-
-		try {
-			const result = await auth.api.listUserSessions({
-				body: { userId },
-				headers: request.headers
-			});
-
-			logger.info(`Listed sessions for user ${userId}`);
-			return { success: true, sessions: result.sessions || [] };
-		} catch (error) {
-			logger.error('Failed to list sessions:', error);
-			return fail(400, { error: 'Failed to list sessions' });
 		}
 	}
 };

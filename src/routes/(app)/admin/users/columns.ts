@@ -5,8 +5,9 @@ import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/in
 
 import DataTableActions from './data-table-actions.svelte';
 
-import type { User } from '$lib';
-export const columns: ColumnDef<User>[] = [
+import type { UserWithSessions } from '$lib';
+
+export const columns: ColumnDef<UserWithSessions>[] = [
 	{
 		accessorKey: 'email',
 		header: 'Email'

@@ -1,4 +1,5 @@
 import type { Icon } from '@lucide/svelte';
+import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 import type { Component } from 'svelte';
 
 import { session } from '$lib/server/db/schema';
@@ -43,6 +44,10 @@ export type User = {
 };
 
 export type Session = typeof session.$inferSelect;
+
+export type UserWithSessions = User & {
+	sessions: SessionWithImpersonatedBy[];
+};
 
 export type Category = {
 	id: string;

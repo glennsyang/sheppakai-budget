@@ -21,9 +21,10 @@
 	import type { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
 
-	import type { Session, User } from '$lib';
+	import type { UserWithSessions } from '$lib';
+	import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 
-	let { user }: { user: User } = $props();
+	let { user }: { user: UserWithSessions } = $props();
 
 	let openSetRoleDialog = $state<boolean>(false);
 	let openSetPasswordDialog = $state<boolean>(false);
@@ -32,11 +33,6 @@
 	let openRevokeDialog = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
 	let openSessionsSheet = $state<boolean>(false);
-
-	// Session state
-	let userSessions = $state<Session[]>([]);
-	let loadingSessions = $state<boolean>(false);
-	let sessionsError = $state<string | null>(null);
 
 	// Get all forms contexts
 	const setUserRoleForm = setUserRoleFormContext.get() as SuperValidated<
@@ -142,43 +138,11 @@
 
 	// Derived value for active session count
 	let activeSessionCount = $derived(
-		userSessions.filter((s) => new Date(s.expiresAt) > new Date()).length
+		user.sessions?.filter((s) => new Date(s.expiresAt) > new Date()).length || 0
 	);
 
-	// Function to handle listing sessions
-	async function handleListSessions() {
-		loadingSessions = true;
-		sessionsError = null;
-		openSessionsSheet = true;
-
-		try {
-			const formData = new FormData();
-			formData.append('userId', user.id);
-
-			const response = await fetch('/admin/users?/listSessions', {
-				method: 'POST',
-				body: formData
-			});
-
-			const result = await response.json();
-
-			if (result.type === 'success' && result.data) {
-				userSessions = result.data.sessions || [];
-			} else if (result.type === 'failure') {
-				const errorMsg = result.data?.error || 'Failed to load sessions';
-				sessionsError = errorMsg;
-				toast.error(errorMsg);
-			}
-		} catch (error) {
-			sessionsError = `Failed to load sessions. Reason: ${error}`;
-			toast.error('Failed to load sessions');
-		} finally {
-			loadingSessions = false;
-		}
-	}
-
 	// Helper function to check if session is active
-	function isSessionActive(session: Session): boolean {
+	function isSessionActive(session: SessionWithImpersonatedBy): boolean {
 		return new Date(session.expiresAt) > new Date();
 	}
 </script>
@@ -202,7 +166,7 @@
 		{:else}
 			<DropdownMenu.Item onclick={() => (openBanDialog = true)}>Ban User</DropdownMenu.Item>
 		{/if}
-		<DropdownMenu.Item onclick={() => handleListSessions()}>List Sessions</DropdownMenu.Item>
+		<DropdownMenu.Item onclick={() => (openSessionsSheet = true)}>List Sessions</DropdownMenu.Item>
 		<DropdownMenu.Item onclick={() => (openRevokeDialog = true)}>Revoke Sessions</DropdownMenu.Item>
 		<DropdownMenu.Item onclick={() => (openDeleteModal = true)}>Delete User</DropdownMenu.Item>
 	</DropdownMenu.Content>
@@ -360,15 +324,7 @@
 		</Sheet.Header>
 
 		<div class="flex-1 overflow-y-auto px-4 py-4">
-			{#if loadingSessions}
-				<div class="flex h-32 items-center justify-center text-muted-foreground">
-					Loading sessions...
-				</div>
-			{:else if sessionsError}
-				<div class="flex h-32 items-center justify-center text-destructive">
-					{sessionsError}
-				</div>
-			{:else if userSessions.length === 0}
+			{#if !user.sessions || user.sessions.length === 0}
 				<div class="flex h-32 items-center justify-center text-muted-foreground">
 					No sessions found
 				</div>
@@ -383,7 +339,7 @@
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each userSessions as session (session.id)}
+						{#each user.sessions as session (session.id)}
 							<Table.Row>
 								<Table.Cell>
 									{#if isSessionActive(session)}
@@ -410,7 +366,7 @@
 
 		<Sheet.Footer class="border-t pt-4">
 			<div class="flex w-full justify-between text-sm font-medium">
-				<span>{userSessions.length} total sessions</span>
+				<span>{user.sessions?.length || 0} total sessions</span>
 				<span>{activeSessionCount} active</span>
 			</div>
 		</Sheet.Footer>
