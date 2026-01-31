@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { scaleBand } from 'd3-scale';
-	import { BarChart, type ChartContextValue,Highlight } from 'layerchart';
+	import { BarChart, type ChartContextValue, Highlight } from 'layerchart';
 	import { cubicInOut } from 'svelte/easing';
 
 	import * as Card from '$lib/components/ui/card/index.js';
