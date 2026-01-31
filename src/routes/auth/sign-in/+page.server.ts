@@ -45,7 +45,8 @@ export const actions: Actions = {
 				body: {
 					email: form.data.email,
 					password: form.data.password
-				}
+				},
+				headers: request.headers
 			});
 
 			throw redirect(302, '/dashboard');

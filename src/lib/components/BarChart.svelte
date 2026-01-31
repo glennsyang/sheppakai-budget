@@ -8,12 +8,12 @@
 	import type { BarChartData } from '$lib/types';
 
 	interface Props {
-		monthName?: string;
-		currentYear: number;
+		chartTitle: string;
+		chartDescription: string;
 		chartData: BarChartData[];
 	}
 
-	let { monthName, currentYear, chartData }: Props = $props();
+	let { chartTitle, chartDescription, chartData }: Props = $props();
 
 	const chartConfig = {
 		views: { label: 'Total Spent: ', color: '' },
@@ -34,8 +34,8 @@
 
 <Card.Root class="@container/card bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
 	<Card.Header>
-		<Card.Title>Spending history</Card.Title>
-		<Card.Description>Showing spending history for {monthName} {currentYear}</Card.Description>
+		<Card.Title>{chartTitle}</Card.Title>
+		<Card.Description>{chartDescription}</Card.Description>
 	</Card.Header>
 	<Card.Content class="px-2 sm:p-6">
 		<Chart.Container config={chartConfig} class="aspect-auto h-62.5 w-full">

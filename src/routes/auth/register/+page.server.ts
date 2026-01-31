@@ -45,7 +45,8 @@ export const actions: Actions = {
 					email: form.data.email,
 					password: form.data.password,
 					name: form.data.name
-				}
+				},
+				headers: request.headers
 			});
 
 			// Redirect to verify-email page with user's email

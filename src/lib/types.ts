@@ -146,14 +146,15 @@ export type ChartData = {
 	planned: number;
 };
 
-export type AreaChartData = {
+export type BarChartData = {
 	date: Date;
 	spent: number;
 };
 
-export type BarChartData = {
-	date: Date;
-	spent: number;
+export type MonthlyInOutData = {
+	month: string;
+	in: number;
+	out: number;
 };
 
 export type SidebarData = {

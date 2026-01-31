@@ -28,6 +28,21 @@ export const months = [
 	{ value: '12', label: 'December' }
 ];
 
+export const monthNames = [
+	'January',
+	'February',
+	'March',
+	'April',
+	'May',
+	'June',
+	'July',
+	'August',
+	'September',
+	'October',
+	'November',
+	'December'
+];
+
 /**
  * Extracts the error code from a better-auth error response.
  * Better-auth errors have a structure like: { body: { code: string, message: string } }

@@ -12,6 +12,7 @@
 	import { months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
+	import MonthlyInOut from '$lib/components/MonthlyInOut.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -175,12 +176,21 @@
 		{/each}
 	</div>
 
-	<!-- Area Chart -->
+	<!-- Daily Spending Chart -->
 	<div class="mt-6">
 		<BarChart
-			monthName={months.find((m) => m.value === selectedMonth)?.label}
-			{currentYear}
+			chartTitle="Daily Spending Trend"
+			chartDescription="Showing daily spending trend for the month"
 			{chartData}
+		/>
+	</div>
+
+	<!-- Monthly In/Out Chart -->
+	<div class="mt-6">
+		<MonthlyInOut
+			chartTitle="Monthly In & Out"
+			chartDescription="Overview of monthly income and expenses"
+			chartData={data.monthlyInOutData}
 		/>
 	</div>
 </div>

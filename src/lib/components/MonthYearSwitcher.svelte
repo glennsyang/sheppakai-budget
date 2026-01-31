@@ -3,6 +3,7 @@
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 
 	import { Button } from '$lib/components/ui/button';
+	import { monthNames } from '$lib/utils';
 
 	interface Props {
 		currentMonth: number;
@@ -11,21 +12,6 @@
 	}
 
 	let { currentMonth, currentYear, onMonthChange }: Props = $props();
-
-	const monthNames = [
-		'January',
-		'February',
-		'March',
-		'April',
-		'May',
-		'June',
-		'July',
-		'August',
-		'September',
-		'October',
-		'November',
-		'December'
-	];
 
 	function getPreviousMonth() {
 		if (currentMonth === 1) {
