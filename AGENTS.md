@@ -50,6 +50,79 @@ This is a SvelteKit web application for tracking monthly budgets, managing expen
 - Follows ESLint (`eslint.config.js`) and Prettier conventions.
 - Uses Tailwind CSS for consistent styling.
 
+## Svelte/SvelteKit Reactive Patterns
+
+### ❌ AVOID: EventListener and onMount Anti-Patterns
+
+**NEVER** use `window.addEventListener()` or DOM event listeners for form submissions or data revalidation:
+
+```svelte
+// ❌ BAD - Don't do this!
+onMount(() => {
+  const handleFormSubmit = () => {
+    setTimeout(() => invalidateAll(), 500);
+  };
+  window.addEventListener('submit', handleFormSubmit);
+  return () => window.removeEventListener('submit', handleFormSubmit);
+});
+```
+
+**Minimize use of `onMount()`** - only use when absolutely necessary (e.g., initializing third-party libraries, browser-only APIs). Most reactive behavior should use Svelte's built-in reactivity.
+
+### ✅ CORRECT: SvelteKit Form Patterns
+
+**Use SvelteKit's built-in form handling:**
+
+1. **Form actions with `use:enhance`** (automatically revalidates):
+
+```svelte
+<form method="POST" action="?/create" use:enhance>
+	<!-- SvelteKit handles submission and revalidation -->
+</form>
+```
+
+2. **Manual invalidation after actions** (if needed):
+
+```svelte
+import { invalidateAll } from '$app/navigation';
+
+async function handleAction() {
+  await fetch('/api/endpoint', { method: 'POST' });
+  await invalidateAll(); // Revalidate all data
+}
+```
+
+3. **Reactive state with $effect** (Svelte 5):
+
+```svelte
+let data = $state(initialData);
+
+$effect(() => {
+  // Runs when dependencies change
+  console.log('Data updated:', data);
+});
+```
+
+4. **Event handlers on specific elements**:
+
+```svelte
+<button onclick={handleClick}>Submit</button>
+```
+
+### When onMount() IS Appropriate
+
+- Initializing browser-only APIs (canvas, IntersectionObserver)
+- Setting up third-party libraries (charts, maps)
+- Reading/manipulating DOM measurements
+- Setting up WebSocket connections
+
+### When onMount() is NOT Needed
+
+- Fetching data (use `+page.server.ts` load functions)
+- Listening to form submissions (use `use:enhance`)
+- Reacting to prop/state changes (use `$effect` or `$derived`)
+- Setting initial state (use `let value = $state(initial)`)
+
 ## UI Guidelines
 
 - Modern, clean interface.

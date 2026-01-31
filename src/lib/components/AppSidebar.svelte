@@ -37,7 +37,7 @@
 		<NavMain items={sidebarData.navMain} />
 		<NavSavings items={sidebarData.navSavings} />
 		<NavReceipts items={sidebarData.navReceipts} />
-		<NavSetup items={sidebarData.navSetup} />
+		<NavSetup items={sidebarData.navSetup} {user} />
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		<NavUser {user} />

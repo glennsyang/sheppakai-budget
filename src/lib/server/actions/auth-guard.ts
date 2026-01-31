@@ -17,7 +17,7 @@ type AuthenticatedUser = NonNullable<App.Locals['user']>;
  * export const actions = {
  *   create: requireAuth(async (event, user) => {
  *     // user is guaranteed to be defined here
- *     const userId = user.id.toString();
+ *     const userId = user.id;
  *     // ... rest of logic
  *   })
  * };
@@ -31,15 +31,4 @@ export function requireAuth<T>(
 		}
 		return handler(event, event.locals.user);
 	};
-}
-
-/**
- * Helper to extract user ID as string from User object.
- * Centralizes the toString() pattern used throughout the app.
- *
- * @param user - The authenticated user object
- * @returns User ID as a string
- */
-export function getUserId(user: AuthenticatedUser): string {
-	return user.id.toString();
 }

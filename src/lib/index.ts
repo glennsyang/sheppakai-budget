@@ -12,6 +12,7 @@ export type {
 	Savings,
 	SavingsGoal,
 	SavingsGoalWithProgress,
+	Session,
 	Transaction,
 	User
 } from './types';

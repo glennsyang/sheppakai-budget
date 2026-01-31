@@ -34,3 +34,18 @@ export const changePasswordSchema = z
 		message: "Passwords don't match",
 		path: ['confirmPassword']
 	});
+
+export const setUserRoleSchema = z.object({
+	userId: z.string().min(1, 'User ID is required'),
+	role: z.string().min(4, 'Role is required').max(5, 'Role must be either user or admin')
+});
+
+export const setPasswordSchema = z.object({
+	userId: z.string().min(1, 'User ID is required'),
+	newPassword: z.string().min(12, 'New password must be at least 12 characters')
+});
+
+export const banUserSchema = z.object({
+	userId: z.string().min(1, 'User ID is required'),
+	banReason: z.string().max(500, 'Ban reason must be at most 500 characters')
+});

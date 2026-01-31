@@ -47,3 +47,7 @@ export function createFormContext<T extends Record<string, any>>(contextName: st
 export const incomeFormContext = createFormContext('incomeForm');
 export const transactionFormContext = createFormContext('transactionForm');
 export const savingsFormContext = createFormContext('savingsForm');
+export const setUserRoleFormContext = createFormContext('setUserRoleForm');
+export const setPasswordFormContext = createFormContext('setPasswordForm');
+export const banUserFormContext = createFormContext('banUserForm');
+export const unArchiveFormContext = createFormContext('unArchiveForm');

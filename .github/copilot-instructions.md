@@ -64,6 +64,57 @@ npm test               # Run Vitest unit tests
 - **Type imports**: Use `type` keyword: `import type { PageServerLoad } from './$types'`
 - **Database types**: Defined in `$lib/types.ts` and `$lib/index.ts`
 
+## Svelte Reactive Patterns (Critical)
+
+### ❌ NEVER Use These Anti-Patterns
+
+1. **EventListener for form submissions**: NEVER use `window.addEventListener('submit', ...)` or DOM event listeners for forms
+2. **Unnecessary onMount()**: Avoid `onMount()` unless absolutely required (see below)
+
+**Example of what NOT to do:**
+
+```svelte
+// ❌ WRONG - Never do this!
+onMount(() => {
+  window.addEventListener('submit', () => invalidateAll());
+});
+```
+
+### ✅ Use SvelteKit's Built-in Patterns
+
+**For forms:** Use `use:enhance` directive (auto-revalidates):
+
+```svelte
+<form method="POST" action="?/create" use:enhance>
+	<!-- Automatically handles submission and data revalidation -->
+</form>
+```
+
+**For data updates:** Use load function invalidation:
+
+```svelte
+import {invalidateAll} from '$app/navigation'; await invalidateAll(); // After manual API calls
+```
+
+**For reactivity:** Use Svelte 5 runes:
+
+- `$state()` for reactive state
+- `$derived()` for computed values
+- `$effect()` for side effects (replaces most onMount use cases)
+
+### When onMount() IS Acceptable
+
+- Browser-only APIs (canvas, IntersectionObserver, window measurements)
+- Third-party library initialization (charts, maps)
+- WebSocket/SSE connections
+
+### When onMount() Should NOT Be Used
+
+- Data fetching (use `+page.server.ts` load functions)
+- Form handling (use `use:enhance`)
+- State initialization (use `$state()`)
+- Reacting to changes (use `$effect()` or `$derived()`)
+
 ## Route Group Pattern
 
 - `(app)` route group requires authentication via `+layout.server.ts`

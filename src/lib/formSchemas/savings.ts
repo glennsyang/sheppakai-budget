@@ -45,3 +45,7 @@ export const contributionSchema = z.object({
 export const deleteSchema = z.object({
 	id: z.string().min(1, 'ID is required')
 });
+
+export const unArchiveSchema = z.object({
+	goalId: z.string().min(1, 'Goal ID is required')
+});

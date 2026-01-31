@@ -14,6 +14,7 @@ const session = sqliteTable('session', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
 	ipAddress: text('ip_address'),
 	userAgent: text('user_agent'),
+	impersonatedBy: text('impersonated_by'),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date()),

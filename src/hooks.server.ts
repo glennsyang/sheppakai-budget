@@ -17,12 +17,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Make session and user available on server
 	if (session) {
 		event.locals.session = session.session;
-		event.locals.user = {
-			id: session.user.id,
-			name: session.user.name ?? '',
-			email: session.user.email,
-			updatedAt: session.user.updatedAt?.toString() ?? ''
-		};
+		event.locals.user = session.user;
 	}
 
 	const response = await svelteKitHandler({ event, resolve, auth, building });
@@ -44,7 +39,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Content Security Policy (adjust as needed)
 	const csp = [
 		"default-src 'self'",
-		"script-src 'self' 'unsafe-inline'", // Consider removing unsafe-inline
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for layerchart/d3
 		"style-src 'self' 'unsafe-inline'",
 		"img-src 'self' data: https:",
 		"font-src 'self'",

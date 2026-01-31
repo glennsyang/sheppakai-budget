@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
+import { admin } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { Resend } from 'resend';
 
@@ -148,7 +149,12 @@ export const auth = betterAuth({
 		max: 5, // max 5 requests per window per IP
 		storage: env.NODE_ENV === 'production' ? 'database' : 'memory'
 	},
-	plugins: [sveltekitCookies(getRequestEvent)] // make sure this is the last plugin in the array
+	plugins: [
+		admin({
+			adminUserIds: ['kjpZ7oDLSr5JnB8B0w1Q5d8B16YbjrZb']
+		}),
+		sveltekitCookies(getRequestEvent)
+	] // make sure this is the last plugin in the array
 });
 
 // Initialize Resend email client
@@ -174,5 +180,27 @@ async function sendEmail({ to, subject, text }: { to: string; subject: string; t
 	} catch (error) {
 		logger.error('❌ Failed to send email', error);
 		return error;
+	}
+}
+
+/**
+ * Require admin access - checks both hardcoded admin user IDs and role field
+ * @param locals - SvelteKit locals object containing user data
+ * @throws {Error} If user is not authenticated or not an admin
+ */
+export function requireAdmin(locals: App.Locals): void {
+	if (!locals.user) {
+		throw new Error('Unauthorized - not authenticated');
+	}
+
+	// Check hardcoded admin IDs
+	const hardcodedAdminIds = ['kjpZ7oDLSr5JnB8B0w1Q5d8B16YbjrZb'];
+	const isHardcodedAdmin = hardcodedAdminIds.includes(locals.user.id);
+
+	// Check role field
+	const isRoleAdmin = locals.user.role === 'admin';
+
+	if (!isHardcodedAdmin && !isRoleAdmin) {
+		throw new Error('Forbidden - admin access required');
 	}
 }

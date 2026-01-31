@@ -12,6 +12,10 @@ const user = sqliteTable('users', {
 	emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false),
 	name: text('name'),
 	image: text('image'),
+	role: text('role').notNull().default('user'),
+	banned: integer('banned', { mode: 'boolean' }).notNull().default(false),
+	banReason: text('ban_reason'),
+	banExpires: integer('ban_expires', { mode: 'timestamp' }),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date()),

@@ -6,6 +6,7 @@ import HouseIcon from '@lucide/svelte/icons/house';
 import PiggyBankIcon from '@lucide/svelte/icons/piggy-bank';
 import ReceiptIcon from '@lucide/svelte/icons/receipt';
 import RepeatIcon from '@lucide/svelte/icons/repeat';
+import ShieldIcon from '@lucide/svelte/icons/shield';
 import TargetIcon from '@lucide/svelte/icons/target';
 import WalletIcon from '@lucide/svelte/icons/wallet';
 
@@ -68,6 +69,12 @@ export const sidebarData: SidebarData = {
 			title: 'Categories',
 			url: '/setup/categories',
 			icon: FolderTreeIcon
+		},
+		{
+			title: 'Admin',
+			url: '/admin',
+			icon: ShieldIcon,
+			visible: (role: string) => role === 'admin'
 		}
 	]
 };

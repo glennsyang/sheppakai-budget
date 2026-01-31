@@ -1,6 +1,8 @@
 import type { Icon } from '@lucide/svelte';
 import type { Component } from 'svelte';
 
+import { session } from '$lib/server/db/schema';
+
 /**
  * Base props for all modal/dialog components in the application.
  * Provides common interface for open state, data initialization, and loading states.
@@ -24,11 +26,23 @@ export interface BaseModalProps<T> {
 	isLoading?: boolean;
 }
 
+export type UserRole = 'user' | 'admin';
+
 export type User = {
 	id: string;
+	name: string;
 	email: string;
-	name: string | null;
+	emailVerified: boolean;
+	image?: string | null;
+	role?: string | null;
+	banned?: boolean | null;
+	banReason?: string | null;
+	banExpires?: Date | null;
+	createdAt: Date | string;
+	updatedAt: Date | string;
 };
+
+export type Session = typeof session.$inferSelect;
 
 export type Category = {
 	id: string;
@@ -141,5 +155,10 @@ export type SidebarData = {
 	navMain: { title: string; url: string; icon?: Component<Icon> }[];
 	navSavings: { title: string; url: string; icon?: Component<Icon> }[];
 	navReceipts: { title: string; url: string; icon?: Component<Icon> }[];
-	navSetup: { title: string; url: string; icon?: Component<Icon> }[];
+	navSetup: {
+		title: string;
+		url: string;
+		icon?: Component<Icon>;
+		visible?(role: string): role is 'admin';
+	}[];
 };
