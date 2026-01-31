@@ -6,13 +6,13 @@
 	import BarChart from '$lib/components/BarChart.svelte';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
+	import MonthlyInOut from '$lib/components/MonthlyInOut.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
 	import type { BarChartData } from '$lib/types';
 	import { months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
-	import MonthlyInOut from '$lib/components/MonthlyInOut.svelte';
 
 	let { data }: PageProps = $props();
 

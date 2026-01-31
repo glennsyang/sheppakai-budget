@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { scaleBand } from 'd3-scale';
-	import { BarChart, Highlight, type ChartContextValue } from 'layerchart';
-	import * as Chart from '$lib/components/ui/chart/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
+	import { BarChart, type ChartContextValue,Highlight } from 'layerchart';
 	import { cubicInOut } from 'svelte/easing';
+
+	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { MonthlyInOutData } from '$lib/types';
 
 	interface Props {
