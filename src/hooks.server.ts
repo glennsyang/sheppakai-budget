@@ -1,10 +1,12 @@
+import * as Sentry from '@sentry/sveltekit';
 import type { Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 
 import { building, dev } from '$app/environment';
 import { auth } from '$lib/server/auth';
 
-export const handle: Handle = async ({ event, resolve }) => {
+export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, resolve }) => {
 	if (dev && event.url.pathname === '/.well-known/appspecific/com.chrome.devtools.json') {
 		return new Response(undefined, { status: 404 });
 	}
@@ -50,4 +52,5 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('Content-Security-Policy', csp);
 
 	return response;
-};
+});
+export const handleError = Sentry.handleErrorWithSentry();

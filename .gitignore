@@ -27,3 +27,6 @@ vite.config.ts.timestamp-*
 
 # Snyk Security Extension - AI Rules (auto-generated)
 .windsurf/rules/snyk_rules.md
+
+# Sentry Config File
+.env.sentry-build-plugin

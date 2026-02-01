@@ -1,8 +1,11 @@
+import * as Sentry from '@sentry/sveltekit';
+
 import { dev } from '$app/environment';
 
 /**
  * Structured logger utility for server-side logging.
  * Automatically sanitizes PII (user IDs, emails, sensitive data) in production.
+ * Errors are automatically sent to Sentry in production.
  */
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
@@ -65,12 +68,35 @@ function log(level: LogLevel, message: string, data?: unknown): void {
 			} else {
 				console.error(formattedMessage, sanitized);
 			}
+			// Send errors to Sentry in production
+			if (!dev) {
+				if (data instanceof Error) {
+					Sentry.captureException(data, {
+						tags: { source: 'logger' },
+						extra: { message }
+					});
+				} else {
+					Sentry.captureMessage(message, {
+						level: 'error',
+						tags: { source: 'logger' },
+						extra: { data: sanitized }
+					});
+				}
+			}
 			break;
 		case 'WARN':
 			if (sanitized === undefined) {
 				console.warn(formattedMessage);
 			} else {
 				console.warn(formattedMessage, sanitized);
+			}
+			// Send warnings to Sentry in production
+			if (!dev) {
+				Sentry.captureMessage(message, {
+					level: 'warning',
+					tags: { source: 'logger' },
+					extra: { data: sanitized }
+				});
 			}
 			break;
 		case 'INFO':
@@ -82,12 +108,6 @@ function log(level: LogLevel, message: string, data?: unknown): void {
 			}
 			break;
 	}
-
-	// Hook for future integration with external error tracking services
-	// TODO: Integrate with Sentry, LogDNA, or other monitoring services
-	// if (!dev && level === 'ERROR') {
-	//   sendToExternalService({ level, message, data: sanitized });
-	// }
 }
 
 export const logger = {
