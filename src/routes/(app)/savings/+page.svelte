@@ -10,6 +10,7 @@
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { savingsFormContext } from '$lib/contexts';
 	import type { savingsSchema } from '$lib/formSchemas';
+	import { formatCurrency } from '$lib/utils';
 
 	import { columns } from './columns';
 
@@ -75,11 +76,8 @@
 				</CardHeader>
 				<CardContent>
 					<div class="text-center">
-						<p class="text-4xl font-bold text-green-600 dark:text-green-400">
-							${totalSavings.toLocaleString('en-US', {
-								minimumFractionDigits: 2,
-								maximumFractionDigits: 2
-							})}
+						<p class="text-3xl font-bold text-green-600 dark:text-green-400">
+							{formatCurrency(totalSavings)}
 						</p>
 						<p class="mt-2 text-sm text-muted-foreground">
 							{data.savings.length}

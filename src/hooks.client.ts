@@ -14,5 +14,15 @@ Sentry.init({
 	sendDefaultPii: true
 });
 
+// Suppress SvelteKit router warnings from third-party libraries (e.g., LayerChart)
+const originalWarn = console.warn;
+console.warn = function (...args: unknown[]) {
+	const message = String(args[0]);
+	if (message.includes('history.pushState') || message.includes('history.replaceState')) {
+		return; // Suppress this specific warning
+	}
+	originalWarn.apply(console, args);
+};
+
 // If you have a custom error handler, pass it to `handleErrorWithSentry`
 export const handleError = handleErrorWithSentry();
