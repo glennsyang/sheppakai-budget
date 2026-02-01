@@ -11,5 +11,10 @@ export default defineConfig({
 		}),
 		tailwindcss(),
 		sveltekit()
-	]
+	],
+	server: {
+		watch: {
+			ignored: ['**/.beads/**', '**/data/**', '**/node_modules/**']
+		}
+	}
 });
