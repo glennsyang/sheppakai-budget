@@ -72,6 +72,35 @@ NODE_ENV=development
 
 ---
 
+## Database Backups 💾
+
+The application includes automated daily backups of the production database.
+
+- **Schedule**: Daily at 6:00 AM UTC
+- **Retention**: 30 days via GitHub Artifacts
+- **Manual trigger**: Available via GitHub Actions
+
+### Quick Backup Commands
+
+```bash
+# Trigger manual backup
+gh workflow run backup-database.yml
+
+# Test restore locally
+./scripts/test-restore.sh backup-YYYY-MM-DD-HHMMSS.sql.gz
+
+# Emergency production backup
+flyctl ssh console -a sheppakai-budget -C \
+  "sqlite3 /data/sheppakaibudget.db .dump" > backup-$(date +%Y%m%d).sql
+```
+
+📖 **Full Documentation**:
+
+- [BACKUP_RESTORE.md](./docs/BACKUP_RESTORE.md) - Complete backup and restore procedures
+- [BACKUP_QUICK_REFERENCE.md](./docs/BACKUP_QUICK_REFERENCE.md) - Quick command reference
+
+---
+
 ## Notes 📝
 
 - This is a starter. You may expand the API endpoints, add more filtering, and improve security/session handling for production.

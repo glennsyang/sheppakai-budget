@@ -166,13 +166,110 @@ gzip production-backup-*.sql
 
 ## Recovery Testing
 
-It's recommended to test the restore process periodically:
+It's **critical** to test the restore process periodically to ensure backups are valid.
 
-1. Download a recent backup artifact
-2. Restore to a local test database
-3. Run the application locally with the restored database
-4. Verify all features work correctly
-5. Check that data is intact and recent
+### Monthly Recovery Test Procedure
+
+#### Automated Testing (Recommended)
+
+Use the provided test script for streamlined testing:
+
+```bash
+# Download and extract backup from GitHub Actions
+# Then run the test script:
+./scripts/test-restore.sh backup-2026-02-01-060000.sql.gz
+
+# The script will:
+# ✓ Extract the backup
+# ✓ Restore to a test database
+# ✓ Run integrity checks
+# ✓ Display database statistics
+# ✓ Verify data recency
+```
+
+#### Manual Testing Procedure
+
+1. **Download a recent backup artifact**
+
+   ```bash
+   # From GitHub Actions UI or use gh CLI:
+   gh run list --workflow=backup-database.yml --limit 1
+   gh run download <run-id>
+   ```
+
+2. **Extract the backup**
+
+   ```bash
+   cd db-backup-*
+   gunzip backup-*.sql.gz
+   ```
+
+3. **Restore to a test database**
+
+   ```bash
+   # Create a fresh test database
+   rm -f test-restore.db
+   sqlite3 test-restore.db < backup-*.sql
+   ```
+
+4. **Verify data integrity**
+
+   ```bash
+   sqlite3 test-restore.db << EOF
+   -- Check row counts
+   SELECT 'Users:', COUNT(*) FROM user;
+   SELECT 'Transactions:', COUNT(*) FROM transaction;
+   SELECT 'Categories:', COUNT(*) FROM category;
+   SELECT 'Budgets:', COUNT(*) FROM budget;
+   SELECT 'Income:', COUNT(*) FROM income;
+   SELECT 'Savings:', COUNT(*) FROM savings;
+
+   -- Check data recency
+   SELECT 'Latest transaction:', MAX(date) FROM transaction;
+   SELECT 'Latest income:', MAX(date) FROM income;
+
+   -- Verify schema integrity
+   .schema
+   EOF
+   ```
+
+5. **Test application functionality** (Optional)
+
+   ```bash
+   # Copy test database to app location
+   cp test-restore.db sheppakaibudget.db
+
+   # Run the app locally
+   npm run dev
+
+   # Test key features:
+   # - Login works
+   # - Transactions display correctly
+   # - Budget calculations are accurate
+   # - No database errors in console
+   ```
+
+6. **Document results**
+   - Record date of test
+   - Note any issues or discrepancies
+   - Verify backup size matches expectations
+   - Confirm data is recent (within last backup cycle)
+
+### Recovery Time Objective (RTO)
+
+- **Target RTO**: < 30 minutes from decision to restore
+- **Actual steps time**:
+  - Download backup: 1-2 minutes
+  - Extract files: < 1 minute
+  - Restore to production: 5-10 minutes
+  - Verification: 5 minutes
+  - Total: ~15-20 minutes
+
+### Recovery Point Objective (RPO)
+
+- **Maximum data loss**: 24 hours (daily backup schedule)
+- **Typical data loss**: < 24 hours depending on time of failure
+- **Recommendation**: For critical changes, trigger manual backup before deployment
 
 ## Troubleshooting
 
@@ -207,11 +304,43 @@ The SQL dump file may be corrupted.
 - Never commit backup files to the git repository
 - Limit access to production database and Fly.io credentials
 
+## Backup Verification Checklist
+
+Use this checklist to verify backup system health:
+
+### Automated Check (Recommended)
+
+```bash
+./scripts/check-backup-health.sh
+```
+
+This script automatically verifies:
+
+- ✓ Required CLI tools installed (gh, flyctl)
+- ✓ Workflow files configured correctly
+- ✓ Recent backup runs successful
+- ✓ Documentation up to date
+- ✓ No open failure issues
+
+### Manual Checklist
+
+- [ ] **Backup schedule is running** - Check GitHub Actions for recent successful runs
+- [ ] **Artifacts are being created** - Verify artifacts exist in recent workflow runs
+- [ ] **Backup size is reasonable** - Compare with previous backups (should be similar)
+- [ ] **Restore tested monthly** - Last successful restore test date: \***\*\_\*\***
+- [ ] **No open backup-failure issues** - Check GitHub issues
+- [ ] **Fly.io credentials valid** - FLY_API_TOKEN secret is current
+- [ ] **30-day retention configured** - Verify artifact retention settings
+- [ ] **Documentation is current** - This file reflects actual procedures
+
 ## Support
 
 For issues with backups or restoration:
 
 1. Check the GitHub Actions workflow logs
 2. Review any auto-created issues with `backup-failure` label
-3. Consult the [Fly.io documentation](https://fly.io/docs/)
-4. Contact the development team
+3. Test restore procedure following this guide
+4. Verify Fly.io app status: `flyctl status -a sheppakai-budget`
+5. Check Fly.io credentials: `flyctl auth whoami`
+6. Consult the [Fly.io documentation](https://fly.io/docs/)
+7. Review SQLite integrity: `flyctl ssh console -a sheppakai-budget -C "sqlite3 /data/sheppakaibudget.db 'PRAGMA integrity_check;'"`
