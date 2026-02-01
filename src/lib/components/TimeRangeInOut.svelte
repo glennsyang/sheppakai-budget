@@ -6,6 +6,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { TimeRangeInOutData } from '$lib/types';
+	import { formatCurrency } from '$lib/utils';
 
 	interface Props {
 		chartTitle: string;
@@ -73,7 +74,33 @@
 				{/snippet}
 
 				{#snippet tooltip()}
-					<Chart.Tooltip indicator="line" />
+					<Chart.Tooltip hideLabel class="w-45">
+						{#snippet formatter({ name, index, value, item })}
+							<div
+								style="--color-bg: var(--color-{name.toLowerCase()})"
+								class="size-2.5 shrink-0 rounded-[2px] bg-(--color-bg)"
+							></div>
+							{chartConfig[name as keyof typeof chartConfig]?.label || name}
+							<div
+								class="ms-auto flex items-baseline gap-0.5 font-mono font-medium text-foreground tabular-nums"
+							>
+								{formatCurrency(value as number)}
+							</div>
+							<!-- Add this after the last item-->
+							{#if index === 1}
+								<div
+									class="mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium text-foreground"
+								>
+									Remaining
+									<div
+										class="ms-auto flex items-baseline gap-0.5 font-mono font-medium text-foreground tabular-nums"
+									>
+										{formatCurrency(item.payload.in - item.payload.out)}
+									</div>
+								</div>
+							{/if}
+						{/snippet}
+					</Chart.Tooltip>
 				{/snippet}
 			</BarChart>
 		</Chart.Container>

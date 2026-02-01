@@ -5,7 +5,6 @@
 	import SiteHeader from '$lib/components/SiteHeader.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { setCategoriesContext } from '$lib/contexts';
-	import type { User } from '$lib/types';
 
 	import type { LayoutServerData } from './$types';
 	import { sidebarData } from './data';
@@ -25,15 +24,17 @@
 </script>
 
 <Sidebar.Provider style="--header-height: calc(var(--spacing) * 12);">
-	<AppSidebar {sidebarData} user={data.user as User} />
-	<Sidebar.Inset>
-		<SiteHeader />
-		<main class="flex flex-1 flex-col space-y-4 p-4 md:py-2">
-			{#if navigating.to}
-				<LoadingSpinner fullScreen={true} size="lg" />
-			{:else}
-				{@render children()}
-			{/if}
-		</main>
-	</Sidebar.Inset>
+	{#if data.user}
+		<AppSidebar {sidebarData} user={data.user} />
+		<Sidebar.Inset>
+			<SiteHeader />
+			<main class="flex flex-1 flex-col space-y-4 p-4 md:py-2">
+				{#if navigating.to}
+					<LoadingSpinner fullScreen={true} size="lg" />
+				{:else}
+					{@render children()}
+				{/if}
+			</main>
+		</Sidebar.Inset>
+	{/if}
 </Sidebar.Provider>

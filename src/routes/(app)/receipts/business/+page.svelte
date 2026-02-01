@@ -10,7 +10,7 @@
 	import { DataTable } from '$lib/components/ui/data-table';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
-	import { months } from '$lib/utils';
+	import { formatCurrency, months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -144,11 +144,11 @@
 					<div class="my-4 border-t"></div>
 					<div class="mb-3 flex items-center justify-between">
 						<span class="text-base font-medium">Total Amount:</span>
-						<span class="text-xl font-bold">${monthlyTotalAmount.toFixed(2)}</span>
+						<span class="text-xl font-bold">{formatCurrency(monthlyTotalAmount)}</span>
 					</div>
 					<div class="flex items-center justify-between">
 						<span class="text-base font-medium">Total GST:</span>
-						<span class="text-xl font-bold">${monthlyTotalGst.toFixed(2)}</span>
+						<span class="text-xl font-bold">{formatCurrency(monthlyTotalGst)}</span>
 					</div>
 				</div>
 			</div>
@@ -160,11 +160,11 @@
 					<div class="my-4 border-t"></div>
 					<div class="mb-3 flex items-center justify-between">
 						<span class="text-base font-medium">Total Amount:</span>
-						<span class="text-xl font-bold">${yearlyTotalAmount.toFixed(2)}</span>
+						<span class="text-xl font-bold">{formatCurrency(yearlyTotalAmount)}</span>
 					</div>
 					<div class="flex items-center justify-between">
 						<span class="text-base font-medium">Total GST:</span>
-						<span class="text-xl font-bold">${yearlyTotalGst.toFixed(2)}</span>
+						<span class="text-xl font-bold">{formatCurrency(yearlyTotalGst)}</span>
 					</div>
 				</div>
 			</div>

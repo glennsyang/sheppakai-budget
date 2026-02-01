@@ -1,3 +1,5 @@
+import { formatCurrency } from '$lib/utils';
+
 import type { Category } from '$lib';
 
 // Column definitions for expenses table
@@ -14,6 +16,6 @@ export const expenseColumns = [
 		key: 'amount',
 		label: 'Amount',
 		align: 'right' as const,
-		format: (amount: number) => `$${amount.toFixed(2)}`
+		format: (amount: number) => `${formatCurrency(amount)}`
 	}
 ];

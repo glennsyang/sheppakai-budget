@@ -151,6 +151,11 @@ export type BarChartData = {
 	spent: number;
 };
 
+export type MonthlySpentChartData = {
+	month: string;
+	spent: number;
+};
+
 export type TimeRangeInOutData = {
 	month: string;
 	in: number;

@@ -3,6 +3,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Progress } from '$lib/components/ui/progress';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { formatCurrency } from '$lib/utils';
 
 	// Define props using Svelte 5 syntax
 	interface $$Props {
@@ -34,7 +35,7 @@
 		<Card.Header>
 			<Card.Description>{title}</Card.Description>
 			<Card.Title class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-				${planned.toFixed(2)}
+				{formatCurrency(planned)}
 			</Card.Title>
 			<Card.Action>
 				<Badge variant="outline">
@@ -49,15 +50,15 @@
 				class={progressClass}
 			/>
 			<div class="mt-2">
-				<span class="text-sm text-muted-foreground">{label1}: ${actual.toFixed(2)}</span>
+				<span class="text-sm text-muted-foreground">{label1}: {formatCurrency(actual)}</span>
 			</div>
 			{#if isOverBudget}
 				<p class="text-sm font-medium text-red-600">
-					Over budget by ${overage.toFixed(2)}
+					Over budget by {formatCurrency(overage)}
 				</p>
 			{:else if isUnderBudget}
 				<p class="text-sm font-medium text-green-600">
-					Remaining: ${underage.toFixed(2)}
+					Remaining: {formatCurrency(underage)}
 				</p>
 			{/if}
 		</Card.Footer>

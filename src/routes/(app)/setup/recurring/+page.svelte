@@ -6,6 +6,7 @@
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
+	import { formatCurrency } from '$lib/utils';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -67,7 +68,7 @@
 					<div class="my-4 border-t"></div>
 					<div class="flex items-center justify-between">
 						<span class="text-base font-medium">Total Recurring: </span>
-						<span class="text-2xl font-bold">${totalRecurring.toFixed(2)}</span>
+						<span class="text-2xl font-bold">{formatCurrency(totalRecurring)}</span>
 					</div>
 				</div>
 			</div>

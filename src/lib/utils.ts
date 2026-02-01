@@ -44,12 +44,25 @@ export const monthNames = [
 ];
 
 /**
+ * Formats a number as USD currency.
+ * @param amount - The amount to format
+ * @returns The formatted currency string
+ */
+export function formatCurrency(amount: number): string {
+	const formatter = new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD'
+	});
+	return formatter.format(amount);
+}
+
+/**
  * Extracts the error code from a better-auth error response.
  * Better-auth errors have a structure like: { body: { code: string, message: string } }
  * @param error - The error object caught from a better-auth API call
  * @returns The error code string if it exists, undefined otherwise
  */
-export function getBetterAuthErrorCode(error: unknown): string | undefined {
+function getBetterAuthErrorCode(error: unknown): string | undefined {
 	return (error as { body?: { code?: string } })?.body?.code;
 }
 

@@ -6,7 +6,6 @@
 	import BarChart from '$lib/components/BarChart.svelte';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
-	import TimeRangeInOut from '$lib/components/TimeRangeInOut.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
 	import type { BarChartData } from '$lib/types';
@@ -117,8 +116,8 @@
 	<div class="mb-8">
 		<div class="flex items-center justify-between">
 			<div>
-				<h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
-				<p class="mt-2 text-muted-foreground">Overview of your budget and expenses</p>
+				<h1 class="text-3xl font-bold tracking-tight">Monthly Dashboard</h1>
+				<p class="mt-2 text-muted-foreground">Monthly overview of your budget and expenses</p>
 			</div>
 			<div class="w-44">
 				<Select.Root type="single" value={selectedMonth} onValueChange={onMonthChange}>
@@ -182,15 +181,6 @@
 			chartTitle="Daily Spending Trend"
 			chartDescription="Showing daily spending trend for the month"
 			{chartData}
-		/>
-	</div>
-
-	<!-- Monthly In/Out Chart -->
-	<div class="mt-6">
-		<TimeRangeInOut
-			chartTitle="Monthly In & Out"
-			chartDescription="Overview of monthly income and expenses"
-			chartData={data.monthlyInOutData}
 		/>
 	</div>
 </div>

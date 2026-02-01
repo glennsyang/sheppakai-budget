@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { formatCurrency } from '$lib/utils';
+
 	interface Props {
 		label: string;
 		amount: number;
@@ -15,6 +17,6 @@
 		{label}
 	</p>
 	<p class={emphasized ? 'text-2xl font-bold' : 'text-lg font-semibold'}>
-		${amount.toFixed(2)}
+		{formatCurrency(amount)}
 	</p>
 </div>

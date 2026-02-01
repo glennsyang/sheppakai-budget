@@ -6,6 +6,7 @@
 
 	import { enhance as enhanceAction } from '$app/forms';
 	import { Input } from '$lib/components/ui/input';
+	import { formatCurrency } from '$lib/utils';
 	import { padMonth } from '$lib/utils/dates';
 
 	interface Props {
@@ -104,7 +105,7 @@
 					</div>
 				</form>
 			{:else}
-				<p class="text-2xl font-bold">${amount.toFixed(2)}</p>
+				<p class="text-2xl font-bold">{formatCurrency(amount)}</p>
 			{/if}
 			<div class="flex items-center justify-center gap-1">
 				<p class="text-center text-sm text-muted-foreground">{title}</p>
@@ -158,7 +159,7 @@
 				{/if}
 			</div>
 			<div class="flex flex-col items-center justify-center space-y-2 pt-2">
-				<p class="text-2xl font-bold">${amount.toFixed(2)}</p>
+				<p class="text-2xl font-bold">{formatCurrency(amount)}</p>
 				<p class="text-center text-sm text-muted-foreground">{title}</p>
 			</div>
 		</button>
