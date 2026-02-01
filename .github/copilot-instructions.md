@@ -126,3 +126,15 @@ import {invalidateAll} from '$app/navigation'; await invalidateAll(); // After m
 - Required env vars: `DATABASE_URL`, `NODE_ENV`, `DB_MIGRATING`, `DB_SEEDING`
 - Validated in `src/env.ts` using Zod schema
 - Node.js version: **22.13.1** (required for better-sqlite3 compatibility)
+
+## Issue Tracking
+
+This project uses **bd (beads)** for issue tracking.
+Run `bd prime` for workflow context.
+
+**Quick reference:**
+
+- `bd ready` - Find unblocked work
+- `bd create "Title" --type task --priority 2` - Create issue
+- `bd close <id>` - Complete work
+- `bd sync` - Sync with git (run at session end)
