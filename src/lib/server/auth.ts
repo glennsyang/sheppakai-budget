@@ -3,7 +3,6 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { admin } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
-import { Resend } from 'resend';
 
 import { getRequestEvent } from '$app/server';
 import { logger } from '$lib/server/logger';
@@ -12,6 +11,7 @@ import { getEnv } from '../../env';
 
 import * as schema from './db/schema';
 import { getDb } from './db';
+import { sendNewUserEmail, sendPasswordResetEmail, sendVerificationEmail } from './email';
 
 const env = getEnv();
 
@@ -49,11 +49,7 @@ export const auth = betterAuth({
 				throw new Error('Missing callbackURL parameter');
 			}
 			const resetUrl = `${callbackURL}?token=${token}`;
-			void sendEmail({
-				to: user.email,
-				subject: '[Sheppakai Budget] Reset your password',
-				text: `Hi ${user.email}!<br><br>Click the link to reset your password: ${resetUrl}<br><br>This link will expire in 10 minutes.<br><br>Thank you,<br>Sheppakai Budget Team`
-			});
+			void sendPasswordResetEmail(user.email, user.name || user.email, resetUrl);
 		},
 		onPasswordReset: async ({ user }) => {
 			logger.debug('🔐 Password reset completed for user:', user.email);
@@ -65,11 +61,7 @@ export const auth = betterAuth({
 		sendVerificationEmail: async ({ user, url, token }) => {
 			logger.debug('✉️ Email verification sent');
 			const verifyUrl = `${url}?token=${token}`;
-			void sendEmail({
-				to: user.email,
-				subject: '[Sheppakai Budget] Verify your email address',
-				text: `Hi ${user.email}!<br><br>Click the link to verify your email address: ${verifyUrl}<br><br>This link will expire in 10 minutes.<br><br>Thank you,<br>Sheppakai Budget Team`
-			});
+			void sendVerificationEmail(user.email, user.name || user.email, verifyUrl);
 		}
 	},
 	hooks: {
@@ -100,11 +92,12 @@ export const auth = betterAuth({
 			if (ctx.path.includes('/register')) {
 				const newSession = ctx.context.newSession;
 				if (newSession) {
-					void sendEmail({
-						to: env.RESEND_NEW_USER_ADDRESS,
-						subject: '[Sheppakai Budget] New User was registered!',
-						text: `Hi ${newSession.user.name || newSession.user.email}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
-					});
+					logger.debug('✉️  New user email sent');
+					void sendNewUserEmail(
+						newSession.user.email,
+						newSession.user.name || newSession.user.email,
+						newSession.user.email
+					);
 				}
 			}
 			// Audit logging
@@ -156,32 +149,6 @@ export const auth = betterAuth({
 		sveltekitCookies(getRequestEvent)
 	] // make sure this is the last plugin in the array
 });
-
-// Initialize Resend email client
-const resend = new Resend(env.RESEND_API_KEY);
-
-async function sendEmail({ to, subject, text }: { to: string; subject: string; text: string }) {
-	logger.debug('📧 Email sent');
-
-	try {
-		const { data, error } = await resend.emails.send({
-			from: env.RESEND_FROM_ADDRESS,
-			to,
-			subject,
-			html: text
-		});
-
-		if (error) {
-			logger.error('❌ Failed to send email', error);
-			return error;
-		}
-
-		return data;
-	} catch (error) {
-		logger.error('❌ Failed to send email', error);
-		return error;
-	}
-}
 
 /**
  * Require admin access - checks both hardcoded admin user IDs and role field
