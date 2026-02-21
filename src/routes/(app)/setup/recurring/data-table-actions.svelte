@@ -34,6 +34,7 @@
 	<DropdownMenu.Content>
 		<DropdownMenu.Item onclick={() => (openEditModal = true)}>Edit</DropdownMenu.Item>
 		<DropdownMenu.Item onclick={() => (openDeleteModal = true)}>Delete</DropdownMenu.Item>
+		<DropdownMenu.Item>Paid</DropdownMenu.Item>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 

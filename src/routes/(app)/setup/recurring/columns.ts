@@ -13,7 +13,7 @@ export const columns: ColumnDef<Recurring>[] = [
 		accessorKey: 'merchant',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
-				columnName: 'Merchant',
+				columnName: 'Payee',
 				onclick: column.getToggleSortingHandler()
 			})
 	},
