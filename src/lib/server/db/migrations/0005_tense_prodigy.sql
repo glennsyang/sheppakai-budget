@@ -1,0 +1,1 @@
+ALTER TABLE `recurring` ADD `paid` integer DEFAULT false NOT NULL;

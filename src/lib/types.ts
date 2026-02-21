@@ -83,6 +83,7 @@ export type Recurring = {
 	description: string;
 	cadence: 'Monthly' | 'Yearly';
 	amount: number;
+	paid: boolean;
 	user: User;
 };
 
