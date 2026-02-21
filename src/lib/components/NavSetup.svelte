@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Icon } from '@lucide/svelte';
 	import type { Component } from 'svelte';
 
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -12,7 +11,7 @@
 		items: {
 			title: string;
 			url: string;
-			icon?: Component<Icon>;
+			icon?: Component;
 			visible?: (role: string) => boolean;
 		}[];
 		user: User;

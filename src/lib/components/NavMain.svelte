@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Icon } from '@lucide/svelte';
 	import type { Component } from 'svelte';
 
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -10,7 +9,7 @@
 		items: {
 			title: string;
 			url?: string;
-			icon?: Component<Icon>;
+			icon?: Component;
 			items?: { title: string; url: string }[];
 		}[];
 	} = $props();
@@ -23,8 +22,10 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton tooltipContent={item.title}>
 						{#snippet child({ props })}
-							<a href={item.url} {...props}>
-								{item.title}
+							{@const IconComponent = item.icon}
+							<a href={item.url} data-sveltekit-preload-data="hover" {...props}>
+								<IconComponent />
+								<span>{item.title}</span>
 							</a>
 						{/snippet}
 					</Sidebar.MenuButton>

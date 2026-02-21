@@ -1,4 +1,3 @@
-import type { Icon } from '@lucide/svelte';
 import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 import type { Component } from 'svelte';
 
@@ -166,15 +165,15 @@ export type SidebarData = {
 	navMain: {
 		title: string;
 		url?: string;
-		icon?: Component<Icon>;
+		icon?: Component;
 		items?: { title: string; url: string }[];
 	}[];
-	navSavings: { title: string; url: string; icon?: Component<Icon> }[];
-	navReceipts: { title: string; url: string; icon?: Component<Icon> }[];
+	navSavings: { title: string; url: string; icon?: Component }[];
+	navReceipts: { title: string; url: string; icon?: Component }[];
 	navSetup: {
 		title: string;
 		url: string;
-		icon?: Component<Icon>;
+		icon?: Component;
 		visible?(role: string): role is 'admin';
 	}[];
 };

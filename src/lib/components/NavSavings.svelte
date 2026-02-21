@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type { Icon } from '@lucide/svelte';
 	import type { Component } from 'svelte';
 
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 
-	let { items }: { items: { title: string; url: string; icon?: Component<Icon> }[] } = $props();
+	let { items }: { items: { title: string; url: string; icon?: Component }[] } = $props();
 </script>
 
 <Sidebar.Group class="group-data-[collapsible=icon]:hidden">
