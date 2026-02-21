@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
@@ -27,7 +26,7 @@
 
 	let { data }: Props = $props();
 
-	let loading = $state<boolean>(true);
+	let loading = $state<boolean>(false);
 
 	// Type guard to ensure role is defined and banned is boolean
 	const usersWithSessionsAndRole = $derived(
@@ -45,10 +44,6 @@
 	setPasswordFormContext.set(data.setPasswordForm);
 	// svelte-ignore state_referenced_locally
 	banUserFormContext.set(data.banUserForm);
-
-	onMount(() => {
-		loading = false;
-	});
 </script>
 
 <svelte:head>

@@ -15,6 +15,11 @@ import { sendNewUserEmail, sendPasswordResetEmail, sendVerificationEmail } from 
 
 const env = getEnv();
 
+/**
+ * Hardcoded admin user IDs. Used both in the admin plugin config and requireAdmin().
+ */
+const ADMIN_USER_IDS = ['kjpZ7oDLSr5JnB8B0w1Q5d8B16YbjrZb'];
+
 export const auth = betterAuth({
 	appName: 'Sheppakai Budget',
 	secret: env.BETTER_AUTH_SECRET,
@@ -144,7 +149,7 @@ export const auth = betterAuth({
 	},
 	plugins: [
 		admin({
-			adminUserIds: ['kjpZ7oDLSr5JnB8B0w1Q5d8B16YbjrZb']
+			adminUserIds: ADMIN_USER_IDS
 		}),
 		sveltekitCookies(getRequestEvent)
 	] // make sure this is the last plugin in the array
@@ -161,8 +166,7 @@ export function requireAdmin(locals: App.Locals): void {
 	}
 
 	// Check hardcoded admin IDs
-	const hardcodedAdminIds = ['kjpZ7oDLSr5JnB8B0w1Q5d8B16YbjrZb'];
-	const isHardcodedAdmin = hardcodedAdminIds.includes(locals.user.id);
+	const isHardcodedAdmin = ADMIN_USER_IDS.includes(locals.user.id);
 
 	// Check role field
 	const isRoleAdmin = locals.user.role === 'admin';

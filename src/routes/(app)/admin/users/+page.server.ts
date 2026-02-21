@@ -183,7 +183,12 @@ export const actions: Actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const userId = locals.user.id;
+		const data = await request.formData();
+		const userId = data.get('id')?.toString();
+
+		if (!userId) {
+			return fail(400, { error: 'User ID is required' });
+		}
 
 		try {
 			await auth.api.unbanUser({
@@ -206,7 +211,12 @@ export const actions: Actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const userId = locals.user.id;
+		const data = await request.formData();
+		const userId = data.get('id')?.toString();
+
+		if (!userId) {
+			return fail(400, { error: 'User ID is required' });
+		}
 
 		try {
 			// Revoke all sessions for the user
@@ -230,7 +240,12 @@ export const actions: Actions = {
 			return fail(401, { error: 'Unauthorized' });
 		}
 
-		const userId = locals.user.id;
+		const data = await request.formData();
+		const userId = data.get('id')?.toString();
+
+		if (!userId) {
+			return fail(400, { error: 'User ID is required' });
+		}
 
 		try {
 			await auth.api.removeUser({
