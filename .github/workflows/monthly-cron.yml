@@ -1,0 +1,18 @@
+name: Reset Recurring Job
+
+on:
+  schedule:
+    - cron: '10 8 1 * *' # 1st of every month at 12:10 AM PST / 1:10 AM PDT
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  trigger-emails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reset recurring 'paid' status
+        env:
+          CRON_SECRET: ${{ secrets['CRON_SECRET'] }}
+        run: |
+          curl -X POST https://sheppakai-budget-dev.fly.dev/api/cron/reset-recurring-paid \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json"

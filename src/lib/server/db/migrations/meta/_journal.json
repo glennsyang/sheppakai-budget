@@ -36,6 +36,13 @@
 			"when": 1769447535081,
 			"tag": "0004_rich_talisman",
 			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "6",
+			"when": 1771657907131,
+			"tag": "0005_tense_prodigy",
+			"breakpoints": true
 		}
 	]
 }

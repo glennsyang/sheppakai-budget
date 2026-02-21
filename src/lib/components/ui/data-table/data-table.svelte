@@ -30,9 +30,16 @@
 		data: TData[];
 		defaultPageSize?: number;
 		showCategoryFilter?: boolean;
+		rowClassName?: (row: TData) => string;
 	};
 
-	let { data, columns, defaultPageSize = 10, showCategoryFilter = false }: DataTableProps<TData, TValue> = $props();
+	let {
+		data,
+		columns,
+		defaultPageSize = 10,
+		showCategoryFilter = false,
+		rowClassName
+	}: DataTableProps<TData, TValue> = $props();
 
 	// svelte-ignore state_referenced_locally
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: defaultPageSize });
@@ -44,8 +51,9 @@
 		get data() {
 			return data;
 		},
-		// svelte-ignore state_referenced_locally
-		columns,
+		get columns() {
+			return columns;
+		},
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
@@ -172,7 +180,7 @@
 			</Table.Header>
 			<Table.Body>
 				{#each table.getRowModel().rows as row (row.id)}
-					<Table.Row data-state={row.getIsSelected() && 'selected'}>
+					<Table.Row data-state={row.getIsSelected() && 'selected'} class={rowClassName?.(row.original)}>
 						{#each row.getVisibleCells() as cell (cell.id)}
 							<Table.Cell>
 								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />

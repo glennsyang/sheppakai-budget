@@ -20,10 +20,26 @@
 
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
+	const unpaidAsOf = new Intl.DateTimeFormat('en-US', {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric'
+	}).format(new Date());
+
+	const getRecurringRowClass = (recurring: Recurring) => {
+		return recurring.paid ? 'bg-green-50/80 dark:bg-green-950/20' : '';
+	};
 
 	// Calculate total recurring expenses
 	let totalRecurring = $derived(
 		((data.recurrings as Recurring[]) || []).reduce((sum, item) => sum + item.amount, 0)
+	);
+
+	// Calculate total unpaid recurring expenses
+	let totalUnpaidRecurring = $derived(
+		((data.recurrings as Recurring[]) || [])
+			.filter((item) => !item.paid)
+			.reduce((sum, item) => sum + item.amount, 0)
 	);
 </script>
 
@@ -54,7 +70,11 @@
 					{#if loading}
 						<TableSkeleton rows={5} columns={4} />
 					{:else}
-						<DataTable {columns} data={data.recurrings as Recurring[]} />
+						<DataTable
+							{columns}
+							data={data.recurrings as Recurring[]}
+							rowClassName={getRecurringRowClass}
+						/>
 					{/if}
 				</div>
 			</div>
@@ -69,6 +89,22 @@
 					<div class="flex items-center justify-between">
 						<span class="text-base font-medium">Total Monthly Recurring: </span>
 						<span class="text-2xl font-bold">{formatCurrency(totalRecurring)}</span>
+					</div>
+				</div>
+			</div>
+
+			<div
+				class="mt-6 overflow-hidden rounded-lg border border-green-200/70 bg-green-50/40 shadow dark:border-green-900/60 dark:bg-green-950/20"
+			>
+				<div class="p-6">
+					<h2 class="text-center text-2xl font-bold tracking-tight">Unpaid</h2>
+					<p class="mt-1 text-center text-sm text-muted-foreground">Unpaid as of {unpaidAsOf}</p>
+					<div class="my-4 border-t"></div>
+					<div class="flex items-center justify-between">
+						<span class="text-base font-medium">Total Left to Pay: </span>
+						<span class="text-2xl font-bold text-green-700 dark:text-green-400"
+							>{formatCurrency(totalUnpaidRecurring)}</span
+						>
 					</div>
 				</div>
 			</div>

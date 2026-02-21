@@ -4,6 +4,7 @@
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
+	import { invalidateAll } from '$app/navigation';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -20,6 +21,23 @@
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
+	let togglingPaid = $state<boolean>(false);
+
+	async function handleTogglePaid() {
+		togglingPaid = true;
+
+		const formData = new FormData();
+		formData.set('id', id);
+		formData.set('paid', `${Boolean(recurringData?.paid)}`);
+
+		await fetch('?/togglePaid', {
+			method: 'POST',
+			body: formData
+		});
+
+		await invalidateAll();
+		togglingPaid = false;
+	}
 </script>
 
 <DropdownMenu.Root>
@@ -34,7 +52,9 @@
 	<DropdownMenu.Content>
 		<DropdownMenu.Item onclick={() => (openEditModal = true)}>Edit</DropdownMenu.Item>
 		<DropdownMenu.Item onclick={() => (openDeleteModal = true)}>Delete</DropdownMenu.Item>
-		<DropdownMenu.Item>Paid</DropdownMenu.Item>
+		<DropdownMenu.Item onclick={handleTogglePaid} disabled={togglingPaid}>
+			{recurringData?.paid ? 'Mark Unpaid' : 'Mark Paid'}
+		</DropdownMenu.Item>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 

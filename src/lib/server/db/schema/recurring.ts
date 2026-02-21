@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import { real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { generateId } from '../utils';
 
@@ -11,6 +11,7 @@ const recurring = sqliteTable('recurring', {
 	description: text('description').notNull(),
 	cadence: text('cadence').notNull(),
 	amount: real('amount').notNull(),
+	paid: integer('paid', { mode: 'boolean' }).notNull().default(false),
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id),
