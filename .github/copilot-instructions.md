@@ -93,8 +93,7 @@ onMount(() => {
 **For data updates:** Use load function invalidation:
 
 ```svelte
-import { invalidateAll } from '$app/navigation';
-await invalidateAll(); // After manual API calls
+import {invalidateAll} from '$app/navigation'; await invalidateAll(); // After manual API calls
 ```
 
 **For reactivity:** Use Svelte 5 runes:
