@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
@@ -21,13 +20,9 @@
 
 	let { data }: Props = $props();
 
-	let loading = $state<boolean>(true);
+	let loading = $state<boolean>(false);
 	// svelte-ignore state_referenced_locally
 	if (data.form) unArchiveFormContext.set(data.form);
-
-	onMount(() => {
-		loading = false;
-	});
 </script>
 
 <svelte:head>
