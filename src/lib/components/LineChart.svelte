@@ -22,6 +22,11 @@
 		actual: { label: 'Actual', color: 'var(--chart-1)' },
 		planned: { label: 'Planned', color: 'var(--chart-2)' }
 	} satisfies Chart.ChartConfig;
+
+	function getTrendToneClass(direction: 'up' | 'down') {
+		if (direction === 'up') return 'text-destructive';
+		return 'text-green-600 dark:text-green-400';
+	}
 </script>
 
 <Card.Root>
@@ -74,7 +79,9 @@
 		<div class="mt-4 flex w-full items-start gap-2 text-sm">
 			<div class="grid gap-2">
 				{#if trendingData}
-					<div class="flex items-center gap-2 leading-none font-medium">
+					<div
+						class={`flex items-center gap-2 leading-none font-medium ${getTrendToneClass(trendingData.direction)}`}
+					>
 						Trending {trendingData.direction} by {trendingData.value.toFixed(1)}% this month
 						{#if trendingData.direction === 'up'}
 							<TrendingUpIcon class="size-4" />

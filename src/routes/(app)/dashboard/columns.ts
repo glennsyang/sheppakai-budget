@@ -2,7 +2,7 @@ import { formatCurrency } from '$lib/utils';
 
 import type { Category } from '$lib';
 
-// Column definitions for expenses table
+// Column definitions for Sheet expenses table
 export const expenseColumns = [
 	{ key: 'date', label: 'Date', width: '100px' },
 	{

@@ -27,7 +27,7 @@
 	}).format(new Date());
 
 	const getRecurringRowClass = (recurring: Recurring) => {
-		return recurring.paid ? 'bg-green-50/80 dark:bg-green-950/20' : '';
+		return recurring.paid ? 'bg-green-50/80 dark:bg-emerald-900/60 dark:text-emerald-100' : '';
 	};
 
 	// Calculate total recurring expenses

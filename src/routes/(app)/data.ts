@@ -17,10 +17,7 @@ export const sidebarData: SidebarData = {
 		{
 			title: 'Dashboard',
 			icon: HouseIcon,
-			items: [
-				{ title: 'Monthly', url: '/dashboard' },
-				{ title: 'Yearly', url: '/dashboard/yearly' }
-			]
+			url: '/dashboard'
 		},
 		{
 			title: 'Transactions',
