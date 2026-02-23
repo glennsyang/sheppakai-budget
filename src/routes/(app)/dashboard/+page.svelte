@@ -212,6 +212,13 @@
 			.reduce((sum, e) => sum + e.amount, 0);
 	}
 
+	function isCategoryOverBudget(categoryId: string): boolean {
+		const planned = getPlannedAmount(categoryId);
+		if (planned <= 0) return false;
+
+		return getActualAmount(categoryId) > planned;
+	}
+
 	function getCategoryMonthlyData(categoryId: string) {
 		if (!data.timeRangeData || !data.actualExpenses) return [];
 
@@ -397,11 +404,12 @@
 		<h2 class="mt-8 mb-4 text-xl font-semibold">Expenses by Category</h2>
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each sortedCategories as category (category.id)}
+				{@const categoryOverBudget = isCategoryOverBudget(category.id)}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
 					onclick={() => openCategoryDetails(category.id)}
-					class="cursor-pointer transition-shadow hover:shadow-md"
+					class={`cursor-pointer rounded-xl transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
 				>
 					<BudgetProgressCard
 						title={category.name}
