@@ -1,0 +1,19 @@
+name: Weekly Summary Email
+
+on:
+  schedule:
+    - cron: '10 15 * * 1' # Monday 8:10am PDT
+    - cron: '10 16 * * 1' # Monday 8:10am PST
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  trigger-emails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger weekly summary email
+        env:
+          CRON_SECRET: ${{ secrets['CRON_SECRET'] }}
+        run: |
+          curl -X POST https://sheppakai-budget-dev.fly.dev/api/cron/email-weekly-summary \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json"
