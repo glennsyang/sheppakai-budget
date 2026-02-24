@@ -12,7 +12,8 @@ jobs:
       - name: Trigger reset recurring 'paid' status
         env:
           CRON_SECRET: ${{ secrets['CRON_SECRET'] }}
+          APP_URL: ${{ secrets['APP_URL'] }}
         run: |
-          curl -X POST https://sheppakai-budget-dev.fly.dev/api/cron/reset-recurring-paid \
+          curl -X POST $APP_URL/api/cron/reset-recurring-paid \
             -H "Authorization: Bearer $CRON_SECRET" \
             -H "Content-Type: application/json"

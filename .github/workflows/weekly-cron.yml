@@ -13,7 +13,8 @@ jobs:
       - name: Trigger weekly summary email
         env:
           CRON_SECRET: ${{ secrets['CRON_SECRET'] }}
+          APP_URL: ${{ secrets['APP_URL'] }}
         run: |
-          curl -X POST https://sheppakai-budget-dev.fly.dev/api/cron/email-weekly-summary \
+          curl -X POST $APP_URL/api/cron/email-weekly-summary \
             -H "Authorization: Bearer $CRON_SECRET" \
             -H "Content-Type: application/json"
