@@ -30,6 +30,11 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
 	// Get yearly date range
 	const { startDate: yearStartDate, endDate: yearEndDate } = getYearDateRange(year);
 
+	const currentDate = new Date();
+	const currentYear = currentDate.getFullYear();
+	const completedMonthsSinceJanuary =
+		year < currentYear ? 12 : year > currentYear ? 0 : currentDate.getMonth();
+
 	// Load monthly transactions for Gas category
 	const monthlyTransactions = await transactionQueries.findByCategory(gasCategory.id, {
 		start: startDate,
@@ -47,6 +52,7 @@ export const load: PageServerLoad = async ({ locals, url, parent }) => {
 	return {
 		monthlyTransactions,
 		yearlyTransactions,
+		completedMonthsSinceJanuary,
 		month,
 		year,
 		form

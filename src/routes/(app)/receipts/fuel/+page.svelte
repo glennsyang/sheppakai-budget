@@ -51,6 +51,17 @@
 		)
 	);
 
+	let yearlyAverageGasPerMonth = $derived.by(() => {
+		const hasTransactions = ((data.yearlyTransactions as Transaction[]) || []).length > 0;
+		const completedMonthsSinceJanuary = data.completedMonthsSinceJanuary ?? 0;
+
+		if (!hasTransactions || completedMonthsSinceJanuary <= 0) {
+			return null;
+		}
+
+		return yearlyTotalAmount / completedMonthsSinceJanuary;
+	});
+
 	const currentDate = new Date();
 	const defaultMonth = currentDate.getMonth() + 1;
 	const defaultYear = currentDate.getFullYear();
@@ -161,6 +172,14 @@
 					<div class="mb-3 flex items-center justify-between">
 						<span class="text-base font-medium">Total Gas:</span>
 						<span class="text-xl font-bold">{formatCurrency(yearlyTotalAmount)}</span>
+					</div>
+					<div class="mb-3 flex items-center justify-between">
+						<span class="text-base font-medium">Monthly Average:</span>
+						<span class="text-xl font-bold"
+							>{yearlyAverageGasPerMonth === null
+								? '—'
+								: formatCurrency(yearlyAverageGasPerMonth)}</span
+						>
 					</div>
 					<div class="flex items-center justify-between">
 						<span class="text-base font-medium">Total GST:</span>

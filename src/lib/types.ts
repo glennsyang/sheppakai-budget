@@ -56,6 +56,8 @@ export type Category = {
 	updatedAt: string;
 };
 
+export type CardType = 'budget' | 'income';
+
 export type Transaction = {
 	id: string;
 	amount: number;

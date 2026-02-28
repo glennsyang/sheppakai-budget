@@ -390,14 +390,16 @@
 				planned={plannedExpenses}
 				actual={data.actualExpensesTotal || 0}
 				{loading}
-				label1="Spent"
+				label1="Recurring + Spent"
+				cardType="budget"
 			/>
 			<BudgetProgressCard
 				title="Income"
 				planned={data.totalIncome || 0}
 				actual={data.actualExpensesTotal || 0}
 				{loading}
-				label1="Expenses"
+				label1="Recurring + Spent"
+				cardType="income"
 			/>
 		</div>
 

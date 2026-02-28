@@ -3,6 +3,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Progress } from '$lib/components/ui/progress';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import type { CardType } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
 
 	// Define props using Svelte 5 syntax
@@ -12,10 +13,18 @@
 		planned: number;
 		loading?: boolean;
 		label1?: string;
+		cardType?: CardType;
 	}
 
 	// Define props with defaults
-	let { title, actual, planned, loading = false, label1 = 'Spent' }: $$Props = $props();
+	let {
+		title,
+		actual,
+		planned,
+		loading = false,
+		label1 = 'Spent',
+		cardType = 'budget'
+	}: $$Props = $props();
 
 	// Calculate percentage with 2 decimal places
 	let percentage = $derived(planned > 0 ? (actual / planned) * 100 : 0);
@@ -54,7 +63,8 @@
 			</div>
 			{#if isOverBudget}
 				<p class="text-sm font-medium text-red-600">
-					Over budget by {formatCurrency(overage)}
+					{cardType === 'income' ? 'Overspent by' : 'Over budget by'}
+					{formatCurrency(overage)}
 				</p>
 			{:else if isUnderBudget}
 				<p class="text-sm font-medium text-green-600">
