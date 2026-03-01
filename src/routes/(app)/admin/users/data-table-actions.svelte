@@ -52,6 +52,7 @@
 		message: setRoleMessage,
 		submitting: setRoleSubmitting
 	} = superForm(setUserRoleForm, {
+		// svelte-ignore state_referenced_locally
 		id: `setUserRole-${user.id}`,
 		resetForm: true,
 		onUpdate: ({ form }) => {
@@ -75,6 +76,7 @@
 		message: setPasswordMessage,
 		submitting: setPasswordSubmitting
 	} = superForm(setPasswordFormData, {
+		// svelte-ignore state_referenced_locally
 		id: `setPassword-${user.id}`,
 		resetForm: true,
 		onUpdate: ({ form }) => {
@@ -98,6 +100,7 @@
 		message: banUserMessage,
 		submitting: banUserSubmitting
 	} = superForm(banUserFormData, {
+		// svelte-ignore state_referenced_locally
 		id: `banUser-${user.id}`,
 		resetForm: true,
 		onUpdate: ({ form }) => {
