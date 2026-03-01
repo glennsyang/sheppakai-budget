@@ -3,8 +3,6 @@ name: Semgrep Security Scan
 on:
   # Run on pull requests
   pull_request:
-    branches:
-      - main
 
   # Run on pushes to main
   push:
