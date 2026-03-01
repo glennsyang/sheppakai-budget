@@ -11,8 +11,9 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"lint": "prettier --check . && eslint .",
-		"lint:fix": "prettier --write . && eslint . --fix",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix",
+		"lint:github": "oxlint --format=github",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run",
 		"update-deps": "npm outdated || npm update",
@@ -23,7 +24,7 @@
 	"lint-staged": {
 		"*.(js|ts|svelte)": [
 			"prettier --write",
-			"eslint --fix"
+			"npm run lint"
 		],
 		"*.svelte": [
 			"svelte-check --threshold error"
@@ -59,6 +60,8 @@
 		"layerchart": "^2.0.0-next.27",
 		"lefthook": "^2.0.16",
 		"lint-staged": "^16.2.7",
+		"oxlint": "^1.50.0",
+		"oxlint-tsgolint": "^0.15.0",
 		"prettier": "^3.3.3",
 		"prettier-plugin-svelte": "^3.4.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
