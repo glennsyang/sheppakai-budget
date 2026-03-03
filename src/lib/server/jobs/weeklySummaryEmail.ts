@@ -65,7 +65,7 @@ function getPacificDateParts(date: Date): PacificDateParts {
 function formatMonthLabel(month: number, year: number): string {
 	const labelDate = new Date(Date.UTC(year, month - 1, 1));
 	return new Intl.DateTimeFormat('en-US', {
-		timeZone: PACIFIC_TIMEZONE,
+		timeZone: 'UTC',
 		month: 'long',
 		year: 'numeric'
 	}).format(labelDate);
