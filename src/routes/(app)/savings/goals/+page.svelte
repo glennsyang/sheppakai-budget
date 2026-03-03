@@ -6,14 +6,15 @@
 
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import ContributionModal from '$lib/components/ContributionModal.svelte';
+	import DataTableActions from './data-table-actions.svelte';
 	import SavingsGoalCard from '$lib/components/SavingsGoalCard.svelte';
 	import SavingsGoalModal from '$lib/components/SavingsGoalModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { DataTable } from '$lib/components/ui/data-table';
+	import * as Sheet from '$lib/components/ui/sheet/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 	import type { contributionSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
-
-	import { columns } from './columns';
+	import { formatLocalTimestamp } from '$lib/utils/dates';
 
 	import type { Contribution, SavingsGoalWithProgress } from '$lib';
 
@@ -39,9 +40,11 @@
 	let openGoalModal = $state<boolean>(false);
 	let openContributionModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
+	let openContributionsSheet = $state<boolean>(false);
 	let loading = $state(false);
 
 	let editingGoal = $state<SavingsGoalWithProgress | null>(null);
+	let selectedGoalForSheet = $state<SavingsGoalWithProgress | null>(null);
 	let selectedGoalId = $state<string>('');
 	let deletingGoalId = $state<string>('');
 
@@ -60,6 +63,11 @@
 		openContributionModal = true;
 	}
 
+	function handleOpenGoalContributions(goal: SavingsGoalWithProgress) {
+		selectedGoalForSheet = goal;
+		openContributionsSheet = true;
+	}
+
 	function handleDeleteGoal(goalId: string) {
 		deletingGoalId = goalId;
 		openDeleteModal = true;
@@ -71,6 +79,20 @@
 	let overallProgress = $derived(
 		totalTargetAmount > 0 ? (totalCurrentAmount / totalTargetAmount) * 100 : 0
 	);
+
+	let selectedGoalContributions = $derived.by(() => {
+		if (!selectedGoalForSheet) {
+			return [];
+		}
+
+		const goalId = selectedGoalForSheet.id;
+
+		return data.contributions
+			.filter((contribution) => contribution.goalId === goalId)
+			.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+	});
+
+	let isSelectedGoalArchived = $derived(selectedGoalForSheet?.status === 'archived');
 </script>
 
 <svelte:head>
@@ -133,6 +155,7 @@
 			{#each data.goals as goal (goal.id)}
 				<SavingsGoalCard
 					{goal}
+					onViewContributions={handleOpenGoalContributions}
 					onAddContribution={handleAddContribution}
 					onEditGoal={handleEditGoal}
 					onDeleteGoal={handleDeleteGoal}
@@ -152,37 +175,103 @@
 			</CardContent>
 		</Card>
 	{/if}
+</div>
 
-	<!-- Recent Contributions Table -->
-	<div class="overflow-hidden rounded-lg border shadow">
-		<div class="p-6">
-			<div class="mb-4 flex items-center justify-between">
-				<div>
-					<h2 class="text-2xl font-bold tracking-tight">Recent Contributions</h2>
-					<p class="mt-1 text-sm text-muted-foreground">
-						History of all contributions to your savings goals
-					</p>
+<Sheet.Root bind:open={openContributionsSheet}>
+	<Sheet.Content side="right" class="flex w-full flex-col sm:max-w-2xl">
+		<Sheet.Header>
+			<Sheet.Title>
+				{selectedGoalForSheet?.name || 'Savings Goal'} Contributions
+			</Sheet.Title>
+			<Sheet.Description>View all contributions for this savings goal.</Sheet.Description>
+		</Sheet.Header>
+
+		<div class="flex-1 overflow-y-auto px-4 py-3 sm:py-4">
+			{#if selectedGoalContributions.length === 0}
+				<div class="flex h-32 items-center justify-center text-muted-foreground">
+					No contributions for this goal yet.
 				</div>
-				<Button
-					size="sm"
-					variant="outline"
-					onclick={() => (openContributionModal = true)}
-					disabled={data.goals.filter((g) => g.status === 'active').length === 0}
-				>
-					<PlusIcon class="mr-2 h-4 w-4" />
-					Add Contribution
-				</Button>
-			</div>
-			{#if data.contributions.length > 0}
-				<DataTable {columns} data={data.contributions} defaultPageSize={5} />
 			{:else}
-				<div class="py-8 text-center text-muted-foreground">
-					No contributions yet. Start adding contributions to track your progress!
+				<div class="space-y-2 sm:hidden">
+					{#each selectedGoalContributions as contribution (contribution.id)}
+						<div class="rounded-md border p-3">
+							<div class="mb-2 flex items-start justify-between gap-2">
+								<p class="text-sm text-muted-foreground">
+									{formatLocalTimestamp(contribution.date)}
+								</p>
+								{#if !isSelectedGoalArchived}
+									<DataTableActions id={contribution.id} contributionData={contribution} />
+								{/if}
+							</div>
+							<p class="text-sm text-foreground">
+								{contribution.description || '—'}
+							</p>
+							<p class="mt-2 text-right font-medium">
+								${contribution.amount.toLocaleString('en-US', {
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2
+								})}
+							</p>
+						</div>
+					{/each}
+				</div>
+
+				<div class="hidden sm:block">
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head>Date</Table.Head>
+								<Table.Head>Description</Table.Head>
+								<Table.Head class="text-right">Amount</Table.Head>
+								<Table.Head class="w-12" />
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
+							{#each selectedGoalContributions as contribution (contribution.id)}
+								<Table.Row>
+									<Table.Cell class="whitespace-nowrap">
+										{formatLocalTimestamp(contribution.date)}
+									</Table.Cell>
+									<Table.Cell class="max-w-[240px] truncate">
+										{contribution.description || '—'}
+									</Table.Cell>
+									<Table.Cell class="text-right font-medium whitespace-nowrap">
+										${contribution.amount.toLocaleString('en-US', {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2
+										})}
+									</Table.Cell>
+									<Table.Cell>
+										{#if !isSelectedGoalArchived}
+											<DataTableActions id={contribution.id} contributionData={contribution} />
+										{/if}
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
 				</div>
 			{/if}
 		</div>
-	</div>
-</div>
+
+		<Sheet.Footer class="border-t pt-4">
+			<div class="flex w-full justify-between font-semibold">
+				<span>
+					{selectedGoalContributions.length}
+					{selectedGoalContributions.length === 1 ? 'contribution' : 'contributions'}
+				</span>
+				<span>
+					${selectedGoalContributions
+						.reduce((sum, contribution) => sum + contribution.amount, 0)
+						.toLocaleString('en-US', {
+							minimumFractionDigits: 2,
+							maximumFractionDigits: 2
+						})}
+				</span>
+			</div>
+		</Sheet.Footer>
+	</Sheet.Content>
+</Sheet.Root>
 
 <!-- Modals -->
 <SavingsGoalModal

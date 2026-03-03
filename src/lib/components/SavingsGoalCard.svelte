@@ -11,12 +11,13 @@
 
 	interface Props {
 		goal: SavingsGoalWithProgress;
+		onViewContributions: (goal: SavingsGoalWithProgress) => void;
 		onAddContribution: (goalId: string) => void;
 		onEditGoal: (goal: SavingsGoalWithProgress) => void;
 		onDeleteGoal: (goalId: string) => void;
 	}
 
-	let { goal, onAddContribution, onEditGoal, onDeleteGoal }: Props = $props();
+	let { goal, onViewContributions, onAddContribution, onEditGoal, onDeleteGoal }: Props = $props();
 
 	// Determine card color based on status
 	let statusColor = $derived(
@@ -39,7 +40,10 @@
 	);
 </script>
 
-<Card class="border-2 {statusColor}">
+<Card
+	class="cursor-pointer border-2 {statusColor} transition-colors hover:bg-muted/30"
+	onclick={() => onViewContributions(goal)}
+>
 	<CardHeader class="pb-3">
 		<div class="flex items-start justify-between">
 			<div class="flex-1">
@@ -56,7 +60,10 @@
 							size: 'icon',
 							class: 'h-8 w-8 hover:text-muted-foreground'
 						})}
-						onclick={() => onEditGoal(goal)}
+						onclick={(event) => {
+							event.stopPropagation();
+							onEditGoal(goal);
+						}}
 					>
 						<PenIcon class="h-4 w-4" />
 					</Tooltip.Trigger>
@@ -71,7 +78,10 @@
 							size: 'icon',
 							class: 'h-8 w-8 text-destructive hover:text-destructive'
 						})}
-						onclick={() => onDeleteGoal(goal.id)}
+						onclick={(event) => {
+							event.stopPropagation();
+							onDeleteGoal(goal.id);
+						}}
 					>
 						<Trash2Icon class="h-4 w-4" />
 					</Tooltip.Trigger>
@@ -164,7 +174,10 @@
 		<Button
 			class="w-full"
 			variant={goal.status === 'completed' ? 'outline' : 'default'}
-			onclick={() => onAddContribution(goal.id)}
+			onclick={(event) => {
+				event.stopPropagation();
+				onAddContribution(goal.id);
+			}}
 			disabled={goal.status === 'completed'}
 		>
 			<PlusIcon class="mr-2 h-4 w-4" />
