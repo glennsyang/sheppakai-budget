@@ -11,7 +11,12 @@ import { getEnv } from '../../env';
 
 import * as schema from './db/schema';
 import { getDb } from './db';
-import { sendNewUserEmail, sendPasswordResetEmail, sendVerificationEmail } from './email';
+import {
+	sendNewUserEmail,
+	sendPasswordChangedEmail,
+	sendPasswordResetEmail,
+	sendVerificationEmail
+} from './email';
 
 const env = getEnv();
 
@@ -45,6 +50,7 @@ export const auth = betterAuth({
 		autoSignIn: false,
 		minPasswordLength: 12,
 		maxPasswordLength: 128,
+		revokeSessionsOnPasswordReset: true,
 		resetPasswordTokenExpiresIn: 60 * 10, // 10 minutes
 		sendResetPassword: async ({ user, url, token }) => {
 			// Construct the reset URL with token
@@ -57,7 +63,17 @@ export const auth = betterAuth({
 			void sendPasswordResetEmail(user.email, user.name || user.email, resetUrl);
 		},
 		onPasswordReset: async ({ user }) => {
-			logger.debug('🔐 Password reset completed for user:', user.email);
+			logger.info('Security event: password reset completed and sessions revoked', {
+				userId: user.id,
+				email: user.email,
+				timestamp: new Date().toISOString()
+			});
+			void sendPasswordChangedEmail({
+				to: user.email,
+				name: user.name || user.email,
+				changedAt: new Date(),
+				source: 'Password reset flow'
+			});
 		}
 	},
 	emailVerification: {
