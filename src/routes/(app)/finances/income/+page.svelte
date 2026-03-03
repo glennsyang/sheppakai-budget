@@ -27,10 +27,26 @@
 	let openModal = $state<boolean>(false);
 	let loading = $state(false);
 
-	// Calculate total income
-	let totalIncome = $derived(
-		((data.incomes as Income[]) || []).reduce((sum, item) => sum + item.amount, 0)
+	// Calculate monthly total income
+	let monthlyTotalIncome = $derived(
+		((data.monthlyIncomes as Income[]) || []).reduce((sum, item) => sum + item.amount, 0)
 	);
+
+	// Calculate yearly total income
+	let yearlyTotalIncome = $derived(
+		((data.yearlyIncomes as Income[]) || []).reduce((sum, item) => sum + item.amount, 0)
+	);
+
+	let yearlyAverageIncomePerMonth = $derived.by(() => {
+		const hasIncomes = ((data.yearlyIncomes as Income[]) || []).length > 0;
+		const completedMonthsSinceJanuary = data.completedMonthsSinceJanuary ?? 0;
+
+		if (!hasIncomes || completedMonthsSinceJanuary <= 0) {
+			return null;
+		}
+
+		return yearlyTotalIncome / completedMonthsSinceJanuary;
+	});
 
 	const currentDate = new Date();
 	const defaultMonth = currentDate.getMonth() + 1;
@@ -108,21 +124,42 @@
 					{#if loading}
 						<TableSkeleton rows={5} columns={3} />
 					{:else}
-						<DataTable {columns} data={data.incomes} />
+						<DataTable {columns} data={data.monthlyIncomes} />
 					{/if}
 				</div>
 			</div>
 		</div>
 
-		<!-- Summary Card Column -->
+		<!-- Summary Cards Column -->
 		<div class="lg:col-span-1">
-			<div class="overflow-hidden rounded-lg border shadow">
+			<!-- Monthly Summary Card -->
+			<div class="mb-6 overflow-hidden rounded-lg border shadow">
 				<div class="p-6">
-					<h2 class="text-center text-2xl font-bold tracking-tight">Summary</h2>
+					<h2 class="text-center text-2xl font-bold tracking-tight">Monthly Summary</h2>
 					<div class="my-4 border-t"></div>
 					<div class="flex items-center justify-between">
 						<span class="text-base font-medium">Total Income: </span>
-						<span class="text-2xl font-bold">{formatCurrency(totalIncome)}</span>
+						<span class="text-2xl font-bold">{formatCurrency(monthlyTotalIncome)}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Yearly Summary Card -->
+			<div class="mb-6 overflow-hidden rounded-lg border shadow">
+				<div class="p-6">
+					<h2 class="text-center text-2xl font-bold tracking-tight">Yearly Summary</h2>
+					<div class="my-4 border-t"></div>
+					<div class="mb-3 flex items-center justify-between">
+						<span class="text-base font-medium">Total Income: </span>
+						<span class="text-2xl font-bold">{formatCurrency(yearlyTotalIncome)}</span>
+					</div>
+					<div class="mb-3 flex items-center justify-between">
+						<span class="text-base font-medium">Monthly Average:</span>
+						<span class="text-xl font-bold"
+							>{yearlyAverageIncomePerMonth === null
+								? '—'
+								: formatCurrency(yearlyAverageIncomePerMonth)}</span
+						>
 					</div>
 				</div>
 			</div>
