@@ -8,6 +8,7 @@ import { auth } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { accountQueries, userQueries } from '$lib/server/db/queries';
 import { user } from '$lib/server/db/schema';
+import { sendPasswordChangedEmail } from '$lib/server/email';
 import { logger } from '$lib/server/logger';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -82,13 +83,39 @@ export const actions = {
 		}
 
 		try {
+			const ipAddressHeader =
+				request.headers.get('x-forwarded-for') ||
+				request.headers.get('x-real-ip') ||
+				request.headers.get('x-client-ip');
+			const ipAddress = ipAddressHeader?.split(',')[0]?.trim() || undefined;
+			const userAgent = request.headers.get('user-agent') || undefined;
+
 			await auth.api.changePassword({
 				body: {
 					currentPassword: form.data.currentPassword,
 					newPassword: form.data.newPassword,
-					revokeOtherSessions: false
+					revokeOtherSessions: true
 				},
 				headers: request.headers
+			});
+
+			logger.info('Security event: password changed and other sessions revoked', {
+				userId: currentUser.id,
+				email: currentUser.email,
+				ipAddress,
+				userAgent,
+				timestamp: new Date().toISOString()
+			});
+
+			sendPasswordChangedEmail({
+				to: currentUser.email,
+				name: currentUser.name || currentUser.email,
+				changedAt: new Date(),
+				ipAddress,
+				userAgent,
+				source: 'Profile settings'
+			}).catch((error: unknown) => {
+				logger.error('Failed to send password changed notification email', error);
 			});
 
 			return message(form, {

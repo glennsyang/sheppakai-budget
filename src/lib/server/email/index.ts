@@ -26,6 +26,15 @@ type WeeklySummaryEmailPayload = {
 	nearLimitCategories: WeeklySummaryCategory[];
 };
 
+type PasswordChangedEmailPayload = {
+	to: string;
+	name: string;
+	changedAt: Date;
+	ipAddress?: string;
+	userAgent?: string;
+	source?: string;
+};
+
 function renderWeeklyRows(
 	rows: WeeklySummaryCategory[],
 	type: 'over-budget' | 'near-limit'
@@ -210,6 +219,57 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
 		});
 	} catch (error) {
 		logger.error('❌ Failed to send password reset email:', error);
+		return error;
+	}
+}
+
+export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayload) {
+	logger.debug('📧 Sending Password Changed Email to:', { to: payload.to });
+
+	const changedAtText = payload.changedAt.toLocaleString();
+	const ipAddress = payload.ipAddress || 'Unavailable';
+	const userAgent = payload.userAgent || 'Unavailable';
+	const source = payload.source || 'Account settings';
+
+	try {
+		await resend.emails.send({
+			from: env.RESEND_FROM_ADDRESS,
+			to: payload.to,
+			subject: '[Sheppakai Budget] Your password was changed',
+			html: `
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<meta charset="utf-8">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<title>Password changed</title>
+				</head>
+				<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+					<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+						<h1 style="color: white; margin: 0; font-size: 28px;">Password Updated</h1>
+					</div>
+					<div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+						<p style="font-size: 16px; margin-bottom: 20px;">Hi ${payload.name},</p>
+						<p style="font-size: 16px; margin-bottom: 20px;">
+							Your password was successfully changed.
+						</p>
+						<p style="font-size: 14px; margin-bottom: 8px;"><strong>When:</strong> ${changedAtText}</p>
+						<p style="font-size: 14px; margin-bottom: 8px;"><strong>Source:</strong> ${source}</p>
+						<p style="font-size: 14px; margin-bottom: 8px;"><strong>IP:</strong> ${ipAddress}</p>
+						<p style="font-size: 14px; margin-bottom: 20px;"><strong>Device:</strong> ${userAgent}</p>
+						<p style="font-size: 14px; color: #6b7280; margin-top: 20px;">
+							If this wasn't you, reset your password immediately and contact support.
+						</p>
+					</div>
+					<div style="text-align: center; margin-top: 20px; padding: 20px; color: #9ca3af; font-size: 12px;">
+						<p>Sheppakai Budget - Your Personal Finance Companion</p>
+					</div>
+				</body>
+				</html>
+			`
+		});
+	} catch (error) {
+		logger.error('❌ Failed to send password changed email:', error);
 		return error;
 	}
 }
