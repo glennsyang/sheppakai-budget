@@ -4,11 +4,15 @@ import {
 	extractDateFromTimestamp,
 	formatDateForStorage,
 	formatLocalTimestamp,
+	getCalendarYearMonthsRange,
 	getCurrentUTCTimestamp,
 	getMonthDateRange,
 	getMonthRangeFromUrl,
 	getMonthYearFromUrl,
-	getTodayDate
+	getPreviousMonthsRange,
+	getTodayDate,
+	getYearDateRange,
+	padMonth
 } from './dates';
 
 describe('Date Utilities - Local Timezone Storage', () => {
@@ -78,6 +82,31 @@ describe('Date Utilities - Local Timezone Storage', () => {
 		it('should handle end of month dates', () => {
 			expect(formatLocalTimestamp('2026-02-28 10:00:00')).toBe('Feb 28, 2026');
 			expect(formatLocalTimestamp('2026-01-31 10:00:00')).toBe('Jan 31, 2026');
+		});
+
+		it('should fallback to locale string for non-default format', () => {
+			const result = formatLocalTimestamp('2026-02-01 15:45:32', 'LONG');
+			expect(typeof result).toBe('string');
+			expect(result.length).toBeGreaterThan(0);
+		});
+	});
+
+	describe('getYearDateRange', () => {
+		it('should return full year boundaries', () => {
+			const result = getYearDateRange(2026);
+			expect(result).toEqual({ startDate: '2026-01-01', endDate: '2026-12-31' });
+		});
+	});
+
+	describe('padMonth', () => {
+		it('pads single-digit numbers', () => {
+			expect(padMonth(3)).toBe('03');
+			expect(padMonth('7')).toBe('07');
+		});
+
+		it('keeps two-digit values unchanged', () => {
+			expect(padMonth(12)).toBe('12');
+			expect(padMonth('10')).toBe('10');
 		});
 	});
 
@@ -297,6 +326,74 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				year: 2026,
 				startDate: '2026-04-01',
 				endDate: '2026-04-30'
+			});
+		});
+	});
+
+	describe('getPreviousMonthsRange', () => {
+		beforeEach(() => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date('2026-03-15T12:00:00'));
+		});
+
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it('returns requested month count ending at current month', () => {
+			const result = getPreviousMonthsRange(3);
+			expect(result).toEqual([
+				{ month: 1, year: 2026, startDate: '2026-01-01', endDate: '2026-01-31' },
+				{ month: 2, year: 2026, startDate: '2026-02-01', endDate: '2026-02-28' },
+				{ month: 3, year: 2026, startDate: '2026-03-01', endDate: '2026-03-31' }
+			]);
+		});
+
+		it('handles year rollover when traversing backwards', () => {
+			vi.setSystemTime(new Date('2026-01-20T12:00:00'));
+			const result = getPreviousMonthsRange(4);
+			expect(result).toEqual([
+				{ month: 10, year: 2025, startDate: '2025-10-01', endDate: '2025-10-31' },
+				{ month: 11, year: 2025, startDate: '2025-11-01', endDate: '2025-11-30' },
+				{ month: 12, year: 2025, startDate: '2025-12-01', endDate: '2025-12-31' },
+				{ month: 1, year: 2026, startDate: '2026-01-01', endDate: '2026-01-31' }
+			]);
+		});
+	});
+
+	describe('getCalendarYearMonthsRange', () => {
+		beforeEach(() => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date('2026-03-15T12:00:00'));
+		});
+
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it('returns only months up to current month for current year', () => {
+			const result = getCalendarYearMonthsRange(2026);
+			expect(result).toEqual([
+				{ month: 1, year: 2026, startDate: '2026-01-01', endDate: '2026-01-31' },
+				{ month: 2, year: 2026, startDate: '2026-02-01', endDate: '2026-02-28' },
+				{ month: 3, year: 2026, startDate: '2026-03-01', endDate: '2026-03-31' }
+			]);
+		});
+
+		it('returns all 12 months for a past year', () => {
+			const result = getCalendarYearMonthsRange(2025);
+			expect(result).toHaveLength(12);
+			expect(result[0]).toEqual({
+				month: 1,
+				year: 2025,
+				startDate: '2025-01-01',
+				endDate: '2025-01-31'
+			});
+			expect(result[11]).toEqual({
+				month: 12,
+				year: 2025,
+				startDate: '2025-12-01',
+				endDate: '2025-12-31'
 			});
 		});
 	});
