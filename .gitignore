@@ -30,3 +30,6 @@ vite.config.ts.timestamp-*
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Dolt database files (added by bd init)
+.dolt/
