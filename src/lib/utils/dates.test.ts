@@ -6,11 +6,13 @@ import {
 	formatLocalTimestamp,
 	getCalendarYearMonthsRange,
 	getCurrentUTCTimestamp,
+	getMonthProgress,
 	getMonthDateRange,
 	getMonthRangeFromUrl,
 	getMonthYearFromUrl,
 	getPreviousMonthsRange,
 	getTodayDate,
+	getYearProgress,
 	getYearDateRange,
 	padMonth
 } from './dates';
@@ -395,6 +397,127 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				startDate: '2025-12-01',
 				endDate: '2025-12-31'
 			});
+		});
+	});
+
+	describe('getMonthProgress', () => {
+		it('returns elapsed days for the current month', () => {
+			const progress = getMonthProgress(3, 2026, new Date('2026-03-06T12:00:00'));
+
+			expect(progress).toMatchObject({
+				kind: 'month',
+				elapsedUnits: 6,
+				totalUnits: 31,
+				status: 'current',
+				unit: 'day'
+			});
+			expect(progress.percentage).toBeCloseTo((6 / 31) * 100, 6);
+		});
+
+		it('returns completed progress for a past month', () => {
+			const progress = getMonthProgress(2, 2026, new Date('2026-03-06T12:00:00'));
+
+			expect(progress).toEqual({
+				kind: 'month',
+				elapsedUnits: 28,
+				totalUnits: 28,
+				percentage: 100,
+				status: 'past',
+				unit: 'day'
+			});
+		});
+
+		it('returns zero progress for a future month', () => {
+			const progress = getMonthProgress(4, 2026, new Date('2026-03-06T12:00:00'));
+
+			expect(progress).toEqual({
+				kind: 'month',
+				elapsedUnits: 0,
+				totalUnits: 30,
+				percentage: 0,
+				status: 'future',
+				unit: 'day'
+			});
+		});
+
+		it('handles February in a leap year', () => {
+			const progress = getMonthProgress(2, 2024, new Date('2024-02-29T12:00:00'));
+
+			expect(progress).toEqual({
+				kind: 'month',
+				elapsedUnits: 29,
+				totalUnits: 29,
+				percentage: 100,
+				status: 'current',
+				unit: 'day'
+			});
+		});
+
+		it('handles February in a non-leap year', () => {
+			const progress = getMonthProgress(2, 2026, new Date('2026-02-14T12:00:00'));
+
+			expect(progress).toMatchObject({
+				kind: 'month',
+				elapsedUnits: 14,
+				totalUnits: 28,
+				status: 'current',
+				unit: 'day'
+			});
+			expect(progress.percentage).toBe(50);
+		});
+	});
+
+	describe('getYearProgress', () => {
+		it('returns elapsed days for the current year', () => {
+			const progress = getYearProgress(2026, new Date('2026-03-06T12:00:00'));
+
+			expect(progress).toMatchObject({
+				kind: 'year',
+				elapsedUnits: 2,
+				totalUnits: 12,
+				status: 'current',
+				unit: 'month'
+			});
+			expect(progress.percentage).toBeCloseTo((2 / 12) * 100, 6);
+		});
+
+		it('returns completed progress for a past year', () => {
+			const progress = getYearProgress(2025, new Date('2026-03-06T12:00:00'));
+
+			expect(progress).toEqual({
+				kind: 'year',
+				elapsedUnits: 12,
+				totalUnits: 12,
+				percentage: 100,
+				status: 'past',
+				unit: 'month'
+			});
+		});
+
+		it('returns zero progress for a future year', () => {
+			const progress = getYearProgress(2027, new Date('2026-03-06T12:00:00'));
+
+			expect(progress).toEqual({
+				kind: 'year',
+				elapsedUnits: 0,
+				totalUnits: 12,
+				percentage: 0,
+				status: 'future',
+				unit: 'month'
+			});
+		});
+
+		it('uses completed months for leap years as well', () => {
+			const progress = getYearProgress(2024, new Date('2024-03-01T12:00:00'));
+
+			expect(progress).toMatchObject({
+				kind: 'year',
+				elapsedUnits: 2,
+				totalUnits: 12,
+				status: 'current',
+				unit: 'month'
+			});
+			expect(progress.percentage).toBeCloseTo((2 / 12) * 100, 6);
 		});
 	});
 });
