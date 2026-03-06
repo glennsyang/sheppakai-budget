@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "sheppakai_budget",
+  "project_id": "ededda44-3115-43c5-9de5-4e4bae55e449"
+}
