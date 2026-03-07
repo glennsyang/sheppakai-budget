@@ -8,12 +8,14 @@
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
 	import MonthlyCategoryChart from '$lib/components/MonthlyCategoryChart.svelte';
+	import PeriodProgressCard from '$lib/components/PeriodProgressCard.svelte';
 	import TimeRangeInOut from '$lib/components/TimeRangeInOut.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
 	import type { BarChartData, MonthlyCategoryTrendData, MonthlySpentChartData } from '$lib/types';
 	import { monthNames, months } from '$lib/utils';
+	import { getMonthProgress, getYearProgress } from '$lib/utils/dates';
 
 	import type { PageProps } from './$types';
 
@@ -306,6 +308,25 @@
 	let categoryFooterRangeText = $derived(
 		yearlyView === 'current' ? 'Total spend for the last 6 months' : 'Total spend for the full year'
 	);
+	let activePeriodProgress = $derived.by(() => {
+		const year = Number.parseInt(selectedYear, 10);
+
+		if (selectedMode === 'yearly') {
+			return {
+				label: 'Year Progress',
+				title: selectedYear,
+				progress: getYearProgress(year)
+			};
+		}
+
+		const month = Number.parseInt(selectedMonth, 10);
+
+		return {
+			label: 'Month Progress',
+			title: `${monthNames[month - 1]} ${selectedYear}`,
+			progress: getMonthProgress(month, year)
+		};
+	});
 </script>
 
 <svelte:head>
@@ -381,6 +402,14 @@
 				</div>
 			</div>
 		</div>
+	</div>
+
+	<div class="mb-6">
+		<PeriodProgressCard
+			label={activePeriodProgress.label}
+			title={activePeriodProgress.title}
+			progress={activePeriodProgress.progress}
+		/>
 	</div>
 
 	{#if selectedMode === 'monthly'}

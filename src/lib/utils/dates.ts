@@ -8,6 +8,19 @@
  * Audit: created_at/updated_at still use SQLite's current_timestamp (UTC)
  */
 
+export type PeriodProgressKind = 'month' | 'year';
+export type PeriodProgressStatus = 'past' | 'current' | 'future';
+export type PeriodProgressUnit = 'day' | 'month';
+
+export interface PeriodProgress {
+	kind: PeriodProgressKind;
+	elapsedUnits: number;
+	totalUnits: number;
+	percentage: number;
+	status: PeriodProgressStatus;
+	unit: PeriodProgressUnit;
+}
+
 /**
  * Format user's date input for storage with current local time
  * @param dateString - Date from HTML input (YYYY-MM-DD)
@@ -215,4 +228,69 @@ export function getCalendarYearMonthsRange(year: number) {
 	}
 
 	return ranges;
+}
+
+function buildPeriodProgress(
+	kind: PeriodProgressKind,
+	elapsedUnits: number,
+	totalUnits: number,
+	status: PeriodProgressStatus,
+	unit: PeriodProgressUnit
+): PeriodProgress {
+	const safeTotalUnits = Math.max(totalUnits, 1);
+	const percentage = Math.min(100, Math.max(0, (elapsedUnits / safeTotalUnits) * 100));
+
+	return {
+		kind,
+		elapsedUnits,
+		totalUnits,
+		percentage,
+		status,
+		unit
+	};
+}
+
+/**
+ * Get completion progress for a selected month relative to the reference date.
+ * Past months are complete, future months have not started, and the current month
+ * uses the current day of month as the elapsed amount.
+ */
+export function getMonthProgress(
+	month: number,
+	year: number,
+	referenceDate: Date = new Date()
+): PeriodProgress {
+	const totalUnits = new Date(year, month, 0).getDate();
+	const referenceYear = referenceDate.getFullYear();
+	const referenceMonth = referenceDate.getMonth() + 1;
+
+	if (year < referenceYear || (year === referenceYear && month < referenceMonth)) {
+		return buildPeriodProgress('month', totalUnits, totalUnits, 'past', 'day');
+	}
+
+	if (year > referenceYear || (year === referenceYear && month > referenceMonth)) {
+		return buildPeriodProgress('month', 0, totalUnits, 'future', 'day');
+	}
+
+	return buildPeriodProgress('month', referenceDate.getDate(), totalUnits, 'current', 'day');
+}
+
+/**
+ * Get completion progress for a selected year relative to the reference date.
+ * Past years are complete, future years have not started, and the current year
+ * uses the current day-of-year as the elapsed amount.
+ */
+export function getYearProgress(year: number, referenceDate: Date = new Date()): PeriodProgress {
+	const totalUnits = 12;
+	const referenceYear = referenceDate.getFullYear();
+
+	if (year < referenceYear) {
+		return buildPeriodProgress('year', totalUnits, totalUnits, 'past', 'month');
+	}
+
+	if (year > referenceYear) {
+		return buildPeriodProgress('year', 0, totalUnits, 'future', 'month');
+	}
+
+	return buildPeriodProgress('year', referenceDate.getMonth(), totalUnits, 'current', 'month');
 }
