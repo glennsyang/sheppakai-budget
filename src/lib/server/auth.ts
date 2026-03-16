@@ -17,13 +17,9 @@ import {
 	sendPasswordResetEmail,
 	sendVerificationEmail
 } from './email';
+import { sendAuthAlerts } from './notifications';
 
 const env = getEnv();
-
-/**
- * Hardcoded admin user IDs. Used both in the admin plugin config and requireAdmin().
- */
-const ADMIN_USER_IDS = ['kjpZ7oDLSr5JnB8B0w1Q5d8B16YbjrZb'];
 
 export const auth = betterAuth({
 	appName: 'Sheppakai Budget',
@@ -74,6 +70,11 @@ export const auth = betterAuth({
 				changedAt: new Date(),
 				source: 'Password reset flow'
 			});
+			void sendAuthAlerts(
+				`⚠️ Password reset for ${user.name || user.email} ${user.email} at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })} UTC. All sessions revoked.`,
+				'Sheppakai-Budget - Security Alert',
+				4
+			);
 		}
 	},
 	emailVerification: {
@@ -91,6 +92,11 @@ export const auth = betterAuth({
 				return;
 			}
 			if (!ctx.body?.email.includes('sheppard')) {
+				void sendAuthAlerts(
+					`⚠️ Registration/sign-in attempt with invalid email: ${ctx.body?.email} at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })} UTC.`,
+					'Sheppakai-Budget - Security Alert',
+					4
+				);
 				throw new APIError('BAD_REQUEST', {
 					message: 'Email must include "sheppard" for registration'
 				});
@@ -165,7 +171,7 @@ export const auth = betterAuth({
 	},
 	plugins: [
 		admin({
-			adminUserIds: ADMIN_USER_IDS
+			adminUserIds: env.ADMIN_USER_IDS.split(',')
 		}),
 		sveltekitCookies(getRequestEvent)
 	] // make sure this is the last plugin in the array
@@ -182,7 +188,7 @@ export function requireAdmin(locals: App.Locals): void {
 	}
 
 	// Check hardcoded admin IDs
-	const isHardcodedAdmin = ADMIN_USER_IDS.includes(locals.user.id);
+	const isHardcodedAdmin = env.ADMIN_USER_IDS.split(',').includes(locals.user.id);
 
 	// Check role field
 	const isRoleAdmin = locals.user.role === 'admin';
