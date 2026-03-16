@@ -12,6 +12,7 @@ const envSchema = z.object({
 	RESEND_NEW_USER_ADDRESS: z.email(),
 	ADMIN_USER_IDS: z.string().min(1),
 	AUTH_ALERTS_URL: z.url(),
+	BUDGET_ALERTS_URL: z.url(),
 	NODE_ENV: z.enum(['development', 'production', 'test']).default('development')
 });
 
@@ -36,7 +37,8 @@ const ENV_FALLBACKS = {
 	RESEND_FROM_ADDRESS: 'noreply@example.com',
 	RESEND_NEW_USER_ADDRESS: 'admin@example.com',
 	ADMIN_USER_IDS: 'dummy_admin_id',
-	AUTH_ALERTS_URL: 'https://ntfy.sh/dummy-auth-alerts',
+	AUTH_ALERTS_URL: 'https://notification-service.com/dummy-auth-alerts',
+	BUDGET_ALERTS_URL: 'https://notification-service.com/dummy-budget-alerts',
 	NODE_ENV: 'development'
 } as const;
 
@@ -95,6 +97,7 @@ export function getEnv() {
 		RESEND_NEW_USER_ADDRESS: env.RESEND_NEW_USER_ADDRESS || ENV_FALLBACKS.RESEND_NEW_USER_ADDRESS,
 		ADMIN_USER_IDS: env.ADMIN_USER_IDS || ENV_FALLBACKS.ADMIN_USER_IDS,
 		AUTH_ALERTS_URL: env.AUTH_ALERTS_URL || ENV_FALLBACKS.AUTH_ALERTS_URL,
+		BUDGET_ALERTS_URL: env.BUDGET_ALERTS_URL || ENV_FALLBACKS.BUDGET_ALERTS_URL,
 		NODE_ENV: (env.NODE_ENV as 'development' | 'production' | 'test') || ENV_FALLBACKS.NODE_ENV
 	};
 }

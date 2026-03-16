@@ -71,7 +71,7 @@ export const auth = betterAuth({
 				source: 'Password reset flow'
 			});
 			void sendAuthAlerts(
-				`⚠️ Password reset for ${user.name || user.email} ${user.email} at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })} UTC. All sessions revoked.`,
+				`⚠️ Password reset for ${user.name || user.email} ${user.email} at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}. All sessions revoked.`,
 				'Sheppakai-Budget - Security Alert',
 				4
 			);
