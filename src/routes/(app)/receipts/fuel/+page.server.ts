@@ -6,6 +6,7 @@ import { transactionSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { transactionQueries } from '$lib/server/db/queries';
 import { transaction } from '$lib/server/db/schema';
+import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
 import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
@@ -63,6 +64,7 @@ export const actions = createCrudActions({
 	schema: transactionSchema,
 	table: transaction,
 	entityName: 'Transaction',
+	...transactionBudgetAlertHooks,
 	transformCreate: (data, userId) => ({
 		amount: data.amount,
 		payee: data.payee,
