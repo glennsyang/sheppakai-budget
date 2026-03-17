@@ -27,7 +27,11 @@ type InferSelectType<TTable extends AnySQLiteTable> = TTable['$inferSelect'];
 /**
  * Configuration for creating CRUD actions
  */
-export interface CrudConfig<TSchema extends AnyZodSchema, TTable extends AnySQLiteTable> {
+export interface CrudConfig<
+	TSchema extends AnyZodSchema,
+	TTable extends AnySQLiteTable,
+	TUpdateContext = void
+> {
 	/** Zod schema for form validation */
 	schema: TSchema;
 
@@ -59,10 +63,18 @@ export interface CrudConfig<TSchema extends AnyZodSchema, TTable extends AnySQLi
 	afterCreate?: (id: string, data: InferSelectType<TTable>) => Promise<void>;
 
 	/** Hook to run before updating a record */
-	beforeUpdate?: (id: string, data: InferSchemaType<TSchema>, userId: string) => Promise<void>;
+	beforeUpdate?: (
+		id: string,
+		data: InferSchemaType<TSchema>,
+		userId: string
+	) => Promise<TUpdateContext | void>;
 
 	/** Hook to run after updating a record */
-	afterUpdate?: (id: string, data: Partial<InferInsertType<TTable>>) => Promise<void>;
+	afterUpdate?: (
+		id: string,
+		data: Partial<InferInsertType<TTable>>,
+		context: TUpdateContext | undefined
+	) => Promise<void>;
 
 	/** Hook to run before deleting a record */
 	beforeDelete?: (id: string, userId: string) => Promise<void | { error: string }>;
@@ -74,9 +86,11 @@ export interface CrudConfig<TSchema extends AnyZodSchema, TTable extends AnySQLi
 /**
  * Create a generic create action handler
  */
-function createCreateAction<TSchema extends AnyZodSchema, TTable extends AnySQLiteTable>(
-	config: CrudConfig<TSchema, TTable>
-) {
+function createCreateAction<
+	TSchema extends AnyZodSchema,
+	TTable extends AnySQLiteTable,
+	TUpdateContext
+>(config: CrudConfig<TSchema, TTable, TUpdateContext>) {
 	return requireAuth(async (event: RequestEvent, user) => {
 		const form = await superValidate(event.request, zod4(config.schema));
 
@@ -143,9 +157,11 @@ function createCreateAction<TSchema extends AnyZodSchema, TTable extends AnySQLi
 /**
  * Create a generic update action handler
  */
-function createUpdateAction<TSchema extends AnyZodSchema, TTable extends AnySQLiteTable>(
-	config: CrudConfig<TSchema, TTable>
-) {
+function createUpdateAction<
+	TSchema extends AnyZodSchema,
+	TTable extends AnySQLiteTable,
+	TUpdateContext
+>(config: CrudConfig<TSchema, TTable, TUpdateContext>) {
 	return requireAuth(async (event: RequestEvent, user) => {
 		const form = await superValidate(event.request, zod4(config.schema));
 
@@ -159,11 +175,16 @@ function createUpdateAction<TSchema extends AnyZodSchema, TTable extends AnySQLi
 		}
 
 		const userId = user.id.toString();
+		let updateContext: TUpdateContext | undefined;
 
 		try {
 			// Run beforeUpdate hook if provided
 			if (config.beforeUpdate) {
-				await config.beforeUpdate(recordId, form.data as InferSchemaType<TSchema>, userId);
+				updateContext = (await config.beforeUpdate(
+					recordId,
+					form.data as InferSchemaType<TSchema>,
+					userId
+				)) as TUpdateContext | undefined;
 			}
 
 			// Transform data if transformer provided
@@ -191,7 +212,7 @@ function createUpdateAction<TSchema extends AnyZodSchema, TTable extends AnySQLi
 
 			// Run afterUpdate hook if provided
 			if (config.afterUpdate) {
-				await config.afterUpdate(recordId, dataToUpdate);
+				await config.afterUpdate(recordId, dataToUpdate, updateContext);
 			}
 		} catch (error) {
 			logger.error(`Failed to update ${config.entityName.toLowerCase()}`, error);
@@ -213,7 +234,9 @@ function createUpdateAction<TSchema extends AnyZodSchema, TTable extends AnySQLi
  * Create a generic delete action handler
  */
 function createDeleteAction<TTable extends AnySQLiteTable>(
-	config: Omit<CrudConfig<AnyZodSchema, TTable>, 'schema'> & { deleteSchema?: AnyZodSchema }
+	config: Omit<CrudConfig<AnyZodSchema, TTable, unknown>, 'schema'> & {
+		deleteSchema?: AnyZodSchema;
+	}
 ) {
 	// If a deleteSchema is provided, use superforms validation
 	if (config.deleteSchema) {
@@ -330,33 +353,41 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
  * });
  * ```
  */
-export function createCrudActions<TSchema extends AnyZodSchema, TTable extends AnySQLiteTable>(
-	config: CrudConfig<TSchema, TTable>
-) {
+export function createCrudActions<
+	TSchema extends AnyZodSchema,
+	TTable extends AnySQLiteTable,
+	TUpdateContext = void
+>(config: CrudConfig<TSchema, TTable, TUpdateContext>) {
 	return {
 		create: createCreateAction(config),
 		update: createUpdateAction(config),
-		delete: createDeleteAction(config as Omit<CrudConfig<AnyZodSchema, TTable>, 'schema'>)
+		delete: createDeleteAction(config as Omit<CrudConfig<AnyZodSchema, TTable, unknown>, 'schema'>)
 	};
 }
 
 /**
  * Create individual action handlers for more flexibility
  */
-export function createAction<TSchema extends AnyZodSchema, TTable extends AnySQLiteTable>(
-	config: CrudConfig<TSchema, TTable>
-) {
+export function createAction<
+	TSchema extends AnyZodSchema,
+	TTable extends AnySQLiteTable,
+	TUpdateContext = void
+>(config: CrudConfig<TSchema, TTable, TUpdateContext>) {
 	return createCreateAction(config);
 }
 
-export function updateAction<TSchema extends AnyZodSchema, TTable extends AnySQLiteTable>(
-	config: CrudConfig<TSchema, TTable>
-) {
+export function updateAction<
+	TSchema extends AnyZodSchema,
+	TTable extends AnySQLiteTable,
+	TUpdateContext = void
+>(config: CrudConfig<TSchema, TTable, TUpdateContext>) {
 	return createUpdateAction(config);
 }
 
 export function deleteAction<TTable extends AnySQLiteTable>(
-	config: Omit<CrudConfig<AnyZodSchema, TTable>, 'schema'> & { deleteSchema?: AnyZodSchema }
+	config: Omit<CrudConfig<AnyZodSchema, TTable, unknown>, 'schema'> & {
+		deleteSchema?: AnyZodSchema;
+	}
 ) {
 	return createDeleteAction(config);
 }

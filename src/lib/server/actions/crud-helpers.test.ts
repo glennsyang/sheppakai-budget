@@ -21,8 +21,12 @@ type MockState = {
 	};
 	beforeCreate: Mock<(data: Record<string, unknown>, userId: string) => Promise<void>>;
 	afterCreate: Mock<(id: string, data: Record<string, unknown>) => Promise<void>>;
-	beforeUpdate: Mock<(id: string, data: Record<string, unknown>, userId: string) => Promise<void>>;
-	afterUpdate: Mock<(id: string, data: Partial<Record<string, unknown>>) => Promise<void>>;
+	beforeUpdate: Mock<
+		(id: string, data: Record<string, unknown>, userId: string) => Promise<unknown>
+	>;
+	afterUpdate: Mock<
+		(id: string, data: Partial<Record<string, unknown>>, context: unknown) => Promise<void>
+	>;
 	beforeDelete: Mock<(id: string, userId: string) => Promise<void | { error: string }>>;
 	afterDelete: Mock<(id: string) => Promise<void>>;
 	loggerInfo: ReturnType<typeof vi.fn>;
@@ -292,9 +296,36 @@ describe('crud-helpers', () => {
 		expect(mockState.updateWhere).toHaveBeenCalledWith({ field: 'id-column', value: 'record-1' });
 		expect(mockState.afterUpdate).toHaveBeenCalledWith(
 			'record-1',
-			expect.objectContaining({ name: 'Row 1' })
+			expect.objectContaining({ name: 'Row 1' }),
+			undefined
 		);
 		expect(result).toEqual({ success: true, update: true, form: mockState.superValidateResult });
+	});
+
+	it('updateAction passes beforeUpdate context to afterUpdate', async () => {
+		mockState.beforeUpdate.mockResolvedValue({ previousAmount: 10 });
+		const beforeUpdate = mockState.beforeUpdate as unknown as NonNullable<
+			Parameters<typeof updateAction>[0]['beforeUpdate']
+		>;
+		const afterUpdate = mockState.afterUpdate as unknown as NonNullable<
+			Parameters<typeof updateAction>[0]['afterUpdate']
+		>;
+
+		const action = updateAction({
+			schema: baseSchema,
+			table: mockTable,
+			entityName: 'Thing',
+			beforeUpdate,
+			afterUpdate
+		});
+
+		await action(makeEvent() as never);
+
+		expect(mockState.afterUpdate).toHaveBeenCalledWith(
+			'record-1',
+			expect.objectContaining({ name: 'Row 1' }),
+			{ previousAmount: 10 }
+		);
 	});
 
 	it('deleteAction without id fails validation', async () => {
