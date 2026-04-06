@@ -82,7 +82,7 @@
 	},
 	"dependencies": {
 		"@better-auth/drizzle-adapter": "^1.5.3",
-		"@sentry/sveltekit": "^10.42.0",
+		"@sentry/sveltekit": "^10.47.0",
 		"better-auth": "^1.5.3",
 		"better-sqlite3": "^12.6.2",
 		"d3-scale": "^4.0.2",
