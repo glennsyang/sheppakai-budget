@@ -58,7 +58,7 @@
 		"eslint-plugin-simple-import-sort": "^12.1.1",
 		"eslint-plugin-svelte": "^3.13.1",
 		"globals": "^17.1.0",
-		"layerchart": "^2.0.0-next.48",
+		"layerchart": "^2.0.0-next.51",
 		"lefthook": "^2.0.16",
 		"lint-staged": "^16.2.7",
 		"oxlint": "^1.50.0",
