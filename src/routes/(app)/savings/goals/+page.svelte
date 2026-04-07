@@ -6,7 +6,6 @@
 
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import ContributionModal from '$lib/components/ContributionModal.svelte';
-	import DataTableActions from './data-table-actions.svelte';
 	import SavingsGoalCard from '$lib/components/SavingsGoalCard.svelte';
 	import SavingsGoalModal from '$lib/components/SavingsGoalModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -15,6 +14,8 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import type { contributionSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
+
+	import DataTableActions from './data-table-actions.svelte';
 
 	import type { Contribution, SavingsGoalWithProgress } from '$lib';
 

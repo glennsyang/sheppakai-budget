@@ -45,7 +45,7 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 		"style-src 'self' 'unsafe-inline'",
 		"img-src 'self' data: https:",
 		"font-src 'self'",
-		"connect-src 'self'",
+		"connect-src 'self' https://*.ingest.us.sentry.io https://*.ingest.sentry.io",
 		"frame-ancestors 'none'"
 	].join('; ');
 

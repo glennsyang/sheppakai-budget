@@ -24,6 +24,7 @@ const env = getEnv();
 export const auth = betterAuth({
 	appName: 'Sheppakai Budget',
 	secret: env.BETTER_AUTH_SECRET,
+	baseURL: env.BETTER_AUTH_BASE_URL,
 	database: drizzleAdapter(getDb(), {
 		provider: 'sqlite',
 		schema: {
