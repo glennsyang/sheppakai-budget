@@ -345,35 +345,36 @@
 	<!-- Three Column Layout -->
 	<div class="grid grid-cols-13 gap-4">
 		<!-- Column 1: Category List -->
-		<div class="col-span-3">
-			<div class="rounded-lg border bg-card shadow">
-				<div class="border-b p-6">
+		<div class="sticky top-[calc(var(--header-height)+0.5rem)] col-span-3 self-start">
+			<div
+				class="flex flex-col rounded-lg border bg-card shadow"
+				style="max-height: calc(100vh - var(--header-height) - 5.5rem)"
+			>
+				<div class="shrink-0 border-b p-6">
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Categories</h3>
 					</div>
 				</div>
-				<div class="p-0">
-					<div class="max-h-150 overflow-y-auto">
-						{#each sortedCategories as category (category.id)}
-							{@const categoryBudget = getBudgetForCategory(category.id)}
-							<button
-								class="w-full px-4 py-3 text-left transition-colors hover:bg-muted {selectedCategoryId ===
-								category.id
-									? 'border-l-4 border-primary bg-muted'
-									: 'border-l-4 border-transparent'}"
-								onclick={() => (selectedCategoryId = category.id)}
-							>
-								<div class="flex items-center justify-between">
-									<span class="font-medium">{category.name}</span>
-									{#if categoryBudget}
-										<CheckCircleIcon class="h-4 w-4 text-green-500" />
-									{:else}
-										<HelpCircleIcon class="h-4 w-4 text-muted-foreground" />
-									{/if}
-								</div>
-							</button>
-						{/each}
-					</div>
+				<div class="min-h-0 flex-1 overflow-y-auto p-0">
+					{#each sortedCategories as category (category.id)}
+						{@const categoryBudget = getBudgetForCategory(category.id)}
+						<button
+							class="w-full px-4 py-3 text-left transition-colors hover:bg-muted {selectedCategoryId ===
+							category.id
+								? 'border-l-4 border-primary bg-muted'
+								: 'border-l-4 border-transparent'}"
+							onclick={() => (selectedCategoryId = category.id)}
+						>
+							<div class="flex items-center justify-between">
+								<span class="font-medium">{category.name}</span>
+								{#if categoryBudget}
+									<CheckCircleIcon class="h-4 w-4 text-green-500" />
+								{:else}
+									<HelpCircleIcon class="h-4 w-4 text-muted-foreground" />
+								{/if}
+							</div>
+						</button>
+					{/each}
 				</div>
 			</div>
 		</div>

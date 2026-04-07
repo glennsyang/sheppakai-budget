@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const budgetSchema = z.object({
 	id: z.string().optional(),
-	amount: z.number().positive('Amount must be positive'),
+	amount: z.number().nonnegative('Amount must be 0 or greater'),
 	month: z
 		.string()
 		.min(1, 'Month is required')

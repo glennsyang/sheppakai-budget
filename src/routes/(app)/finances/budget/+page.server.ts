@@ -15,8 +15,11 @@ import { getMonthYearFromUrl, padMonth } from '$lib/utils/dates';
 import type { Actions, PageServerLoad } from './$types';
 
 // Helper function to calculate date range for the last 6 months
-function getLast6MonthsRange(currentMonth: number, currentYear: number) {
-	const months: Array<{ month: string; year: string; date: Date }> = [];
+type MonthEntry = { month: string; year: string; date: Date };
+type MonthRange = [MonthEntry, MonthEntry, MonthEntry, MonthEntry, MonthEntry, MonthEntry];
+
+function getLast6MonthsRange(currentMonth: number, currentYear: number): MonthRange {
+	const months: MonthEntry[] = [];
 
 	for (let i = 5; i >= 0; i--) {
 		// Calculate target month and year, handling negative months
@@ -39,7 +42,7 @@ function getLast6MonthsRange(currentMonth: number, currentYear: number) {
 		});
 	}
 
-	return months;
+	return months as MonthRange;
 }
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -53,7 +56,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	// Calculate date range for last 6 months
 	const last6Months = getLast6MonthsRange(month, year);
 	const earliestMonth = last6Months[0];
-	const latestMonth = last6Months[last6Months.length - 1];
+	const latestMonth = last6Months[5];
 
 	// Calculate start and end dates for transaction filtering
 	const startDate = `${earliestMonth.year}-${earliestMonth.month}-01`;
