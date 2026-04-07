@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { scaleBand } from 'd3-scale';
-	import { BarChart, type ChartContextValue, Highlight } from 'layerchart';
+	import { BarChart, Highlight } from 'layerchart';
 	import { cubicInOut } from 'svelte/easing';
 
 	import * as Card from '$lib/components/ui/card/index.js';
@@ -20,8 +20,6 @@
 		in: { label: 'In', color: 'var(--chart-2)' },
 		out: { label: 'Out', color: 'var(--chart-1)' }
 	} satisfies Chart.ChartConfig;
-
-	let context = $state<ChartContextValue>();
 </script>
 
 <Card.Root>
@@ -32,7 +30,6 @@
 	<Card.Content>
 		<Chart.Container config={chartConfig}>
 			<BarChart
-				bind:context
 				orientation="horizontal"
 				data={chartData}
 				yScale={scaleBand().padding(0.25)}
@@ -60,8 +57,6 @@
 							x: { type: 'tween', duration: 500, easing: cubicInOut },
 							width: { type: 'tween', duration: 500, easing: cubicInOut }
 						},
-						// use the height of the chart to animate the bars
-						initialY: context?.height,
 						initialHeight: 0
 					},
 					highlight: { area: { fill: 'none' } },
@@ -75,7 +70,7 @@
 
 				{#snippet tooltip()}
 					<Chart.Tooltip hideLabel class="w-45">
-						{#snippet formatter({ name, index, value, item })}
+						{#snippet formatter({ name, index, value, payload })}
 							<div
 								style="--color-bg: var(--color-{name.toLowerCase()})"
 								class="size-2.5 shrink-0 rounded-[2px] bg-(--color-bg)"
@@ -95,7 +90,10 @@
 									<div
 										class="ms-auto flex items-baseline gap-0.5 font-mono font-medium text-foreground tabular-nums"
 									>
-										{formatCurrency(item.payload.in - item.payload.out)}
+										{formatCurrency(
+											((payload.find((s) => s.key === 'in')?.value as number) ?? 0) -
+												((payload.find((s) => s.key === 'out')?.value as number) ?? 0)
+										)}
 									</div>
 								</div>
 							{/if}

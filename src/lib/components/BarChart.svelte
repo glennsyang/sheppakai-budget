@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { scaleUtc } from 'd3-scale';
-	import { BarChart, type ChartContextValue, Highlight } from 'layerchart';
+	import { BarChart, Highlight } from 'layerchart';
 	import { cubicInOut } from 'svelte/easing';
 
 	import * as Card from '$lib/components/ui/card/index.js';
@@ -19,8 +19,6 @@
 		views: { label: 'Total Spent: ', color: '' },
 		spent: { label: 'Spent', color: 'var(--chart-2)' }
 	} satisfies Chart.ChartConfig;
-	let context = $state<ChartContextValue>();
-
 	let activeChart = $state<keyof typeof chartConfig>('spent');
 
 	const activeSeries = $derived([
@@ -40,7 +38,6 @@
 	<Card.Content class="px-2 sm:p-6">
 		<Chart.Container config={chartConfig} class="aspect-auto h-62.5 w-full">
 			<BarChart
-				bind:context
 				data={chartData}
 				x="date"
 				axis="x"
@@ -49,8 +46,6 @@
 					bars: {
 						stroke: 'none',
 						rounded: 'none',
-						// use the height of the chart to animate the bars
-						initialY: context?.height,
 						initialHeight: 0,
 						motion: {
 							y: { type: 'tween', duration: 500, easing: cubicInOut },
