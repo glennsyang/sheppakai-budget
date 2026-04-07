@@ -74,7 +74,7 @@
 <ConfirmModal
 	bind:open={openDeleteModal}
 	{id}
-	actionUrl="/recurring/delete"
+	actionUrl="?/delete"
 	title="Delete Recurring"
 	message="Are you sure you want to delete this recurring expense?"
 	confirmButtonText="Delete"
