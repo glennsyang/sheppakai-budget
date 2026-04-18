@@ -14,7 +14,7 @@ export default defineConfig({
 	],
 	server: {
 		watch: {
-			ignored: ['**/.beads/**', '**/data/**', '**/node_modules/**']
+			ignored: ['**/data/**', '**/node_modules/**']
 		}
 	}
 });

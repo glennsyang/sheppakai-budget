@@ -1,7 +1,7 @@
 {
 	"servers": {
-		"beads": {
-			"command": "beads-mcp"
+		"svelte": {
+			"url": "https://mcp.svelte.dev/mcp"
 		}
 	}
 }
