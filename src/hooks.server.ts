@@ -38,18 +38,11 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 		);
 	}
 
-	// Content Security Policy (adjust as needed)
-	const csp = [
-		"default-src 'self'",
-		"script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for layerchart/d3
-		"style-src 'self' 'unsafe-inline'",
-		"img-src 'self' data: https:",
-		"font-src 'self'",
-		"connect-src 'self' https://*.ingest.us.sentry.io https://*.ingest.sentry.io",
-		"frame-ancestors 'none'"
-	].join('; ');
-
-	response.headers.set('Content-Security-Policy', csp);
+	// Content-Security-Policy is managed via kit.csp in svelte.config.js (nonce mode).
+	// SvelteKit generates a per-request nonce, injects it into inline scripts/styles it
+	// produces, and sets the CSP header automatically. Sentry's sentryHandle() also
+	// honours the nonce. Do NOT set Content-Security-Policy here — it would override
+	// the nonce-bearing header that SvelteKit emits.
 
 	return response;
 });

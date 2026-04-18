@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import { getBetterAuthErrorMessage } from '$lib/utils';
+import { getEnv } from '../../../env';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -33,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, url }) => {
+	default: async ({ request }) => {
 		const form = await superValidate(request, zod4(forgotSchema));
 
 		if (!form.valid) {
@@ -43,7 +44,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			const redirectTo = `${url.origin}/auth/reset-password`;
+			const redirectTo = `${getEnv().BETTER_AUTH_BASE_URL}/auth/reset-password`;
 
 			await auth.api.requestPasswordReset({
 				body: {

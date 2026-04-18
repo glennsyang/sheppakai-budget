@@ -4,9 +4,11 @@ import { json } from '@sveltejs/kit';
 import { runResetRecurringPaid } from '$lib/server/jobs/recurring';
 import { logger } from '$lib/server/logger';
 
+import { getEnv } from '../../../../env';
+
 export const POST: RequestHandler = async ({ request }) => {
 	const authHeader = request.headers.get('authorization');
-	const expectedToken = process.env.CRON_SECRET;
+	const expectedToken = getEnv().CRON_SECRET;
 
 	if (!authHeader || authHeader !== `Bearer ${expectedToken}`) {
 		logger.warn('⚠️ Unauthorized cron job attempt');
