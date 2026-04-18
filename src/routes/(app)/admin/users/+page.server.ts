@@ -3,11 +3,22 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
-import { auth } from '$lib/server/auth';
+import { auth, requireAdmin } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import type { UserWithSessions } from '$lib/types';
 
 import type { Actions, PageServerLoad } from './$types';
+
+function adminAuthFailure(locals: App.Locals) {
+	try {
+		requireAdmin(locals);
+		return null;
+	} catch {
+		return fail(locals.user ? 403 : 401, {
+			error: locals.user ? 'Forbidden' : 'Unauthorized'
+		});
+	}
+}
 
 export const load: PageServerLoad = async ({ request }) => {
 	// Initialize all forms with unique IDs
@@ -27,7 +38,7 @@ export const load: PageServerLoad = async ({ request }) => {
 			headers: request.headers
 		});
 
-		if (!result || !result.users) {
+		if (!result?.users) {
 			return {
 				usersWithSessions: [],
 				setRoleForm,
@@ -77,8 +88,9 @@ export const load: PageServerLoad = async ({ request }) => {
 
 export const actions: Actions = {
 	setRole: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		const authFailure = adminAuthFailure(locals);
+		if (authFailure) {
+			return authFailure;
 		}
 
 		const form = await superValidate(request, zod4(setUserRoleSchema));
@@ -111,8 +123,9 @@ export const actions: Actions = {
 	},
 
 	setPassword: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		const authFailure = adminAuthFailure(locals);
+		if (authFailure) {
+			return authFailure;
 		}
 
 		const form = await superValidate(request, zod4(setPasswordSchema));
@@ -145,8 +158,9 @@ export const actions: Actions = {
 	},
 
 	banUser: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		const authFailure = adminAuthFailure(locals);
+		if (authFailure) {
+			return authFailure;
 		}
 
 		const form = await superValidate(request, zod4(banUserSchema));
@@ -179,8 +193,9 @@ export const actions: Actions = {
 	},
 
 	unbanUser: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		const authFailure = adminAuthFailure(locals);
+		if (authFailure) {
+			return authFailure;
 		}
 
 		const data = await request.formData();
@@ -207,8 +222,9 @@ export const actions: Actions = {
 	},
 
 	revokeSession: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		const authFailure = adminAuthFailure(locals);
+		if (authFailure) {
+			return authFailure;
 		}
 
 		const data = await request.formData();
@@ -236,8 +252,9 @@ export const actions: Actions = {
 	},
 
 	deleteUser: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		const authFailure = adminAuthFailure(locals);
+		if (authFailure) {
+			return authFailure;
 		}
 
 		const data = await request.formData();
