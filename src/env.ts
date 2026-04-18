@@ -7,6 +7,7 @@ import { env } from '$env/dynamic/private';
 const envSchema = z.object({
 	DATABASE_URL: z.string().min(1),
 	BETTER_AUTH_SECRET: z.string().min(32),
+	CRON_SECRET: z.string().min(1),
 	BETTER_AUTH_BASE_URL: z.url(),
 	RESEND_API_KEY: z.string().min(1),
 	RESEND_FROM_ADDRESS: z.email(),
@@ -34,6 +35,7 @@ if (!building && !dev) {
 const ENV_FALLBACKS = {
 	DATABASE_URL: 'file:///tmp/build.db',
 	BETTER_AUTH_SECRET: 'build_time_dummy_secret_min_32_chars_long',
+	CRON_SECRET: 'dummy_cron_secret_for_build',
 	BETTER_AUTH_BASE_URL: 'http://localhost:5173',
 	RESEND_API_KEY: 'dummy_key_for_build',
 	RESEND_FROM_ADDRESS: 'noreply@example.com',
@@ -57,15 +59,18 @@ const ENV_FALLBACKS = {
  */
 export function getEnv() {
 	let betterAuthSecret: string;
+	let cronSecret: string;
 	let databaseUrl: string;
 
 	if (building) {
 		// During build: use fallbacks
 		betterAuthSecret = ENV_FALLBACKS.BETTER_AUTH_SECRET;
+		cronSecret = ENV_FALLBACKS.CRON_SECRET;
 		databaseUrl = ENV_FALLBACKS.DATABASE_URL;
 	} else if (dev) {
 		// In development: allow fallbacks for convenience
 		betterAuthSecret = env.BETTER_AUTH_SECRET || ENV_FALLBACKS.BETTER_AUTH_SECRET;
+		cronSecret = env.CRON_SECRET || ENV_FALLBACKS.CRON_SECRET;
 		databaseUrl = env.DATABASE_URL || ENV_FALLBACKS.DATABASE_URL;
 	} else {
 		// In production: require real values, no fallbacks
@@ -88,11 +93,17 @@ export function getEnv() {
 
 		betterAuthSecret = env.BETTER_AUTH_SECRET;
 		databaseUrl = env.DATABASE_URL;
+		if (!env.CRON_SECRET) {
+			console.error('❌ CRITICAL: CRON_SECRET is required in production');
+			process.exit(1);
+		}
+		cronSecret = env.CRON_SECRET;
 	}
 
 	return {
 		DATABASE_URL: databaseUrl,
 		BETTER_AUTH_SECRET: betterAuthSecret,
+		CRON_SECRET: cronSecret,
 		// Less critical vars can use fallbacks in any environment
 		BETTER_AUTH_BASE_URL: env.BETTER_AUTH_BASE_URL || ENV_FALLBACKS.BETTER_AUTH_BASE_URL,
 		RESEND_API_KEY: env.RESEND_API_KEY || ENV_FALLBACKS.RESEND_API_KEY,
