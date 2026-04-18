@@ -134,6 +134,13 @@ $effect(() => {
 
 - Routes and server endpoints for user authentication: register, sign-in, sign-out, as well as route-protected pages (see `/src/routes/auth/`, `/src/lib/server/auth.ts`).
 
+## Product Data-Sharing Model (Critical Requirement)
+
+- This app is intentionally a **shared-data** system for exactly **two users**.
+- Both users are expected to see the same budget/expense/financial records.
+- Do **not** treat cross-user data visibility as a tenant-isolation bug in this project unless this product requirement changes.
+- If this model changes in the future (for example, adding private user workspaces), reclassify cross-user data exposure as a high-severity security issue and revisit all data-access checks.
+
 ## Database
 
 - Uses SQLite with Drizzle ORM
