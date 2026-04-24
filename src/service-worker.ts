@@ -41,9 +41,7 @@ self.addEventListener('fetch', (event) => {
 
 	// Cache-first for precached static assets
 	if (ASSETS.includes(url.pathname)) {
-		event.respondWith(
-			caches.match(event.request).then((cached) => cached ?? fetch(event.request))
-		);
+		event.respondWith(caches.match(event.request).then((cached) => cached ?? fetch(event.request)));
 		return;
 	}
 

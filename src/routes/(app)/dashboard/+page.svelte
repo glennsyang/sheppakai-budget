@@ -10,6 +10,7 @@
 	import MonthlyCategoryChart from '$lib/components/MonthlyCategoryChart.svelte';
 	import PeriodProgressCard from '$lib/components/PeriodProgressCard.svelte';
 	import TimeRangeInOut from '$lib/components/TimeRangeInOut.svelte';
+	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
@@ -201,6 +202,13 @@
 
 	// Sort categories alphabetically
 	let sortedCategories = $derived([...categories()].sort((a, b) => a.name.localeCompare(b.name)));
+
+	let showOverBudgetOnly = $state(false);
+	let visibleCategories = $derived(
+		showOverBudgetOnly
+			? sortedCategories.filter((c) => isCategoryOverBudget(c.id))
+			: sortedCategories
+	);
 
 	function getPlannedAmount(categoryId: string): number {
 		return data.plannedExpenses?.find((b) => b?.category?.id === categoryId)?.amount || 0;
@@ -432,9 +440,15 @@
 			/>
 		</div>
 
-		<h2 class="mt-8 mb-4 text-xl font-semibold">Expenses by Category</h2>
+		<div class="mt-8 mb-4 flex items-center gap-3">
+			<h2 class="text-xl font-semibold">Expenses by Category</h2>
+			<label class="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+				<Checkbox bind:checked={showOverBudgetOnly} />
+				Over budget only
+			</label>
+		</div>
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			{#each sortedCategories as category (category.id)}
+			{#each visibleCategories as category (category.id)}
 				{@const categoryOverBudget = isCategoryOverBudget(category.id)}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
