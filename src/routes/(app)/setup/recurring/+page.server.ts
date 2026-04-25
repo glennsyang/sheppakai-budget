@@ -14,12 +14,9 @@ import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		return [];
-	}
-
+	const user = locals.user!;
 	const recurrings = await recurringQueries.findAll({
-		where: eq(recurring.userId, locals.user.id)
+		where: eq(recurring.userId, user.id)
 	});
 
 	const form = await superValidate(zod4(recurringSchema));

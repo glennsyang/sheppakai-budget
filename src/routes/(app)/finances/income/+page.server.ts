@@ -9,11 +9,7 @@ import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$l
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
-	if (!locals.user) {
-		return { monthlyIncomes: [], yearlyIncomes: [], month: 1, year: 2026 };
-	}
-
+export const load: PageServerLoad = async ({ url }) => {
 	// Get month, year, and date range from URL params or use current month/year
 	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 

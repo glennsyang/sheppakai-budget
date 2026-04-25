@@ -23,4 +23,3 @@ export type {
 
 // Re-export components for easier importing
 export { default as CategoryTransactionSheet } from './components/CategoryTransactionSheet.svelte';
-export { default as SimpleTable } from './components/SimpleTable.svelte';

@@ -45,11 +45,7 @@ function getLast6MonthsRange(currentMonth: number, currentYear: number): MonthRa
 	return months as MonthRange;
 }
 
-export const load: PageServerLoad = async ({ locals, url }) => {
-	if (!locals.user) {
-		return [];
-	}
-
+export const load: PageServerLoad = async ({ url }) => {
 	// Get month and year from URL params or use current month/year
 	const { month, year } = getMonthYearFromUrl(url);
 

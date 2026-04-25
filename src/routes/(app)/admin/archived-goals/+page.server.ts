@@ -23,12 +23,8 @@ function adminAuthFailure(locals: App.Locals) {
 	}
 }
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async () => {
 	const form = await superValidate(zod4(unArchiveSchema));
-
-	if (!locals.user) {
-		return { archivedGoals: [], form };
-	}
 
 	const db = getDb();
 

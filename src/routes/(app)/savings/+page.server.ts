@@ -8,11 +8,7 @@ import { savings } from '$lib/server/db/schema';
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		return { savings: [] };
-	}
-
+export const load: PageServerLoad = async () => {
 	const allSavings = await savingsQueries.findAll();
 
 	const form = await superValidate(zod4(savingsSchema));

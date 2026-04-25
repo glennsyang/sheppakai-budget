@@ -11,11 +11,7 @@ import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$l
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, url, parent }) => {
-	if (!locals.user) {
-		return { monthlyTransactions: [], yearlyTransactions: [], month: 1, year: 2026 };
-	}
-
+export const load: PageServerLoad = async ({ url, parent }) => {
 	// Get categories from parent layout
 	const { categories } = await parent();
 

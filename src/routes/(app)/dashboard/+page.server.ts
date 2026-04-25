@@ -1,4 +1,3 @@
-import { auth } from '$lib/server/auth';
 import {
 	budgetQueries,
 	incomeQueries,
@@ -17,14 +16,7 @@ import {
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ request, locals, url }) => {
-	const session = await auth.api.getSession({
-		headers: request.headers
-	});
-	if (!locals.user && !session?.user) {
-		return {};
-	}
-
+export const load: PageServerLoad = async ({ url }) => {
 	const mode = url.searchParams.get('mode') === 'yearly' ? 'yearly' : 'monthly';
 	const currentYear = new Date().getFullYear();
 
