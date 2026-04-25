@@ -1,83 +1,24 @@
-import { error } from '@sveltejs/kit';
-import { superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-
-import { transactionSchema } from '$lib/formSchemas';
-import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { transactionQueries } from '$lib/server/db/queries';
-import { transaction } from '$lib/server/db/schema';
-import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
-import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
+import { getReceiptLoadContext, receiptActions } from '$lib/server/receipts/load-helpers';
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, url, parent }) => {
-	if (!locals.user) {
-		return { monthlyTransactions: [], yearlyTransactions: [], month: 1, year: 2026 };
-	}
-
-	// Get categories from parent layout
+export const load: PageServerLoad = async ({ url, parent }) => {
 	const { categories } = await parent();
+	const { gasCategory, month, year, startDate, endDate, yearStartDate, yearEndDate, form } =
+		await getReceiptLoadContext(url, categories);
 
-	// Find Gas category
-	const gasCategory = categories?.find((c) => c.name === 'Gas');
-	if (!gasCategory) {
-		throw error(404, 'Gas category not found');
-	}
+	const [monthlyTransactions, yearlyTransactions] = await Promise.all([
+		transactionQueries.findByDateRangeExcludingCategory(startDate, endDate, gasCategory.id, true),
+		transactionQueries.findByDateRangeExcludingCategory(
+			yearStartDate,
+			yearEndDate,
+			gasCategory.id,
+			true
+		)
+	]);
 
-	// Get month, year, and date range from URL params
-	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
-
-	// Get yearly date range
-	const { startDate: yearStartDate, endDate: yearEndDate } = getYearDateRange(year);
-
-	// Load monthly transactions excluding Gas category, requiring GST
-	const monthlyTransactions = await transactionQueries.findByDateRangeExcludingCategory(
-		startDate,
-		endDate,
-		gasCategory.id,
-		true
-	);
-
-	// Load yearly transactions excluding Gas category, requiring GST
-	const yearlyTransactions = await transactionQueries.findByDateRangeExcludingCategory(
-		yearStartDate,
-		yearEndDate,
-		gasCategory.id,
-		true
-	);
-
-	const form = await superValidate(zod4(transactionSchema));
-
-	return {
-		monthlyTransactions,
-		yearlyTransactions,
-		month,
-		year,
-		form
-	};
+	return { monthlyTransactions, yearlyTransactions, month, year, form };
 };
 
-export const actions = createCrudActions({
-	schema: transactionSchema,
-	table: transaction,
-	entityName: 'Transaction',
-	...transactionBudgetAlertHooks,
-	transformCreate: (data, userId) => ({
-		amount: data.amount,
-		payee: data.payee,
-		notes: data.notes,
-		date: formatDateForStorage(data.date),
-		gstAmount: data.gstAmount ?? null,
-		categoryId: data.categoryId,
-		userId
-	}),
-	transformUpdate: (data) => ({
-		amount: data.amount,
-		payee: data.payee,
-		notes: data.notes,
-		date: formatDateForStorage(data.date),
-		gstAmount: data.gstAmount ?? null,
-		categoryId: data.categoryId
-	})
-});
+export const actions = receiptActions;

@@ -8,11 +8,7 @@ import { category } from '$lib/server/db/schema';
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		return { categories: [] };
-	}
-
+export const load: PageServerLoad = async () => {
 	const categories = await categoryQueries.findAll();
 
 	const form = await superValidate(zod4(categorySchema));

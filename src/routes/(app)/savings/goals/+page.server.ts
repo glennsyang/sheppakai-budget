@@ -11,11 +11,7 @@ import { formatDateForStorage } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		return { goals: [], contributions: [] };
-	}
-
+export const load: PageServerLoad = async () => {
 	// Fetch all goals
 	const goals = await savingsGoalQueries.findAll();
 

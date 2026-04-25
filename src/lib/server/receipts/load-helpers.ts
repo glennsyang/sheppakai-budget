@@ -1,66 +1,45 @@
+import { error } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
+import type { Category } from '$lib';
 import { transactionSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
-import { budgetQueries, transactionQueries } from '$lib/server/db/queries';
 import { transaction } from '$lib/server/db/schema';
 import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
-import { formatDateForStorage, getMonthRangeFromUrl } from '$lib/utils/dates';
+import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
 
-import type { PageServerLoad } from './$types';
+export async function getReceiptLoadContext(url: URL, categories: Category[] | undefined) {
+	const gasCategory = categories?.find((c) => c.name === 'Gas');
+	if (!gasCategory) throw error(404, 'Gas category not found');
 
-export const load: PageServerLoad = async ({ url }) => {
-	// Get month, year, and date range from URL params or use current month/year
 	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
-
-	const transactions = await transactionQueries.findByDateRange(startDate, endDate);
-
-	// Load budgets for the current month/year
-	const budgets = await budgetQueries.findByMonthYear(month, year);
-
-	// Calculate spending per category
-	const categorySpending = transactions.reduce(
-		(acc, txn) => {
-			if (txn.category) {
-				const categoryId = txn.category.id;
-				acc[categoryId] = (acc[categoryId] || 0) + txn.amount;
-			}
-			return acc;
-		},
-		{} as Record<string, number>
-	);
-
+	const { startDate: yearStartDate, endDate: yearEndDate } = getYearDateRange(year);
 	const form = await superValidate(zod4(transactionSchema));
 
-	return {
-		transactions,
-		budgets,
-		categorySpending,
-		form
-	};
-};
+	return { gasCategory, month, year, startDate, endDate, yearStartDate, yearEndDate, form };
+}
 
-export const actions = createCrudActions({
+export const receiptActions = createCrudActions({
 	schema: transactionSchema,
 	table: transaction,
 	entityName: 'Transaction',
 	...transactionBudgetAlertHooks,
 	transformCreate: (data, userId) => ({
 		amount: data.amount,
-		gstAmount: data.gstAmount,
 		payee: data.payee,
 		notes: data.notes,
 		date: formatDateForStorage(data.date),
+		gstAmount: data.gstAmount ?? null,
 		categoryId: data.categoryId,
 		userId
 	}),
 	transformUpdate: (data) => ({
 		amount: data.amount,
-		gstAmount: data.gstAmount,
 		payee: data.payee,
 		notes: data.notes,
 		date: formatDateForStorage(data.date),
+		gstAmount: data.gstAmount ?? null,
 		categoryId: data.categoryId
 	})
 });

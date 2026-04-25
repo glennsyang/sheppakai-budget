@@ -146,7 +146,7 @@ function createCreateAction<
 					type: 'error',
 					text: getCrudMessage('createError', config.entityName, config.messages)
 				},
-				{ status: 400 }
+				{ status: 500 }
 			);
 		}
 
@@ -208,7 +208,7 @@ function createUpdateAction<
 				.set(dataToUpdate as InferInsertType<TTable>)
 				.where(eq(columns.id, recordId));
 
-			logger.info(`${config.entityName} updated successfully`);
+			logger.info(`${config.entityName} updated successfully`, { id: recordId });
 
 			// Run afterUpdate hook if provided
 			if (config.afterUpdate) {
@@ -222,7 +222,7 @@ function createUpdateAction<
 					type: 'error',
 					text: getCrudMessage('updateError', config.entityName, config.messages)
 				},
-				{ status: 400 }
+				{ status: 500 }
 			);
 		}
 

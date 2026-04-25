@@ -14,20 +14,13 @@ import { logger } from '$lib/server/logger';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		return {
-			user: null,
-			profileForm: await superValidate(zod4(updateProfileSchema)),
-			passwordForm: await superValidate(zod4(changePasswordSchema)),
-			passwordUpdatedAt: null
-		};
-	}
+	const currentUser = locals.user!;
 
 	// Get the full user data including updatedAt
-	const fullUserData = await userQueries.findById(locals.user.id);
+	const fullUserData = await userQueries.findById(currentUser.id);
 
 	// Get the account data to find when password was last updated
-	const accountData = await accountQueries.findByUserId(locals.user.id);
+	const accountData = await accountQueries.findByUserId(currentUser.id);
 
 	// Initialize profile form with current user data
 	const profileForm = await superValidate(
@@ -37,7 +30,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const passwordForm = await superValidate(zod4(changePasswordSchema));
 
 	return {
-		user: fullUserData || locals.user,
+		user: fullUserData || currentUser,
 		profileForm,
 		passwordForm,
 		passwordUpdatedAt: accountData?.updatedAt || null
