@@ -401,10 +401,10 @@ describe('crud-helpers', () => {
 				type: 'error',
 				text: 'Failed to create thing. A database error occurred.'
 			},
-			{ status: 400 }
+			{ status: 500 }
 		);
 		expect(result).toEqual({
-			status: 400,
+			status: 500,
 			form: mockState.superValidateResult,
 			message: { type: 'error', text: 'Failed to create thing. A database error occurred.' },
 			__message: true

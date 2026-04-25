@@ -15,6 +15,7 @@
 		"npm run test": true,
 		"npm run check": true,
 		"npm run build": true,
-		"npx tsc": true
+		"npx tsc": true,
+		"npx vitest": true
 	}
 }
