@@ -31,10 +31,12 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 	if (mode === 'monthly') {
 		const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
-		const actualExpenses = await transactionQueries.findByDateRange(startDate, endDate);
-		const plannedExpenses = await budgetQueries.findByMonthYear(month, year);
-		const recurringExpenses = await recurringQueries.findAll();
-		const incomeRecords = await incomeQueries.findByDateRange(startDate, endDate);
+		const [actualExpenses, plannedExpenses, recurringExpenses, incomeRecords] = await Promise.all([
+			transactionQueries.findByDateRange(startDate, endDate),
+			budgetQueries.findByMonthYear(month, year),
+			recurringQueries.findAll(),
+			incomeQueries.findByDateRange(startDate, endDate)
+		]);
 
 		const recurringMonthlyTotal = recurringExpenses.reduce((sum, item) => {
 			if (item.cadence === 'Monthly') {
@@ -53,6 +55,14 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 		const remainingBalance = totalIncome - plannedExpensesTotal;
 
 		const monthlyInOutData: TimeRangeInOutData[] = [];
+		const historicalMonths: Array<{
+			targetMonth: number;
+			targetYear: number;
+			monthStart: string;
+			monthEnd: string;
+		}> = [];
+		let chartEnd = '';
+
 		for (let i = 5; i >= 0; i--) {
 			const targetDate = new Date(year, month - 1 - i, 1);
 			const targetMonth = targetDate.getMonth() + 1;
@@ -66,9 +76,17 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 				targetMonth,
 				targetYear
 			);
+			historicalMonths.push({ targetMonth, targetYear, monthStart, monthEnd });
+			chartEnd = monthEnd;
+		}
 
-			const monthTransactions = await transactionQueries.findByDateRange(monthStart, monthEnd);
-			const monthIncome = await incomeQueries.findByDateRange(monthStart, monthEnd);
+		if (historicalMonths.length > 0) {
+			const chartStart = historicalMonths[0].monthStart;
+
+			const [allChartTx, allChartIncome] = await Promise.all([
+				transactionQueries.findByDateRange(chartStart, chartEnd),
+				incomeQueries.findByDateRange(chartStart, chartEnd)
+			]);
 
 			const monthlyRecurringTotal = recurringExpenses.reduce((sum, item) => {
 				if (item.cadence === 'Monthly') {
@@ -79,15 +97,20 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 				return sum;
 			}, 0);
 
-			const totalOut =
-				monthTransactions.reduce((sum, t) => sum + t.amount, 0) + monthlyRecurringTotal;
-			const totalIn = monthIncome.reduce((sum, inc) => sum + inc.amount, 0);
+			for (const { targetMonth, monthStart, monthEnd } of historicalMonths) {
+				const monthTx = allChartTx.filter(
+					(t) => t.date.substring(0, 10) >= monthStart && t.date.substring(0, 10) <= monthEnd
+				);
+				const monthInc = allChartIncome.filter(
+					(inc) => inc.date.substring(0, 10) >= monthStart && inc.date.substring(0, 10) <= monthEnd
+				);
 
-			monthlyInOutData.push({
-				month: monthNames[targetMonth - 1],
-				in: totalIn,
-				out: totalOut
-			});
+				monthlyInOutData.push({
+					month: monthNames[targetMonth - 1],
+					in: monthInc.reduce((sum, inc) => sum + inc.amount, 0),
+					out: monthTx.reduce((sum, t) => sum + t.amount, 0) + monthlyRecurringTotal
+				});
+			}
 		}
 
 		return {
@@ -109,31 +132,29 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 	const year = yearParam ? Number.parseInt(yearParam) : currentYear;
 	const { startDate, endDate } = getYearDateRange(year);
 
-	const actualExpenses = await transactionQueries.findByDateRange(startDate, endDate);
-	const incomeRecords = await incomeQueries.findByDateRange(startDate, endDate);
-	const recurringExpenses = await recurringQueries.findAll();
+	const [actualExpenses, incomeRecords, recurringExpenses, allYearBudgets] = await Promise.all([
+		transactionQueries.findByDateRange(startDate, endDate),
+		incomeQueries.findByDateRange(startDate, endDate),
+		recurringQueries.findAll(),
+		budgetQueries.findByYear(year)
+	]);
 
 	const yearlyBudgets: Array<{
 		categoryId: string;
 		amount: number;
 	}> = [];
 
-	for (let month = 1; month <= 12; month++) {
-		const monthBudgets = await budgetQueries.findByMonthYear(month, year);
-		monthBudgets.forEach((budget) => {
-			const existingCategoryBudget = yearlyBudgets.find(
-				(b) => b.categoryId === budget.category?.id
-			);
-			if (existingCategoryBudget) {
-				existingCategoryBudget.amount += budget.amount;
-			} else if (budget.category) {
-				yearlyBudgets.push({
-					categoryId: budget.category.id,
-					amount: budget.amount
-				});
-			}
-		});
-	}
+	allYearBudgets.forEach((b) => {
+		const existing = yearlyBudgets.find((e) => e.categoryId === b.category?.id);
+		if (existing) {
+			existing.amount += b.amount;
+		} else if (b.category) {
+			yearlyBudgets.push({
+				categoryId: b.category.id,
+				amount: b.amount
+			});
+		}
+	});
 
 	const recurringYearlyTotal = recurringExpenses.reduce((sum, item) => {
 		if (item.cadence === 'Monthly') {
@@ -157,12 +178,14 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 			? getPreviousMonthsRange(6)
 			: getCalendarYearMonthsRange(year);
 
-	for (const range of monthRanges) {
-		const monthTransactions = await transactionQueries.findByDateRange(
-			range.startDate,
-			range.endDate
-		);
-		const monthIncome = await incomeQueries.findByDateRange(range.startDate, range.endDate);
+	if (monthRanges.length > 0) {
+		const chartStart = monthRanges[0].startDate;
+		const chartEnd = monthRanges[monthRanges.length - 1].endDate;
+
+		const [allChartTx, allChartIncome] = await Promise.all([
+			transactionQueries.findByDateRange(chartStart, chartEnd),
+			incomeQueries.findByDateRange(chartStart, chartEnd)
+		]);
 
 		const monthlyRecurringTotal = recurringExpenses.reduce((sum, item) => {
 			if (item.cadence === 'Monthly') {
@@ -173,15 +196,22 @@ export const load: PageServerLoad = async ({ request, locals, url }) => {
 			return sum;
 		}, 0);
 
-		const totalOut =
-			monthTransactions.reduce((sum, t) => sum + t.amount, 0) + monthlyRecurringTotal;
-		const totalIn = monthIncome.reduce((sum, inc) => sum + inc.amount, 0);
+		for (const range of monthRanges) {
+			const monthTx = allChartTx.filter(
+				(t) =>
+					t.date.substring(0, 10) >= range.startDate && t.date.substring(0, 10) <= range.endDate
+			);
+			const monthInc = allChartIncome.filter(
+				(inc) =>
+					inc.date.substring(0, 10) >= range.startDate && inc.date.substring(0, 10) <= range.endDate
+			);
 
-		timeRangeData.push({
-			month: monthNames[range.month - 1],
-			in: totalIn,
-			out: totalOut
-		});
+			timeRangeData.push({
+				month: monthNames[range.month - 1],
+				in: monthInc.reduce((sum, inc) => sum + inc.amount, 0),
+				out: monthTx.reduce((sum, t) => sum + t.amount, 0) + monthlyRecurringTotal
+			});
+		}
 	}
 
 	return {

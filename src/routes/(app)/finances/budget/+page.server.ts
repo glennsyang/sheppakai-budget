@@ -136,13 +136,13 @@ export const actions = {
 					)
 				);
 
-			logger.info('budget created successfully');
+			logger.info('budget created successfully', { month: form.data.month, year: form.data.year });
 		} catch (error) {
 			logger.error('Failed to create budget', error);
 			return message(
 				form,
 				{ type: 'error', text: 'Failed to create budget. A database error occurred.' },
-				{ status: 400 }
+				{ status: 500 }
 			);
 		}
 
@@ -179,13 +179,13 @@ export const actions = {
 				)
 				.where(eq(budget.id, budgetId));
 
-			logger.info('budget updated successfully');
+			logger.info('budget updated successfully', { id: budgetId });
 		} catch (error) {
 			logger.error('Failed to update budget', error);
 			return message(
 				form,
 				{ type: 'error', text: 'Failed to update budget. A database error occurred.' },
-				{ status: 400 }
+				{ status: 500 }
 			);
 		}
 

@@ -92,7 +92,7 @@ export const actions: Actions = {
 					type: 'error',
 					text: 'Failed to unarchive goal'
 				},
-				{ status: 400 }
+				{ status: 500 }
 			);
 		}
 	}

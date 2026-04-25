@@ -22,6 +22,13 @@ export const budgetQueries = {
 		});
 	},
 
+	// Find all budgets for a year (for in-memory aggregation)
+	findByYear: async (year: number): Promise<Budget[]> => {
+		return baseBuilder.findAll({
+			where: eq(budget.year, year.toString())
+		});
+	},
+
 	// Find by category and month/year
 	findByCategoryAndMonth: async (
 		categoryId: string,

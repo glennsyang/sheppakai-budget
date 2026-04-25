@@ -107,7 +107,7 @@ export const actions: Actions = {
 				headers: request.headers
 			});
 
-			logger.info(`Set role updated successfully`);
+			logger.info(`Set role updated successfully`, { userId: form.data.userId });
 			return { success: true, form };
 		} catch (error) {
 			logger.error('Failed to set role:', error);
@@ -117,7 +117,7 @@ export const actions: Actions = {
 					type: 'error',
 					text: 'Failed to set user role'
 				},
-				{ status: 400 }
+				{ status: 500 }
 			);
 		}
 	},
@@ -142,7 +142,7 @@ export const actions: Actions = {
 				headers: request.headers
 			});
 
-			logger.info(`Set password successfully`);
+			logger.info(`Set password successfully`, { userId: form.data.userId });
 			return { success: true, form };
 		} catch (error) {
 			logger.error('Failed to set password:', error);
@@ -152,7 +152,7 @@ export const actions: Actions = {
 					type: 'error',
 					text: 'Failed to set user password'
 				},
-				{ status: 400 }
+				{ status: 500 }
 			);
 		}
 	},
@@ -177,7 +177,7 @@ export const actions: Actions = {
 				headers: request.headers
 			});
 
-			logger.info(`User banned successfully`);
+			logger.info(`User banned successfully`, { userId: form.data.userId });
 			return { success: true, form };
 		} catch (error) {
 			logger.error('Failed to ban user:', error);
@@ -187,7 +187,7 @@ export const actions: Actions = {
 					type: 'error',
 					text: 'Failed to ban user'
 				},
-				{ status: 400 }
+				{ status: 500 }
 			);
 		}
 	},
@@ -213,11 +213,11 @@ export const actions: Actions = {
 				headers: request.headers
 			});
 
-			logger.info(`User unbanned successfully`);
+			logger.info(`User unbanned successfully`, { userId });
 			return { success: true };
 		} catch (error) {
 			logger.error('Failed to unban user:', error);
-			return fail(400, { error: 'Failed to unban user' });
+			return fail(500, { error: 'Failed to unban user' });
 		}
 	},
 
@@ -243,11 +243,11 @@ export const actions: Actions = {
 				headers: request.headers
 			});
 
-			logger.info(`User sessions revoked successfully`);
+			logger.info(`User sessions revoked successfully`, { userId });
 			return { success: true };
 		} catch (error) {
 			logger.error('Failed to revoke sessions:', error);
-			return fail(400, { error: 'Failed to revoke sessions' });
+			return fail(500, { error: 'Failed to revoke sessions' });
 		}
 	},
 
@@ -272,10 +272,11 @@ export const actions: Actions = {
 				headers: request.headers
 			});
 
+			logger.info('User deleted successfully', { userId });
 			return { success: true };
 		} catch (error) {
 			logger.error('Failed to delete user:', error);
-			return fail(400, { error: 'Failed to delete user' });
+			return fail(500, { error: 'Failed to delete user' });
 		}
 	}
 };
