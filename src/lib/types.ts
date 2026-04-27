@@ -170,6 +170,44 @@ export type TimeRangeInOutData = {
 	out: number;
 };
 
+export type WindowCleaningCustomer = {
+	id: string;
+	name: string;
+	address: string;
+	city: string;
+	unitNumber: string | null;
+	buzzerNumber: string | null;
+	phoneNumber: string | null;
+	notes: string | null;
+	deletedAt: string | null;
+	deletedBy: string | null;
+	userId: string;
+	user: User;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type WindowCleaningJob = {
+	id: string;
+	customerId: string;
+	jobDate: string;
+	jobTime: string | null;
+	amountCharged: number;
+	tip: number;
+	durationHours: number | null;
+	notes: string | null;
+	userId: string;
+	customer: WindowCleaningCustomer;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type WindowCleaningCustomerWithStats = WindowCleaningCustomer & {
+	jobs: WindowCleaningJob[];
+	totalEarned: number;
+	lastJobDate: string | null;
+};
+
 export type SidebarData = {
 	navMain: {
 		title: string;
@@ -179,6 +217,7 @@ export type SidebarData = {
 	}[];
 	navSavings: { title: string; url: string; icon?: Component }[];
 	navReceipts: { title: string; url: string; icon?: Component }[];
+	navWindows: { title: string; url: string; icon?: Component }[];
 	navSetup: {
 		title: string;
 		url: string;

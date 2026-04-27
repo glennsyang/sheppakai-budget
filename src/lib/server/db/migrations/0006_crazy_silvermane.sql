@@ -1,0 +1,41 @@
+CREATE TABLE `window_cleaning_customers` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`address` text NOT NULL,
+	`city` text NOT NULL,
+	`unit_number` text,
+	`buzzer_number` text,
+	`phone_number` text,
+	`notes` text,
+	`deleted_at` text,
+	`deleted_by` text,
+	`user_id` text NOT NULL,
+	`created_at` text DEFAULT (current_timestamp) NOT NULL,
+	`created_by` text NOT NULL,
+	`updated_at` text DEFAULT (current_timestamp) NOT NULL,
+	`updated_by` text NOT NULL,
+	FOREIGN KEY (`deleted_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `window_cleaning_jobs` (
+	`id` text PRIMARY KEY NOT NULL,
+	`customer_id` text NOT NULL,
+	`job_date` text NOT NULL,
+	`job_time` text,
+	`amount_charged` real NOT NULL,
+	`tip` real DEFAULT 0 NOT NULL,
+	`duration_hours` real,
+	`notes` text,
+	`user_id` text NOT NULL,
+	`created_at` text DEFAULT (current_timestamp) NOT NULL,
+	`created_by` text NOT NULL,
+	`updated_at` text DEFAULT (current_timestamp) NOT NULL,
+	`updated_by` text NOT NULL,
+	FOREIGN KEY (`customer_id`) REFERENCES `window_cleaning_customers`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);

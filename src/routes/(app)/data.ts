@@ -7,7 +7,9 @@ import PiggyBankIcon from '@lucide/svelte/icons/piggy-bank';
 import ReceiptIcon from '@lucide/svelte/icons/receipt';
 import RepeatIcon from '@lucide/svelte/icons/repeat';
 import ShieldIcon from '@lucide/svelte/icons/shield';
+import SprayCanIcon from '@lucide/svelte/icons/spray-can';
 import TargetIcon from '@lucide/svelte/icons/target';
+import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 import WalletIcon from '@lucide/svelte/icons/wallet';
 
 import type { SidebarData } from '$lib/types';
@@ -62,6 +64,18 @@ export const sidebarData: SidebarData = {
 			title: 'Business',
 			url: '/receipts/business',
 			icon: BriefcaseBusinessIcon
+		}
+	],
+	navWindows: [
+		{
+			title: 'Customers',
+			url: '/window-cleaning',
+			icon: UsersRoundIcon
+		},
+		{
+			title: 'Jobs',
+			url: '/window-cleaning/jobs',
+			icon: SprayCanIcon
 		}
 	],
 	navSetup: [

@@ -1,5 +1,5 @@
 import { transactionQueries } from '$lib/server/db/queries';
-import { getReceiptLoadContext, receiptActions } from '$lib/server/receipts/load-helpers';
+import { getReceiptLoadContext } from '$lib/server/receipts/load-helpers';
 
 import type { PageServerLoad } from './$types';
 
@@ -21,4 +21,4 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 	return { monthlyTransactions, yearlyTransactions, month, year, form };
 };
 
-export const actions = receiptActions;
+export { receiptActions as actions } from '$lib/server/receipts/load-helpers';

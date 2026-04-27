@@ -18,7 +18,10 @@ export type {
 	TimeRangeInOutData,
 	Transaction,
 	User,
-	UserWithSessions
+	UserWithSessions,
+	WindowCleaningCustomer,
+	WindowCleaningCustomerWithStats,
+	WindowCleaningJob
 } from './types';
 
 // Re-export components for easier importing
