@@ -67,7 +67,7 @@
 		"lefthook": "^2.0.16",
 		"lint-staged": "^16.2.7",
 		"oxlint": "^1.50.0",
-		"oxlint-tsgolint": "^0.18.1",
+		"oxlint-tsgolint": "^0.22.1",
 		"prettier": "^3.8.3",
 		"prettier-plugin-svelte": "^3.4.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
