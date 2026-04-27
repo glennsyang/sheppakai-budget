@@ -1,6 +1,5 @@
 export { budgetQueries } from './budgets';
 export { categoryQueries } from './categories';
-export { contributionQueries } from './contributions';
 export { incomeQueries } from './income';
 export { recurringQueries } from './recurring';
 export { savingsQueries } from './savings';

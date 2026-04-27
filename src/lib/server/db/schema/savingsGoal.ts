@@ -5,8 +5,7 @@ import { generateId } from '../utils';
 
 import user from './user';
 
-export const savingsGoalStatusEnum = ['active', 'completed', 'paused', 'archived'] as const;
-export type SavingsGoalStatus = (typeof savingsGoalStatusEnum)[number];
+const savingsGoalStatusEnum = ['active', 'completed', 'paused', 'archived'] as const;
 
 const savingsGoal = sqliteTable('savings_goals', {
 	id: text('id').primaryKey().$defaultFn(generateId),

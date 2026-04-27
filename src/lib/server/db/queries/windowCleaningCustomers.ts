@@ -29,8 +29,7 @@ export const windowCleaningCustomerQueries = {
 	// Find all soft-deleted customers (admin use)
 	findDeleted: async (): Promise<WindowCleaningCustomer[]> => {
 		const db = getDb();
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		return (db.query as any).windowCleaningCustomer.findMany({
+		return db.query.windowCleaningCustomer.findMany({
 			where: isNotNull(windowCleaningCustomer.deletedAt),
 			with: { user: true },
 			orderBy: [desc(windowCleaningCustomer.deletedAt)]

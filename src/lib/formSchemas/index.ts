@@ -11,8 +11,3 @@ export { budgetSchema } from './budget';
 export { categorySchema } from './categories';
 export { incomeSchema, recurringSchema, transactionSchema } from './finances';
 export { contributionSchema, savingsGoalSchema, savingsSchema, unArchiveSchema } from './savings';
-export {
-	restoreCustomerSchema,
-	windowCleaningCustomerSchema,
-	windowCleaningJobSchema
-} from './windowCleaning';

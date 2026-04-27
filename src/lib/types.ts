@@ -1,8 +1,6 @@
 import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 import type { Component } from 'svelte';
 
-import { session } from '$lib/server/db/schema';
-
 /**
  * Base props for all modal/dialog components in the application.
  * Provides common interface for open state, data initialization, and loading states.
@@ -26,8 +24,6 @@ export interface BaseModalProps<T> {
 	isLoading?: boolean;
 }
 
-export type UserRole = 'user' | 'admin';
-
 export type User = {
 	id: string;
 	name: string;
@@ -41,8 +37,6 @@ export type User = {
 	createdAt: Date | string;
 	updatedAt: Date | string;
 };
-
-export type Session = typeof session.$inferSelect;
 
 export type UserWithSessions = User & {
 	sessions: SessionWithImpersonatedBy[];

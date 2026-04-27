@@ -20,7 +20,8 @@ export const columns: ColumnDef<DeletedCustomer>[] = [
 		header: 'Address',
 		cell: ({ row }) => {
 			const c = row.original;
-			return `${c.address}${c.unitNumber ? `, Unit ${c.unitNumber}` : ''}, ${c.city}`;
+			const unit = c.unitNumber ? `, Unit ${c.unitNumber}` : '';
+			return `${c.address}${unit}, ${c.city}`;
 		}
 	},
 	{
@@ -50,7 +51,7 @@ export const columns: ColumnDef<DeletedCustomer>[] = [
 		id: 'actions',
 		cell: ({ row }) =>
 			renderComponent(DataTableActions, {
-				customer: row.original as DeletedCustomer
+				customer: row.original
 			})
 	}
 ];

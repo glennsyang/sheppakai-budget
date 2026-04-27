@@ -2,27 +2,19 @@
 
 // Re-export types for easier importing
 export type {
-	BarChartData,
 	BaseModalProps,
 	Budget,
 	Category,
 	ChartData,
 	Contribution,
 	Income,
-	MonthlySpentChartData,
 	Recurring,
 	Savings,
 	SavingsGoal,
 	SavingsGoalWithProgress,
-	Session,
-	TimeRangeInOutData,
 	Transaction,
-	User,
 	UserWithSessions,
 	WindowCleaningCustomer,
 	WindowCleaningCustomerWithStats,
 	WindowCleaningJob
 } from './types';
-
-// Re-export components for easier importing
-export { default as CategoryTransactionSheet } from './components/CategoryTransactionSheet.svelte';
