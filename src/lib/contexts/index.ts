@@ -2,7 +2,6 @@
 export { getCategoriesContext, setCategoriesContext } from './categories';
 export {
 	banUserFormContext,
-	createFormContext,
 	incomeFormContext,
 	savingsFormContext,
 	setPasswordFormContext,

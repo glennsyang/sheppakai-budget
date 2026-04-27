@@ -6,18 +6,11 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { setCategoriesContext } from '$lib/contexts';
 
-	import type { LayoutServerData } from './$types';
-	import { sidebarData } from './data';
+	import { sidebarData } from './sidebarData';
 
 	import '../../app.css';
 
-	interface Props {
-		data: LayoutServerData;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		children: any;
-	}
-
-	let { data, children }: Props = $props();
+	let { data, children } = $props();
 
 	// svelte-ignore state_referenced_locally
 	setCategoriesContext(data.categories ?? []);

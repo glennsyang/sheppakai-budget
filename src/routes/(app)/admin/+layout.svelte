@@ -29,6 +29,14 @@
 				Archived Goals
 			</Button>
 		</a>
+		<a href="/admin/deleted-customers">
+			<Button
+				variant={currentPath === '/admin/deleted-customers' ? 'default' : 'ghost'}
+				class="rounded-b-none"
+			>
+				Deleted Customers
+			</Button>
+		</a>
 	</div>
 
 	{@render children()}

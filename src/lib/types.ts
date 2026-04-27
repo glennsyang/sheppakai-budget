@@ -1,8 +1,6 @@
 import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 import type { Component } from 'svelte';
 
-import { session } from '$lib/server/db/schema';
-
 /**
  * Base props for all modal/dialog components in the application.
  * Provides common interface for open state, data initialization, and loading states.
@@ -26,8 +24,6 @@ export interface BaseModalProps<T> {
 	isLoading?: boolean;
 }
 
-export type UserRole = 'user' | 'admin';
-
 export type User = {
 	id: string;
 	name: string;
@@ -41,8 +37,6 @@ export type User = {
 	createdAt: Date | string;
 	updatedAt: Date | string;
 };
-
-export type Session = typeof session.$inferSelect;
 
 export type UserWithSessions = User & {
 	sessions: SessionWithImpersonatedBy[];
@@ -170,6 +164,44 @@ export type TimeRangeInOutData = {
 	out: number;
 };
 
+export type WindowCleaningCustomer = {
+	id: string;
+	name: string;
+	address: string;
+	city: string;
+	unitNumber: string | null;
+	buzzerNumber: string | null;
+	phoneNumber: string | null;
+	notes: string | null;
+	deletedAt: string | null;
+	deletedBy: string | null;
+	userId: string;
+	user: User;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type WindowCleaningJob = {
+	id: string;
+	customerId: string;
+	jobDate: string;
+	jobTime: string | null;
+	amountCharged: number;
+	tip: number;
+	durationHours: number | null;
+	notes: string | null;
+	userId: string;
+	customer: WindowCleaningCustomer;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type WindowCleaningCustomerWithStats = WindowCleaningCustomer & {
+	jobs: WindowCleaningJob[];
+	totalEarned: number;
+	lastJobDate: string | null;
+};
+
 export type SidebarData = {
 	navMain: {
 		title: string;
@@ -179,6 +211,7 @@ export type SidebarData = {
 	}[];
 	navSavings: { title: string; url: string; icon?: Component }[];
 	navReceipts: { title: string; url: string; icon?: Component }[];
+	navWindows: { title: string; url: string; icon?: Component }[];
 	navSetup: {
 		title: string;
 		url: string;

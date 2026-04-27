@@ -13,10 +13,10 @@ const NEAR_BUDGET_THRESHOLD_RATIO = 0.9;
 const NEAR_BUDGET_ALERT_PRIORITY = 3;
 const OVER_BUDGET_ALERT_PRIORITY = 4;
 
-export type BudgetThresholdState = 'below' | 'near' | 'over';
-export type BudgetThresholdAlertType = 'near' | 'over';
+type BudgetThresholdState = 'below' | 'near' | 'over';
+type BudgetThresholdAlertType = 'near' | 'over';
 
-export type TransactionBudgetAlertRecord = {
+type TransactionBudgetAlertRecord = {
 	id: string;
 	userId: string;
 	categoryId: string;
@@ -24,7 +24,7 @@ export type TransactionBudgetAlertRecord = {
 	date: string;
 };
 
-export type TransactionBudgetAlertUpdateContext = {
+type TransactionBudgetAlertUpdateContext = {
 	previousTransaction: TransactionBudgetAlertRecord | null;
 };
 

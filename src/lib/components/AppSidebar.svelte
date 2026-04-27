@@ -5,9 +5,7 @@
 	import type { SidebarData, User } from '$lib/types';
 
 	import NavMain from './NavMain.svelte';
-	import NavReceipts from './NavReceipts.svelte';
-	import NavSavings from './NavSavings.svelte';
-	import NavSetup from './NavSetup.svelte';
+	import NavSecondary from './NavSecondary.svelte';
 	import NavUser from './NavUser.svelte';
 
 	interface Props {
@@ -35,9 +33,10 @@
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<NavMain items={sidebarData.navMain} />
-		<NavSavings items={sidebarData.navSavings} />
-		<NavReceipts items={sidebarData.navReceipts} />
-		<NavSetup items={sidebarData.navSetup} {user} />
+		<NavSecondary title="Savings" items={sidebarData.navSavings} />
+		<NavSecondary title="Receipts" items={sidebarData.navReceipts} />
+		<NavSecondary title="Windows" items={sidebarData.navWindows} />
+		<NavSecondary title="Setup" items={sidebarData.navSetup} {user} />
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		<NavUser {user} />

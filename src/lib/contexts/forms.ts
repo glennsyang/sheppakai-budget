@@ -9,7 +9,7 @@ import type { SuperValidated } from 'sveltekit-superforms';
  * @returns Object with setter and getter functions
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createFormContext<T extends Record<string, any>>(contextName: string) {
+function createFormContext<T extends Record<string, any>>(contextName: string) {
 	const FORM_KEY = Symbol(contextName);
 	type FormContext = SuperValidated<T>;
 

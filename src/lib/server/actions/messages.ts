@@ -16,7 +16,7 @@ export interface CrudMessages {
  * Default CRUD message templates.
  * Can be overridden on a per-entity basis via CrudConfig.
  */
-export const DEFAULT_CRUD_MESSAGES = {
+const DEFAULT_CRUD_MESSAGES = {
 	createSuccess: (entityName: string) => `${entityName} created successfully`,
 	createError: (entityName: string) =>
 		`Failed to create ${entityName.toLowerCase()}. A database error occurred.`,

@@ -1,5 +1,5 @@
 import { transactionQueries } from '$lib/server/db/queries';
-import { getReceiptLoadContext, receiptActions } from '$lib/server/receipts/load-helpers';
+import { getReceiptLoadContext } from '$lib/server/receipts/load-helpers';
 
 import type { PageServerLoad } from './$types';
 
@@ -10,8 +10,11 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 
 	const currentDate = new Date();
 	const currentYear = currentDate.getFullYear();
-	const completedMonthsSinceJanuary =
-		year < currentYear ? 12 : year > currentYear ? 0 : currentDate.getMonth();
+
+	let completedMonthsSinceJanuary: number;
+	if (year < currentYear) completedMonthsSinceJanuary = 12;
+	else if (year > currentYear) completedMonthsSinceJanuary = 0;
+	else completedMonthsSinceJanuary = currentDate.getMonth();
 
 	const [monthlyTransactions, yearlyTransactions] = await Promise.all([
 		transactionQueries.findByCategory(gasCategory.id, { start: startDate, end: endDate }),
@@ -28,4 +31,4 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 	};
 };
 
-export const actions = receiptActions;
+export { receiptActions as actions } from '$lib/server/receipts/load-helpers';

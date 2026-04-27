@@ -10,3 +10,8 @@ export { default as session, sessionRelations } from './session';
 export { default as transaction, transactionRelations } from './transaction';
 export { default as user, userRelations } from './user';
 export { default as verification } from './verification';
+export {
+	default as windowCleaningCustomer,
+	windowCleaningCustomerRelations
+} from './windowCleaningCustomer';
+export { default as windowCleaningJob, windowCleaningJobRelations } from './windowCleaningJob';

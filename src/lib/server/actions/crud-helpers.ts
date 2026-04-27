@@ -27,7 +27,7 @@ type InferSelectType<TTable extends AnySQLiteTable> = TTable['$inferSelect'];
 /**
  * Configuration for creating CRUD actions
  */
-export interface CrudConfig<
+interface CrudConfig<
 	TSchema extends AnyZodSchema,
 	TTable extends AnySQLiteTable,
 	TUpdateContext = void

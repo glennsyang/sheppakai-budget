@@ -8,9 +8,9 @@
  * Audit: created_at/updated_at still use SQLite's current_timestamp (UTC)
  */
 
-export type PeriodProgressKind = 'month' | 'year';
-export type PeriodProgressStatus = 'past' | 'current' | 'future';
-export type PeriodProgressUnit = 'day' | 'month';
+type PeriodProgressKind = 'month' | 'year';
+type PeriodProgressStatus = 'past' | 'current' | 'future';
+type PeriodProgressUnit = 'day' | 'month';
 
 export interface PeriodProgress {
 	kind: PeriodProgressKind;

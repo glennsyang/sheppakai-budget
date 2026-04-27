@@ -2,7 +2,7 @@ import type { SQL } from 'drizzle-orm';
 
 import { getDb } from '../index';
 
-export interface QueryBuilderConfig<_TTable> {
+interface QueryBuilderConfig<_TTable> {
 	tableName: string;
 	defaultRelations?: Record<string, boolean>;
 	defaultOrderBy?: SQL[];

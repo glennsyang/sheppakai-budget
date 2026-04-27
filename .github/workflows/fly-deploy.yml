@@ -23,23 +23,23 @@ jobs:
         run: npm ci
 
       # Run security audit
-      # - name: Run npm audit
-      #   run: npm audit --production --audit-level=high
+      - name: Run npm audit
+        run: npm audit --production --audit-level=high
 
       - name: Setup environment for type checking
         run: cp .env.example .env
 
       # Run linting
-      - name: Run lint
+      - name: Run Ox lint
         run: npm run lint
 
       # Run type checking
-      - name: Run check
+      - name: Run Svelte check
         run: npm run check
 
       # Run tests
       - name: Run tests
-        run: npm test
+        run: npm run test
 
       # Deploy only if all checks pass
       - uses: superfly/flyctl-actions/setup-flyctl@master

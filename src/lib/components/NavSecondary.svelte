@@ -2,14 +2,27 @@
 	import type { Component } from 'svelte';
 
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import type { User } from '$lib/types';
 
-	let { items }: { items: { title: string; url: string; icon?: Component }[] } = $props();
+	let {
+		title,
+		items,
+		user
+	}: {
+		title: string;
+		items: { title: string; url: string; icon?: Component; visible?: (role: string) => boolean }[];
+		user?: User;
+	} = $props();
+
+	const visibleItems = $derived(
+		user ? items.filter((item) => !item.visible || item.visible(user.role ?? '')) : items
+	);
 </script>
 
 <Sidebar.Group class="group-data-[collapsible=icon]:hidden">
-	<Sidebar.GroupLabel>Receipts</Sidebar.GroupLabel>
+	<Sidebar.GroupLabel>{title}</Sidebar.GroupLabel>
 	<Sidebar.Menu>
-		{#each items as item (item.title)}
+		{#each visibleItems as item (item.title)}
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton tooltipContent={item.title}>
 					{#snippet child({ props })}
