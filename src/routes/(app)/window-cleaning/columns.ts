@@ -24,10 +24,10 @@ export const columns: ColumnDef<WindowCleaningCustomerWithStats>[] = [
 			})
 	},
 	{
-		accessorKey: 'city',
+		accessorKey: 'address',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
-				columnName: 'City',
+				columnName: 'Address',
 				onclick: column.getToggleSortingHandler()
 			})
 	},
@@ -35,16 +35,6 @@ export const columns: ColumnDef<WindowCleaningCustomerWithStats>[] = [
 		accessorKey: 'phoneNumber',
 		header: 'Phone',
 		cell: ({ row }) => row.original.phoneNumber || '—'
-	},
-	{
-		id: 'jobCount',
-		header: ({ column }) =>
-			renderComponent(DataTableSortButton, {
-				columnName: 'Jobs',
-				onclick: column.getToggleSortingHandler()
-			}),
-		accessorFn: (row) => row.jobs.length,
-		cell: ({ row }) => row.original.jobs.length
 	},
 	{
 		id: 'lastJobDate',
@@ -56,6 +46,19 @@ export const columns: ColumnDef<WindowCleaningCustomerWithStats>[] = [
 		accessorFn: (row) => row.lastJobDate ?? '',
 		cell: ({ row }) =>
 			row.original.lastJobDate ? formatLocalTimestamp(row.original.lastJobDate) : '—'
+	},
+	{
+		id: 'lastCharged',
+		header: 'Last Charged',
+		cell: ({ row }) => {
+			const latestJob = row.original.jobs[0];
+			if (!latestJob) return '—';
+			const amountSnippet = createRawSnippet<[string]>((getAmount) => {
+				const amount = getAmount();
+				return { render: () => `<div class="text-right">${amount}</div>` };
+			});
+			return renderSnippet(amountSnippet, currencyFormatter.format(latestJob.amountCharged));
+		}
 	},
 	{
 		id: 'totalEarned',

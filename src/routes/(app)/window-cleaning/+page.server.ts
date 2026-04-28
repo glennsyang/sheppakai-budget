@@ -14,7 +14,7 @@ import { windowCleaningCustomerQueries, windowCleaningJobQueries } from '$lib/se
 import { windowCleaningCustomer, windowCleaningJob } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
-import { getCurrentUTCTimestamp, formatDateForStorage } from '$lib/utils/dates';
+import { formatDateForStorage, getCurrentUTCTimestamp } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -47,6 +47,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const jobsThisYear = allJobs.filter((j) => j.jobDate.startsWith(String(currentYear)));
 	const earnedThisYear = jobsThisYear.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
 
+	const jobsLastYear = allJobs.filter((j) => j.jobDate.startsWith(String(currentYear - 1)));
+	const earnedLastYear = jobsLastYear.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
+
 	const customerForm = await superValidate(zod4(windowCleaningCustomerSchema));
 	const jobForm = await superValidate(zod4(windowCleaningJobSchema));
 
@@ -56,6 +59,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		jobsThisMonthCount: jobsThisMonth.length,
 		earnedThisMonth,
 		earnedThisYear,
+		earnedLastYear,
 		customerForm,
 		jobForm
 	};
