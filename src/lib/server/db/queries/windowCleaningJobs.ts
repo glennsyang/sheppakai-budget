@@ -51,8 +51,12 @@ export const windowCleaningJobQueries = {
 
 	// Find jobs for a user within a year
 	findByYear: async (userId: string, year: number): Promise<WindowCleaningJob[]> => {
-		const startDate = `${year}-01-01`;
-		const endDate = `${year}-12-31`;
+		const safeYear = Math.trunc(year);
+		if (!Number.isFinite(safeYear) || safeYear < 1 || safeYear > 9999) {
+			throw new Error(`Invalid year: ${year}`);
+		}
+		const startDate = `${safeYear}-01-01`;
+		const endDate = `${safeYear}-12-31`;
 		return baseBuilder.findAll({
 			where: and(
 				eq(windowCleaningJob.userId, userId),
