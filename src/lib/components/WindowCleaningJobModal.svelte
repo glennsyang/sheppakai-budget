@@ -54,7 +54,9 @@
 			if (initialData) {
 				$form.id = initialData.id || '';
 				$form.customerId = initialData.customerId || preselectedCustomerId || '';
-				$form.jobDate = (initialData.jobDate ? extractDateFromTimestamp(initialData.jobDate) : null) || getTodayDate();
+				$form.jobDate =
+					(initialData.jobDate ? extractDateFromTimestamp(initialData.jobDate) : null) ||
+					getTodayDate();
 				$form.jobTime = initialData.jobTime || '';
 				$form.amountCharged = initialData.amountCharged ?? 0;
 				$form.tip = initialData.tip ?? 0;
