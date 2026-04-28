@@ -4,16 +4,17 @@ import {
 	extractDateFromTimestamp,
 	formatDateForStorage,
 	formatLocalTimestamp,
+	formatTime12h,
 	getCalendarYearMonthsRange,
 	getCurrentUTCTimestamp,
-	getMonthProgress,
 	getMonthDateRange,
+	getMonthProgress,
 	getMonthRangeFromUrl,
 	getMonthYearFromUrl,
 	getPreviousMonthsRange,
 	getTodayDate,
-	getYearProgress,
 	getYearDateRange,
+	getYearProgress,
 	padMonth
 } from './dates';
 
@@ -464,6 +465,52 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				unit: 'day'
 			});
 			expect(progress.percentage).toBe(50);
+		});
+	});
+
+	describe('formatTime12h', () => {
+		it('converts midnight (00:00) to 12:00 AM', () => {
+			expect(formatTime12h('00:00')).toBe('12:00 AM');
+		});
+
+		it('converts noon (12:00) to 12:00 PM', () => {
+			expect(formatTime12h('12:00')).toBe('12:00 PM');
+		});
+
+		it('converts afternoon hour (13:05) to 1:05 PM', () => {
+			expect(formatTime12h('13:05')).toBe('1:05 PM');
+		});
+
+		it('converts morning hour (09:30) to 9:30 AM', () => {
+			expect(formatTime12h('09:30')).toBe('9:30 AM');
+		});
+
+		it('converts end of day (23:59) to 11:59 PM', () => {
+			expect(formatTime12h('23:59')).toBe('11:59 PM');
+		});
+
+		it('pads single-digit minutes (08:05)', () => {
+			expect(formatTime12h('08:05')).toBe('8:05 AM');
+		});
+
+		it('handles HH:MM:SS format using only HH and MM', () => {
+			expect(formatTime12h('14:30:00')).toBe('2:30 PM');
+		});
+
+		it('returns null for null input', () => {
+			expect(formatTime12h(null)).toBeNull();
+		});
+
+		it('returns null for undefined input', () => {
+			expect(formatTime12h(undefined)).toBeNull();
+		});
+
+		it('returns null for empty string', () => {
+			expect(formatTime12h('')).toBeNull();
+		});
+
+		it('returns null for invalid non-time input', () => {
+			expect(formatTime12h('not-a-time')).toBeNull();
 		});
 	});
 

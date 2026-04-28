@@ -57,7 +57,7 @@
 	<!-- Header -->
 	<div class="mb-6">
 		<h1 class="text-3xl font-bold tracking-tight">All Jobs</h1>
-		<p class="mt-1 text-muted-foreground">Complete job history across all customers</p>
+		<p class="mt-1 text-muted-foreground">Jobs for {selectedYear} across all customers</p>
 	</div>
 
 	<!-- Year Selector -->

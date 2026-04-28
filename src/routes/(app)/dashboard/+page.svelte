@@ -446,6 +446,13 @@
 				<Checkbox bind:checked={showOverBudgetOnly} />
 				Over budget only
 			</label>
+			{#if showOverBudgetOnly}
+				<span
+					class="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive"
+				>
+					{visibleCategories.length} over budget
+				</span>
+			{/if}
 		</div>
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each visibleCategories as category (category.id)}

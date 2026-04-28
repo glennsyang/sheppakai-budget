@@ -43,8 +43,8 @@ export const windowCleaningJobQueries = {
 		return baseBuilder.findAll({
 			where: and(
 				eq(windowCleaningJob.userId, userId),
-				sql`date(${windowCleaningJob.jobDate}) >= ${startDate}`,
-				sql`date(${windowCleaningJob.jobDate}) <= ${endDate}`
+				sql`date(${windowCleaningJob.jobDate}) >= date(${startDate})`,
+				sql`date(${windowCleaningJob.jobDate}) <= date(${endDate})`
 			)
 		});
 	},
@@ -56,8 +56,8 @@ export const windowCleaningJobQueries = {
 		return baseBuilder.findAll({
 			where: and(
 				eq(windowCleaningJob.userId, userId),
-				sql`date(${windowCleaningJob.jobDate}) >= ${startDate}`,
-				sql`date(${windowCleaningJob.jobDate}) <= ${endDate}`
+				sql`date(${windowCleaningJob.jobDate}) >= date(${startDate})`,
+				sql`date(${windowCleaningJob.jobDate}) <= date(${endDate})`
 			)
 		});
 	}

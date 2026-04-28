@@ -16,6 +16,7 @@
 	<Button
 		variant="outline"
 		size="icon"
+		aria-label="Previous Year"
 		class="h-11 w-11 md:h-9 md:w-9"
 		onclick={() => onYearChange(currentYear - 1)}
 	>
@@ -27,6 +28,7 @@
 	<Button
 		variant="outline"
 		size="icon"
+		aria-label="Next Year"
 		class="h-11 w-11 md:h-9 md:w-9"
 		onclick={() => onYearChange(currentYear + 1)}
 	>
