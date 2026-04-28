@@ -9,7 +9,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { windowCleaningJobSchema } from '$lib/formSchemas/windowCleaning';
-	import { getTodayDate } from '$lib/utils/dates';
+	import { getTodayDate, extractDateFromTimestamp } from '$lib/utils/dates';
 
 	import type { BaseModalProps, WindowCleaningJob } from '$lib';
 
@@ -54,7 +54,9 @@
 			if (initialData) {
 				$form.id = initialData.id || '';
 				$form.customerId = initialData.customerId || preselectedCustomerId || '';
-				$form.jobDate = initialData.jobDate || getTodayDate();
+				$form.jobDate =
+					(initialData.jobDate ? extractDateFromTimestamp(initialData.jobDate) : null) ||
+					getTodayDate();
 				$form.jobTime = initialData.jobTime || '';
 				$form.amountCharged = initialData.amountCharged ?? 0;
 				$form.tip = initialData.tip ?? 0;

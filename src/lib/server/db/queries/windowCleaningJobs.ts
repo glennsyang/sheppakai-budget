@@ -43,8 +43,8 @@ export const windowCleaningJobQueries = {
 		return baseBuilder.findAll({
 			where: and(
 				eq(windowCleaningJob.userId, userId),
-				sql`${windowCleaningJob.jobDate} >= ${startDate}`,
-				sql`${windowCleaningJob.jobDate} <= ${endDate}`
+				sql`date(${windowCleaningJob.jobDate}) >= ${startDate}`,
+				sql`date(${windowCleaningJob.jobDate}) <= ${endDate}`
 			)
 		});
 	}

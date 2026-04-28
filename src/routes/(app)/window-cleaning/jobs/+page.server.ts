@@ -10,7 +10,7 @@ import { getDb } from '$lib/server/db';
 import { windowCleaningJobQueries } from '$lib/server/db/queries';
 import { windowCleaningJob } from '$lib/server/db/schema';
 import { logger } from '$lib/server/logger';
-import { getMonthRangeFromUrl } from '$lib/utils/dates';
+import { getMonthRangeFromUrl, formatDateForStorage } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -43,7 +43,7 @@ export const actions = {
 		entityName: 'Job',
 		transformUpdate: (data) => ({
 			customerId: data.customerId,
-			jobDate: data.jobDate,
+			jobDate: formatDateForStorage(data.jobDate),
 			jobTime: data.jobTime || null,
 			amountCharged: data.amountCharged,
 			tip: data.tip ?? 0,

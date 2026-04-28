@@ -29,6 +29,7 @@
 		columns: ColumnDef<TData, TValue>[];
 		data: TData[];
 		defaultPageSize?: number;
+		defaultSorting?: SortingState;
 		showCategoryFilter?: boolean;
 		rowClassName?: (row: TData) => string;
 	};
@@ -37,13 +38,15 @@
 		data,
 		columns,
 		defaultPageSize = 10,
+		defaultSorting = [],
 		showCategoryFilter = false,
 		rowClassName
 	}: DataTableProps<TData, TValue> = $props();
 
 	// svelte-ignore state_referenced_locally
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: defaultPageSize });
-	let sorting = $state<SortingState>([]);
+	// svelte-ignore state_referenced_locally
+	let sorting = $state<SortingState>(defaultSorting);
 	let globalFilter = $state<string>('');
 	let columnVisibility = $state<VisibilityState>({});
 
