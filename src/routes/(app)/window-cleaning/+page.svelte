@@ -17,7 +17,7 @@
 		windowCleaningCustomerSchema,
 		windowCleaningJobSchema
 	} from '$lib/formSchemas/windowCleaning';
-	import { formatLocalTimestamp } from '$lib/utils/dates';
+	import { formatLocalTimestamp, formatTime12h } from '$lib/utils/dates';
 
 	import { columns } from './columns';
 
@@ -30,6 +30,7 @@
 			jobsThisMonthCount: number;
 			earnedThisMonth: number;
 			earnedThisYear: number;
+			earnedLastYear: number;
 			customerForm: SuperValidated<z.infer<typeof windowCleaningCustomerSchema>>;
 			jobForm: SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
 		};
@@ -129,6 +130,18 @@
 				<p class="text-2xl font-bold text-green-600 dark:text-green-400">
 					{currencyFormatter.format(data.earnedThisYear)}
 				</p>
+				{#if data.earnedLastYear > 0}
+					{@const diff = data.earnedThisYear - data.earnedLastYear}
+					{@const pct = Math.round(Math.abs(diff / data.earnedLastYear) * 100)}
+					<p
+						class="mt-1 text-xs {diff >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'}"
+					>
+						{diff >= 0 ? '▲' : '▼'}
+						{pct}% vs {new Date().getFullYear() - 1} ({currencyFormatter.format(
+							data.earnedLastYear
+						)})
+					</p>
+				{/if}
 			</CardContent>
 		</Card>
 	</div>
@@ -245,7 +258,7 @@
 								{#each selectedCustomerJobs as job (job.id)}
 									<Table.Row>
 										<Table.Cell class="text-sm">{formatLocalTimestamp(job.jobDate)}</Table.Cell>
-										<Table.Cell class="text-sm">{job.jobTime ?? '—'}</Table.Cell>
+										<Table.Cell class="text-sm">{formatTime12h(job.jobTime) ?? '—'}</Table.Cell>
 										<Table.Cell class="text-sm">
 											{job.durationHours != null ? `${job.durationHours}h` : '—'}
 										</Table.Cell>

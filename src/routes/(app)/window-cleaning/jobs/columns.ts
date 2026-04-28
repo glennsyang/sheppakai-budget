@@ -44,11 +44,6 @@ export const columns: ColumnDef<WindowCleaningJob>[] = [
 		cell: ({ row }) => row.original.customer?.name ?? '—'
 	},
 	{
-		accessorKey: 'jobTime',
-		header: 'Time',
-		cell: ({ row }) => row.original.jobTime ?? '—'
-	},
-	{
 		accessorKey: 'durationHours',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
@@ -56,6 +51,11 @@ export const columns: ColumnDef<WindowCleaningJob>[] = [
 				onclick: column.getToggleSortingHandler()
 			}),
 		cell: ({ row }) => (row.original.durationHours == null ? '—' : `${row.original.durationHours}h`)
+	},
+	{
+		accessorKey: 'notes',
+		header: 'Notes',
+		cell: ({ row }) => row.original.notes ?? '—'
 	},
 	{
 		accessorKey: 'amountCharged',

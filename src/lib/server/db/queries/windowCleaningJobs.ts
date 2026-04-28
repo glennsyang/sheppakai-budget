@@ -43,8 +43,25 @@ export const windowCleaningJobQueries = {
 		return baseBuilder.findAll({
 			where: and(
 				eq(windowCleaningJob.userId, userId),
-				sql`date(${windowCleaningJob.jobDate}) >= ${startDate}`,
-				sql`date(${windowCleaningJob.jobDate}) <= ${endDate}`
+				sql`date(${windowCleaningJob.jobDate}) >= date(${startDate})`,
+				sql`date(${windowCleaningJob.jobDate}) <= date(${endDate})`
+			)
+		});
+	},
+
+	// Find jobs for a user within a year
+	findByYear: async (userId: string, year: number): Promise<WindowCleaningJob[]> => {
+		const safeYear = Math.trunc(year);
+		if (!Number.isFinite(safeYear) || safeYear < 1 || safeYear > 9999) {
+			throw new Error(`Invalid year: ${year}`);
+		}
+		const startDate = `${safeYear}-01-01`;
+		const endDate = `${safeYear}-12-31`;
+		return baseBuilder.findAll({
+			where: and(
+				eq(windowCleaningJob.userId, userId),
+				sql`date(${windowCleaningJob.jobDate}) >= date(${startDate})`,
+				sql`date(${windowCleaningJob.jobDate}) <= date(${endDate})`
 			)
 		});
 	}
