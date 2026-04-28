@@ -10,19 +10,24 @@ import { getDb } from '$lib/server/db';
 import { windowCleaningJobQueries } from '$lib/server/db/queries';
 import { windowCleaningJob } from '$lib/server/db/schema';
 import { logger } from '$lib/server/logger';
-import { getMonthRangeFromUrl, formatDateForStorage } from '$lib/utils/dates';
+import { formatDateForStorage } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const userId = locals.user!.id;
-	const { month, year } = getMonthRangeFromUrl(url);
+	const currentYear = new Date().getFullYear();
+	const selectedYear = Number(url.searchParams.get('year')) || currentYear;
 
-	const jobs = await windowCleaningJobQueries.findByMonth(userId, month, year);
+	const [jobs, jobsLastYear] = await Promise.all([
+		windowCleaningJobQueries.findByYear(userId, selectedYear),
+		windowCleaningJobQueries.findByYear(userId, selectedYear - 1)
+	]);
 
 	const totalCharged = jobs.reduce((sum, j) => sum + j.amountCharged, 0);
 	const totalTips = jobs.reduce((sum, j) => sum + j.tip, 0);
 	const totalEarned = totalCharged + totalTips;
+	const earnedLastYear = jobsLastYear.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
 
 	const jobForm = await superValidate(zod4(windowCleaningJobSchema));
 
@@ -31,6 +36,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		totalCharged,
 		totalTips,
 		totalEarned,
+		earnedLastYear,
 		jobCount: jobs.length,
 		jobForm
 	};
