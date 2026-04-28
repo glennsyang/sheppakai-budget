@@ -134,7 +134,20 @@ export function getCurrentUTCTimestamp(): string {
 }
 
 /**
- * Pad month number with leading zero
+ * Format a time string (HH:MM or HH:MM:SS) to 12-hour format
+ * @param time - Time string in 24h format (e.g. "14:30")
+ * @returns Formatted time string (e.g. "2:30 PM"), or null if input is null/undefined
+ */
+export function formatTime12h(time: string | null | undefined): string | null {
+	if (!time) return null;
+	const [h, m] = time.split(':').map(Number);
+	const ampm = h >= 12 ? 'PM' : 'AM';
+	const h12 = h % 12 || 12;
+	return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
+}
+
+/**
+ * Pad month number with leading zero for consistent formatting
  * @param month - Month number (1-12)
  * @returns Padded month string (e.g., "03" for March)
  */

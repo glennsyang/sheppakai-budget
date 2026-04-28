@@ -5,9 +5,9 @@
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
+	import YearSwitcher from '$lib/components/YearSwitcher.svelte';
 	import type { windowCleaningJobSchema } from '$lib/formSchemas/windowCleaning';
 
 	import { columns } from './columns';
@@ -20,6 +20,7 @@
 			totalCharged: number;
 			totalTips: number;
 			totalEarned: number;
+			earnedLastYear: number;
 			jobCount: number;
 			jobForm: SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
 		};
@@ -31,14 +32,12 @@
 	setContext('jobForm', data.jobForm);
 
 	const currentDate = new Date();
-	const defaultMonth = currentDate.getMonth() + 1;
 	const defaultYear = currentDate.getFullYear();
 
-	let selectedMonth = $derived(Number(page.url.searchParams.get('month')) || defaultMonth);
 	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
 
-	function onMonthYearChange(month: number, year: number) {
-		goto(`/window-cleaning/jobs?month=${month}&year=${year}`, {
+	function onYearChange(year: number) {
+		goto(`/window-cleaning/jobs?year=${year}`, {
 			keepFocus: true,
 			replaceState: true
 		});
@@ -61,13 +60,9 @@
 		<p class="mt-1 text-muted-foreground">Complete job history across all customers</p>
 	</div>
 
-	<!-- Month Selector -->
+	<!-- Year Selector -->
 	<div class="mb-4">
-		<MonthYearSwitcher
-			currentMonth={selectedMonth}
-			currentYear={selectedYear}
-			onMonthChange={onMonthYearChange}
-		/>
+		<YearSwitcher currentYear={selectedYear} {onYearChange} />
 	</div>
 
 	<!-- Stats Row -->
@@ -96,6 +91,16 @@
 				<p class="text-2xl font-bold text-green-600 dark:text-green-400">
 					{currencyFormatter.format(data.totalEarned)}
 				</p>
+				{#if data.earnedLastYear > 0}
+					{@const diff = data.totalEarned - data.earnedLastYear}
+					{@const pct = Math.round(Math.abs(diff / data.earnedLastYear) * 100)}
+					<p
+						class="mt-1 text-xs {diff >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'}"
+					>
+						{diff >= 0 ? '▲' : '▼'}
+						{pct}% vs {selectedYear - 1} ({currencyFormatter.format(data.earnedLastYear)})
+					</p>
+				{/if}
 			</CardContent>
 		</Card>
 	</div>
@@ -106,7 +111,7 @@
 	{:else}
 		<Card>
 			<CardContent class="py-12 text-center">
-				<p class="text-muted-foreground">No jobs found for this month.</p>
+				<p class="text-muted-foreground">No jobs found for this year.</p>
 			</CardContent>
 		</Card>
 	{/if}
