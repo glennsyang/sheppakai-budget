@@ -17,7 +17,12 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const userId = locals.user!.id;
 	const currentYear = new Date().getFullYear();
-	const selectedYear = Number(url.searchParams.get('year')) || currentYear;
+	const yearParam = url.searchParams.get('year');
+	const parsedYear = yearParam ? Number.parseInt(yearParam, 10) : Number.NaN;
+	const selectedYear =
+		Number.isSafeInteger(parsedYear) && parsedYear >= 1900 && parsedYear <= 9999
+			? parsedYear
+			: currentYear;
 
 	const [jobs, jobsLastYear] = await Promise.all([
 		windowCleaningJobQueries.findByYear(userId, selectedYear),
