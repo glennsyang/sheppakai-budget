@@ -14,7 +14,7 @@ import { windowCleaningCustomerQueries, windowCleaningJobQueries } from '$lib/se
 import { windowCleaningCustomer, windowCleaningJob } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
-import { getCurrentUTCTimestamp } from '$lib/utils/dates';
+import { getCurrentUTCTimestamp, formatDateForStorage } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -130,7 +130,7 @@ export const actions = {
 		entityName: 'Job',
 		transformCreate: (data, userId) => ({
 			customerId: data.customerId,
-			jobDate: data.jobDate,
+			jobDate: formatDateForStorage(data.jobDate),
 			jobTime: data.jobTime || null,
 			amountCharged: data.amountCharged,
 			tip: data.tip ?? 0,
@@ -146,7 +146,7 @@ export const actions = {
 		entityName: 'Job',
 		transformUpdate: (data) => ({
 			customerId: data.customerId,
-			jobDate: data.jobDate,
+			jobDate: formatDateForStorage(data.jobDate),
 			jobTime: data.jobTime || null,
 			amountCharged: data.amountCharged,
 			tip: data.tip ?? 0,

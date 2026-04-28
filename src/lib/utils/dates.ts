@@ -58,7 +58,11 @@ export function extractDateFromTimestamp(timestamp: string): string {
  * Example: "2026-02-01 15:45:32" → "Feb 01, 2026"
  */
 export function formatLocalTimestamp(timestamp: string, format: string = 'MMM DD, YYYY'): string {
-	const date = new Date(timestamp.replace(' ', 'T'));
+	// Date-only strings (YYYY-MM-DD) are parsed as UTC midnight by JS, which shifts the date
+	// back one day in negative-offset timezones (e.g. PST). Appending T00:00:00 forces local parsing.
+	const normalized =
+		timestamp.length === 10 ? `${timestamp}T00:00:00` : timestamp.replace(' ', 'T');
+	const date = new Date(normalized);
 
 	if (format === 'MMM DD, YYYY') {
 		const month = date.toLocaleString('en-US', { month: 'short' });

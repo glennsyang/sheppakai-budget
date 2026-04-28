@@ -135,7 +135,7 @@
 
 	<!-- Customers Table -->
 	{#if data.customers.length > 0}
-		<DataTable {columns} data={data.customers} />
+		<DataTable {columns} data={data.customers} defaultSorting={[{ id: 'name', desc: false }]} />
 	{:else}
 		<Card>
 			<CardContent class="py-12 text-center">
