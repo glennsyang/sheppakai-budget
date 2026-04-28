@@ -34,7 +34,17 @@
 	const currentDate = new Date();
 	const defaultYear = currentDate.getFullYear();
 
-	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
+	function parseSelectedYear(searchParam: string | null, fallbackYear: number): number {
+		if (searchParam === null) {
+			return fallbackYear;
+		}
+
+		const parsedYear = Number.parseInt(searchParam, 10);
+
+		return Number.isFinite(parsedYear) ? parsedYear : fallbackYear;
+	}
+
+	let selectedYear = $derived(parseSelectedYear(page.url.searchParams.get('year'), defaultYear));
 
 	function onYearChange(year: number) {
 		goto(`/window-cleaning/jobs?year=${year}`, {
