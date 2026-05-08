@@ -29,10 +29,13 @@
 	// Calculate percentage with 2 decimal places
 	let percentage = $derived(planned > 0 ? (actual / planned) * 100 : 0);
 	let isOverBudget = $derived(actual > planned && planned > 0);
-	let isUnderBudget = $derived(actual < planned && planned > 0);
+	let isWarning = $derived(percentage >= 90 && percentage <= 100 && planned > 0);
+	let isUnderBudget = $derived(actual < planned && planned > 0 && !isWarning);
 	let overage = $derived(isOverBudget ? actual - planned : 0);
-	let underage = $derived(isUnderBudget ? planned - actual : 0);
-	let progressClass = $derived(isOverBudget ? 'progress-over' : 'progress-under');
+	let underage = $derived(!isOverBudget && planned > 0 ? planned - actual : 0);
+	let progressClass = $derived(
+		isOverBudget ? 'progress-over' : isWarning ? 'progress-warning' : 'progress-under'
+	);
 </script>
 
 <Card.Root class="@container/card bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
@@ -78,6 +81,9 @@
 <style>
 	:global(.progress-under [data-slot='progress-indicator']) {
 		background-color: rgb(34, 197, 94); /* Green */
+	}
+	:global(.progress-warning [data-slot='progress-indicator']) {
+		background-color: rgb(234, 179, 8); /* Amber */
 	}
 	:global(.progress-over [data-slot='progress-indicator']) {
 		background-color: rgb(239, 68, 68); /* Red */

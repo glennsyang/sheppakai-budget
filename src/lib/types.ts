@@ -142,11 +142,6 @@ export type ChartData = {
 	planned: number;
 };
 
-export type BarChartData = {
-	date: Date;
-	spent: number;
-};
-
 export type MonthlySpentChartData = {
 	month: string;
 	spent: number;
@@ -162,6 +157,17 @@ export type TimeRangeInOutData = {
 	month: string;
 	in: number;
 	out: number;
+};
+
+export type SpendingBreakdownData = {
+	category: string;
+	amount: number;
+	color: string;
+};
+
+export type MonthlyNetflowData = {
+	month: string;
+	net: number;
 };
 
 export type WindowCleaningCustomer = {

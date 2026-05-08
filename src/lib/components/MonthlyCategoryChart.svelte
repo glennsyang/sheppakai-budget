@@ -2,7 +2,7 @@
 	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import { scaleBand } from 'd3-scale';
-	import { BarChart } from 'layerchart';
+	import { BarChart, Highlight } from 'layerchart';
 	import { cubicInOut } from 'svelte/easing';
 
 	import * as Card from '$lib/components/ui/card/index.js';
@@ -43,40 +43,35 @@
 		<Card.Description>{chartDescription}</Card.Description>
 	</Card.Header>
 	<Card.Content>
-		<Chart.Container config={chartConfig}>
+		<Chart.Container config={chartConfig} class="aspect-auto h-44 w-full">
 			<BarChart
-				labels={{ offset: 12 }}
 				data={chartData}
-				orientation="horizontal"
-				yScale={scaleBand().padding(0.25)}
-				y="month"
-				axis="y"
+				x="month"
+				y="spent"
+				xScale={scaleBand().padding(0.25)}
+				axis="x"
 				rule={false}
 				series={[{ key: 'spent', label: 'Total Spent', color: chartConfig.spent.color }]}
-				padding={{ right: 16 }}
 				props={{
 					bars: {
 						stroke: 'none',
-						radius: 5,
+						radius: 4,
 						rounded: 'all',
-						initialWidth: 0,
-						initialX: 0,
+						initialHeight: 0,
 						motion: {
-							x: { type: 'tween', duration: 500, easing: cubicInOut },
-							width: { type: 'tween', duration: 500, easing: cubicInOut }
+							y: { type: 'tween', duration: 500, easing: cubicInOut },
+							height: { type: 'tween', duration: 500, easing: cubicInOut }
 						}
 					},
 					highlight: { area: { fill: 'none' } },
-					yAxis: {
-						tickLabelProps: {
-							textAnchor: 'start',
-							dx: 6,
-							class: 'stroke-none fill-background!'
-						},
-						tickLength: 0
+					xAxis: {
+						format: (d: string) => d.slice(0, 3)
 					}
 				}}
 			>
+				{#snippet belowMarks()}
+					<Highlight area={{ class: 'fill-muted' }} />
+				{/snippet}
 				{#snippet tooltip()}
 					<Chart.Tooltip hideLabel />
 				{/snippet}
