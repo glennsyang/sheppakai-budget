@@ -451,7 +451,7 @@
 					/>
 				</div>
 
-				<!-- Bar Chart -->
+				<!-- Line Chart -->
 				<div class="mt-6">
 					<LineChart
 						categoryName={selectedCategory.name}

@@ -1,21 +1,30 @@
 <script lang="ts">
-	import { SvelteDate, SvelteMap } from 'svelte/reactivity';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import BarChart from '$lib/components/BarChart.svelte';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
 	import MonthlyCategoryChart from '$lib/components/MonthlyCategoryChart.svelte';
+	import MonthlyBudgetSummaryCard from '$lib/components/MonthlyBudgetSummaryCard.svelte';
+	import MonthlyNetflowChart from '$lib/components/MonthlyNetflowChart.svelte';
 	import PeriodProgressCard from '$lib/components/PeriodProgressCard.svelte';
+	import SpendingBreakdownChart from '$lib/components/SpendingBreakdownChart.svelte';
 	import TimeRangeInOut from '$lib/components/TimeRangeInOut.svelte';
+	import { ChevronDownIcon } from '@lucide/svelte';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
-	import type { BarChartData, MonthlyCategoryTrendData, MonthlySpentChartData } from '$lib/types';
-	import { monthNames, months } from '$lib/utils';
+	import type {
+		MonthlyCategoryTrendData,
+		MonthlyNetflowData,
+		MonthlySpentChartData,
+		SpendingBreakdownData
+	} from '$lib/types';
+	import { formatCurrency, monthNames, months } from '$lib/utils';
 	import { getMonthProgress, getYearProgress } from '$lib/utils/dates';
 
 	import type { PageProps } from './$types';
@@ -60,12 +69,25 @@
 	);
 	let yearlyView = $derived(page.url.searchParams.get('view') ?? data.view ?? 'current');
 
+	// Collapsible section state (collapsed by default)
+	let categoriesOpen = $state(false);
+	let spentByCategoryOpen = $state(false);
+
 	// State for transaction drawer
 	let openTransactionSheet = $state(false);
 	let selectedCategoryId = $state<string | null>(null);
 
 	const categories = getCategoriesContext();
 	const dashboardPath = resolve('/dashboard');
+
+	// Chart color palette (CSS variables cycle)
+	const chartColors = [
+		'var(--chart-1)',
+		'var(--chart-2)',
+		'var(--chart-3)',
+		'var(--chart-4)',
+		'var(--chart-5)'
+	];
 
 	function buildDashboardUrl(state: DashboardNavigationState) {
 		if (state.mode === 'monthly') {
@@ -90,47 +112,6 @@
 					.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 			: []
 	);
-
-	let chartData: BarChartData[] = $derived.by(() => {
-		const month = parseInt(selectedMonth);
-		const year = parseInt(selectedYear);
-
-		// Get the number of days in the month
-		const lastDay = new Date(year, month, 0);
-		const daysInMonth = lastDay.getDate();
-
-		// Create a map of date strings to amounts
-		const dataMap = (data.actualExpenses || []).reduce(
-			(acc, transaction) => {
-				// Extract the day portion and add 1 day to it to account for timezone issues
-				const dateObj = new SvelteDate(transaction.date);
-				dateObj.setDate(dateObj.getDate() + 1);
-				const adjustedDateKey = dateObj.toISOString().split('T')[0];
-				if (!acc[adjustedDateKey]) {
-					acc[adjustedDateKey] = 0;
-				}
-				acc[adjustedDateKey] += transaction.amount;
-				return acc;
-			},
-			{} as Record<string, number>
-		);
-
-		// Generate array for all days in the month
-		const result: BarChartData[] = [];
-		for (let day = 1; day <= daysInMonth; day++) {
-			// Format day with leading zero if needed
-			const dayStr = day.toString().padStart(2, '0');
-			const monthStr = month.toString().padStart(2, '0');
-			const dateStr = `${year}-${monthStr}-${dayStr}`;
-
-			result.push({
-				date: new Date(dateStr),
-				spent: dataMap[dateStr] || 0
-			});
-		}
-
-		return result;
-	});
 
 	let selectedCategory = $derived(
 		selectedCategoryId ? categories().find((c) => c.id === selectedCategoryId) : null
@@ -229,6 +210,30 @@
 		return getActualAmount(categoryId) > planned;
 	}
 
+	// Spending breakdown donut chart data (monthly)
+	let spendingBreakdownData: SpendingBreakdownData[] = $derived.by(() => {
+		if (!data.actualExpenses) return [];
+
+		const totals = new Map<string, { category: string; amount: number }>();
+		for (const expense of data.actualExpenses) {
+			const category = expense.category?.name ?? 'Uncategorized';
+			const existing = totals.get(category);
+			if (existing) {
+				existing.amount += expense.amount;
+			} else {
+				totals.set(category, { category: category, amount: expense.amount });
+			}
+		}
+
+		return [...totals.values()]
+			.filter((d) => d.amount > 0)
+			.sort((a, b) => b.amount - a.amount)
+			.map((d, i) => ({
+				...d,
+				color: chartColors[i % chartColors.length]
+			}));
+	});
+
 	function getCategoryMonthlyData(categoryId: string) {
 		if (!data.timeRangeData || !data.actualExpenses) return [];
 
@@ -264,10 +269,16 @@
 	): MonthlyCategoryTrendData | null {
 		if (categoryMonthlyData.length === 0) return null;
 
-		const latestMonthData = categoryMonthlyData[categoryMonthlyData.length - 1];
+		// Exclude the current calendar month from trend calculations — it's still in progress
+		const currentMonthName = monthNames[new Date().getMonth()];
+		const completedData = categoryMonthlyData.filter((d) => d.month !== currentMonthName);
+
+		if (completedData.length === 0) return null;
+
+		const latestMonthData = completedData[completedData.length - 1];
 		const monthLabel = latestMonthData.month;
 
-		if (categoryMonthlyData.length < 2) {
+		if (completedData.length < 2) {
 			return {
 				direction: latestMonthData.spent > 0 ? 'new' : 'flat',
 				value: null,
@@ -275,7 +286,7 @@
 			};
 		}
 
-		const previousMonthData = categoryMonthlyData[categoryMonthlyData.length - 2];
+		const previousMonthData = completedData[completedData.length - 2];
 
 		if (previousMonthData.spent === 0) {
 			return {
@@ -303,6 +314,17 @@
 			monthLabel
 		};
 	}
+
+	// Monthly netflow chart data (yearly view)
+	let monthlyNetflowData: MonthlyNetflowData[] = $derived(
+		(data.timeRangeData || []).map((d) => ({
+			month: d.month,
+			net: d.in - d.out
+		}))
+	);
+
+	// YTD net balance (yearly view)
+	let ytdNet = $derived((data.totalIncome || 0) - (data.actualExpensesTotal || 0));
 
 	const yearOptions = [
 		{ label: '2025', value: '2025' },
@@ -335,6 +357,12 @@
 			progress: getMonthProgress(month, year)
 		};
 	});
+
+	let showPeriodProgress = $derived(
+		selectedMode === 'yearly'
+			? selectedYear === currentYear
+			: selectedMonth === currentMonth && selectedYear === currentYear
+	);
 </script>
 
 <svelte:head>
@@ -412,76 +440,105 @@
 		</div>
 	</div>
 
-	<div class="mb-6">
-		<PeriodProgressCard
-			label={activePeriodProgress.label}
-			title={activePeriodProgress.title}
-			progress={activePeriodProgress.progress}
-		/>
-	</div>
+	{#if showPeriodProgress}
+		<div class="mb-6">
+			<PeriodProgressCard
+				label={activePeriodProgress.label}
+				title={activePeriodProgress.title}
+				progress={activePeriodProgress.progress}
+			/>
+		</div>
+	{/if}
 
 	{#if selectedMode === 'monthly'}
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-			<BudgetProgressCard
-				title="Budgeted"
-				planned={plannedExpenses}
-				actual={data.actualExpensesTotal || 0}
+		<div class="mb-6">
+			<MonthlyBudgetSummaryCard
+				actualSpent={data.actualExpensesTotal || 0}
+				plannedBudget={plannedExpenses}
+				totalIncome={data.totalIncome || 0}
 				{loading}
-				label1="Recurring + Spent"
-				cardType="budget"
-			/>
-			<BudgetProgressCard
-				title="Income"
-				planned={data.totalIncome || 0}
-				actual={data.actualExpensesTotal || 0}
-				{loading}
-				label1="Recurring + Spent"
-				cardType="income"
 			/>
 		</div>
 
-		<div class="mt-8 mb-4 flex items-center gap-3">
-			<h2 class="text-xl font-semibold">Expenses by Category</h2>
-			<label class="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-				<Checkbox bind:checked={showOverBudgetOnly} />
-				Over budget only
-			</label>
-			{#if showOverBudgetOnly}
-				<span
-					class="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive"
-				>
-					{visibleCategories.length} over budget
-				</span>
-			{/if}
+		<div class="mb-8">
+			<SpendingBreakdownChart
+				chartData={spendingBreakdownData}
+				totalSpent={data.actualExpensesTotal || 0}
+			/>
 		</div>
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			{#each visibleCategories as category (category.id)}
-				{@const categoryOverBudget = isCategoryOverBudget(category.id)}
-				<!-- svelte-ignore a11y_click_events_have_key_events -->
-				<!-- svelte-ignore a11y_no_static_element_interactions -->
-				<div
-					onclick={() => openCategoryDetails(category.id)}
-					class={`cursor-pointer rounded-xl transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
-				>
-					<BudgetProgressCard
-						title={category.name}
-						planned={getPlannedAmount(category.id)}
-						actual={getActualAmount(category.id)}
-						{loading}
-						label1="Spent"
+
+		<Collapsible.Root bind:open={categoriesOpen} class="mt-8">
+			<div class="mb-4 flex items-center gap-3">
+				<Collapsible.Trigger class="group flex cursor-pointer items-center gap-2">
+					<ChevronDownIcon
+						class="h-5 w-5 text-muted-foreground transition-transform duration-200 {categoriesOpen
+							? ''
+							: '-rotate-90'}"
 					/>
+					<h2 class="text-xl font-semibold">Expenses by Category</h2>
+				</Collapsible.Trigger>
+				<label class="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+					<Checkbox bind:checked={showOverBudgetOnly} />
+					Over budget only
+				</label>
+				{#if showOverBudgetOnly}
+					<span
+						class="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive"
+					>
+						{visibleCategories.length} over budget
+					</span>
+				{/if}
+			</div>
+			<Collapsible.Content>
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					{#each visibleCategories as category (category.id)}
+						{@const categoryOverBudget = isCategoryOverBudget(category.id)}
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div
+							onclick={() => openCategoryDetails(category.id)}
+							class={`cursor-pointer rounded-xl transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
+						>
+							<BudgetProgressCard
+								title={category.name}
+								planned={getPlannedAmount(category.id)}
+								actual={getActualAmount(category.id)}
+								{loading}
+								label1="Spent"
+							/>
+						</div>
+					{/each}
 				</div>
-			{/each}
+			</Collapsible.Content>
+		</Collapsible.Root>
+	{:else}
+		<!-- Yearly YTD KPI row -->
+		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+			<div class="rounded-xl border bg-card p-4 shadow-xs">
+				<p class="text-sm text-muted-foreground">YTD Income</p>
+				<p class="mt-1 text-2xl font-bold tabular-nums">{formatCurrency(data.totalIncome || 0)}</p>
+			</div>
+			<div class="rounded-xl border bg-card p-4 shadow-xs">
+				<p class="text-sm text-muted-foreground">YTD Spent</p>
+				<p class="mt-1 text-2xl font-bold tabular-nums">
+					{formatCurrency(data.actualExpensesTotal || 0)}
+				</p>
+			</div>
+
+			<div class="rounded-xl border bg-card p-4 shadow-xs">
+				<p class="text-sm text-muted-foreground">YTD Net</p>
+				<p
+					class={`mt-1 text-2xl font-bold tabular-nums ${ytdNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
+				>
+					{ytdNet >= 0 ? '+' : ''}{formatCurrency(ytdNet)}
+				</p>
+			</div>
 		</div>
 
-		<div class="mt-6">
-			<BarChart
-				chartTitle="Daily Spending Trend"
-				chartDescription="Showing daily spending trend for the month"
-				{chartData}
-			/>
+		<div class="mb-6">
+			<MonthlyNetflowChart chartData={monthlyNetflowData} />
 		</div>
-	{:else}
+
 		<div class="mt-6">
 			<TimeRangeInOut
 				chartTitle={yearlyViewLabel + ' In & Out'}
@@ -490,19 +547,30 @@
 			/>
 		</div>
 
-		<h2 class="mt-8 mb-4 text-xl font-semibold">Spent by Category</h2>
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			{#each sortedCategories as category (category.id)}
-				{@const categoryMonthlyData = getCategoryMonthlyData(category.id)}
-				<MonthlyCategoryChart
-					chartTitle={category?.name}
-					chartDescription={'Monthly spending breakdown for ' + category?.name}
-					chartData={categoryMonthlyData}
-					trendData={getCategoryTrendData(categoryMonthlyData)}
-					footerRangeText={categoryFooterRangeText}
+		<Collapsible.Root bind:open={spentByCategoryOpen} class="mt-8">
+			<Collapsible.Trigger class="group mb-4 flex cursor-pointer items-center gap-2">
+				<ChevronDownIcon
+					class="h-5 w-5 text-muted-foreground transition-transform duration-200 {spentByCategoryOpen
+						? ''
+						: '-rotate-90'}"
 				/>
-			{/each}
-		</div>
+				<h2 class="text-xl font-semibold">Spent by Category</h2>
+			</Collapsible.Trigger>
+			<Collapsible.Content>
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					{#each sortedCategories as category (category.id)}
+						{@const categoryMonthlyData = getCategoryMonthlyData(category.id)}
+						<MonthlyCategoryChart
+							chartTitle={category?.name}
+							chartDescription={'Monthly spending breakdown for ' + category?.name}
+							chartData={categoryMonthlyData}
+							trendData={getCategoryTrendData(categoryMonthlyData)}
+							footerRangeText={categoryFooterRangeText}
+						/>
+					{/each}
+				</div>
+			</Collapsible.Content>
+		</Collapsible.Root>
 	{/if}
 </div>
 
