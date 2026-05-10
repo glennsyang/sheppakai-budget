@@ -11,13 +11,11 @@
 
 	interface Props {
 		chartTitle: string;
-		chartDescription: string;
 		chartData?: MonthlySpentChartData[];
 		trendData?: MonthlyCategoryTrendData | null;
-		footerRangeText?: string;
 	}
 
-	let { chartTitle, chartDescription, chartData, trendData, footerRangeText }: Props = $props();
+	let { chartTitle, chartData, trendData }: Props = $props();
 
 	const chartConfig = {
 		spent: { label: 'Total Spent', color: 'var(--chart-2)' },
@@ -40,11 +38,11 @@
 <Card.Root class={trendData ? getTrendBorderClass(trendData.direction) : ''}>
 	<Card.Header>
 		<Card.Title>{chartTitle}</Card.Title>
-		<Card.Description>{chartDescription}</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		<Chart.Container config={chartConfig} class="aspect-auto h-44 w-full">
 			<BarChart
+				labels={{ offset: 12 }}
 				data={chartData}
 				x="month"
 				y="spent"
@@ -99,9 +97,6 @@
 						{/if}
 					</div>
 				{/if}
-				<div class="flex items-center gap-2 leading-none text-muted-foreground">
-					{footerRangeText ?? 'Total spend for the last 6 months'}
-				</div>
 			</div>
 		</div>
 	</Card.Footer>

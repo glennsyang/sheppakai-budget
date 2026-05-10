@@ -18,13 +18,18 @@
 	) satisfies Chart.ChartConfig;
 
 	let hasData = $derived(chartData.length > 0 && totalSpent > 0);
+	let sortedChartData = $derived([...chartData].sort((a, b) => b.amount - a.amount));
 </script>
 
 <div class="flex justify-between gap-4">
 	<div class="flex-1/2">
 		<Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
-			<div class="mt-4 mb-4 w-full space-y-1.5 px-2">
-				{#each chartData.sort((a, b) => b.amount - a.amount) as item (item.category)}
+			<Card.Header>
+				<Card.Title>Spending Breakdown</Card.Title>
+				<Card.Description>Amount and share per category</Card.Description>
+			</Card.Header>
+			<div class="mb-4 w-full space-y-1.5 px-2">
+				{#each sortedChartData as item (item.category)}
 					<div class="flex items-center justify-between text-sm">
 						<div class="flex min-w-0 items-center gap-2">
 							<div

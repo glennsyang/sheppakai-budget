@@ -1,10 +1,16 @@
+import { inArray, sum } from 'drizzle-orm';
+
 import {
 	budgetQueries,
 	incomeQueries,
 	recurringQueries,
-	transactionQueries
+	savingsGoalQueries,
+	transactionQueries,
+	windowCleaningJobQueries
 } from '$lib/server/db/queries';
-import type { TimeRangeInOutData } from '$lib/types';
+import { getDb } from '$lib/server/db';
+import { contribution } from '$lib/server/db/schema';
+import type { SavingsGoalWithProgress, TimeRangeInOutData } from '$lib/types';
 import { monthNames } from '$lib/utils';
 import {
 	getCalendarYearMonthsRange,
@@ -16,19 +22,45 @@ import {
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url }) => {
+async function getGoalsWithProgress(): Promise<SavingsGoalWithProgress[]> {
+	const goals = await savingsGoalQueries.findAll();
+	const activeGoals = goals.filter((g) => g.status === 'active');
+
+	if (activeGoals.length === 0) return [];
+
+	const activeGoalIds = activeGoals.map((g) => g.id);
+
+	const totalsRows = await getDb()
+		.select({ goalId: contribution.goalId, total: sum(contribution.amount) })
+		.from(contribution)
+		.where(inArray(contribution.goalId, activeGoalIds))
+		.groupBy(contribution.goalId);
+
+	const totalsMap = new Map(totalsRows.map((r) => [r.goalId, Number(r.total ?? 0)]));
+
+	return activeGoals.map((goal) => {
+		const total = totalsMap.get(goal.id) ?? 0;
+		const percentage = goal.targetAmount > 0 ? (total / goal.targetAmount) * 100 : 0;
+		return { ...goal, currentAmount: total, percentage: Math.min(percentage, 100) };
+	});
+}
+
+export const load: PageServerLoad = async ({ url, locals }) => {
+	const userId = locals.user?.id;
 	const mode = url.searchParams.get('mode') === 'yearly' ? 'yearly' : 'monthly';
 	const currentYear = new Date().getFullYear();
 
 	if (mode === 'monthly') {
 		const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
-		const [actualExpenses, plannedExpenses, recurringExpenses, incomeRecords] = await Promise.all([
-			transactionQueries.findByDateRange(startDate, endDate),
-			budgetQueries.findByMonthYear(month, year),
-			recurringQueries.findAll(),
-			incomeQueries.findByDateRange(startDate, endDate)
-		]);
+		const [actualExpenses, plannedExpenses, recurringExpenses, incomeRecords, goalsWithProgress] =
+			await Promise.all([
+				transactionQueries.findByDateRange(startDate, endDate),
+				budgetQueries.findByMonthYear(month, year),
+				recurringQueries.findAll(),
+				incomeQueries.findByDateRange(startDate, endDate),
+				getGoalsWithProgress()
+			]);
 
 		const recurringMonthlyTotal = recurringExpenses.reduce((sum, item) => {
 			if (item.cadence === 'Monthly') {
@@ -105,17 +137,36 @@ export const load: PageServerLoad = async ({ url }) => {
 			}
 		}
 
+		// Sparkline arrays derived from historical chart data
+		const netflowSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.in - d.out }));
+		const spendingSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.out }));
+
+		// Window cleaning revenue for the month
+		let windowCleaningRevenue = 0;
+		let windowCleaningJobCount = 0;
+		if (userId) {
+			const wcJobs = await windowCleaningJobQueries.findByMonth(userId, month, year);
+			windowCleaningRevenue = wcJobs.reduce((s, j) => s + j.amountCharged + j.tip, 0);
+			windowCleaningJobCount = wcJobs.length;
+		}
+
 		return {
 			mode,
 			month,
 			year,
 			actualExpenses,
 			plannedExpenses,
+			recurringExpenses,
 			actualExpensesTotal,
 			plannedExpensesTotal,
 			totalIncome,
 			remainingBalance,
-			monthlyInOutData
+			monthlyInOutData,
+			netflowSparkline,
+			spendingSparkline,
+			goalsWithProgress,
+			windowCleaningRevenue,
+			windowCleaningJobCount
 		};
 	}
 
@@ -124,12 +175,14 @@ export const load: PageServerLoad = async ({ url }) => {
 	const year = yearParam ? Number.parseInt(yearParam) : currentYear;
 	const { startDate, endDate } = getYearDateRange(year);
 
-	const [actualExpenses, incomeRecords, recurringExpenses, allYearBudgets] = await Promise.all([
-		transactionQueries.findByDateRange(startDate, endDate),
-		incomeQueries.findByDateRange(startDate, endDate),
-		recurringQueries.findAll(),
-		budgetQueries.findByYear(year)
-	]);
+	const [actualExpenses, incomeRecords, recurringExpenses, allYearBudgets, goalsWithProgress] =
+		await Promise.all([
+			transactionQueries.findByDateRange(startDate, endDate),
+			incomeQueries.findByDateRange(startDate, endDate),
+			recurringQueries.findAll(),
+			budgetQueries.findByYear(year),
+			getGoalsWithProgress()
+		]);
 
 	const yearlyBudgets: Array<{
 		categoryId: string;
@@ -148,9 +201,10 @@ export const load: PageServerLoad = async ({ url }) => {
 		}
 	});
 
+	const elapsedMonths = year === currentYear ? new Date().getMonth() + 1 : 12;
 	const recurringYearlyTotal = recurringExpenses.reduce((sum, item) => {
 		if (item.cadence === 'Monthly') {
-			return sum + item.amount * 12;
+			return sum + item.amount * elapsedMonths;
 		} else if (item.cadence === 'Yearly') {
 			return sum + item.amount;
 		}
@@ -216,6 +270,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		plannedExpensesTotal,
 		totalIncome,
 		remainingBalance,
-		timeRangeData
+		timeRangeData,
+		goalsWithProgress
 	};
 };

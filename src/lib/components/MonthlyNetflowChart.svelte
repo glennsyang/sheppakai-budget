@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { scaleBand } from 'd3-scale';
 	import { BarChart, Highlight } from 'layerchart';
-	import { cubicInOut } from 'svelte/easing';
+	import InfoIcon from '@lucide/svelte/icons/info';
 
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import type { MonthlyNetflowData } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
 
@@ -21,53 +22,58 @@
 	}: Props = $props();
 
 	const chartConfig = {
-		surplus: { label: 'Surplus', color: 'var(--chart-2)' },
-		deficit: { label: 'Deficit', color: 'var(--chart-1)' }
+		net: { label: 'Net Cashflow' }
 	} satisfies Chart.ChartConfig;
-
-	// Split into surplus/deficit series — one is always zero per month, stacked = single bar per month
-	let splitData = $derived(
-		chartData.map((d) => ({
-			month: d.month,
-			surplus: d.net >= 0 ? d.net : 0,
-			deficit: d.net < 0 ? Math.abs(d.net) : 0
-		}))
-	);
 </script>
 
 <Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
 	<Card.Header>
-		<Card.Title>{chartTitle}</Card.Title>
+		<div class="flex items-center gap-1.5">
+			<Card.Title>{chartTitle}</Card.Title>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					{#snippet child({ props })}
+						<button {...props} class="text-muted-foreground/60 hover:text-muted-foreground">
+							<InfoIcon class="size-3.5" />
+						</button>
+					{/snippet}
+				</Tooltip.Trigger>
+				<Tooltip.Content class="max-w-64">
+					Each bar shows whether you ended the month with a surplus (income exceeded spending) or a
+					deficit (spending exceeded income). Green bars are months you came out ahead; red bars are
+					months you overspent.
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</div>
 		<Card.Description>{chartDescription}</Card.Description>
 	</Card.Header>
 	<Card.Content class="px-2 sm:p-6">
 		<Chart.Container config={chartConfig} class="aspect-auto h-64 w-full">
 			<BarChart
-				data={splitData}
-				x="month"
-				xScale={scaleBand().padding(0.25)}
-				axis="x"
-				series={[
-					{ key: 'surplus', label: 'Surplus', color: chartConfig.surplus.color },
-					{ key: 'deficit', label: 'Deficit', color: chartConfig.deficit.color }
-				]}
-				seriesLayout="stack"
-				rule={false}
-				props={{
-					bars: {
-						stroke: 'none',
-						radius: 4,
-						rounded: 'all',
-						initialHeight: 0,
-						motion: {
-							y: { type: 'tween', duration: 500, easing: cubicInOut },
-							height: { type: 'tween', duration: 500, easing: cubicInOut }
+				labels={{
+					offset: 5,
+					value: (d) => d.month,
+					fill: (d) => {
+						if (d.net > 0) {
+							return 'var(--chart-2)';
+						} else if (d.net < 0) {
+							return 'var(--chart-1)';
 						}
-					},
-					highlight: { area: { fill: 'none' } },
-					xAxis: {
-						format: (d: string) => d.slice(0, 3)
 					}
+				}}
+				data={chartData}
+				xScale={scaleBand().padding(0.25)}
+				x="month"
+				y="net"
+				yNice={4}
+				yBaseline={0}
+				cRange={['var(--chart-2)', 'var(--chart-1)']}
+				c={(d) => (d.net > 0 ? 'var(--chart-2)' : 'var(--chart-1)')}
+				axis={false}
+				props={{
+					bars: { stroke: 'none', radius: 0 },
+					highlight: { area: { fill: 'none' } },
+					xAxis: { format: (d) => d.slice(0, 3) }
 				}}
 			>
 				{#snippet belowMarks()}
@@ -75,37 +81,28 @@
 				{/snippet}
 				{#snippet tooltip()}
 					<Chart.Tooltip class="w-52">
-						{#snippet formatter({ name, value })}
+						{#snippet formatter({ value })}
 							{@const amount = value as number}
-							{@const isSurplus = name === 'Surplus'}
-							{#if amount > 0}
-								<div
-									class="size-2.5 shrink-0 rounded-[2px]"
-									style="background-color: {isSurplus ? 'var(--chart-2)' : 'var(--chart-1)'}"
-								></div>
-								{isSurplus ? 'Surplus' : 'Deficit'}
-								<div
-									class={`ms-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums ${isSurplus ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
-								>
-									{isSurplus ? '+' : '-'}{formatCurrency(amount)}
-								</div>
-							{/if}
+							{@const isPositive = amount > 0}
+							{@const isZero = amount === 0}
+							<div
+								class="size-2.5 shrink-0 rounded-[2px]"
+								style="background-color: {isPositive
+									? 'var(--chart-2)'
+									: isZero
+										? 'var(--muted-foreground)'
+										: 'var(--chart-1)'}"
+							></div>
+							{isPositive ? 'Surplus' : isZero ? 'Break-even' : 'Deficit'}
+							<div
+								class={`ms-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums ${isPositive ? 'text-green-600 dark:text-green-400' : isZero ? 'text-muted-foreground' : 'text-destructive'}`}
+							>
+								{isPositive ? '+' : ''}{formatCurrency(amount)}
+							</div>
 						{/snippet}
 					</Chart.Tooltip>
 				{/snippet}
 			</BarChart>
 		</Chart.Container>
 	</Card.Content>
-	<Card.Footer class="flex-col items-start gap-1 text-sm">
-		<div class="flex gap-4 text-xs text-muted-foreground">
-			<div class="flex items-center gap-1.5">
-				<div class="size-2.5 rounded-sm bg-[var(--chart-2)]"></div>
-				<span>Surplus (income &gt; spending)</span>
-			</div>
-			<div class="flex items-center gap-1.5">
-				<div class="size-2.5 rounded-sm bg-[var(--chart-1)]"></div>
-				<span>Deficit (spending &gt; income)</span>
-			</div>
-		</div>
-	</Card.Footer>
 </Card.Root>
