@@ -58,7 +58,7 @@
 				{#each goals as goal (goal.id)}
 					<a
 						href="/savings/goals"
-						class="flex min-w-[130px] flex-col items-center gap-2 rounded-xl border-2 p-3 transition-colors hover:bg-muted/40 {borderColor(
+						class="flex min-w-32.5 flex-col items-center gap-2 rounded-xl border-2 p-3 transition-colors hover:bg-muted/40 {borderColor(
 							goal
 						)}"
 					>

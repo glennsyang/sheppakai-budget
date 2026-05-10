@@ -5,8 +5,8 @@
 
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import type { TimeRangeInOutData } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
+	import type { TimeRangeInOutData } from '$lib';
 
 	interface Props {
 		chartTitle: string;
