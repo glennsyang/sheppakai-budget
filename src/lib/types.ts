@@ -151,6 +151,7 @@ export type MonthlyCategoryTrendData = {
 	direction: 'up' | 'down' | 'flat' | 'new';
 	value: number | null;
 	monthLabel: string;
+	currentAmount: number;
 };
 
 export type TimeRangeInOutData = {

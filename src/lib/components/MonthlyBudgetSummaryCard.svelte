@@ -7,11 +7,19 @@
 		actualSpent: number;
 		plannedBudget: number;
 		totalIncome: number;
+		recurringTotal?: number;
 		loading?: boolean;
 	}
 
-	let { actualSpent, plannedBudget, totalIncome, loading = false }: Props = $props();
+	let {
+		actualSpent,
+		plannedBudget,
+		totalIncome,
+		recurringTotal = 0,
+		loading = false
+	}: Props = $props();
 
+	let nonRecurringSpent = $derived(Math.max(0, actualSpent - recurringTotal));
 	let budgetPct = $derived(plannedBudget > 0 ? (actualSpent / plannedBudget) * 100 : 0);
 	let incomePct = $derived(totalIncome > 0 ? (actualSpent / totalIncome) * 100 : 0);
 	let netBalance = $derived(totalIncome - actualSpent);
@@ -71,13 +79,24 @@
 						class={progressClass(budgetPct)}
 					/>
 					<div class="space-y-0.5">
-						<p class="text-xs text-muted-foreground">
-							Spent <span class="font-medium text-foreground">{formatCurrency(actualSpent)}</span>
-						</p>
-						<p class="text-xs text-muted-foreground">
-							Budget <span class="font-medium text-foreground">{formatCurrency(plannedBudget)}</span
+						<div class="flex justify-between text-xs text-muted-foreground">
+							<span>Recurring</span>
+							<span class="font-medium text-foreground tabular-nums"
+								>{formatCurrency(recurringTotal)}</span
 							>
-						</p>
+						</div>
+						<div class="flex justify-between text-xs text-muted-foreground">
+							<span>Spent</span>
+							<span class="font-medium text-foreground tabular-nums"
+								>{formatCurrency(nonRecurringSpent)}</span
+							>
+						</div>
+						<div class="flex justify-between text-xs text-muted-foreground">
+							<span>Budget</span>
+							<span class="font-medium text-foreground tabular-nums"
+								>{formatCurrency(plannedBudget)}</span
+							>
+						</div>
 						{#if actualSpent > plannedBudget && plannedBudget > 0}
 							<p class="text-xs font-medium text-destructive">
 								Over by {formatCurrency(actualSpent - plannedBudget)}
@@ -102,12 +121,24 @@
 						class={progressClass(incomePct)}
 					/>
 					<div class="space-y-0.5">
-						<p class="text-xs text-muted-foreground">
-							Spent <span class="font-medium text-foreground">{formatCurrency(actualSpent)}</span>
-						</p>
-						<p class="text-xs text-muted-foreground">
-							Income <span class="font-medium text-foreground">{formatCurrency(totalIncome)}</span>
-						</p>
+						<div class="flex justify-between text-xs text-muted-foreground">
+							<span>Recurring</span>
+							<span class="font-medium text-foreground tabular-nums"
+								>{formatCurrency(recurringTotal)}</span
+							>
+						</div>
+						<div class="flex justify-between text-xs text-muted-foreground">
+							<span>Spent</span>
+							<span class="font-medium text-foreground tabular-nums"
+								>{formatCurrency(nonRecurringSpent)}</span
+							>
+						</div>
+						<div class="flex justify-between text-xs text-muted-foreground">
+							<span>Income</span>
+							<span class="font-medium text-foreground tabular-nums"
+								>{formatCurrency(totalIncome)}</span
+							>
+						</div>
 						{#if actualSpent > totalIncome && totalIncome > 0}
 							<p class="text-xs font-medium text-destructive">
 								Over income by {formatCurrency(actualSpent - totalIncome)}
