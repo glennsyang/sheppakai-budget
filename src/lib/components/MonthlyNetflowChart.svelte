@@ -83,15 +83,21 @@
 					<Chart.Tooltip class="w-52">
 						{#snippet formatter({ value })}
 							{@const amount = value as number}
+							{@const isPositive = amount > 0}
+							{@const isZero = amount === 0}
 							<div
 								class="size-2.5 shrink-0 rounded-[2px]"
-								style="background-color: {amount > 0 ? 'var(--chart-2)' : 'var(--chart-1)'}"
+								style="background-color: {isPositive
+									? 'var(--chart-2)'
+									: isZero
+										? 'var(--muted-foreground)'
+										: 'var(--chart-1)'}"
 							></div>
-							{amount > 0 ? 'Surplus' : 'Deficit'}
+							{isPositive ? 'Surplus' : isZero ? 'Break-even' : 'Deficit'}
 							<div
-								class={`ms-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums ${amount > 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
+								class={`ms-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums ${isPositive ? 'text-green-600 dark:text-green-400' : isZero ? 'text-muted-foreground' : 'text-destructive'}`}
 							>
-								{amount > 0 ? '+' : ''}{formatCurrency(amount)}
+								{isPositive ? '+' : ''}{formatCurrency(amount)}
 							</div>
 						{/snippet}
 					</Chart.Tooltip>

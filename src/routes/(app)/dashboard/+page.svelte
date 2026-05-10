@@ -31,7 +31,6 @@
 		SpendingBreakdownData
 	} from '$lib/types';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
-	import { getMonthProgress, getYearProgress } from '$lib/utils/dates';
 
 	import type { PageProps } from './$types';
 
@@ -326,21 +325,6 @@
 	let timeRangeDescription = $derived(
 		yearlyView === 'current' ? `Last 6 Months of ${selectedYear}` : `Full Year ${selectedYear}`
 	);
-	let categoryFooterRangeText = $derived(
-		yearlyView === 'current' ? 'Total spend for the last 6 months' : 'Total spend for the full year'
-	);
-	let activePeriodProgress = $derived.by(() => {
-		const year = Number.parseInt(selectedYear, 10);
-		if (selectedMode === 'yearly') {
-			return { label: 'Year Progress', title: selectedYear, progress: getYearProgress(year) };
-		}
-		const month = Number.parseInt(selectedMonth, 10);
-		return {
-			label: 'Month Progress',
-			title: `${monthNames[month - 1]} ${selectedYear}`,
-			progress: getMonthProgress(month, year)
-		};
-	});
 </script>
 
 <svelte:head>
@@ -433,7 +417,7 @@
 		/>
 		<KpiSparklineCard
 			label="Budget Used"
-			value="{budgetPct.toFixed(0)}%"
+			value={`${budgetPct.toFixed(0)}%`}
 			subtext="of planned budget"
 			colorScheme={budgetPct > 100 ? 'red' : budgetPct > 85 ? 'amber' : 'green'}
 			sparklineData={spendingSparkline}
@@ -441,7 +425,7 @@
 		/>
 		<KpiSparklineCard
 			label="Recurring Burden"
-			value="{recurringBurdenPct.toFixed(0)}%"
+			value={`${recurringBurdenPct.toFixed(0)}%`}
 			subtext="of income committed"
 			colorScheme={recurringBurdenPct > 50 ? 'red' : recurringBurdenPct > 35 ? 'amber' : 'neutral'}
 			tooltip="The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending."
@@ -523,11 +507,10 @@
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each topRiskCategories as category (category.id)}
 						{@const categoryOverBudget = isCategoryOverBudget(category.id)}
-						<!-- svelte-ignore a11y_click_events_have_key_events -->
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<div
+						<button
+							type="button"
 							onclick={() => openCategoryDetails(category.id)}
-							class={`cursor-pointer rounded-xl transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
+							class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
 						>
 							<BudgetProgressCard
 								title={category.name}
@@ -536,7 +519,7 @@
 								{loading}
 								label1="Spent"
 							/>
-						</div>
+						</button>
 					{/each}
 				</div>
 			</div>
@@ -588,11 +571,10 @@
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each sortedCategories as category (category.id)}
 						{@const categoryOverBudget = isCategoryOverBudget(category.id)}
-						<!-- svelte-ignore a11y_click_events_have_key_events -->
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<div
+						<button
+							type="button"
 							onclick={() => openCategoryDetails(category.id)}
-							class={`cursor-pointer rounded-xl transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
+							class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
 						>
 							<BudgetProgressCard
 								title={category.name}
@@ -601,7 +583,7 @@
 								{loading}
 								label1="Spent"
 							/>
-						</div>
+						</button>
 					{/each}
 				</div>
 			</Collapsible.Content>
@@ -675,7 +657,6 @@
 							chartTitle={category?.name}
 							chartData={categoryMonthlyData}
 							trendData={getCategoryTrendData(categoryMonthlyData)}
-							footerRangeText={categoryFooterRangeText}
 						/>
 					{/each}
 				</div>

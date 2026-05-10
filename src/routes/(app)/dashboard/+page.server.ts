@@ -1,4 +1,4 @@
-import { desc } from 'drizzle-orm';
+import { inArray, sum } from 'drizzle-orm';
 
 import {
 	budgetQueries,
@@ -23,23 +23,26 @@ import {
 import type { PageServerLoad } from './$types';
 
 async function getGoalsWithProgress(): Promise<SavingsGoalWithProgress[]> {
-	const [goals, allContributions] = await Promise.all([
-		savingsGoalQueries.findAll(),
-		getDb().query.contribution.findMany({
-			columns: { goalId: true, amount: true },
-			orderBy: [desc(contribution.date)]
-		})
-	]);
+	const goals = await savingsGoalQueries.findAll();
+	const activeGoals = goals.filter((g) => g.status === 'active');
 
-	return goals
-		.filter((g) => g.status === 'active')
-		.map((goal) => {
-			const total = allContributions
-				.filter((c) => c.goalId === goal.id)
-				.reduce((sum, c) => sum + c.amount, 0);
-			const percentage = goal.targetAmount > 0 ? (total / goal.targetAmount) * 100 : 0;
-			return { ...goal, currentAmount: total, percentage: Math.min(percentage, 100) };
-		});
+	if (activeGoals.length === 0) return [];
+
+	const activeGoalIds = activeGoals.map((g) => g.id);
+
+	const totalsRows = await getDb()
+		.select({ goalId: contribution.goalId, total: sum(contribution.amount) })
+		.from(contribution)
+		.where(inArray(contribution.goalId, activeGoalIds))
+		.groupBy(contribution.goalId);
+
+	const totalsMap = new Map(totalsRows.map((r) => [r.goalId, Number(r.total ?? 0)]));
+
+	return activeGoals.map((goal) => {
+		const total = totalsMap.get(goal.id) ?? 0;
+		const percentage = goal.targetAmount > 0 ? (total / goal.targetAmount) * 100 : 0;
+		return { ...goal, currentAmount: total, percentage: Math.min(percentage, 100) };
+	});
 }
 
 export const load: PageServerLoad = async ({ url, locals }) => {

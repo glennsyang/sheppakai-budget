@@ -8,16 +8,14 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { MonthlyCategoryTrendData, MonthlySpentChartData } from '$lib/types';
-	import { formatCurrency } from '$lib/utils';
 
 	interface Props {
 		chartTitle: string;
 		chartData?: MonthlySpentChartData[];
 		trendData?: MonthlyCategoryTrendData | null;
-		footerRangeText?: string;
 	}
 
-	let { chartTitle, chartData, trendData, footerRangeText }: Props = $props();
+	let { chartTitle, chartData, trendData }: Props = $props();
 
 	const chartConfig = {
 		spent: { label: 'Total Spent', color: 'var(--chart-2)' },
