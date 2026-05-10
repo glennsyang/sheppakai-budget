@@ -63,12 +63,13 @@
 			>
 				{#snippet tooltip()}
 					<Chart.Tooltip class="w-48">
-						{#snippet formatter({ name, value, index, payload })}
+						{#snippet formatter({ name, value, index, payload, item })}
+							{@const seriesKey = item?.key as keyof typeof chartConfig | undefined}
 							<div
-								style="--color-bg: var(--color-{name.toLowerCase()})"
+								style={`--color-bg: ${item?.color ?? 'transparent'}`}
 								class="size-2.5 shrink-0 rounded-[2px] bg-(--color-bg)"
 							></div>
-							{chartConfig[name as keyof typeof chartConfig]?.label || name}
+							{(seriesKey && chartConfig[seriesKey]?.label) || name}
 							<div
 								class="ms-auto flex items-baseline gap-0.5 font-mono font-medium text-foreground tabular-nums"
 							>

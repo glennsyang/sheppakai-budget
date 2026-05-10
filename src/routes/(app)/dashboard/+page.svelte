@@ -243,7 +243,7 @@
 			: 0
 	);
 
-	// Savings velocity: total contributions from goals (proxy from percentage * targetAmount)
+	// Savings velocity: total current contributions across all goals
 	let savingsVelocity = $derived(
 		(data.goalsWithProgress || []).reduce((sum, g) => sum + g.currentAmount, 0)
 	);
