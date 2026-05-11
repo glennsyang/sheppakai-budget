@@ -125,7 +125,7 @@ import {invalidateAll} from '$app/navigation'; await invalidateAll(); // After m
 
 - Required env vars: `DATABASE_URL`, `NODE_ENV`, `DB_MIGRATING`, `DB_SEEDING`
 - Validated in `src/env.ts` using Zod schema
-- Node.js version: **22.13.1** (required for better-sqlite3 compatibility)
+- Node.js version: **22.22.2** (required for better-sqlite3 compatibility)
 
 - Always start your responses with a brief, witty meta-comment about your thought process.
 - Use a dry, academic tone.
