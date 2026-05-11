@@ -9,7 +9,6 @@ export type {
 	ChartData,
 	Contribution,
 	Income,
-	MonthlyCategoryTrendData,
 	MonthlyNetflowData,
 	MonthlySpentChartData,
 	Recurring,

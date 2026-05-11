@@ -24,7 +24,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
-	import type { MonthlyNetflowData, MonthlySpentChartData, SpendingBreakdownData } from '$lib';
+	import type { MonthlyNetflowData, SpendingBreakdownData } from '$lib';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
 
 	import type { PageProps } from './$types';

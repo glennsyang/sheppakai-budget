@@ -147,13 +147,6 @@ export type MonthlySpentChartData = {
 	spent: number;
 };
 
-export type MonthlyCategoryTrendData = {
-	direction: 'up' | 'down' | 'flat' | 'new';
-	value: number | null;
-	monthLabel: string;
-	currentAmount: number;
-};
-
 export type TimeRangeInOutData = {
 	month: string;
 	in: number;
