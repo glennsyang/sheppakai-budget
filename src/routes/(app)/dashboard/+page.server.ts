@@ -22,6 +22,24 @@ import {
 import type { PageServerLoad } from './$types';
 import type { SavingsGoalWithProgress, TimeRangeInOutData } from '$lib';
 
+type RecurringItem = { cadence: string; amount: number };
+
+function calcMonthlyRecurringTotal(items: RecurringItem[]): number {
+	return items.reduce((acc, item) => {
+		if (item.cadence === 'Monthly') return acc + item.amount;
+		if (item.cadence === 'Yearly') return acc + item.amount / 12;
+		return acc;
+	}, 0);
+}
+
+function calcYearlyRecurringTotal(items: RecurringItem[], elapsedMonths: number): number {
+	return items.reduce((acc, item) => {
+		if (item.cadence === 'Monthly') return acc + item.amount * elapsedMonths;
+		if (item.cadence === 'Yearly') return acc + item.amount;
+		return acc;
+	}, 0);
+}
+
 async function getGoalsWithProgress(): Promise<SavingsGoalWithProgress[]> {
 	const goals = await savingsGoalQueries.findAll();
 	const activeGoals = goals.filter((g) => g.status === 'active');
@@ -45,131 +63,104 @@ async function getGoalsWithProgress(): Promise<SavingsGoalWithProgress[]> {
 	});
 }
 
-export const load: PageServerLoad = async ({ url, locals }) => {
-	const userId = locals.user?.id;
-	const mode = url.searchParams.get('mode') === 'yearly' ? 'yearly' : 'monthly';
-	const currentYear = new Date().getFullYear();
+async function loadMonthlyDashboard(url: URL, userId: string | undefined) {
+	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
-	if (mode === 'monthly') {
-		const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
+	const [actualExpenses, plannedExpenses, recurringExpenses, incomeRecords, goalsWithProgress] =
+		await Promise.all([
+			transactionQueries.findByDateRange(startDate, endDate),
+			budgetQueries.findByMonthYear(month, year),
+			recurringQueries.findAll(),
+			incomeQueries.findByDateRange(startDate, endDate),
+			getGoalsWithProgress()
+		]);
 
-		const [actualExpenses, plannedExpenses, recurringExpenses, incomeRecords, goalsWithProgress] =
-			await Promise.all([
-				transactionQueries.findByDateRange(startDate, endDate),
-				budgetQueries.findByMonthYear(month, year),
-				recurringQueries.findAll(),
-				incomeQueries.findByDateRange(startDate, endDate),
-				getGoalsWithProgress()
-			]);
+	const recurringMonthlyTotal = calcMonthlyRecurringTotal(recurringExpenses);
+	const actualExpensesTotal =
+		actualExpenses.reduce((acc, e) => acc + e.amount, 0) + recurringMonthlyTotal;
+	const plannedExpensesTotal =
+		plannedExpenses.reduce((acc, b) => acc + b.amount, 0) + recurringMonthlyTotal;
+	const totalIncome = incomeRecords.reduce((acc, inc) => acc + inc.amount, 0);
+	const remainingBalance = totalIncome - plannedExpensesTotal;
 
-		const recurringMonthlyTotal = recurringExpenses.reduce((sum, item) => {
-			if (item.cadence === 'Monthly') {
-				return sum + item.amount;
-			} else if (item.cadence === 'Yearly') {
-				return sum + item.amount / 12;
-			}
-			return sum;
-		}, 0);
+	const historicalMonths: Array<{
+		targetMonth: number;
+		targetYear: number;
+		monthStart: string;
+		monthEnd: string;
+	}> = [];
+	let chartEnd = '';
 
-		const actualExpensesTotal =
-			actualExpenses.reduce((sum, expense) => sum + expense.amount, 0) + recurringMonthlyTotal;
-		const plannedExpensesTotal =
-			plannedExpenses.reduce((sum, budget) => sum + budget.amount, 0) + recurringMonthlyTotal;
-		const totalIncome = incomeRecords.reduce((sum, inc) => sum + inc.amount, 0);
-		const remainingBalance = totalIncome - plannedExpensesTotal;
+	for (let i = 5; i >= 0; i--) {
+		const targetDate = new Date(year, month - 1 - i, 1);
+		if (targetDate > new Date()) continue;
 
-		const monthlyInOutData: TimeRangeInOutData[] = [];
-		const historicalMonths: Array<{
-			targetMonth: number;
-			targetYear: number;
-			monthStart: string;
-			monthEnd: string;
-		}> = [];
-		let chartEnd = '';
-
-		for (let i = 5; i >= 0; i--) {
-			const targetDate = new Date(year, month - 1 - i, 1);
-			const targetMonth = targetDate.getMonth() + 1;
-			const targetYear = targetDate.getFullYear();
-
-			if (targetDate > new Date()) {
-				continue;
-			}
-
-			const { startDate: monthStart, endDate: monthEnd } = getMonthDateRange(
-				targetMonth,
-				targetYear
-			);
-			historicalMonths.push({ targetMonth, targetYear, monthStart, monthEnd });
-			chartEnd = monthEnd;
-		}
-
-		if (historicalMonths.length > 0) {
-			const chartStart = historicalMonths[0].monthStart;
-
-			const [allChartTx, allChartIncome] = await Promise.all([
-				transactionQueries.findByDateRange(chartStart, chartEnd),
-				incomeQueries.findByDateRange(chartStart, chartEnd)
-			]);
-
-			const monthlyRecurringTotal = recurringExpenses.reduce((sum, item) => {
-				if (item.cadence === 'Monthly') {
-					return sum + item.amount;
-				} else if (item.cadence === 'Yearly') {
-					return sum + item.amount / 12;
-				}
-				return sum;
-			}, 0);
-
-			for (const { targetMonth, monthStart, monthEnd } of historicalMonths) {
-				const monthTx = allChartTx.filter(
-					(t) => t.date.substring(0, 10) >= monthStart && t.date.substring(0, 10) <= monthEnd
-				);
-				const monthInc = allChartIncome.filter(
-					(inc) => inc.date.substring(0, 10) >= monthStart && inc.date.substring(0, 10) <= monthEnd
-				);
-
-				monthlyInOutData.push({
-					month: monthNames[targetMonth - 1],
-					in: monthInc.reduce((sum, inc) => sum + inc.amount, 0),
-					out: monthTx.reduce((sum, t) => sum + t.amount, 0) + monthlyRecurringTotal
-				});
-			}
-		}
-
-		// Sparkline arrays derived from historical chart data
-		const netflowSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.in - d.out }));
-		const spendingSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.out }));
-
-		// Window cleaning revenue for the month
-		let windowCleaningRevenue = 0;
-		let windowCleaningJobCount = 0;
-		if (userId) {
-			const wcJobs = await windowCleaningJobQueries.findByMonth(userId, month, year);
-			windowCleaningRevenue = wcJobs.reduce((s, j) => s + j.amountCharged + j.tip, 0);
-			windowCleaningJobCount = wcJobs.length;
-		}
-
-		return {
-			mode,
-			month,
-			year,
-			actualExpenses,
-			plannedExpenses,
-			recurringExpenses,
-			actualExpensesTotal,
-			plannedExpensesTotal,
-			totalIncome,
-			remainingBalance,
-			monthlyInOutData,
-			netflowSparkline,
-			spendingSparkline,
-			goalsWithProgress,
-			windowCleaningRevenue,
-			windowCleaningJobCount
-		};
+		const targetMonth = targetDate.getMonth() + 1;
+		const targetYear = targetDate.getFullYear();
+		const { startDate: monthStart, endDate: monthEnd } = getMonthDateRange(targetMonth, targetYear);
+		historicalMonths.push({ targetMonth, targetYear, monthStart, monthEnd });
+		chartEnd = monthEnd;
 	}
 
+	const monthlyInOutData: TimeRangeInOutData[] = [];
+
+	if (historicalMonths.length > 0) {
+		const chartStart = historicalMonths[0].monthStart;
+
+		const [allChartTx, allChartIncome] = await Promise.all([
+			transactionQueries.findByDateRange(chartStart, chartEnd),
+			incomeQueries.findByDateRange(chartStart, chartEnd)
+		]);
+
+		for (const { targetMonth, monthStart, monthEnd } of historicalMonths) {
+			const monthTx = allChartTx.filter(
+				(t) => t.date.substring(0, 10) >= monthStart && t.date.substring(0, 10) <= monthEnd
+			);
+			const monthInc = allChartIncome.filter(
+				(inc) => inc.date.substring(0, 10) >= monthStart && inc.date.substring(0, 10) <= monthEnd
+			);
+
+			monthlyInOutData.push({
+				month: monthNames[targetMonth - 1],
+				in: monthInc.reduce((acc, inc) => acc + inc.amount, 0),
+				out: monthTx.reduce((acc, t) => acc + t.amount, 0) + recurringMonthlyTotal
+			});
+		}
+	}
+
+	const netflowSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.in - d.out }));
+	const spendingSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.out }));
+
+	let windowCleaningRevenue = 0;
+	let windowCleaningJobCount = 0;
+	if (userId) {
+		const wcJobs = await windowCleaningJobQueries.findByMonth(userId, month, year);
+		windowCleaningRevenue = wcJobs.reduce((s, j) => s + j.amountCharged + j.tip, 0);
+		windowCleaningJobCount = wcJobs.length;
+	}
+
+	return {
+		mode: 'monthly',
+		month,
+		year,
+		actualExpenses,
+		plannedExpenses,
+		recurringExpenses,
+		actualExpensesTotal,
+		plannedExpensesTotal,
+		totalIncome,
+		remainingBalance,
+		monthlyInOutData,
+		netflowSparkline,
+		spendingSparkline,
+		goalsWithProgress,
+		windowCleaningRevenue,
+		windowCleaningJobCount
+	};
+}
+
+async function loadYearlyDashboard(url: URL) {
+	const currentYear = new Date().getFullYear();
 	const view = url.searchParams.get('view') === 'full' ? 'full' : 'current';
 	const yearParam = url.searchParams.get('year');
 	const year = yearParam ? Number.parseInt(yearParam) : currentYear;
@@ -184,63 +175,41 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			getGoalsWithProgress()
 		]);
 
-	const yearlyBudgets: Array<{
-		categoryId: string;
-		amount: number;
-	}> = [];
-
+	const yearlyBudgets: Array<{ categoryId: string; amount: number }> = [];
 	allYearBudgets.forEach((b) => {
 		const existing = yearlyBudgets.find((e) => e.categoryId === b.category?.id);
 		if (existing) {
 			existing.amount += b.amount;
 		} else if (b.category) {
-			yearlyBudgets.push({
-				categoryId: b.category.id,
-				amount: b.amount
-			});
+			yearlyBudgets.push({ categoryId: b.category.id, amount: b.amount });
 		}
 	});
 
 	const elapsedMonths = year === currentYear ? new Date().getMonth() + 1 : 12;
-	const recurringYearlyTotal = recurringExpenses.reduce((sum, item) => {
-		if (item.cadence === 'Monthly') {
-			return sum + item.amount * elapsedMonths;
-		} else if (item.cadence === 'Yearly') {
-			return sum + item.amount;
-		}
-		return sum;
-	}, 0);
-
+	const recurringYearlyTotal = calcYearlyRecurringTotal(recurringExpenses, elapsedMonths);
 	const actualExpensesTotal =
-		actualExpenses.reduce((sum, expense) => sum + expense.amount, 0) + recurringYearlyTotal;
+		actualExpenses.reduce((acc, e) => acc + e.amount, 0) + recurringYearlyTotal;
 	const plannedExpensesTotal =
-		yearlyBudgets.reduce((sum, budget) => sum + budget.amount, 0) + recurringYearlyTotal;
-	const totalIncome = incomeRecords.reduce((sum, inc) => sum + inc.amount, 0);
+		yearlyBudgets.reduce((acc, b) => acc + b.amount, 0) + recurringYearlyTotal;
+	const totalIncome = incomeRecords.reduce((acc, inc) => acc + inc.amount, 0);
 	const remainingBalance = totalIncome - plannedExpensesTotal;
 
-	const timeRangeData: TimeRangeInOutData[] = [];
 	const monthRanges =
 		view === 'current' && year === currentYear
 			? getPreviousMonthsRange(6)
 			: getCalendarYearMonthsRange(year);
 
+	const timeRangeData: TimeRangeInOutData[] = [];
+
 	if (monthRanges.length > 0) {
 		const chartStart = monthRanges[0].startDate;
 		const chartEnd = monthRanges[monthRanges.length - 1].endDate;
+		const monthlyRecurringTotal = calcMonthlyRecurringTotal(recurringExpenses);
 
 		const [allChartTx, allChartIncome] = await Promise.all([
 			transactionQueries.findByDateRange(chartStart, chartEnd),
 			incomeQueries.findByDateRange(chartStart, chartEnd)
 		]);
-
-		const monthlyRecurringTotal = recurringExpenses.reduce((sum, item) => {
-			if (item.cadence === 'Monthly') {
-				return sum + item.amount;
-			} else if (item.cadence === 'Yearly') {
-				return sum + item.amount / 12;
-			}
-			return sum;
-		}, 0);
 
 		for (const range of monthRanges) {
 			const monthTx = allChartTx.filter(
@@ -254,14 +223,14 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 
 			timeRangeData.push({
 				month: monthNames[range.month - 1],
-				in: monthInc.reduce((sum, inc) => sum + inc.amount, 0),
-				out: monthTx.reduce((sum, t) => sum + t.amount, 0) + monthlyRecurringTotal
+				in: monthInc.reduce((acc, inc) => acc + inc.amount, 0),
+				out: monthTx.reduce((acc, t) => acc + t.amount, 0) + monthlyRecurringTotal
 			});
 		}
 	}
 
 	return {
-		mode,
+		mode: 'yearly',
 		view,
 		year,
 		actualExpenses,
@@ -273,4 +242,10 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 		timeRangeData,
 		goalsWithProgress
 	};
+}
+
+export const load: PageServerLoad = async ({ url, locals }) => {
+	const mode = url.searchParams.get('mode') === 'yearly' ? 'yearly' : 'monthly';
+	if (mode === 'monthly') return loadMonthlyDashboard(url, locals.user?.id);
+	return loadYearlyDashboard(url);
 };

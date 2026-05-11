@@ -43,3 +43,7 @@ jobs:
       # Run tests
       - name: Run tests
         run: npm run test
+
+      # Run test coverage
+      - name: Run test coverage
+        run: npm run test:coverage
