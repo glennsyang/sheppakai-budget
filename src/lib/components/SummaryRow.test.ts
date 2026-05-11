@@ -32,4 +32,50 @@ describe('SummaryRow', () => {
 		expect(html).toContain('border-t pt-4');
 		expect(html).not.toContain('text-muted-foreground');
 	});
+
+	it('renders default (non-emphasized) variant without bold/2xl classes', () => {
+		const html = render(SummaryRow, {
+			props: {
+				label: 'Recurring',
+				amount: 150
+			}
+		}).body;
+
+		expect(html).toContain('text-lg font-semibold');
+		expect(html).not.toContain('text-2xl font-bold');
+	});
+
+	it('renders $0.00 for a zero amount', () => {
+		const html = render(SummaryRow, {
+			props: {
+				label: 'Nothing',
+				amount: 0
+			}
+		}).body;
+
+		expect(html).toContain('$0.00');
+	});
+
+	it('does not render border-t when bordered is false', () => {
+		const html = render(SummaryRow, {
+			props: {
+				label: 'No border',
+				amount: 100,
+				bordered: false
+			}
+		}).body;
+
+		expect(html).not.toContain('border-t');
+	});
+
+	it('renders muted text style by default', () => {
+		const html = render(SummaryRow, {
+			props: {
+				label: 'Default muted',
+				amount: 100
+			}
+		}).body;
+
+		expect(html).toContain('text-muted-foreground');
+	});
 });

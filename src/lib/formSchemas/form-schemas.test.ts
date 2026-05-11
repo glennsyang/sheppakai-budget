@@ -13,7 +13,9 @@ import {
 	savingsSchema,
 	signInSchema,
 	transactionSchema,
-	unArchiveSchema
+	unArchiveSchema,
+	windowCleaningCustomerSchema,
+	windowCleaningJobSchema
 } from './index';
 
 describe('form schemas', () => {
@@ -180,5 +182,92 @@ describe('form schemas', () => {
 
 		expect(banUserSchema.safeParse({ userId: 'user-1', banReason: 'spam' }).success).toBe(true);
 		expect(banUserSchema.safeParse({ userId: '', banReason: 'spam' }).success).toBe(false);
+	});
+
+	it('validates windowCleaningCustomerSchema required fields and lengths', () => {
+		expect(
+			windowCleaningCustomerSchema.safeParse({
+				name: 'John Doe',
+				address: '123 Main St',
+				city: 'Vancouver'
+			}).success
+		).toBe(true);
+
+		// Missing required name
+		expect(
+			windowCleaningCustomerSchema.safeParse({
+				name: '',
+				address: '123 Main St',
+				city: 'Vancouver'
+			}).success
+		).toBe(false);
+
+		// Missing required address
+		expect(
+			windowCleaningCustomerSchema.safeParse({ name: 'John', address: '', city: 'Vancouver' })
+				.success
+		).toBe(false);
+
+		// Missing required city
+		expect(
+			windowCleaningCustomerSchema.safeParse({ name: 'John', address: '123 Main St', city: '' })
+				.success
+		).toBe(false);
+
+		// Address too long (>200 chars)
+		expect(
+			windowCleaningCustomerSchema.safeParse({
+				name: 'John',
+				address: 'A'.repeat(201),
+				city: 'Vancouver'
+			}).success
+		).toBe(false);
+	});
+
+	it('validates windowCleaningJobSchema date format and required fields', () => {
+		expect(
+			windowCleaningJobSchema.safeParse({
+				customerId: 'cust-1',
+				jobDate: '2026-05-01',
+				amountCharged: 75
+			}).success
+		).toBe(true);
+
+		// Invalid date format
+		expect(
+			windowCleaningJobSchema.safeParse({
+				customerId: 'cust-1',
+				jobDate: '05/01/2026',
+				amountCharged: 75
+			}).success
+		).toBe(false);
+
+		// Missing customerId
+		expect(
+			windowCleaningJobSchema.safeParse({
+				customerId: '',
+				jobDate: '2026-05-01',
+				amountCharged: 75
+			}).success
+		).toBe(false);
+
+		// Non-positive amountCharged
+		expect(
+			windowCleaningJobSchema.safeParse({
+				customerId: 'cust-1',
+				jobDate: '2026-05-01',
+				amountCharged: 0
+			}).success
+		).toBe(false);
+
+		// Negative tip
+		expect(
+			windowCleaningJobSchema.safeParse({
+				customerId: 'cust-1',
+				jobDate: '2026-05-01',
+				amountCharged: 75,
+				tip: -5
+			}).success
+		).toBe(false);
 	});
 });
