@@ -216,10 +216,11 @@ describe('budget-threshold-alerts', () => {
 	});
 
 	it('logs an error and returns early when context is undefined', async () => {
-		await evaluateUpdatedTransactionBudgetAlert(
-			{ amount: 20, categoryId: 'cat-1', date: '2026-03-15 10:00:00' },
-			undefined
-		);
+		await evaluateUpdatedTransactionBudgetAlert({
+			amount: 20,
+			categoryId: 'cat-1',
+			date: '2026-03-15 10:00:00'
+		});
 
 		expect(mockState.loggerError).toHaveBeenCalled();
 		expect(mockState.sendBudgetAlerts).not.toHaveBeenCalled();
