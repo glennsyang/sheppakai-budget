@@ -199,4 +199,29 @@ describe('budget-threshold-alerts', () => {
 			4
 		);
 	});
+
+	it('returns below when budgetAmount is zero (guard branch)', () => {
+		expect(getBudgetThresholdState(50, 0)).toBe('below');
+		expect(getBudgetThresholdState(0, 0)).toBe('below');
+	});
+
+	it('logs an error and returns early when previousTransaction context is missing', async () => {
+		await evaluateUpdatedTransactionBudgetAlert(
+			{ amount: 20, categoryId: 'cat-1', date: '2026-03-15 10:00:00' },
+			{ previousTransaction: null }
+		);
+
+		expect(mockState.loggerError).toHaveBeenCalled();
+		expect(mockState.sendBudgetAlerts).not.toHaveBeenCalled();
+	});
+
+	it('logs an error and returns early when context is undefined', async () => {
+		await evaluateUpdatedTransactionBudgetAlert(
+			{ amount: 20, categoryId: 'cat-1', date: '2026-03-15 10:00:00' },
+			undefined
+		);
+
+		expect(mockState.loggerError).toHaveBeenCalled();
+		expect(mockState.sendBudgetAlerts).not.toHaveBeenCalled();
+	});
 });
