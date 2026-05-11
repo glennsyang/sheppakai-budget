@@ -24,12 +24,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
-	import type {
-		MonthlyCategoryTrendData,
-		MonthlyNetflowData,
-		MonthlySpentChartData,
-		SpendingBreakdownData
-	} from '$lib';
+	import type { MonthlyNetflowData, MonthlySpentChartData, SpendingBreakdownData } from '$lib';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
 
 	import type { PageProps } from './$types';
@@ -268,44 +263,6 @@
 			month: item.month,
 			spent: monthlySpending.get(item.month) || 0
 		}));
-	}
-
-	function getCategoryTrendData(
-		categoryMonthlyData: MonthlySpentChartData[]
-	): MonthlyCategoryTrendData | null {
-		if (categoryMonthlyData.length === 0) return null;
-		const currentMonthName = monthNames[new Date().getMonth()];
-		const completedData = categoryMonthlyData.filter((d) => d.month !== currentMonthName);
-		if (completedData.length === 0) return null;
-		const latestMonthData = completedData[completedData.length - 1];
-		const monthLabel = latestMonthData.month;
-		const currentAmount = latestMonthData.spent;
-		if (completedData.length < 2) {
-			return {
-				direction: latestMonthData.spent > 0 ? 'new' : 'flat',
-				value: null,
-				monthLabel,
-				currentAmount
-			};
-		}
-		const previousMonthData = completedData[completedData.length - 2];
-		if (previousMonthData.spent === 0) {
-			return {
-				direction: latestMonthData.spent > 0 ? 'new' : 'flat',
-				value: null,
-				monthLabel,
-				currentAmount
-			};
-		}
-		const delta = latestMonthData.spent - previousMonthData.spent;
-		if (delta === 0) return { direction: 'flat', value: null, monthLabel, currentAmount };
-		const percentChange = (delta / Math.abs(previousMonthData.spent)) * 100;
-		return {
-			direction: percentChange > 0 ? 'up' : 'down',
-			value: Math.abs(percentChange),
-			monthLabel,
-			currentAmount
-		};
 	}
 
 	// Monthly netflow chart data (yearly view)
@@ -653,11 +610,7 @@
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each sortedCategories as category (category.id)}
 						{@const categoryMonthlyData = getCategoryMonthlyData(category.id)}
-						<MonthlyCategoryChart
-							chartTitle={category?.name}
-							chartData={categoryMonthlyData}
-							trendData={getCategoryTrendData(categoryMonthlyData)}
-						/>
+						<MonthlyCategoryChart chartTitle={category?.name} chartData={categoryMonthlyData} />
 					{/each}
 				</div>
 			</Collapsible.Content>
