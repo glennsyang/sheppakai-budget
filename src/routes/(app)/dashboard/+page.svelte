@@ -29,7 +29,7 @@
 		MonthlyNetflowData,
 		MonthlySpentChartData,
 		SpendingBreakdownData
-	} from '$lib/types';
+	} from '$lib';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
 
 	import type { PageProps } from './$types';

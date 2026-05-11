@@ -7,7 +7,7 @@
 
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import type { restoreCustomerSchema } from '$lib/formSchemas/windowCleaning';
+	import type { restoreCustomerSchema } from '$lib/formSchemas';
 
 	import type { WindowCleaningCustomer } from '$lib';
 

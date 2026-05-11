@@ -8,7 +8,7 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import YearSwitcher from '$lib/components/YearSwitcher.svelte';
-	import type { windowCleaningJobSchema } from '$lib/formSchemas/windowCleaning';
+	import type { windowCleaningJobSchema } from '$lib/formSchemas';
 
 	import { columns } from './columns';
 

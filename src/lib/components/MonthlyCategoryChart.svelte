@@ -7,7 +7,7 @@
 
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import type { MonthlyCategoryTrendData, MonthlySpentChartData } from '$lib/types';
+	import type { MonthlyCategoryTrendData, MonthlySpentChartData } from '$lib';
 
 	interface Props {
 		chartTitle: string;

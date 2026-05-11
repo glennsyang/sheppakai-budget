@@ -13,10 +13,7 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import WindowCleaningCustomerModal from '$lib/components/WindowCleaningCustomerModal.svelte';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
-	import type {
-		windowCleaningCustomerSchema,
-		windowCleaningJobSchema
-	} from '$lib/formSchemas/windowCleaning';
+	import type { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp, formatTime12h } from '$lib/utils/dates';
 
 	import { columns } from './columns';

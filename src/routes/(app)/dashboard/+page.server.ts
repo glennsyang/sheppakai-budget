@@ -10,7 +10,6 @@ import {
 } from '$lib/server/db/queries';
 import { getDb } from '$lib/server/db';
 import { contribution } from '$lib/server/db/schema';
-import type { SavingsGoalWithProgress, TimeRangeInOutData } from '$lib/types';
 import { monthNames } from '$lib/utils';
 import {
 	getCalendarYearMonthsRange,
@@ -21,6 +20,7 @@ import {
 } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
+import type { SavingsGoalWithProgress, TimeRangeInOutData } from '$lib';
 
 async function getGoalsWithProgress(): Promise<SavingsGoalWithProgress[]> {
 	const goals = await savingsGoalQueries.findAll();

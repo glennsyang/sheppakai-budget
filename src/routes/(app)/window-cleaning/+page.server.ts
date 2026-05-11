@@ -3,10 +3,7 @@ import { eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import {
-	windowCleaningCustomerSchema,
-	windowCleaningJobSchema
-} from '$lib/formSchemas/windowCleaning';
+import { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { createAction, updateAction } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';

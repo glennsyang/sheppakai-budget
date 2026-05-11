@@ -8,7 +8,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import type { windowCleaningJobSchema } from '$lib/formSchemas/windowCleaning';
+	import type { windowCleaningJobSchema } from '$lib/formSchemas';
 	import { getTodayDate, extractDateFromTimestamp } from '$lib/utils/dates';
 
 	import type { BaseModalProps, WindowCleaningJob } from '$lib';

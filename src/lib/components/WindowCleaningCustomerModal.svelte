@@ -8,7 +8,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import type { windowCleaningCustomerSchema } from '$lib/formSchemas/windowCleaning';
+	import type { windowCleaningCustomerSchema } from '$lib/formSchemas';
 
 	import type { BaseModalProps, WindowCleaningCustomer } from '$lib';
 

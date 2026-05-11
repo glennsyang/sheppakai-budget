@@ -1,9 +1,9 @@
 <script lang="ts">
+	import type { CardType } from '$lib';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Progress } from '$lib/components/ui/progress';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import type { CardType } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
 
 	// Define props using Svelte 5 syntax

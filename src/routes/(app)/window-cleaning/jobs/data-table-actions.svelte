@@ -8,7 +8,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
-	import type { windowCleaningJobSchema } from '$lib/formSchemas/windowCleaning';
+	import type { windowCleaningJobSchema } from '$lib/formSchemas';
 
 	import type { WindowCleaningJob } from '$lib';
 

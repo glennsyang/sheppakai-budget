@@ -4,7 +4,7 @@
 	import type { z } from 'zod';
 
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
-	import type { restoreCustomerSchema } from '$lib/formSchemas/windowCleaning';
+	import type { restoreCustomerSchema } from '$lib/formSchemas';
 
 	import { columns } from './columns';
 

@@ -2,11 +2,11 @@
 	import CircleDollarSignIcon from '@lucide/svelte/icons/circle-dollar-sign';
 
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import type { SidebarData, User } from '$lib/types';
 
 	import NavMain from './NavMain.svelte';
 	import NavSecondary from './NavSecondary.svelte';
 	import NavUser from './NavUser.svelte';
+	import type { SidebarData, User } from '$lib';
 
 	interface Props {
 		sidebarData: SidebarData;
