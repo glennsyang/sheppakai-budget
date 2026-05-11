@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: deploy-group # optional: ensure only one action runs at a time
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Install dependencies
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22.21.1'
           cache: 'npm'
