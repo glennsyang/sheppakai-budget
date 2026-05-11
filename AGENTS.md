@@ -153,7 +153,7 @@ $effect(() => {
 
 ## Node.js Version
 
-- This project requires **Node.js version 22.13.1** for development and production to ensure compatibility and stability. Please use a version manager (like nvm or asdf) to set your Node version accordingly. If you encounter any errors while running commands in the terminal, please make sure the node version being used is 22.13.1. You can achieve this by running the command: `nvm use 22.13.1`.
+- This project requires **Node.js version 22.22.2** for development and production to ensure compatibility and stability. Please use a version manager (like nvm or asdf) to set your Node version accordingly. If you encounter any errors while running commands in the terminal, please make sure the node version being used is 22.22.2. You can achieve this by running the command: `nvm use 22.22.2`.
 
 ## Database Driver: better-sqlite3
 

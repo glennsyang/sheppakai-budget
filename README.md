@@ -39,8 +39,8 @@ A personal finance and business management app built with SvelteKit. Track month
 
 ### Prerequisites
 
-- **Node.js 22.13.1** (required for better-sqlite3 compatibility)
-  - Use nvm: `nvm use 22.13.1` or `nvm install 22.13.1`
+- **Node.js 22.22.2** (required for better-sqlite3 compatibility)
+  - Use nvm: `nvm use 22.22.2` or `nvm install 22.22.2`
 
 ### Environment Variables
 
