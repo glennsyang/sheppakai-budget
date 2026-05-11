@@ -29,7 +29,8 @@ export default defineConfig({
 				'src/app.ts',
 				'src/service-worker.ts'
 			],
-			reporter: ['text', 'lcov', 'html']
-		}
+			reporter: ['text', 'lcov', 'html', 'json-summary', 'json']
+		},
+		reporters: process.env.GITHUB_ACTIONS ? ['default', 'github-actions'] : ['default']
 	}
 });

@@ -47,7 +47,7 @@ jobs:
           echo "backup_size=$BACKUP_SIZE" >> $GITHUB_OUTPUT
 
       - name: Upload backup artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: db-backup-${{ steps.timestamp.outputs.date }}
           path: backup-${{ steps.timestamp.outputs.date }}.sql.gz
@@ -56,7 +56,7 @@ jobs:
 
       - name: Create issue on failure
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = '[Automated] Database Backup Failure';
@@ -104,7 +104,7 @@ jobs:
 
       - name: Close backup failure issues on success
         if: success()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             // Find all open issues with backup-failure label
