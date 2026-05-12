@@ -18,10 +18,14 @@
 	<Popover.Trigger>
 		{#snippet child({ props })}
 			<button
+				type="button"
+				aria-label={text}
 				{...props}
 				class="text-muted-foreground/60 hover:text-muted-foreground"
 				onmouseenter={() => (open = true)}
 				onmouseleave={() => (open = false)}
+				onfocus={() => (open = true)}
+				onblur={() => (open = false)}
 			>
 				<InfoIcon class={size === 'sm' ? 'size-3' : 'size-3.5'} />
 			</button>
