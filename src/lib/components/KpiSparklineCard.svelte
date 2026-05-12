@@ -3,11 +3,9 @@
 	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import MinusIcon from '@lucide/svelte/icons/minus';
-	import InfoIcon from '@lucide/svelte/icons/info';
-
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 
 	interface Props {
 		label: string;
@@ -61,16 +59,7 @@
 		<div class="flex items-center gap-1">
 			<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</p>
 			{#if tooltip}
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						{#snippet child({ props })}
-							<button {...props} class="text-muted-foreground/60 hover:text-muted-foreground">
-								<InfoIcon class="size-3" />
-							</button>
-						{/snippet}
-					</Tooltip.Trigger>
-					<Tooltip.Content class="max-w-64">{tooltip}</Tooltip.Content>
-				</Tooltip.Root>
+				<InfoTooltip text={tooltip} size="sm" />
 			{/if}
 		</div>
 		<p class="mt-1 text-2xl font-bold tabular-nums {valueColor}">{value}</p>

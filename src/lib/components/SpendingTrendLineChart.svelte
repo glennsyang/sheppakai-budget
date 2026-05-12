@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { AreaChart } from 'layerchart';
-	import InfoIcon from '@lucide/svelte/icons/info';
-
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import { formatCurrency } from '$lib/utils';
 	import type { TimeRangeInOutData } from '$lib';
 
@@ -30,20 +28,9 @@
 	<Card.Header>
 		<div class="flex items-center gap-1.5">
 			<Card.Title>{chartTitle}</Card.Title>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					{#snippet child({ props })}
-						<button {...props} class="text-muted-foreground/60 hover:text-muted-foreground">
-							<InfoIcon class="size-3.5" />
-						</button>
-					{/snippet}
-				</Tooltip.Trigger>
-				<Tooltip.Content class="max-w-64">
-					Overlapping area chart comparing your total income (green) against total spending (red)
-					for each month. Where green is above red you had a surplus; where red is above green you
-					overspent.
-				</Tooltip.Content>
-			</Tooltip.Root>
+			<InfoTooltip
+				text="Overlapping area chart comparing your total income (green) against total spending (red) for each month. Where green is above red you had a surplus; where red is above green you overspent."
+			/>
 		</div>
 		<Card.Description>{chartDescription}</Card.Description>
 	</Card.Header>
