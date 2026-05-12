@@ -18,11 +18,11 @@
 	import SpendingTrendLineChart from '$lib/components/SpendingTrendLineChart.svelte';
 	import TimeRangeInOut from '$lib/components/TimeRangeInOut.svelte';
 	import WindowCleaningSummaryCard from '$lib/components/WindowCleaningSummaryCard.svelte';
-	import { ChevronDownIcon, InfoIcon } from '@lucide/svelte';
+	import { ChevronDownIcon } from '@lucide/svelte';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import { getCategoriesContext } from '$lib/contexts';
 	import type { MonthlyNetflowData, SpendingBreakdownData } from '$lib';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
@@ -358,51 +358,55 @@
 		</div>
 	</div>
 
-	<!-- KPI Sparkline Row (always visible) -->
-	<div
-		class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 {data.windowCleaningJobCount
-			? 'lg:grid-cols-5'
-			: 'lg:grid-cols-4'}"
-	>
-		<KpiSparklineCard
-			label="Net Balance"
-			value={formatCurrency(netBalance)}
-			subtext="income minus spending"
-			colorScheme={netBalance >= 0 ? 'green' : 'red'}
-			sparklineData={netflowSparkline}
-			tooltip="Your income minus all spending this month. Positive means you're ahead; negative means you've spent more than you earned. The chart shows the trend over the last 6 months."
-		/>
-		<KpiSparklineCard
-			label="Budget Used"
-			value={`${budgetPct.toFixed(0)}%`}
-			subtext="of planned budget"
-			colorScheme={budgetPct > 100 ? 'red' : budgetPct > 85 ? 'amber' : 'green'}
-			sparklineData={spendingSparkline}
-			tooltip="How much of your total planned budget you've used so far. Over 100% means you've exceeded your budget. The chart shows your total spending per month over the last 6 months."
-		/>
-		<KpiSparklineCard
-			label="Recurring Burden"
-			value={`${recurringBurdenPct.toFixed(0)}%`}
-			subtext="of income committed"
-			colorScheme={recurringBurdenPct > 50 ? 'red' : recurringBurdenPct > 35 ? 'amber' : 'neutral'}
-			tooltip="The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending."
-		/>
-		<KpiSparklineCard
-			label="Savings Progress"
-			value={formatCurrency(savingsVelocity)}
-			subtext="total across active goals"
-			colorScheme="green"
-			tooltip="The total amount saved across all your active savings goals."
-		/>
-		{#if data.windowCleaningJobCount}
-			<WindowCleaningSummaryCard
-				revenue={data.windowCleaningRevenue || 0}
-				jobCount={data.windowCleaningJobCount}
-			/>
-		{/if}
-	</div>
-
 	{#if selectedMode === 'monthly'}
+		<!-- KPI Sparkline Row -->
+		<div
+			class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 {data.windowCleaningJobCount
+				? 'lg:grid-cols-5'
+				: 'lg:grid-cols-4'}"
+		>
+			<KpiSparklineCard
+				label="Net Balance"
+				value={formatCurrency(netBalance)}
+				subtext="income minus spending"
+				colorScheme={netBalance >= 0 ? 'green' : 'red'}
+				sparklineData={netflowSparkline}
+				tooltip="Your income minus all spending this month. Positive means you're ahead; negative means you've spent more than you earned. The chart shows the trend over the last 6 months."
+			/>
+			<KpiSparklineCard
+				label="Budget Used"
+				value={`${budgetPct.toFixed(0)}%`}
+				subtext="of planned budget"
+				colorScheme={budgetPct > 100 ? 'red' : budgetPct > 85 ? 'amber' : 'green'}
+				sparklineData={spendingSparkline}
+				tooltip="How much of your total planned budget you've used so far. Over 100% means you've exceeded your budget. The chart shows your total spending per month over the last 6 months."
+			/>
+			<KpiSparklineCard
+				label="Recurring Burden"
+				value={`${recurringBurdenPct.toFixed(0)}%`}
+				subtext="of income committed"
+				colorScheme={recurringBurdenPct > 50
+					? 'red'
+					: recurringBurdenPct > 35
+						? 'amber'
+						: 'neutral'}
+				tooltip="The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending."
+			/>
+			<KpiSparklineCard
+				label="Savings Progress"
+				value={formatCurrency(savingsVelocity)}
+				subtext="total across active goals"
+				colorScheme="green"
+				tooltip="The total amount saved across all your active savings goals."
+			/>
+			{#if data.windowCleaningJobCount}
+				<WindowCleaningSummaryCard
+					revenue={data.windowCleaningRevenue || 0}
+					jobCount={data.windowCleaningJobCount}
+				/>
+			{/if}
+		</div>
+
 		<!-- Monthly budget summary + spending breakdown -->
 		<div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-12">
 			<div class="lg:col-span-5">
@@ -446,20 +450,9 @@
 			<div class="mb-6">
 				<div class="mb-3 flex items-center gap-1.5">
 					<h2 class="text-lg font-semibold">Category Overview</h2>
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							{#snippet child({ props })}
-								<button {...props} class="text-muted-foreground/60 hover:text-muted-foreground">
-									<InfoIcon class="size-3.5" />
-								</button>
-							{/snippet}
-						</Tooltip.Trigger>
-						<Tooltip.Content class="max-w-64">
-							Your top 6 budget categories ranked by risk — over-budget categories appear first,
-							followed by those with the highest percentage of their budget used. Click any card to
-							see the individual transactions.
-						</Tooltip.Content>
-					</Tooltip.Root>
+					<InfoTooltip
+						text="Your top 6 budget categories ranked by risk — over-budget categories appear first, followed by those with the highest percentage of their budget used. Click any card to see the individual transactions."
+					/>
 				</div>
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each topRiskCategories as category (category.id)}

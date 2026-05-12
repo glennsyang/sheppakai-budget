@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { scaleBand } from 'd3-scale';
 	import { BarChart, Highlight } from 'layerchart';
-	import InfoIcon from '@lucide/svelte/icons/info';
-
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import type { MonthlyNetflowData } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
 
@@ -30,20 +28,9 @@
 	<Card.Header>
 		<div class="flex items-center gap-1.5">
 			<Card.Title>{chartTitle}</Card.Title>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					{#snippet child({ props })}
-						<button {...props} class="text-muted-foreground/60 hover:text-muted-foreground">
-							<InfoIcon class="size-3.5" />
-						</button>
-					{/snippet}
-				</Tooltip.Trigger>
-				<Tooltip.Content class="max-w-64">
-					Each bar shows whether you ended the month with a surplus (income exceeded spending) or a
-					deficit (spending exceeded income). Green bars are months you came out ahead; red bars are
-					months you overspent.
-				</Tooltip.Content>
-			</Tooltip.Root>
+			<InfoTooltip
+				text="Each bar shows whether you ended the month with a surplus (income exceeded spending) or a deficit (spending exceeded income). Green bars are months you came out ahead; red bars are months you overspent."
+			/>
 		</div>
 		<Card.Description>{chartDescription}</Card.Description>
 	</Card.Header>
