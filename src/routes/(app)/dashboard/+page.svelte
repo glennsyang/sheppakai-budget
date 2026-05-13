@@ -12,6 +12,7 @@
 	import KpiSparklineCard from '$lib/components/KpiSparklineCard.svelte';
 	import MonthlyCategoryChart from '$lib/components/MonthlyCategoryChart.svelte';
 	import MonthlyBudgetSummaryCard from '$lib/components/MonthlyBudgetSummaryCard.svelte';
+	import MonthlyNetSavingsCard from '$lib/components/MonthlyNetSavingsCard.svelte';
 	import MonthlyNetflowChart from '$lib/components/MonthlyNetflowChart.svelte';
 	import RecurringExpensesCard from '$lib/components/RecurringExpensesCard.svelte';
 	import SpendingBreakdownChart from '$lib/components/SpendingBreakdownChart.svelte';
@@ -565,6 +566,11 @@
 					{ytdNet >= 0 ? '+' : ''}{formatCurrency(ytdNet)}
 				</p>
 			</div>
+		</div>
+
+		<!-- Net Savings table (yearly) -->
+		<div class="mb-6">
+			<MonthlyNetSavingsCard chartData={data.timeRangeData || []} />
 		</div>
 
 		<!-- Trend charts row (yearly) -->
