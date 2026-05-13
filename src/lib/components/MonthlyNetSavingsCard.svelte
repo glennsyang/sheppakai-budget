@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TimeRangeInOutData } from '$lib';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import { formatCurrency } from '$lib/utils';
+	import { cn, formatCurrency } from '$lib/utils';
 
 	interface Props {
 		chartData: TimeRangeInOutData[];
@@ -54,7 +54,10 @@
 							>
 							<td class="pt-2.5 text-right font-bold tabular-nums">{formatCurrency(totalSpent)}</td>
 							<td
-								class={`pt-2.5 text-right font-bold tabular-nums ${totalNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
+								class={cn(
+									'pt-2.5 text-right font-bold tabular-nums',
+									totalNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'
+								)}
 							>
 								{totalNet >= 0 ? '+' : ''}{formatCurrency(totalNet)}
 							</td>
