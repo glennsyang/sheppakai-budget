@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Progress } from '$lib/components/ui/progress';
+	import { formatCurrencyRounded } from '$lib/utils';
 
 	interface Props {
 		categoryName: string;
@@ -17,7 +18,7 @@
 <div class="mb-4">
 	<div class="mb-1 flex items-center justify-between">
 		<span class="text-sm font-medium">{categoryName}</span>
-		<span class="text-sm font-semibold">{percentage}%</span>
+		<span class="text-sm font-semibold">{percentage}% of {formatCurrencyRounded(budgeted)}</span>
 	</div>
 	<Progress value={spent} max={budgeted} class={progressClass} />
 </div>
