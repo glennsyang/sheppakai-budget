@@ -56,6 +56,14 @@ export function formatCurrency(amount: number): string {
 	return formatter.format(amount);
 }
 
+export function formatCurrencyRounded(amount: number): string {
+	return new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD',
+		maximumFractionDigits: 0
+	}).format(Math.round(amount));
+}
+
 /**
  * Extracts the error code from a better-auth error response.
  * Better-auth errors have a structure like: { body: { code: string, message: string } }

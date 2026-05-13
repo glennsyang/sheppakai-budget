@@ -21,8 +21,8 @@
 	let sortedChartData = $derived([...chartData].sort((a, b) => b.amount - a.amount));
 </script>
 
-<div class="flex justify-between gap-4">
-	<div class="flex-1/2">
+<div class="flex flex-col gap-4 lg:flex-row lg:justify-between">
+	<div class="w-full lg:flex-1/2">
 		<Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
 			<Card.Header>
 				<Card.Title>Spending Breakdown</Card.Title>
@@ -49,7 +49,7 @@
 			</div>
 		</Card.Root>
 	</div>
-	<div class="flex-1/2">
+	<div class="w-full lg:flex-1/2">
 		<Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
 			<Card.Header>
 				<Card.Title>Spending by Category</Card.Title>
@@ -83,14 +83,16 @@
 								{@const category = visibleData[index].category}
 								<Arc {...props}>
 									{#snippet children({ centroid })}
+										{@const displayCategory =
+											category.length > 6 ? category.slice(0, 5) + '.' : category}
 										<Text
-											value={category}
+											value={displayCategory}
 											x={centroid[0]}
 											y={centroid[1]}
 											textAnchor="middle"
 											verticalAnchor="middle"
 											font-size="12"
-											class="fill-background capitalize"
+											class="fill-background"
 										/>
 									{/snippet}
 								</Arc>

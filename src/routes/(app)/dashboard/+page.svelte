@@ -333,7 +333,11 @@
 							</div>
 						{/if}
 
-						<Tabs.Root value={selectedMode} onValueChange={onModeChange} class="w-60">
+						<Tabs.Root
+							value={selectedMode}
+							onValueChange={onModeChange}
+							class="flex-1 lg:w-60 lg:flex-none"
+						>
 							<Tabs.List class="grid w-full grid-cols-2">
 								<Tabs.Trigger value="monthly">Monthly</Tabs.Trigger>
 								<Tabs.Trigger value="yearly">Yearly</Tabs.Trigger>
@@ -341,18 +345,20 @@
 						</Tabs.Root>
 					</div>
 
-					<div class="flex min-h-10 justify-end">
-						{#if selectedMode === 'yearly'}
-							<Tabs.Root value={yearlyView} onValueChange={onYearlyViewChange} class="w-104">
+					{#if selectedMode === 'yearly'}
+						<div class="flex min-h-10 justify-end">
+							<Tabs.Root
+								value={yearlyView}
+								onValueChange={onYearlyViewChange}
+								class="w-full lg:w-104"
+							>
 								<Tabs.List class="grid w-full grid-cols-2">
 									<Tabs.Trigger value="current">Last 6 Months</Tabs.Trigger>
 									<Tabs.Trigger value="full">Full Year</Tabs.Trigger>
 								</Tabs.List>
 							</Tabs.Root>
-						{:else}
-							<div class="w-104" aria-hidden="true"></div>
-						{/if}
-					</div>
+						</div>
+					{/if}
 				</div>
 			</div>
 		</div>
@@ -408,7 +414,7 @@
 		</div>
 
 		<!-- Monthly budget summary + spending breakdown -->
-		<div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-12">
+		<div class="mb-6 flex flex-col gap-4 lg:grid lg:grid-cols-12">
 			<div class="lg:col-span-5">
 				<MonthlyBudgetSummaryCard
 					actualSpent={data.actualExpensesTotal || 0}
