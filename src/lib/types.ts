@@ -145,6 +145,8 @@ export type ChartData = {
 export type MonthlySpentChartData = {
 	month: string;
 	spent: number;
+	budget?: number;
+	overbudget: number;
 };
 
 export type TimeRangeInOutData = {

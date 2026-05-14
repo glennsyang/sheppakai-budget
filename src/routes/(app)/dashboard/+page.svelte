@@ -244,6 +244,17 @@
 		(data.goalsWithProgress || []).reduce((sum, g) => sum + g.currentAmount, 0)
 	);
 
+	// Pre-built lookup map for allYearBudgets: key is `${categoryId}-${monthValue}-${year}`
+	let allYearBudgetsMap = $derived.by(() => {
+		const map = new Map<string, number>();
+		for (const b of data.allYearBudgets ?? []) {
+			if (b.category?.id && b.month && b.year) {
+				map.set(`${b.category.id}-${b.month}-${b.year}`, b.amount);
+			}
+		}
+		return map;
+	});
+
 	function getCategoryMonthlyData(categoryId: string) {
 		if (!data.timeRangeData || !data.actualExpenses) return [];
 		const monthlySpending = new SvelteMap<string, number>();
@@ -260,10 +271,20 @@
 					monthlySpending.set(monthName, currentTotal + expense.amount);
 				}
 			});
-		return data.timeRangeData.map((item) => ({
-			month: item.month,
-			spent: monthlySpending.get(item.month) || 0
-		}));
+		return data.timeRangeData.map((item) => {
+			const monthValue = months.find((m) => m.label === item.month)?.value;
+			const budgetAmount = monthValue
+				? allYearBudgetsMap.get(`${categoryId}-${monthValue}-${String(data.year)}`)
+				: undefined;
+			const spent = monthlySpending.get(item.month) || 0;
+			const budget = budgetAmount;
+			return {
+				month: item.month,
+				spent,
+				budget,
+				overbudget: budget !== undefined ? Math.max(0, spent - budget) : 0
+			};
+		});
 	}
 
 	// Monthly netflow chart data (yearly view)
@@ -283,6 +304,12 @@
 	let timeRangeDescription = $derived(
 		yearlyView === 'current' ? `Last 6 Months of ${selectedYear}` : `Full Year ${selectedYear}`
 	);
+	let categoryChartDescription = $derived.by(() => {
+		if (yearlyView !== 'current') return selectedYear;
+		const months = data.timeRangeData ?? [];
+		if (months.length === 0) return selectedYear;
+		return `${months[0].month} - ${months[months.length - 1].month} ${selectedYear}`;
+	});
 </script>
 
 <svelte:head>
@@ -615,7 +642,11 @@
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each sortedCategories as category (category.id)}
 						{@const categoryMonthlyData = getCategoryMonthlyData(category.id)}
-						<MonthlyCategoryChart chartTitle={category?.name} chartData={categoryMonthlyData} />
+						<MonthlyCategoryChart
+							chartTitle={category?.name}
+							chartData={categoryMonthlyData}
+							chartDescription={categoryChartDescription}
+						/>
 					{/each}
 				</div>
 			</Collapsible.Content>

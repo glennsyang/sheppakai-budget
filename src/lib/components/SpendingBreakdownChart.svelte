@@ -4,7 +4,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { SpendingBreakdownData } from '$lib/types';
-	import { formatCurrency } from '$lib/utils';
+	import { abbreviateCategoryName, formatCurrency } from '$lib/utils';
 
 	interface Props {
 		chartData: SpendingBreakdownData[];
@@ -83,8 +83,7 @@
 								{@const category = visibleData[index].category}
 								<Arc {...props}>
 									{#snippet children({ centroid })}
-										{@const displayCategory =
-											category.length > 6 ? category.slice(0, 5) + '.' : category}
+										{@const displayCategory = abbreviateCategoryName(category)}
 										<Text
 											value={displayCategory}
 											x={centroid[0]}
