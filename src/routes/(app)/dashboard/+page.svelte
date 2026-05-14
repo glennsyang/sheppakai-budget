@@ -244,6 +244,17 @@
 		(data.goalsWithProgress || []).reduce((sum, g) => sum + g.currentAmount, 0)
 	);
 
+	// Pre-built lookup map for allYearBudgets: key is `${categoryId}-${monthValue}-${year}`
+	let allYearBudgetsMap = $derived.by(() => {
+		const map = new Map<string, number>();
+		for (const b of data.allYearBudgets ?? []) {
+			if (b.category?.id && b.month && b.year) {
+				map.set(`${b.category.id}-${b.month}-${b.year}`, b.amount);
+			}
+		}
+		return map;
+	});
+
 	function getCategoryMonthlyData(categoryId: string) {
 		if (!data.timeRangeData || !data.actualExpenses) return [];
 		const monthlySpending = new SvelteMap<string, number>();
@@ -262,12 +273,11 @@
 			});
 		return data.timeRangeData.map((item) => {
 			const monthValue = months.find((m) => m.label === item.month)?.value;
-			const budgetRecord = data.allYearBudgets?.find(
-				(b) =>
-					b.category?.id === categoryId && b.month === monthValue && b.year === String(data.year)
-			);
+			const budgetAmount = monthValue
+				? allYearBudgetsMap.get(`${categoryId}-${monthValue}-${String(data.year)}`)
+				: undefined;
 			const spent = monthlySpending.get(item.month) || 0;
-			const budget = budgetRecord?.amount;
+			const budget = budgetAmount;
 			return {
 				month: item.month,
 				spent,
