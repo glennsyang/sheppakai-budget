@@ -56,6 +56,17 @@ export function formatCurrency(amount: number): string {
 	return formatter.format(amount);
 }
 
+export function abbreviateCategoryName(name: string, maxLength = 6): string {
+	if (name.length <= maxLength) return name;
+
+	const firstSep = name.search(/[ /]/);
+	const base = firstSep > 0 ? name.slice(0, firstSep) : name;
+
+	if (base.length <= maxLength) return base;
+
+	return base.slice(0, maxLength - 1) + '.';
+}
+
 export function formatCurrencyRounded(amount: number): string {
 	return new Intl.NumberFormat('en-US', {
 		style: 'currency',

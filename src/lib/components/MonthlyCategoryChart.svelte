@@ -10,14 +10,15 @@
 
 	interface Props {
 		chartTitle: string;
+		chartDescription?: string;
 		chartData?: MonthlySpentChartData[];
 	}
 
-	let { chartTitle, chartData }: Props = $props();
+	let { chartTitle, chartDescription, chartData }: Props = $props();
 
 	const chartConfig = {
-		spent: { label: 'Total Spent', color: 'var(--chart-2)' },
-		label: { color: 'var(--background)' }
+		budget: { label: 'Budget', color: 'var(--chart-2)' },
+		overbudget: { label: 'Over', color: 'var(--chart-1)' }
 	} satisfies Chart.ChartConfig;
 
 	const averageSpent = $derived.by(() => {
@@ -30,40 +31,45 @@
 <Card.Root>
 	<Card.Header>
 		<Card.Title>{chartTitle}</Card.Title>
+		<Card.Description>{chartDescription ?? 'Monthly spending vs budget'}</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		<Chart.Container config={chartConfig} class="aspect-auto h-44 w-full">
 			<BarChart
-				labels={{ offset: 12 }}
 				data={chartData}
-				x="month"
-				y="spent"
 				xScale={scaleBand().padding(0.25)}
+				x="month"
 				axis="x"
 				rule={false}
-				series={[{ key: 'spent', label: 'Total Spent', color: chartConfig.spent.color }]}
+				series={[
+					{
+						key: 'budget',
+						label: 'Budget',
+						color: chartConfig.budget.color,
+						props: { rounded: 'bottom' }
+					},
+					{
+						key: 'overbudget',
+						label: 'Over',
+						color: chartConfig.overbudget.color
+					}
+				]}
+				seriesLayout="stack"
 				props={{
 					bars: {
 						stroke: 'none',
-						radius: 4,
-						rounded: 'all',
-						initialHeight: 0,
-						motion: {
-							y: { type: 'tween', duration: 500, easing: cubicInOut },
-							height: { type: 'tween', duration: 500, easing: cubicInOut }
-						}
+						motion: { type: 'tween', duration: 500, easing: cubicInOut }
 					},
-					highlight: { area: { fill: 'none' } },
-					xAxis: {
-						format: (d: string) => d.slice(0, 3)
-					}
+					highlight: { area: false },
+					xAxis: { format: (d) => d.slice(0, 3) }
 				}}
+				legend
 			>
 				{#snippet belowMarks()}
 					<Highlight area={{ class: 'fill-muted' }} />
 				{/snippet}
 				{#snippet tooltip()}
-					<Chart.Tooltip hideLabel />
+					<Chart.Tooltip />
 				{/snippet}
 			</BarChart>
 		</Chart.Container>

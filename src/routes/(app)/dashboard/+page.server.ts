@@ -235,6 +235,7 @@ async function loadYearlyDashboard(url: URL) {
 		year,
 		actualExpenses,
 		yearlyBudgets,
+		allYearBudgets,
 		actualExpensesTotal,
 		plannedExpensesTotal,
 		totalIncome,
