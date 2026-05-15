@@ -14,7 +14,9 @@ export const load: PageServerLoad = async ({ url }) => {
 	// Get month, year, and date range from URL params or use current month/year
 	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
-	const searchQuery = url.searchParams.get('search') ?? '';
+	// Normalize on the server regardless of what the client sends: trim whitespace and cap at
+	// the notes column max length (800 chars) so a crafted URL can't trigger an oversized query.
+	const searchQuery = (url.searchParams.get('search') ?? '').trim().slice(0, 800);
 	const form = await superValidate(zod4(transactionSchema));
 
 	// In search mode: query across all months, skip budget data (sidebar is hidden)

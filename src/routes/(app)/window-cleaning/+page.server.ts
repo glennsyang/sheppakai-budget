@@ -15,12 +15,10 @@ import { formatDateForStorage, getCurrentUTCTimestamp } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const userId = locals.user!.id;
-
+export const load: PageServerLoad = async () => {
 	const [customers, allJobs] = await Promise.all([
-		windowCleaningCustomerQueries.findAll(userId),
-		windowCleaningJobQueries.findAll(userId)
+		windowCleaningCustomerQueries.findAll(),
+		windowCleaningJobQueries.findAll()
 	]);
 
 	// Merge job stats into each customer

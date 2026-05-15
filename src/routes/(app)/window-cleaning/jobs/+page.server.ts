@@ -14,8 +14,7 @@ import { formatDateForStorage } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url, locals }) => {
-	const userId = locals.user!.id;
+export const load: PageServerLoad = async ({ url }) => {
 	const currentYear = new Date().getFullYear();
 	const yearParam = url.searchParams.get('year');
 	const parsedYear = yearParam ? Number.parseInt(yearParam, 10) : Number.NaN;
@@ -25,8 +24,8 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			: currentYear;
 
 	const [jobs, jobsLastYear] = await Promise.all([
-		windowCleaningJobQueries.findByYear(userId, selectedYear),
-		windowCleaningJobQueries.findByYear(userId, selectedYear - 1)
+		windowCleaningJobQueries.findByYear(selectedYear),
+		windowCleaningJobQueries.findByYear(selectedYear - 1)
 	]);
 
 	const totalCharged = jobs.reduce((sum, j) => sum + j.amountCharged, 0);

@@ -18,7 +18,6 @@ vi.mock('drizzle-orm', () => ({
 vi.mock('../schema', () => ({
 	windowCleaningCustomer: {
 		name: 'wc_customer.name',
-		userId: 'wc_customer.user_id',
 		deletedAt: 'wc_customer.deleted_at',
 		id: 'wc_customer.id'
 	}
@@ -57,24 +56,14 @@ describe('windowCleaningCustomerQueries', () => {
 	});
 
 	describe('findAll', () => {
-		it('filters by userId and isNull(deletedAt)', async () => {
-			await windowCleaningCustomerQueries.findAll('user-1');
+		it('filters only by isNull(deletedAt)', async () => {
+			await windowCleaningCustomerQueries.findAll();
 
 			const arg = mockState.findAll.mock.lastCall![0] as unknown as {
-				where: { type: string; conditions: unknown[] };
+				where: { type: string; field: string };
 			};
-			expect(arg.where.type).toBe('and');
-			expect(arg.where.conditions).toHaveLength(2);
-
-			const conditions = arg.where.conditions as Array<{
-				type: string;
-				field: string;
-				value?: string;
-			}>;
-			const userCond = conditions.find((c) => c.type === 'eq');
-			const deletedCond = conditions.find((c) => c.type === 'isNull');
-			expect(userCond?.value).toBe('user-1');
-			expect(deletedCond?.field).toBe('wc_customer.deleted_at');
+			expect(arg.where.type).toBe('isNull');
+			expect(arg.where.field).toBe('wc_customer.deleted_at');
 		});
 	});
 
@@ -100,8 +89,8 @@ describe('windowCleaningCustomerQueries', () => {
 	});
 
 	describe('findById', () => {
-		it('calls findFirst with id, userId and isNull(deletedAt) conditions', async () => {
-			await windowCleaningCustomerQueries.findById('cust-1', 'user-1');
+		it('calls findFirst with id and isNull(deletedAt) conditions', async () => {
+			await windowCleaningCustomerQueries.findById('cust-1');
 
 			expect(mockState.findFirst).toHaveBeenCalledWith({
 				where: expect.objectContaining({ type: 'and' })
@@ -110,7 +99,7 @@ describe('windowCleaningCustomerQueries', () => {
 			const arg = mockState.findFirst.mock.lastCall![0] as unknown as {
 				where: { type: string; conditions: unknown[] };
 			};
-			expect(arg.where.conditions).toHaveLength(3);
+			expect(arg.where.conditions).toHaveLength(2);
 		});
 	});
 });

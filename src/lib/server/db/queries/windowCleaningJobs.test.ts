@@ -18,7 +18,6 @@ vi.mock('drizzle-orm', () => ({
 vi.mock('../schema', () => ({
 	windowCleaningJob: {
 		jobDate: 'wc_job.job_date',
-		userId: 'wc_job.user_id',
 		customerId: 'wc_job.customer_id'
 	}
 }));
@@ -40,12 +39,10 @@ describe('windowCleaningJobQueries', () => {
 	});
 
 	describe('findAll', () => {
-		it('filters by userId', async () => {
-			await windowCleaningJobQueries.findAll('user-1');
+		it('fetches all jobs with no filter', async () => {
+			await windowCleaningJobQueries.findAll();
 
-			expect(mockState.findAll).toHaveBeenCalledWith({
-				where: { type: 'eq', field: 'wc_job.user_id', value: 'user-1' }
-			});
+			expect(mockState.findAll).toHaveBeenCalledWith();
 		});
 	});
 
@@ -60,19 +57,19 @@ describe('windowCleaningJobQueries', () => {
 	});
 
 	describe('findByMonth', () => {
-		it('passes a compound and clause with userId and date bounds', async () => {
-			await windowCleaningJobQueries.findByMonth('user-1', 4, 2026);
+		it('passes a compound and clause with date bounds', async () => {
+			await windowCleaningJobQueries.findByMonth(4, 2026);
 
 			const arg = mockState.findAll.mock.lastCall![0] as unknown as {
 				where: { type: string; conditions: unknown[] };
 			};
 			expect(arg.where.type).toBe('and');
-			expect(arg.where.conditions).toHaveLength(3);
+			expect(arg.where.conditions).toHaveLength(2);
 		});
 
 		it('computes correct February (non-leap year) end date', async () => {
 			const spy = vi.spyOn(mockState, 'findAll');
-			await windowCleaningJobQueries.findByMonth('u', 2, 2026);
+			await windowCleaningJobQueries.findByMonth(2, 2026);
 			const { conditions } = (
 				spy.mock.lastCall![0] as unknown as {
 					where: { conditions: Array<{ values: string[] }> };
@@ -86,7 +83,7 @@ describe('windowCleaningJobQueries', () => {
 
 		it('computes correct February (leap year) end date', async () => {
 			const spy = vi.spyOn(mockState, 'findAll');
-			await windowCleaningJobQueries.findByMonth('u', 2, 2024);
+			await windowCleaningJobQueries.findByMonth(2, 2024);
 			const { conditions } = (
 				spy.mock.lastCall![0] as unknown as {
 					where: { conditions: Array<{ values: string[] }> };
@@ -99,7 +96,7 @@ describe('windowCleaningJobQueries', () => {
 
 		it('computes correct December boundaries', async () => {
 			const spy = vi.spyOn(mockState, 'findAll');
-			await windowCleaningJobQueries.findByMonth('u', 12, 2025);
+			await windowCleaningJobQueries.findByMonth(12, 2025);
 			const { conditions } = (
 				spy.mock.lastCall![0] as unknown as {
 					where: { conditions: Array<{ values: string[] }> };
@@ -113,8 +110,8 @@ describe('windowCleaningJobQueries', () => {
 	});
 
 	describe('findByYear', () => {
-		it('passes a compound and clause with userId and full-year date range', async () => {
-			await windowCleaningJobQueries.findByYear('user-1', 2025);
+		it('passes a compound and clause with full-year date range', async () => {
+			await windowCleaningJobQueries.findByYear(2025);
 
 			const arg = mockState.findAll.mock.lastCall![0] as unknown as {
 				where: { type: string; conditions: unknown[] };
@@ -123,15 +120,15 @@ describe('windowCleaningJobQueries', () => {
 		});
 
 		it('throws for an invalid year (zero)', async () => {
-			await expect(windowCleaningJobQueries.findByYear('u', 0)).rejects.toThrow('Invalid year');
+			await expect(windowCleaningJobQueries.findByYear(0)).rejects.toThrow('Invalid year');
 		});
 
 		it('throws for a negative year', async () => {
-			await expect(windowCleaningJobQueries.findByYear('u', -1)).rejects.toThrow('Invalid year');
+			await expect(windowCleaningJobQueries.findByYear(-1)).rejects.toThrow('Invalid year');
 		});
 
 		it('throws for a year beyond 9999', async () => {
-			await expect(windowCleaningJobQueries.findByYear('u', 10000)).rejects.toThrow('Invalid year');
+			await expect(windowCleaningJobQueries.findByYear(10000)).rejects.toThrow('Invalid year');
 		});
 	});
 });

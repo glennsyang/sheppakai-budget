@@ -51,10 +51,17 @@
 
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-	// Matches the payee/notes column max lengths defined in the transaction schema (100 and 800
-	// chars respectively). Capping at the shorter of the two avoids sending oversized queries
-	// that could never match any stored value.
-	const MAX_SEARCH_QUERY_LENGTH = 100;
+	// Prevent a stale goto() from firing after the component is destroyed (e.g. the user
+	// types in the search box and navigates away before the 500 ms debounce elapses).
+	$effect(() => () => {
+		if (debounceTimer) clearTimeout(debounceTimer);
+	});
+
+	// Matches the longest searchable transaction field max length defined in the transaction
+	// schema. Payee is capped at 100 characters, but notes can be up to 800 characters, so the
+	// search query must allow up to 800 characters to avoid truncating valid note searches before
+	// they reach the server.
+	const MAX_SEARCH_QUERY_LENGTH = 800;
 
 	function onSearchInput(value: string) {
 		searchInput = value;
