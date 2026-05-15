@@ -49,13 +49,18 @@
 		searchInput = data.searchQuery ?? '';
 	});
 
-	let searchDebounce: ReturnType<typeof setTimeout> | null = null;
+	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+	// Matches the payee/notes column max lengths defined in the transaction schema (100 and 800
+	// chars respectively). Capping at the shorter of the two avoids sending oversized queries
+	// that could never match any stored value.
+	const MAX_SEARCH_QUERY_LENGTH = 100;
 
 	function onSearchInput(value: string) {
 		searchInput = value;
-		if (searchDebounce) clearTimeout(searchDebounce);
-		searchDebounce = setTimeout(() => {
-			const trimmed = value.trim().slice(0, 100);
+		if (debounceTimer) clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(() => {
+			const trimmed = value.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
 			const url = trimmed
 				? `/finances/transactions?search=${encodeURIComponent(trimmed)}&month=${selectedMonth}&year=${selectedYear}`
 				: `/finances/transactions?month=${selectedMonth}&year=${selectedYear}`;

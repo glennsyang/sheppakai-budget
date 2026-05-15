@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull, like, ne, or, sql } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, ne, or, sql } from 'drizzle-orm';
 
 import type { Transaction } from '$lib/types';
 
@@ -52,9 +52,15 @@ export const transactionQueries = {
 
 	// Search across all transactions by payee or notes (cross-month)
 	search: async (query: string): Promise<Transaction[]> => {
-		const pattern = `%${query}%`;
+		// Escape LIKE wildcards (\, %, _) so user input is treated as a literal string.
+		// The ESCAPE clause tells SQLite that \ is the escape character in the pattern.
+		const escaped = query.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+		const pattern = `%${escaped}%`;
 		return baseBuilder.findAll({
-			where: or(like(transaction.payee, pattern), like(transaction.notes, pattern))
+			where: or(
+				sql`${transaction.payee} LIKE ${pattern} ESCAPE '\\'`,
+				sql`${transaction.notes} LIKE ${pattern} ESCAPE '\\'`
+			)
 		});
 	},
 
