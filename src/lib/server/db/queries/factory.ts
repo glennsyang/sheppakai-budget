@@ -17,6 +17,7 @@ export function createQueryBuilder<_TTable, TReturn = _TTable>(
 			where?: SQL;
 			orderBy?: SQL[];
 			with?: Record<string, boolean>;
+			limit?: number;
 		}): Promise<TReturn[]> => {
 			const db = getDb();
 			// Type assertion needed due to dynamic table name access
@@ -24,7 +25,8 @@ export function createQueryBuilder<_TTable, TReturn = _TTable>(
 			return (db.query as any)[config.tableName].findMany({
 				with: options?.with ?? config.defaultRelations,
 				where: options?.where,
-				orderBy: options?.orderBy ?? config.defaultOrderBy
+				orderBy: options?.orderBy ?? config.defaultOrderBy,
+				limit: options?.limit
 			}) as Promise<TReturn[]>;
 		},
 

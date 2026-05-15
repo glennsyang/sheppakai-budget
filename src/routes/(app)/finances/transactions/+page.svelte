@@ -30,6 +30,7 @@
 			categorySpending: Record<string, number>;
 			form: SuperValidated<z.infer<typeof transactionSchema>>;
 			searchQuery: string;
+			searchLimitReached?: boolean;
 		};
 	}
 
@@ -69,7 +70,7 @@
 		debounceTimer = setTimeout(() => {
 			const trimmed = value.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
 			const url = trimmed
-				? `/finances/transactions?search=${encodeURIComponent(trimmed)}&month=${selectedMonth}&year=${selectedYear}`
+				? `/finances/transactions?search=${encodeURIComponent(trimmed)}`
 				: `/finances/transactions?month=${selectedMonth}&year=${selectedYear}`;
 			goto(url, { keepFocus: true, replaceState: true });
 		}, 500);
@@ -156,6 +157,7 @@
 				<Input
 					type="search"
 					placeholder="Search all transactions by payee or notes…"
+					aria-label="Search transactions"
 					class="pl-9 {data.searchQuery ? 'pr-9' : ''}"
 					value={searchInput}
 					oninput={(e) => onSearchInput(e.currentTarget.value)}
@@ -176,7 +178,8 @@
 					{data.transactions.length}
 					{data.transactions.length === 1 ? 'result' : 'results'} for "<span
 						class="font-medium text-foreground">{data.searchQuery}</span
-					>"
+					>"{#if data.searchLimitReached}
+						— showing first {data.transactions.length}; refine your search to see more{/if}
 				</p>
 			{/if}
 		</div>

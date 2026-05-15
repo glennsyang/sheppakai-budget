@@ -4,6 +4,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import { transactionSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { budgetQueries, transactionQueries } from '$lib/server/db/queries';
+import { SEARCH_RESULT_LIMIT } from '$lib/server/db/queries/transactions';
 import { transaction } from '$lib/server/db/schema';
 import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
 import { formatDateForStorage, getMonthRangeFromUrl } from '$lib/utils/dates';
@@ -27,7 +28,8 @@ export const load: PageServerLoad = async ({ url }) => {
 			budgets: [],
 			categorySpending: {},
 			form,
-			searchQuery
+			searchQuery,
+			searchLimitReached: transactions.length >= SEARCH_RESULT_LIMIT
 		};
 	}
 
