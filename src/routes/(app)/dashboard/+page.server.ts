@@ -63,7 +63,7 @@ async function getGoalsWithProgress(): Promise<SavingsGoalWithProgress[]> {
 	});
 }
 
-async function loadMonthlyDashboard(url: URL, userId: string | undefined) {
+async function loadMonthlyDashboard(url: URL) {
 	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
 	const [actualExpenses, plannedExpenses, recurringExpenses, incomeRecords, goalsWithProgress] =
@@ -131,13 +131,9 @@ async function loadMonthlyDashboard(url: URL, userId: string | undefined) {
 	const netflowSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.in - d.out }));
 	const spendingSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.out }));
 
-	let windowCleaningRevenue = 0;
-	let windowCleaningJobCount = 0;
-	if (userId) {
-		const wcJobs = await windowCleaningJobQueries.findByMonth(userId, month, year);
-		windowCleaningRevenue = wcJobs.reduce((s, j) => s + j.amountCharged + j.tip, 0);
-		windowCleaningJobCount = wcJobs.length;
-	}
+	const wcJobs = await windowCleaningJobQueries.findByMonth(month, year);
+	const windowCleaningRevenue = wcJobs.reduce((s, j) => s + j.amountCharged + j.tip, 0);
+	const windowCleaningJobCount = wcJobs.length;
 
 	return {
 		mode: 'monthly',
@@ -245,8 +241,8 @@ async function loadYearlyDashboard(url: URL) {
 	};
 }
 
-export const load: PageServerLoad = async ({ url, locals }) => {
+export const load: PageServerLoad = async ({ url }) => {
 	const mode = url.searchParams.get('mode') === 'yearly' ? 'yearly' : 'monthly';
-	if (mode === 'monthly') return loadMonthlyDashboard(url, locals.user?.id);
+	if (mode === 'monthly') return loadMonthlyDashboard(url);
 	return loadYearlyDashboard(url);
 };

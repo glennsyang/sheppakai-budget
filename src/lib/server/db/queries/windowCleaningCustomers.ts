@@ -16,13 +16,10 @@ const baseBuilder = createQueryBuilder<typeof windowCleaningCustomer, WindowClea
 export const windowCleaningCustomerQueries = {
 	...baseBuilder,
 
-	// Find all active (non-deleted) customers for a user
-	findAll: async (userId: string): Promise<WindowCleaningCustomer[]> => {
+	// Find all active (non-deleted) customers
+	findAll: async (): Promise<WindowCleaningCustomer[]> => {
 		return baseBuilder.findAll({
-			where: and(
-				eq(windowCleaningCustomer.userId, userId),
-				isNull(windowCleaningCustomer.deletedAt)
-			)
+			where: isNull(windowCleaningCustomer.deletedAt)
 		});
 	},
 
@@ -37,13 +34,9 @@ export const windowCleaningCustomerQueries = {
 	},
 
 	// Find a single active customer by id
-	findById: async (id: string, userId: string): Promise<WindowCleaningCustomer | undefined> => {
+	findById: async (id: string): Promise<WindowCleaningCustomer | undefined> => {
 		return baseBuilder.findFirst({
-			where: and(
-				eq(windowCleaningCustomer.id, id),
-				eq(windowCleaningCustomer.userId, userId),
-				isNull(windowCleaningCustomer.deletedAt)
-			)
+			where: and(eq(windowCleaningCustomer.id, id), isNull(windowCleaningCustomer.deletedAt))
 		});
 	}
 };

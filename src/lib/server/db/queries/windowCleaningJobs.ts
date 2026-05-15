@@ -1,7 +1,8 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, max, sql } from 'drizzle-orm';
 
 import type { WindowCleaningJob } from '$lib/types';
 
+import { getDb } from '../index';
 import { windowCleaningJob } from '../schema';
 
 import { createQueryBuilder } from './factory';
@@ -15,11 +16,24 @@ const baseBuilder = createQueryBuilder<typeof windowCleaningJob, WindowCleaningJ
 export const windowCleaningJobQueries = {
 	...baseBuilder,
 
-	// Find all jobs for a user (across all customers), date-sorted
-	findAll: async (userId: string): Promise<WindowCleaningJob[]> => {
-		return baseBuilder.findAll({
-			where: eq(windowCleaningJob.userId, userId)
-		});
+	// Find all jobs across all customers, date-sorted
+	findAll: async (): Promise<WindowCleaningJob[]> => {
+		return baseBuilder.findAll();
+	},
+
+	// Aggregated per-customer stats via a single GROUP BY query
+	getStatsPerCustomer: async (): Promise<
+		{ customerId: string; totalEarned: number; lastJobDate: string | null }[]
+	> => {
+		const db = getDb();
+		return db
+			.select({
+				customerId: windowCleaningJob.customerId,
+				totalEarned: sql<number>`coalesce(sum(${windowCleaningJob.amountCharged} + ${windowCleaningJob.tip}), 0)`,
+				lastJobDate: max(windowCleaningJob.jobDate)
+			})
+			.from(windowCleaningJob)
+			.groupBy(windowCleaningJob.customerId);
 	},
 
 	// Find jobs for a specific customer
@@ -29,12 +43,8 @@ export const windowCleaningJobQueries = {
 		});
 	},
 
-	// Find jobs for a user within a month/year
-	findByMonth: async (
-		userId: string,
-		month: number,
-		year: number
-	): Promise<WindowCleaningJob[]> => {
+	// Find jobs within a month/year
+	findByMonth: async (month: number, year: number): Promise<WindowCleaningJob[]> => {
 		const paddedMonth = String(month).padStart(2, '0');
 		const startDate = `${year}-${paddedMonth}-01`;
 		const lastDay = new Date(year, month, 0).getDate();
@@ -42,15 +52,14 @@ export const windowCleaningJobQueries = {
 
 		return baseBuilder.findAll({
 			where: and(
-				eq(windowCleaningJob.userId, userId),
 				sql`date(${windowCleaningJob.jobDate}) >= date(${startDate})`,
 				sql`date(${windowCleaningJob.jobDate}) <= date(${endDate})`
 			)
 		});
 	},
 
-	// Find jobs for a user within a year
-	findByYear: async (userId: string, year: number): Promise<WindowCleaningJob[]> => {
+	// Find jobs within a year
+	findByYear: async (year: number): Promise<WindowCleaningJob[]> => {
 		const safeYear = Math.trunc(year);
 		if (!Number.isFinite(safeYear) || safeYear < 1 || safeYear > 9999) {
 			throw new Error(`Invalid year: ${year}`);
@@ -59,7 +68,6 @@ export const windowCleaningJobQueries = {
 		const endDate = `${safeYear}-12-31`;
 		return baseBuilder.findAll({
 			where: and(
-				eq(windowCleaningJob.userId, userId),
 				sql`date(${windowCleaningJob.jobDate}) >= date(${startDate})`,
 				sql`date(${windowCleaningJob.jobDate}) <= date(${endDate})`
 			)

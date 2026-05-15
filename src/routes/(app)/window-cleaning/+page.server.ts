@@ -13,31 +13,46 @@ import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
 import { formatDateForStorage, getCurrentUTCTimestamp } from '$lib/utils/dates';
 
+import type { WindowCleaningJob } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const userId = locals.user!.id;
-
-	const [customers, allJobs] = await Promise.all([
-		windowCleaningCustomerQueries.findAll(userId),
-		windowCleaningJobQueries.findAll(userId)
+export const load: PageServerLoad = async () => {
+	const [customers, allJobs, customerStats] = await Promise.all([
+		windowCleaningCustomerQueries.findAll(),
+		windowCleaningJobQueries.findAll(),
+		windowCleaningJobQueries.getStatsPerCustomer()
 	]);
 
-	// Merge job stats into each customer
+	// Build O(1) lookup maps — avoids O(customers × jobs) filter loops
+	const statsMap = new Map(customerStats.map((s) => [s.customerId, s]));
+	const jobsMap = allJobs.reduce((acc, job) => {
+		const list = acc.get(job.customerId);
+		if (list) {
+			list.push(job);
+		} else {
+			acc.set(job.customerId, [job]);
+		}
+		return acc;
+	}, new Map<string, WindowCleaningJob[]>());
+
+	const customersWithStats = customers.map((customer) => {
+		const stats = statsMap.get(customer.id);
+		const jobs = jobsMap.get(customer.id) ?? [];
+		return {
+			...customer,
+			jobs,
+			totalEarned: stats?.totalEarned ?? 0,
+			lastJobDate: stats?.lastJobDate ?? null
+		};
+	});
+
+	// Page-level summary stats
 	const now = new Date();
 	const currentMonth = now.getMonth() + 1;
 	const currentYear = now.getFullYear();
 	const monthPad = String(currentMonth).padStart(2, '0');
 	const monthPrefix = `${currentYear}-${monthPad}`;
 
-	const customersWithStats = customers.map((customer) => {
-		const jobs = allJobs.filter((j) => j.customerId === customer.id);
-		const totalEarned = jobs.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
-		const lastJobDate = jobs.length > 0 ? jobs[0].jobDate : null;
-		return { ...customer, jobs, totalEarned, lastJobDate };
-	});
-
-	// Page-level summary stats
 	const jobsThisMonth = allJobs.filter((j) => j.jobDate.startsWith(monthPrefix));
 	const earnedThisMonth = jobsThisMonth.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
 
