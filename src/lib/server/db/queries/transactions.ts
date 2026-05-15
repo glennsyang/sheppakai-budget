@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull, ne, sql } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, like, ne, or, sql } from 'drizzle-orm';
 
 import type { Transaction } from '$lib/types';
 
@@ -48,6 +48,14 @@ export const transactionQueries = {
 			: eq(transaction.categoryId, categoryId);
 
 		return baseBuilder.findAll({ where });
+	},
+
+	// Search across all transactions by payee or notes (cross-month)
+	search: async (query: string): Promise<Transaction[]> => {
+		const pattern = `%${query}%`;
+		return baseBuilder.findAll({
+			where: or(like(transaction.payee, pattern), like(transaction.notes, pattern))
+		});
 	},
 
 	// Find by date range excluding a specific category (for business receipts)
