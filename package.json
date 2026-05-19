@@ -64,6 +64,7 @@
 		"lint-staged": "^17.0.4",
 		"oxfmt": "^0.51.0",
 		"oxlint": "^1.66.0",
+		"oxlint-tsgolint": "^0.23.0",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.3.4",
 		"svelte-sonner": "^1.0.7",

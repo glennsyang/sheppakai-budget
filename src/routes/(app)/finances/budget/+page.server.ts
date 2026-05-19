@@ -72,7 +72,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	});
 
 	// Fetch and aggregate transactions for the last 6 months
-	const historicalTransactions = await getDb()
+	const historicalTransactions = getDb()
 		.select({
 			categoryId: transaction.categoryId,
 			month: sql<string>`substr(${transaction.date}, 6, 2)`,
@@ -189,7 +189,8 @@ export const actions = {
 
 	delete: requireAuth(async ({ request }, user) => {
 		const data = await request.formData();
-		const budgetId = data.get('id')?.toString();
+		const rawId = data.get('id');
+		const budgetId = typeof rawId === 'string' ? rawId : undefined;
 
 		if (!budgetId) {
 			return fail(400, { error: 'Budget ID is required', type: 'error' });

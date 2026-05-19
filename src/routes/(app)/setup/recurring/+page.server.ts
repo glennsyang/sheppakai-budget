@@ -44,8 +44,10 @@ export const actions = {
 	}),
 	togglePaid: requireAuth(async ({ request }, user) => {
 		const formData = await request.formData();
-		const recurringId = formData.get('id')?.toString();
-		const currentPaid = formData.get('paid')?.toString() === 'true';
+		const rawId = formData.get('id');
+		const recurringId = typeof rawId === 'string' ? rawId : undefined;
+		const rawPaid = formData.get('paid');
+		const currentPaid = rawPaid === 'true';
 
 		if (!recurringId) {
 			return fail(400, { error: 'Recurring ID is required' });

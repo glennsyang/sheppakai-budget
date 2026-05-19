@@ -198,7 +198,8 @@ export const actions: Actions = {
 		}
 
 		const data = await request.formData();
-		const userId = data.get('id')?.toString();
+		const rawId = data.get('id');
+		const userId = typeof rawId === 'string' ? rawId : undefined;
 
 		if (!userId) {
 			return fail(400, { error: 'User ID is required' });
@@ -227,7 +228,8 @@ export const actions: Actions = {
 		}
 
 		const data = await request.formData();
-		const userId = data.get('id')?.toString();
+		const rawId = data.get('id');
+		const userId = typeof rawId === 'string' ? rawId : undefined;
 
 		if (!userId) {
 			return fail(400, { error: 'User ID is required' });
@@ -257,7 +259,8 @@ export const actions: Actions = {
 		}
 
 		const data = await request.formData();
-		const userId = data.get('id')?.toString();
+		const rawId = data.get('id');
+		const userId = typeof rawId === 'string' ? rawId : undefined;
 
 		if (!userId) {
 			return fail(400, { error: 'User ID is required' });

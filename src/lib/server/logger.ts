@@ -9,10 +9,6 @@ import * as Sentry from '@sentry/sveltekit';
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
 
-interface LogContext {
-	[key: string]: unknown;
-}
-
 /**
  * Sanitizes data by removing PII fields in production mode.
  */
@@ -32,10 +28,10 @@ function sanitizeData(data: unknown): unknown {
 
 	// For objects, remove common PII fields
 	const sanitized: Record<string, unknown> = {};
-	const piiFields = ['userId', 'email', 'password', 'token', 'id', 'createdBy', 'updatedBy'];
+	const piiFields = new Set(['userId', 'email', 'password', 'token', 'id', 'createdBy', 'updatedBy']);
 
 	for (const [key, value] of Object.entries(data)) {
-		if (piiFields.includes(key)) {
+		if (piiFields.has(key)) {
 			continue; // Skip PII fields
 		}
 		sanitized[key] = value;
@@ -114,7 +110,7 @@ export const logger = {
 	 * Log informational messages.
 	 * In production, PII is automatically sanitized.
 	 */
-	info: (message: string, data?: LogContext | unknown): void => {
+	info: (message: string, data?: unknown): void => {
 		log('INFO', message, data);
 	},
 
@@ -122,7 +118,7 @@ export const logger = {
 	 * Log warning messages.
 	 * In production, PII is automatically sanitized.
 	 */
-	warn: (message: string, data?: LogContext | unknown): void => {
+	warn: (message: string, data?: unknown): void => {
 		log('WARN', message, data);
 	},
 
@@ -130,7 +126,7 @@ export const logger = {
 	 * Log error messages.
 	 * In production, PII and stack traces are sanitized.
 	 */
-	error: (message: string, error?: Error | unknown): void => {
+	error: (message: string, error?: unknown): void => {
 		log('ERROR', message, error);
 	},
 
@@ -138,7 +134,7 @@ export const logger = {
 	 * Log debug messages.
 	 * Only logs in development mode, completely silent in production.
 	 */
-	debug: (message: string, data?: LogContext | unknown): void => {
+	debug: (message: string, data?: unknown): void => {
 		if (dev) {
 			log('DEBUG', message, data);
 		}

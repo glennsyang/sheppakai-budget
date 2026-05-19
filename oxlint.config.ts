@@ -8,6 +8,10 @@ export default defineConfig({
 		vitest: true,
 		svelte: true
 	},
+	options: {
+    typeAware: true,
+    typeCheck: true,
+  },
 	ignorePatterns: [
 		'**/node_modules',
 		'**/.claude',
