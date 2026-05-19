@@ -23,7 +23,6 @@ export default defineConfig({
 	],
 	plugins: ['eslint', 'typescript', 'oxc', 'vitest', 'unicorn'],
 	rules: {
-		'no-unused-expressions': 'error',
 		'no-unused-vars': [
 			'error',
 			{

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
-	findAll: vi.fn(async () => []),
-	findFirst: vi.fn(async () => undefined)
+	findAll: vi.fn<() => Promise<unknown[]>>(async () => []),
+	findFirst: vi.fn<() => Promise<undefined>>(async () => undefined)
 }));
 
 vi.mock('drizzle-orm', () => ({

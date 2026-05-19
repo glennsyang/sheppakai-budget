@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
-	findMany: vi.fn(async () => []),
-	findFirst: vi.fn(async () => undefined),
-	getDb: vi.fn()
+	findMany: vi.fn<() => Promise<unknown[]>>(async () => []),
+	findFirst: vi.fn<() => Promise<undefined>>(async () => undefined),
+	getDb: vi.fn<() => unknown>()
 }));
 
 vi.mock('../index', () => ({
@@ -94,7 +94,7 @@ describe('createQueryBuilder', () => {
 	});
 
 	it('findFirst uses default relations and supports custom where', async () => {
-		const where = vi.fn();
+		const where = vi.fn<() => unknown>();
 		const builder = createQueryBuilder({
 			tableName: 'transaction',
 			defaultRelations: { category: true }

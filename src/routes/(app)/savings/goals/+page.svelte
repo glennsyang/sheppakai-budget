@@ -231,7 +231,7 @@
 									<Table.Cell class="whitespace-nowrap">
 										{formatLocalTimestamp(contribution.date)}
 									</Table.Cell>
-									<Table.Cell class="max-w-[240px] truncate">
+									<Table.Cell class="max-w-60 truncate">
 										{contribution.description || '—'}
 									</Table.Cell>
 									<Table.Cell class="text-right font-medium whitespace-nowrap">

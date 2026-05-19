@@ -37,12 +37,28 @@ type MockState = {
 const mockState: MockState = vi.hoisted((): MockState => {
 	const state = {
 		superValidateResult: { valid: true, data: {} as Record<string, unknown> },
-		fail: vi.fn((status: number, data: Record<string, unknown>) => ({
+		fail: vi.fn<
+			(
+				status: number,
+				data: Record<string, unknown>
+			) => { status: number; data: Record<string, unknown>; __failure: boolean }
+		>((status, data) => ({
 			status,
 			data,
 			__failure: true
 		})),
-		message: vi.fn(
+		message: vi.fn<
+			(
+				form: Record<string, unknown>,
+				payload: { type: string; text: string },
+				opts?: { status: number }
+			) => {
+				status: number;
+				form: Record<string, unknown>;
+				message: { type: string; text: string };
+				__message: boolean;
+			}
+		>(
 			(
 				form: Record<string, unknown>,
 				payload: { type: string; text: string },
@@ -54,51 +70,65 @@ const mockState: MockState = vi.hoisted((): MockState => {
 				__message: true
 			})
 		),
-		superValidate: vi.fn(),
-		insertReturning: vi.fn(),
-		insertValues: vi.fn(),
-		insert: vi.fn(),
-		updateWhere: vi.fn(),
-		updateSet: vi.fn(),
-		update: vi.fn(),
-		deleteWhere: vi.fn(),
-		deleteFrom: vi.fn(),
+		superValidate: vi.fn<() => void>(),
+		insertReturning: vi.fn<() => void>(),
+		insertValues: vi.fn<() => void>(),
+		insert: vi.fn<() => void>(),
+		updateWhere: vi.fn<() => void>(),
+		updateSet: vi.fn<() => void>(),
+		update: vi.fn<() => void>(),
+		deleteWhere: vi.fn<() => void>(),
+		deleteFrom: vi.fn<() => void>(),
 		db: {
-			insert: vi.fn(),
-			update: vi.fn(),
-			delete: vi.fn()
+			insert: vi.fn<() => void>(),
+			update: vi.fn<() => void>(),
+			delete: vi.fn<() => void>()
 		},
-		beforeCreate: vi.fn(),
-		afterCreate: vi.fn(),
-		beforeUpdate: vi.fn(),
-		afterUpdate: vi.fn(),
-		beforeDelete: vi.fn(),
-		afterDelete: vi.fn(),
-		loggerInfo: vi.fn(),
-		loggerError: vi.fn(),
-		requireAuth: vi.fn()
-	} as MockState;
+		beforeCreate: vi.fn<() => void>(),
+		afterCreate: vi.fn<() => void>(),
+		beforeUpdate: vi.fn<() => void>(),
+		afterUpdate: vi.fn<() => void>(),
+		beforeDelete: vi.fn<() => void>(),
+		afterDelete: vi.fn<() => void>(),
+		loggerInfo: vi.fn<() => void>(),
+		loggerError: vi.fn<() => void>(),
+		requireAuth: vi.fn<() => void>()
+	} as unknown as MockState;
 
-	state.superValidate = vi.fn(async () => state.superValidateResult);
-	state.insertReturning = vi.fn(async () => [{ id: 'new-id', name: 'created' }]);
-	state.insertValues = vi.fn(() => ({ returning: state.insertReturning }));
-	state.insert = vi.fn(() => ({ values: state.insertValues }));
-	state.updateWhere = vi.fn(async () => []);
-	state.updateSet = vi.fn(() => ({ where: state.updateWhere }));
-	state.update = vi.fn(() => ({ set: state.updateSet }));
-	state.deleteWhere = vi.fn(async () => []);
-	state.deleteFrom = vi.fn(() => ({ where: state.deleteWhere }));
-	state.beforeCreate = vi.fn(async () => undefined);
-	state.afterCreate = vi.fn(async () => undefined);
-	state.beforeUpdate = vi.fn(async () => undefined);
-	state.afterUpdate = vi.fn(async () => undefined);
-	state.beforeDelete = vi.fn(async () => undefined);
-	state.afterDelete = vi.fn(async () => undefined);
-	state.requireAuth = vi.fn(
-		(handler: (event: unknown, user: { id: string }) => Promise<unknown>) => {
-			return async (event: unknown) => handler(event, { id: 'user-1' });
-		}
+	state.superValidate = vi.fn<() => Promise<unknown>>(async () => state.superValidateResult);
+	state.insertReturning = vi.fn<() => Promise<unknown[]>>(async () => [
+		{ id: 'new-id', name: 'created' }
+	]);
+	state.insertValues = vi.fn<() => unknown>(() => ({ returning: state.insertReturning }));
+	state.insert = vi.fn<() => unknown>(() => ({ values: state.insertValues }));
+	state.updateWhere = vi.fn<() => Promise<unknown[]>>(async () => []);
+	state.updateSet = vi.fn<() => unknown>(() => ({ where: state.updateWhere }));
+	state.update = vi.fn<() => unknown>(() => ({ set: state.updateSet }));
+	state.deleteWhere = vi.fn<() => Promise<unknown[]>>(async () => []);
+	state.deleteFrom = vi.fn<() => unknown>(() => ({ where: state.deleteWhere }));
+	state.beforeCreate = vi.fn<(data: Record<string, unknown>, userId: string) => Promise<void>>(
+		async () => undefined
 	);
+	state.afterCreate = vi.fn<(id: string, data: Record<string, unknown>) => Promise<void>>(
+		async () => undefined
+	);
+	state.beforeUpdate = vi.fn<
+		(id: string, data: Record<string, unknown>, userId: string) => Promise<unknown>
+	>(async () => undefined);
+	state.afterUpdate = vi.fn<
+		(id: string, data: Partial<Record<string, unknown>>, context: unknown) => Promise<void>
+	>(async () => undefined);
+	state.beforeDelete = vi.fn<(id: string, userId: string) => Promise<void | { error: string }>>(
+		async () => undefined
+	);
+	state.afterDelete = vi.fn<(id: string) => Promise<void>>(async () => undefined);
+	state.requireAuth = vi.fn<
+		(
+			handler: (event: unknown, user: { id: string }) => Promise<unknown>
+		) => (event: unknown) => Promise<unknown>
+	>((handler: (event: unknown, user: { id: string }) => Promise<unknown>) => {
+		return async (event: unknown) => handler(event, { id: 'user-1' });
+	});
 
 	state.db = {
 		insert: state.insert,

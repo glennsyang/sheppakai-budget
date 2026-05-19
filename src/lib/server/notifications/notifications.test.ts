@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
-	fetch: vi.fn(),
-	loggerError: vi.fn(),
-	getEnv: vi.fn(() => ({
+	fetch: vi.fn<(input: string, init?: RequestInit) => Promise<unknown>>(),
+	loggerError: vi.fn<() => void>(),
+	getEnv: vi.fn<() => { AUTH_ALERTS_URL: string; BUDGET_ALERTS_URL: string }>(() => ({
 		AUTH_ALERTS_URL: 'https://alerts.example.com/auth',
 		BUDGET_ALERTS_URL: 'https://alerts.example.com/budget'
 	}))

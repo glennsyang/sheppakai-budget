@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
-	budgetFindMany: vi.fn(),
-	transactionFindMany: vi.fn(),
-	transactionFindFirst: vi.fn(),
-	sendBudgetAlerts: vi.fn(),
-	loggerInfo: vi.fn(),
-	loggerError: vi.fn()
+	budgetFindMany: vi.fn<() => Promise<unknown[]>>(),
+	transactionFindMany: vi.fn<() => Promise<unknown[]>>(),
+	transactionFindFirst: vi.fn<() => Promise<unknown>>(),
+	sendBudgetAlerts: vi.fn<() => Promise<boolean>>(),
+	loggerInfo: vi.fn<() => void>(),
+	loggerError: vi.fn<() => void>()
 }));
 
 vi.mock('$lib/server/db', () => ({

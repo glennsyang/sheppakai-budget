@@ -108,7 +108,7 @@ function createCreateAction<
 			// Transform data if transformer provided
 			let dataToInsert: Partial<InferInsertType<TTable>> = config.transformCreate
 				? config.transformCreate(form.data as InferSchemaType<TSchema>, userId)
-				: ({ ...form.data } as Partial<InferInsertType<TTable>>);
+				: { ...form.data };
 
 			// Remove id field if present (it's auto-generated)
 			const dataRecord = dataToInsert as Record<string, unknown>;
