@@ -55,6 +55,9 @@ export const actions: Actions = {
 		if (authFailure) {
 			return authFailure;
 		}
+		if (!locals.user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
 
 		const form = await superValidate(request, zod4(unArchiveSchema));
 		if (!form.valid) {
@@ -72,7 +75,7 @@ export const actions: Actions = {
 						{
 							status: 'active'
 						},
-						locals.user!
+						locals.user
 					)
 				)
 				.where(eq(savingsGoal.id, form.data.goalId));

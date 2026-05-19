@@ -58,6 +58,21 @@ function formatMessage(level: LogLevel, message: string): string {
 }
 
 /**
+ * Calls the given console function with the formatted message and optional sanitized data.
+ */
+function printLog(
+	fn: (...args: unknown[]) => void,
+	formattedMessage: string,
+	sanitized: unknown
+): void {
+	if (sanitized === undefined) {
+		fn(formattedMessage);
+	} else {
+		fn(formattedMessage, sanitized);
+	}
+}
+
+/**
  * Core logging function.
  */
 function log(level: LogLevel, message: string, data?: unknown): void {
@@ -66,11 +81,7 @@ function log(level: LogLevel, message: string, data?: unknown): void {
 
 	switch (level) {
 		case 'ERROR':
-			if (sanitized === undefined) {
-				console.error(formattedMessage);
-			} else {
-				console.error(formattedMessage, sanitized);
-			}
+			printLog(console.error, formattedMessage, sanitized);
 			// Send errors to Sentry in production
 			if (!dev) {
 				if (data instanceof Error) {
@@ -88,11 +99,7 @@ function log(level: LogLevel, message: string, data?: unknown): void {
 			}
 			break;
 		case 'WARN':
-			if (sanitized === undefined) {
-				console.warn(formattedMessage);
-			} else {
-				console.warn(formattedMessage, sanitized);
-			}
+			printLog(console.warn, formattedMessage, sanitized);
 			// Send warnings to Sentry in production
 			if (!dev) {
 				Sentry.captureMessage(message, {
@@ -104,11 +111,7 @@ function log(level: LogLevel, message: string, data?: unknown): void {
 			break;
 		case 'INFO':
 		case 'DEBUG':
-			if (sanitized === undefined) {
-				console.log(formattedMessage);
-			} else {
-				console.log(formattedMessage, sanitized);
-			}
+			printLog(console.log, formattedMessage, sanitized);
 			break;
 	}
 }

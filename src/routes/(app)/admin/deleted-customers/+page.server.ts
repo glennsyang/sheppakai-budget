@@ -37,6 +37,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
 	restore: async ({ request, locals }) => {
 		requireAdmin(locals);
+		if (!locals.user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
 
 		const form = await superValidate(request, zod4(restoreCustomerSchema));
 		if (!form.valid) {
@@ -54,7 +57,7 @@ export const actions: Actions = {
 							deletedAt: null,
 							deletedBy: null
 						},
-						locals.user!
+						locals.user
 					)
 				)
 				.where(eq(windowCleaningCustomer.id, form.data.customerId));

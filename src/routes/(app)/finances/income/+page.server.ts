@@ -17,8 +17,14 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	const currentDate = new Date();
 	const currentYear = currentDate.getFullYear();
-	const completedMonthsSinceJanuary =
-		year < currentYear ? 12 : year > currentYear ? 0 : currentDate.getMonth();
+	let completedMonthsSinceJanuary: number;
+	if (year < currentYear) {
+		completedMonthsSinceJanuary = 12;
+	} else if (year > currentYear) {
+		completedMonthsSinceJanuary = 0;
+	} else {
+		completedMonthsSinceJanuary = currentDate.getMonth();
+	}
 
 	// Load monthly incomes for user
 	const monthlyIncomes = await incomeQueries.findByDateRange(startDate, endDate);
