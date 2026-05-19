@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { AreaChart } from 'layerchart';
-	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
-	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
-	import MinusIcon from '@lucide/svelte/icons/minus';
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
+	import MinusIcon from '@lucide/svelte/icons/minus';
+	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
+	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
+	import { AreaChart } from 'layerchart';
 
 	interface Props {
 		label: string;
@@ -57,18 +57,18 @@
 <Card.Root class="gap-3 py-4">
 	<Card.Content class="px-4">
 		<div class="flex items-center gap-1">
-			<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</p>
+			<p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">{label}</p>
 			{#if tooltip}
 				<InfoTooltip text={tooltip} size="sm" />
 			{/if}
 		</div>
 		<p class="mt-1 text-2xl font-bold tabular-nums {valueColor}">{value}</p>
 		{#if subtext}
-			<p class="mt-0.5 text-xs text-muted-foreground">{subtext}</p>
+			<p class="text-muted-foreground mt-0.5 text-xs">{subtext}</p>
 		{/if}
 
 		{#if trendDirection && trendLabel}
-			<div class="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+			<div class="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
 				{#if trendDirection === 'up'}
 					<TrendingUpIcon class="size-3" />
 				{:else if trendDirection === 'down'}

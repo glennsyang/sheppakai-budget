@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { AreaChart } from 'layerchart';
+	import type { TimeRangeInOutData } from '$lib';
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import { formatCurrency } from '$lib/utils';
-	import type { TimeRangeInOutData } from '$lib';
+	import { AreaChart } from 'layerchart';
 
 	interface Props {
 		chartData: TimeRangeInOutData[];
@@ -24,7 +24,7 @@
 	} satisfies Chart.ChartConfig;
 </script>
 
-<Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
+<Card.Root class="from-primary/5 to-card dark:bg-card bg-linear-to-t shadow-xs">
 	<Card.Header>
 		<div class="flex items-center gap-1.5">
 			<Card.Title>{chartTitle}</Card.Title>
@@ -58,7 +58,7 @@
 							></div>
 							{(seriesKey && chartConfig[seriesKey]?.label) || name}
 							<div
-								class="ms-auto flex items-baseline gap-0.5 font-mono font-medium text-foreground tabular-nums"
+								class="text-foreground ms-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums"
 							>
 								{formatCurrency(value as number)}
 							</div>
@@ -66,7 +66,7 @@
 								{@const inValue = (payload.find((p) => p.key === 'in')?.value as number) ?? 0}
 								{@const outValue = (payload.find((p) => p.key === 'out')?.value as number) ?? 0}
 								{@const diff = inValue - outValue}
-								<div class="w-full border-t border-border/50 pt-0.5"></div>
+								<div class="border-border/50 w-full border-t pt-0.5"></div>
 								<div
 									style="--color-diff: {diff >= 0 ? 'var(--chart-2)' : 'var(--chart-1)'}"
 									class="size-2.5 shrink-0 rounded-[2px] bg-(--color-diff)"

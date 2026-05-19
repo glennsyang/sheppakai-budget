@@ -1,8 +1,3 @@
-import { fail } from '@sveltejs/kit';
-import { and, eq, sql } from 'drizzle-orm';
-import { message, superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-
 import { budgetSchema } from '$lib/formSchemas';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
@@ -11,6 +6,10 @@ import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
 import { getMonthYearFromUrl, padMonth } from '$lib/utils/dates';
+import { fail } from '@sveltejs/kit';
+import { and, eq, sql } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -73,7 +72,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	});
 
 	// Fetch and aggregate transactions for the last 6 months
-	const historicalTransactions = await getDb()
+	const historicalTransactions = getDb()
 		.select({
 			categoryId: transaction.categoryId,
 			month: sql<string>`substr(${transaction.date}, 6, 2)`,
@@ -126,7 +125,7 @@ export const actions = {
 							month: form.data.month,
 							presetType: form.data.presetType || null,
 							categoryId: form.data.categoryId,
-							userId: user.id.toString()
+							userId: user.id
 						},
 						user
 					)
@@ -190,7 +189,8 @@ export const actions = {
 
 	delete: requireAuth(async ({ request }, user) => {
 		const data = await request.formData();
-		const budgetId = data.get('id')?.toString();
+		const rawId = data.get('id');
+		const budgetId = typeof rawId === 'string' ? rawId : undefined;
 
 		if (!budgetId) {
 			return fail(400, { error: 'Budget ID is required', type: 'error' });

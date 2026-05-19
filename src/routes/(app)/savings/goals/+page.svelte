@@ -1,9 +1,5 @@
 <script lang="ts">
-	import { PlusIcon } from '@lucide/svelte/icons';
-	import { setContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { Contribution, SavingsGoalWithProgress } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import ContributionModal from '$lib/components/ContributionModal.svelte';
 	import SavingsGoalCard from '$lib/components/SavingsGoalCard.svelte';
@@ -14,10 +10,12 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import type { contributionSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
+	import { PlusIcon } from '@lucide/svelte/icons';
+	import { setContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import DataTableActions from './data-table-actions.svelte';
-
-	import type { Contribution, SavingsGoalWithProgress } from '$lib';
 
 	interface Props {
 		data: {
@@ -105,7 +103,7 @@
 	<div class="mb-6 flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold tracking-tight">Savings Goals</h1>
-			<p class="mt-2 text-muted-foreground">Track your savings goals and contributions</p>
+			<p class="text-muted-foreground mt-2">Track your savings goals and contributions</p>
 		</div>
 		<div class="flex items-center gap-2">
 			<Button size="sm" onclick={handleCreateGoal}>
@@ -123,7 +121,7 @@
 		<CardContent>
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
 				<div class="text-center">
-					<p class="text-sm text-muted-foreground">Total Target</p>
+					<p class="text-muted-foreground text-sm">Total Target</p>
 					<p class="text-2xl font-bold">
 						${totalTargetAmount.toLocaleString('en-US', {
 							minimumFractionDigits: 2,
@@ -132,7 +130,7 @@
 					</p>
 				</div>
 				<div class="text-center">
-					<p class="text-sm text-muted-foreground">Total Saved</p>
+					<p class="text-muted-foreground text-sm">Total Saved</p>
 					<p class="text-2xl font-bold text-green-600 dark:text-green-400">
 						${totalCurrentAmount.toLocaleString('en-US', {
 							minimumFractionDigits: 2,
@@ -141,7 +139,7 @@
 					</p>
 				</div>
 				<div class="text-center">
-					<p class="text-sm text-muted-foreground">Overall Progress</p>
+					<p class="text-muted-foreground text-sm">Overall Progress</p>
 					<p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
 						{Math.round(overallProgress)}%
 					</p>
@@ -189,7 +187,7 @@
 
 		<div class="flex-1 overflow-y-auto px-4 py-3 sm:py-4">
 			{#if selectedGoalContributions.length === 0}
-				<div class="flex h-32 items-center justify-center text-muted-foreground">
+				<div class="text-muted-foreground flex h-32 items-center justify-center">
 					No contributions for this goal yet.
 				</div>
 			{:else}
@@ -197,14 +195,14 @@
 					{#each selectedGoalContributions as contribution (contribution.id)}
 						<div class="rounded-md border p-3">
 							<div class="mb-2 flex items-start justify-between gap-2">
-								<p class="text-sm text-muted-foreground">
+								<p class="text-muted-foreground text-sm">
 									{formatLocalTimestamp(contribution.date)}
 								</p>
 								{#if !isSelectedGoalArchived}
 									<DataTableActions id={contribution.id} contributionData={contribution} />
 								{/if}
 							</div>
-							<p class="text-sm text-foreground">
+							<p class="text-foreground text-sm">
 								{contribution.description || '—'}
 							</p>
 							<p class="mt-2 text-right font-medium">
@@ -233,7 +231,7 @@
 									<Table.Cell class="whitespace-nowrap">
 										{formatLocalTimestamp(contribution.date)}
 									</Table.Cell>
-									<Table.Cell class="max-w-[240px] truncate">
+									<Table.Cell class="max-w-60 truncate">
 										{contribution.description || '—'}
 									</Table.Cell>
 									<Table.Cell class="text-right font-medium whitespace-nowrap">

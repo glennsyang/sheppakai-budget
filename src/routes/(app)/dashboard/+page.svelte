@@ -1,32 +1,31 @@
 <script lang="ts">
-	import { SvelteMap } from 'svelte/reactivity';
-
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import type { MonthlyNetflowData, SpendingBreakdownData } from '$lib';
 	import BudgetAlertRow from '$lib/components/BudgetAlertRow.svelte';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import CashFlowProjectionCard from '$lib/components/CashFlowProjectionCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
 	import GoalsSummaryStrip from '$lib/components/GoalsSummaryStrip.svelte';
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import KpiSparklineCard from '$lib/components/KpiSparklineCard.svelte';
-	import MonthlyCategoryChart from '$lib/components/MonthlyCategoryChart.svelte';
 	import MonthlyBudgetSummaryCard from '$lib/components/MonthlyBudgetSummaryCard.svelte';
-	import MonthlyNetSavingsCard from '$lib/components/MonthlyNetSavingsCard.svelte';
+	import MonthlyCategoryChart from '$lib/components/MonthlyCategoryChart.svelte';
 	import MonthlyNetflowChart from '$lib/components/MonthlyNetflowChart.svelte';
+	import MonthlyNetSavingsCard from '$lib/components/MonthlyNetSavingsCard.svelte';
 	import RecurringExpensesCard from '$lib/components/RecurringExpensesCard.svelte';
 	import SpendingBreakdownChart from '$lib/components/SpendingBreakdownChart.svelte';
 	import SpendingTrendLineChart from '$lib/components/SpendingTrendLineChart.svelte';
 	import TimeRangeInOut from '$lib/components/TimeRangeInOut.svelte';
-	import WindowCleaningSummaryCard from '$lib/components/WindowCleaningSummaryCard.svelte';
-	import { ChevronDownIcon } from '@lucide/svelte';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
+	import WindowCleaningSummaryCard from '$lib/components/WindowCleaningSummaryCard.svelte';
 	import { getCategoriesContext } from '$lib/contexts';
-	import type { MonthlyNetflowData, SpendingBreakdownData } from '$lib';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
+	import { ChevronDownIcon } from '@lucide/svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	import type { PageProps } from './$types';
 
@@ -322,7 +321,7 @@
 		<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
 			<div class="lg:pt-1">
 				<h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
-				<p class="mt-2 text-muted-foreground">Overview of your budget and expenses</p>
+				<p class="text-muted-foreground mt-2">Overview of your budget and expenses</p>
 			</div>
 			<div class="w-full lg:ml-auto lg:w-136">
 				<div class="grid gap-3">
@@ -494,7 +493,7 @@
 						<button
 							type="button"
 							onclick={() => openCategoryDetails(category.id)}
-							class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
+							class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-destructive/40 ring-1' : ''}`}
 						>
 							<BudgetProgressCard
 								title={category.name}
@@ -544,12 +543,12 @@
 		<Collapsible.Root bind:open={categoriesOpen} class="mt-2">
 			<Collapsible.Trigger class="group mb-4 flex cursor-pointer items-center gap-2">
 				<ChevronDownIcon
-					class="h-5 w-5 text-muted-foreground transition-transform duration-200 {categoriesOpen
+					class="text-muted-foreground h-5 w-5 transition-transform duration-200 {categoriesOpen
 						? ''
 						: '-rotate-90'}"
 				/>
 				<h2 class="text-xl font-semibold">All Categories</h2>
-				<span class="text-sm text-muted-foreground">({sortedCategories.length})</span>
+				<span class="text-muted-foreground text-sm">({sortedCategories.length})</span>
 			</Collapsible.Trigger>
 			<Collapsible.Content>
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -558,7 +557,7 @@
 						<button
 							type="button"
 							onclick={() => openCategoryDetails(category.id)}
-							class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-1 ring-destructive/40' : ''}`}
+							class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-destructive/40 ring-1' : ''}`}
 						>
 							<BudgetProgressCard
 								title={category.name}
@@ -575,18 +574,18 @@
 	{:else}
 		<!-- Yearly YTD KPI row -->
 		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-			<div class="rounded-xl border bg-card p-4 shadow-xs">
-				<p class="text-sm text-muted-foreground">YTD Income</p>
+			<div class="bg-card rounded-xl border p-4 shadow-xs">
+				<p class="text-muted-foreground text-sm">YTD Income</p>
 				<p class="mt-1 text-2xl font-bold tabular-nums">{formatCurrency(data.totalIncome || 0)}</p>
 			</div>
-			<div class="rounded-xl border bg-card p-4 shadow-xs">
-				<p class="text-sm text-muted-foreground">YTD Spent</p>
+			<div class="bg-card rounded-xl border p-4 shadow-xs">
+				<p class="text-muted-foreground text-sm">YTD Spent</p>
 				<p class="mt-1 text-2xl font-bold tabular-nums">
 					{formatCurrency(data.actualExpensesTotal || 0)}
 				</p>
 			</div>
-			<div class="rounded-xl border bg-card p-4 shadow-xs">
-				<p class="text-sm text-muted-foreground">YTD Net</p>
+			<div class="bg-card rounded-xl border p-4 shadow-xs">
+				<p class="text-muted-foreground text-sm">YTD Net</p>
 				<p
 					class={`mt-1 text-2xl font-bold tabular-nums ${ytdNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
 				>
@@ -632,7 +631,7 @@
 		<Collapsible.Root bind:open={spentByCategoryOpen} class="mt-2">
 			<Collapsible.Trigger class="group mb-4 flex cursor-pointer items-center gap-2">
 				<ChevronDownIcon
-					class="h-5 w-5 text-muted-foreground transition-transform duration-200 {spentByCategoryOpen
+					class="text-muted-foreground h-5 w-5 transition-transform duration-200 {spentByCategoryOpen
 						? ''
 						: '-rotate-90'}"
 				/>

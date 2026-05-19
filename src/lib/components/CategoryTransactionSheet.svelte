@@ -1,10 +1,9 @@
 <script lang="ts">
+	import type { Category, Transaction } from '$lib';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { months } from '$lib/utils';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
-
-	import type { Category, Transaction } from '$lib';
 
 	interface Props {
 		open: boolean;
@@ -45,7 +44,7 @@
 
 		<div class="flex-1 overflow-y-auto px-4 py-4">
 			{#if transactions.length === 0}
-				<div class="flex h-32 items-center justify-center text-muted-foreground">
+				<div class="text-muted-foreground flex h-32 items-center justify-center">
 					No transactions yet
 				</div>
 			{:else}

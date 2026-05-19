@@ -1,9 +1,8 @@
 <script lang="ts">
-	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
-
 	import { Button } from '$lib/components/ui/button';
 	import { monthNames } from '$lib/utils';
+	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
+	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 
 	interface Props {
 		currentMonth: number;

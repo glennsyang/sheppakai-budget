@@ -1,16 +1,14 @@
 <script lang="ts">
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import { getContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { Category } from '$lib';
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import type { categorySchema } from '$lib/formSchemas';
-
-	import type { Category } from '$lib';
+	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import { getContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	let { id, categoryData }: { id: string; categoryData: Category } = $props();
 

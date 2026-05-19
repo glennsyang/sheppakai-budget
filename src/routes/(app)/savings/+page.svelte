@@ -1,8 +1,5 @@
 <script lang="ts">
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { Savings } from '$lib';
 	import SavingsModal from '$lib/components/SavingsModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -11,10 +8,11 @@
 	import { savingsFormContext } from '$lib/contexts';
 	import type { savingsSchema } from '$lib/formSchemas';
 	import { formatCurrency } from '$lib/utils';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import { columns } from './columns';
-
-	import type { Savings } from '$lib';
 
 	interface Props {
 		data: {
@@ -50,7 +48,7 @@
 					<div class="mb-4 flex items-center justify-between">
 						<div>
 							<h1 class="text-3xl font-bold tracking-tight">Savings</h1>
-							<p class="mt-2 text-muted-foreground">Track and manage your savings accounts</p>
+							<p class="text-muted-foreground mt-2">Track and manage your savings accounts</p>
 						</div>
 						<div class="flex items-center gap-2">
 							<Button size="sm" onclick={() => (openModal = true)}>
@@ -79,7 +77,7 @@
 						<p class="text-3xl font-bold text-green-600 dark:text-green-400">
 							{formatCurrency(totalSavings)}
 						</p>
-						<p class="mt-2 text-sm text-muted-foreground">
+						<p class="text-muted-foreground mt-2 text-sm">
 							{data.savings.length}
 							{data.savings.length === 1 ? 'account' : 'accounts'}
 						</p>

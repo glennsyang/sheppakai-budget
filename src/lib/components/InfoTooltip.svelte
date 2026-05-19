@@ -1,7 +1,7 @@
 <script lang="ts">
-	import InfoIcon from '@lucide/svelte/icons/info';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils.js';
+	import InfoIcon from '@lucide/svelte/icons/info';
 
 	interface Props {
 		text: string;
@@ -33,7 +33,7 @@
 	</Popover.Trigger>
 	<Popover.Content
 		class={cn(
-			'w-auto rounded-md bg-foreground px-3 py-1.5 text-xs text-background shadow-md ring-0',
+			'bg-foreground text-background w-auto rounded-md px-3 py-1.5 text-xs shadow-md ring-0',
 			maxWidth
 		)}
 	>

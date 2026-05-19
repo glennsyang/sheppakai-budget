@@ -1,8 +1,7 @@
 <script lang="ts">
-	import PlusIcon from '@lucide/svelte/icons/plus';
-
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import type { Transaction } from '$lib';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
@@ -11,11 +10,10 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import { formatCurrency, months } from '$lib/utils';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
-
-	import type { Transaction } from '$lib';
 
 	let { data }: PageProps = $props();
 
@@ -128,7 +126,7 @@
 					<div class="mb-4 flex items-center justify-between">
 						<div>
 							<h1 class="text-3xl font-bold tracking-tight">Fuel Receipts</h1>
-							<p class="mt-2 text-muted-foreground">Gas category transactions to track your GST</p>
+							<p class="text-muted-foreground mt-2">Gas category transactions to track your GST</p>
 						</div>
 						<div class="flex items-center gap-2">
 							<Button size="sm" onclick={() => (openModal = true)}>

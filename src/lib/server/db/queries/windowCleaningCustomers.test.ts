@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
-	findAll: vi.fn(async (_options?: { where?: unknown }) => []),
-	findFirst: vi.fn(async (_options?: { where?: unknown }) => undefined),
-	findManyDirect: vi.fn(async () => []),
-	getDb: vi.fn()
+	findAll: vi.fn<(_options?: { where?: unknown }) => Promise<unknown[]>>(
+		async (_options?: { where?: unknown }) => []
+	),
+	findFirst: vi.fn<(_options?: { where?: unknown }) => Promise<undefined>>(
+		async (_options?: { where?: unknown }) => undefined
+	),
+	findManyDirect: vi.fn<() => Promise<unknown[]>>(async () => []),
+	getDb: vi.fn<() => unknown>()
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -26,7 +30,7 @@ vi.mock('../schema', () => ({
 vi.mock('./factory', () => ({
 	createQueryBuilder: () => ({
 		findAll: mockState.findAll,
-		findById: vi.fn(),
+		findById: vi.fn<() => void>(),
 		findFirst: mockState.findFirst
 	})
 }));

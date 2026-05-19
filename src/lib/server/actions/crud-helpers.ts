@@ -1,3 +1,6 @@
+import { getDb } from '$lib/server/db';
+import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 import type { RequestEvent } from '@sveltejs/kit';
 import { fail } from '@sveltejs/kit';
 import { eq, getTableColumns } from 'drizzle-orm';
@@ -5,10 +8,6 @@ import type { SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import type { z, ZodType } from 'zod';
-
-import { getDb } from '$lib/server/db';
-import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
-import { logger } from '$lib/server/logger';
 
 import { requireAuth } from './auth-guard';
 import { type CrudMessages, getCrudMessage } from './messages';
@@ -98,7 +97,7 @@ function createCreateAction<
 			return fail(400, { form });
 		}
 
-		const userId = user.id.toString();
+		const userId = user.id;
 
 		try {
 			// Run beforeCreate hook if provided
@@ -109,7 +108,7 @@ function createCreateAction<
 			// Transform data if transformer provided
 			let dataToInsert: Partial<InferInsertType<TTable>> = config.transformCreate
 				? config.transformCreate(form.data as InferSchemaType<TSchema>, userId)
-				: ({ ...form.data } as Partial<InferInsertType<TTable>>);
+				: { ...form.data };
 
 			// Remove id field if present (it's auto-generated)
 			const dataRecord = dataToInsert as Record<string, unknown>;
@@ -174,7 +173,7 @@ function createUpdateAction<
 			return fail(400, { error: 'ID is required for update' });
 		}
 
-		const userId = user.id.toString();
+		const userId = user.id;
 		let updateContext: TUpdateContext | undefined;
 
 		try {
@@ -249,7 +248,7 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
 			}
 
 			const recordId = (form.data as Record<string, unknown> & { id: string }).id;
-			const userId = user.id.toString();
+			const userId = user.id;
 
 			try {
 				// Run beforeDelete hook if provided
@@ -296,7 +295,7 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
 		}
 
 		const recordId = data.get('id') as string;
-		const userId = user.id.toString();
+		const userId = user.id;
 
 		try {
 			// Run beforeDelete hook if provided

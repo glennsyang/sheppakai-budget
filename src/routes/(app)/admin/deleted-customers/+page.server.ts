@@ -1,14 +1,13 @@
-import { fail } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
-import { message, superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-
 import { restoreCustomerSchema } from '$lib/formSchemas';
 import { requireAdmin } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { windowCleaningCustomer } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
+import { fail } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -38,6 +37,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
 	restore: async ({ request, locals }) => {
 		requireAdmin(locals);
+		if (!locals.user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
 
 		const form = await superValidate(request, zod4(restoreCustomerSchema));
 		if (!form.valid) {
@@ -55,7 +57,7 @@ export const actions: Actions = {
 							deletedAt: null,
 							deletedBy: null
 						},
-						locals.user!
+						locals.user
 					)
 				)
 				.where(eq(windowCleaningCustomer.id, form.data.customerId));

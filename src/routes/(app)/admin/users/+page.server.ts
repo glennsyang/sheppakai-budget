@@ -1,11 +1,10 @@
-import { fail } from '@sveltejs/kit';
-import { message, superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-
 import { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
 import { auth, requireAdmin } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import type { UserWithSessions } from '$lib/types';
+import { fail } from '@sveltejs/kit';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -199,7 +198,8 @@ export const actions: Actions = {
 		}
 
 		const data = await request.formData();
-		const userId = data.get('id')?.toString();
+		const rawId = data.get('id');
+		const userId = typeof rawId === 'string' ? rawId : undefined;
 
 		if (!userId) {
 			return fail(400, { error: 'User ID is required' });
@@ -228,7 +228,8 @@ export const actions: Actions = {
 		}
 
 		const data = await request.formData();
-		const userId = data.get('id')?.toString();
+		const rawId = data.get('id');
+		const userId = typeof rawId === 'string' ? rawId : undefined;
 
 		if (!userId) {
 			return fail(400, { error: 'User ID is required' });
@@ -258,7 +259,8 @@ export const actions: Actions = {
 		}
 
 		const data = await request.formData();
-		const userId = data.get('id')?.toString();
+		const rawId = data.get('id');
+		const userId = typeof rawId === 'string' ? rawId : undefined;
 
 		if (!userId) {
 			return fail(400, { error: 'User ID is required' });

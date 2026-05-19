@@ -1,6 +1,5 @@
-import { getContext, setContext } from 'svelte';
-
 import type { Category } from '$lib/types';
+import { getContext, setContext } from 'svelte';
 
 /**
  * Unique symbol key for categories context to prevent collisions

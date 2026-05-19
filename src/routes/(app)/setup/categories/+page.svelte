@@ -1,11 +1,10 @@
 <script lang="ts">
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
-
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { setContext } from 'svelte';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -29,7 +28,7 @@
 			<div class="mb-4 flex items-center justify-between">
 				<div>
 					<h1 class="text-3xl font-bold tracking-tight">Categories</h1>
-					<p class="mt-2 text-muted-foreground">
+					<p class="text-muted-foreground mt-2">
 						Manage your categories for better budget tracking
 					</p>
 				</div>

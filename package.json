@@ -1,7 +1,7 @@
 {
 	"name": "sheppakai-budget",
-	"private": true,
 	"version": "0.0.1",
+	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -10,7 +10,8 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"format": "prettier --write .",
+		"fmt": "oxfmt",
+		"fmt:check": "oxfmt --check",
 		"lint": "oxlint && npm run lint:static",
 		"lint:fix": "oxlint --fix",
 		"lint:static": "npm run check:dead-exports && npm run check:redirect-throws && npm run check:no-explicit-any",
@@ -18,27 +19,26 @@
 		"check:dead-exports": "node scripts/check-dead-exports.mjs",
 		"check:redirect-throws": "node scripts/check-redirect-throws.mjs",
 		"check:no-explicit-any": "node scripts/check-no-explicit-any.mjs",
-		"check:all": "npm run format && npm run lint && npm run test",
 		"test": "npm run test:unit -- --run",
 		"test:unit": "vitest",
 		"test:ci": "npm run test:unit -- --run && npm run test:coverage",
 		"test:coverage": "vitest run --coverage",
+		"check:all": "npm run fmt && npm run lint && npm run test",
 		"update-deps": "npm outdated || npm update",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio"
 	},
-	"lint-staged": {
-		"*.(js|ts|svelte)": [
-			"prettier --write",
-			"npm run lint"
-		],
-		"*.svelte": [
-			"svelte-check --threshold error"
-		],
-		"*.(json|md|css|html|svg)": [
-			"prettier --write"
-		]
+	"dependencies": {
+		"@sentry/sveltekit": "^10.47.0",
+		"better-auth": "^1.5.4",
+		"better-sqlite3": "^12.6.2",
+		"d3-scale": "^4.0.2",
+		"d3-shape": "^3.2.0",
+		"drizzle-kit": "^0.31.9",
+		"drizzle-orm": "^0.45.1",
+		"mode-watcher": "^1.1.0",
+		"resend": "^6.10.0"
 	},
 	"devDependencies": {
 		"@flydotio/dockerfile": "^0.7.10",
@@ -62,11 +62,9 @@
 		"layerchart": "^2.0.0-next.63",
 		"lefthook": "^2.0.16",
 		"lint-staged": "^17.0.4",
-		"oxlint": "^1.64.0",
+		"oxfmt": "^0.51.0",
+		"oxlint": "^1.66.0",
 		"oxlint-tsgolint": "^0.23.0",
-		"prettier": "^3.8.3",
-		"prettier-plugin-svelte": "^3.5.2",
-		"prettier-plugin-tailwindcss": "^0.8.0",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.3.4",
 		"svelte-sonner": "^1.0.7",
@@ -76,19 +74,20 @@
 		"tailwindcss": "^4.1.18",
 		"tw-animate-css": "^1.4.0",
 		"typescript": "^5.9.3",
-		"vite": "^8.0.10",
-		"vitest": "^4.0.15",
+		"vite": "^8.0.13",
+		"vitest": "^4.1.6",
 		"zod": "^4.4.3"
 	},
-	"dependencies": {
-		"@sentry/sveltekit": "^10.47.0",
-		"better-auth": "^1.5.4",
-		"better-sqlite3": "^12.6.2",
-		"d3-scale": "^4.0.2",
-		"d3-shape": "^3.2.0",
-		"drizzle-kit": "^0.31.9",
-		"drizzle-orm": "^0.45.1",
-		"mode-watcher": "^1.1.0",
-		"resend": "^6.10.0"
+	"lint-staged": {
+		"*.(js|ts|svelte)": [
+			"npm run fmt",
+			"npm run lint"
+		],
+		"*.svelte": [
+			"svelte-check --threshold error"
+		],
+		"*.(json|md|css|html|svg)": [
+			"npm run fmt"
+		]
 	}
 }

@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { CalendarIcon } from '@lucide/svelte/icons';
-
-	import * as Card from '$lib/components/ui/card/index.js';
-	import * as Separator from '$lib/components/ui/separator/index.js';
 	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
+	import * as Card from '$lib/components/ui/card/index.js';
 	import { Progress } from '$lib/components/ui/progress/index.js';
+	import * as Separator from '$lib/components/ui/separator/index.js';
 	import { formatCurrency } from '$lib/utils';
+	import { CalendarIcon } from '@lucide/svelte/icons';
 
 	interface Props {
 		totalIncome: number;
@@ -65,13 +64,13 @@
 <Card.Root>
 	<Card.Header class="pb-3">
 		<div class="flex items-center gap-2">
-			<CalendarIcon class="size-4 text-muted-foreground" />
+			<CalendarIcon class="text-muted-foreground size-4" />
 			<Card.Title class="text-base">Cash Flow Projection</Card.Title>
 			<InfoTooltip
 				maxWidth="max-w-72"
 				text="Shows where your money stands this month. The left side breaks down income, what you've spent on transactions, and recurring commitments to calculate your discretionary budget remaining. The right side projects your total spend by month-end based on your daily burn rate, and shows how much you can safely spend per day."
 			/>
-			<span class="ml-auto text-xs text-muted-foreground">{daysRemaining} days remaining</span>
+			<span class="text-muted-foreground ml-auto text-xs">{daysRemaining} days remaining</span>
 		</div>
 	</Card.Header>
 	<Card.Content class="pt-0">
@@ -79,18 +78,18 @@
 			<!-- Left: breakdown -->
 			<div class="space-y-0">
 				<div class="flex justify-between py-2.5">
-					<span class="text-sm text-muted-foreground">Monthly Income</span>
+					<span class="text-muted-foreground text-sm">Monthly Income</span>
 					<span class="text-sm font-semibold tabular-nums">{formatCurrency(totalIncome)}</span>
 				</div>
 				<Separator.Root />
 				<div class="flex justify-between py-2.5">
-					<span class="text-sm text-muted-foreground">Spent so far</span>
+					<span class="text-muted-foreground text-sm">Spent so far</span>
 					<span class="text-sm font-semibold tabular-nums">{formatCurrency(nonRecurringSpent)}</span
 					>
 				</div>
 				<Separator.Root />
 				<div class="flex justify-between py-2.5">
-					<span class="text-sm text-muted-foreground">Recurring committed</span>
+					<span class="text-muted-foreground text-sm">Recurring committed</span>
 					<span class="text-sm font-semibold tabular-nums"
 						>{formatCurrency(recurringMonthlyTotal)}</span
 					>
@@ -115,7 +114,7 @@
 				<div>
 					<div class="mb-1.5 flex items-center justify-between">
 						<div class="flex items-center gap-1">
-							<span class="text-xs text-muted-foreground">Projected month-end spend</span>
+							<span class="text-muted-foreground text-xs">Projected month-end spend</span>
 							<InfoTooltip
 								size="sm"
 								text="Based on your daily burn rate so far this month ({formatCurrency(
@@ -128,14 +127,14 @@
 						</span>
 					</div>
 					<Progress value={projectionPercent} class="h-2.5 {progressClass}" />
-					<p class="mt-1 text-right text-xs text-muted-foreground">
+					<p class="text-muted-foreground mt-1 text-right text-xs">
 						of {formatCurrency(totalIncome)}
 					</p>
 				</div>
 
-				<div class="rounded-lg bg-muted/50 px-4 py-3">
+				<div class="bg-muted/50 rounded-lg px-4 py-3">
 					<div class="flex items-center gap-1">
-						<p class="text-xs text-muted-foreground">Daily budget remaining</p>
+						<p class="text-muted-foreground text-xs">Daily budget remaining</p>
 						<InfoTooltip
 							size="sm"
 							text="Discretionary left (income − spent − recurring) divided by the number of days remaining in the month."
@@ -143,7 +142,7 @@
 					</div>
 					<p class="mt-0.5 text-xl font-bold tabular-nums {projectionColor}">
 						{formatCurrency(dailyDiscretionary)}
-						<span class="text-sm font-normal text-muted-foreground">/day</span>
+						<span class="text-muted-foreground text-sm font-normal">/day</span>
 					</p>
 				</div>
 			</div>

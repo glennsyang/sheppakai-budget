@@ -1,12 +1,10 @@
+import type { Savings } from '$lib';
+import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
+import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 
-import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
-
 import DataTableActions from './data-table-actions.svelte';
-
-import type { Savings } from '$lib';
 
 export const columns: ColumnDef<Savings>[] = [
 	{
@@ -55,7 +53,7 @@ export const columns: ColumnDef<Savings>[] = [
 		id: 'actions',
 		cell: ({ row }) => {
 			return renderComponent(DataTableActions, {
-				id: row.original.id.toString(),
+				id: row.original.id,
 				savingsData: row.original
 			});
 		}

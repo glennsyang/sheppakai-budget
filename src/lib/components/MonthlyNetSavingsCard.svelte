@@ -16,16 +16,16 @@
 
 <Card.Root class="shadow-xs">
 	<Card.Header class="pb-3">
-		<Card.Title class="text-base font-medium text-muted-foreground">Net Savings</Card.Title>
+		<Card.Title class="text-muted-foreground text-base font-medium">Net Savings</Card.Title>
 	</Card.Header>
 	<Card.Content>
 		{#if chartData.length === 0}
-			<p class="text-sm text-muted-foreground">No data available.</p>
+			<p class="text-muted-foreground text-sm">No data available.</p>
 		{:else}
 			<div class="overflow-x-auto">
 				<table class="w-full text-sm">
 					<thead>
-						<tr class="border-b text-left text-muted-foreground">
+						<tr class="text-muted-foreground border-b text-left">
 							<th class="pb-2 font-medium">Month</th>
 							<th class="pb-2 text-right font-medium">Income</th>
 							<th class="pb-2 text-right font-medium">Spent</th>
@@ -35,7 +35,7 @@
 					<tbody>
 						{#each chartData as row (row.month)}
 							{@const net = row.in - row.out}
-							<tr class="border-b border-border/50 last:border-0">
+							<tr class="border-border/50 border-b last:border-0">
 								<td class="py-2.5">{row.month}</td>
 								<td class="py-2.5 text-right tabular-nums">{formatCurrency(row.in)}</td>
 								<td class="py-2.5 text-right tabular-nums">{formatCurrency(row.out)}</td>
@@ -48,7 +48,7 @@
 						{/each}
 					</tbody>
 					<tfoot>
-						<tr class="border-t-2 border-border">
+						<tr class="border-border border-t-2">
 							<td class="pt-2.5 font-bold">Total</td>
 							<td class="pt-2.5 text-right font-bold tabular-nums">{formatCurrency(totalIncome)}</td
 							>

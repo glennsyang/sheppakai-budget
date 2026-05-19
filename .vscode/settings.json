@@ -4,13 +4,15 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.oxc": "always"
 	},
+	"oxc.fmt.configPath": "oxfmt.config.ts",
+	"editor.defaultFormatter": "oxc.oxc-vscode",
 	"oxc.typeAware": true,
 	"chat.tools.terminal.autoApprove": {
 		"/^ls/": true,
 		"/^cd/": true,
 		"/^grep/": true,
 		"/^cat/": true,
-		"npm run format": true,
+		"npm run fmt": true,
 		"npm run lint": true,
 		"npm run test": true,
 		"npm run check": true,

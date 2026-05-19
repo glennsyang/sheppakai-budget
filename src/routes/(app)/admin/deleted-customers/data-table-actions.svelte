@@ -1,15 +1,13 @@
 <script lang="ts">
-	import ArchiveRestoreIcon from '@lucide/svelte/icons/archive-restore';
-	import { toast } from 'svelte-sonner';
-	import { getContext } from 'svelte';
-	import { superForm, type SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { WindowCleaningCustomer } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import type { restoreCustomerSchema } from '$lib/formSchemas';
-
-	import type { WindowCleaningCustomer } from '$lib';
+	import ArchiveRestoreIcon from '@lucide/svelte/icons/archive-restore';
+	import { getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { superForm, type SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	type DeletedCustomer = WindowCleaningCustomer & { user: { name: string; email: string } };
 

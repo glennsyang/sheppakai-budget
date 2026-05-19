@@ -1,17 +1,15 @@
 <script lang="ts">
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
-
+	import type { Recurring } from '$lib';
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { formatCurrency } from '$lib/utils';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { setContext } from 'svelte';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
-
-	import type { Recurring } from '$lib';
 
 	let { data }: PageProps = $props();
 
@@ -56,7 +54,7 @@
 					<div class="mb-4 flex items-center justify-between">
 						<div>
 							<h1 class="text-3xl font-bold tracking-tight">Recurring Expenses</h1>
-							<p class="mt-2 text-muted-foreground">
+							<p class="text-muted-foreground mt-2">
 								Manage your monthly and yearly recurring expenses
 							</p>
 						</div>
@@ -98,7 +96,7 @@
 			>
 				<div class="p-6">
 					<h2 class="text-center text-2xl font-bold tracking-tight">Unpaid</h2>
-					<p class="mt-1 text-center text-sm text-muted-foreground">Unpaid as of {unpaidAsOf}</p>
+					<p class="text-muted-foreground mt-1 text-center text-sm">Unpaid as of {unpaidAsOf}</p>
 					<div class="my-4 border-t"></div>
 					<div class="flex items-center justify-between">
 						<span class="text-base font-medium">Total Left to Pay: </span>

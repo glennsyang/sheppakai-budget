@@ -1,17 +1,15 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { superForm } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { BaseModalProps, WindowCleaningJob } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { windowCleaningJobSchema } from '$lib/formSchemas';
 	import { getTodayDate, extractDateFromTimestamp } from '$lib/utils/dates';
-
-	import type { BaseModalProps, WindowCleaningJob } from '$lib';
+	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	interface Props extends BaseModalProps<WindowCleaningJob> {
 		jobForm: SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
@@ -102,13 +100,13 @@
 					>
 					<Input id="job-date" name="jobDate" type="date" bind:value={$form.jobDate} required />
 					{#if $errors.jobDate}
-						<p class="text-sm text-destructive">{$errors.jobDate}</p>
+						<p class="text-destructive text-sm">{$errors.jobDate}</p>
 					{/if}
 				</div>
 
 				<div class="space-y-2">
 					<label for="job-time" class="text-sm font-medium"
-						>Time <span class="text-xs text-muted-foreground">(optional)</span></label
+						>Time <span class="text-muted-foreground text-xs">(optional)</span></label
 					>
 					<Input id="job-time" name="jobTime" type="time" bind:value={$form.jobTime} />
 				</div>
@@ -130,13 +128,13 @@
 						required
 					/>
 					{#if $errors.amountCharged}
-						<p class="text-sm text-destructive">{$errors.amountCharged}</p>
+						<p class="text-destructive text-sm">{$errors.amountCharged}</p>
 					{/if}
 				</div>
 
 				<div class="space-y-2">
 					<label for="job-tip" class="text-sm font-medium"
-						>Tip ($) <span class="text-xs text-muted-foreground">(optional)</span></label
+						>Tip ($) <span class="text-muted-foreground text-xs">(optional)</span></label
 					>
 					<Input
 						id="job-tip"
@@ -148,14 +146,14 @@
 						placeholder="0.00"
 					/>
 					{#if $errors.tip}
-						<p class="text-sm text-destructive">{$errors.tip}</p>
+						<p class="text-destructive text-sm">{$errors.tip}</p>
 					{/if}
 				</div>
 			</div>
 
 			<div class="space-y-2">
 				<label for="job-duration" class="text-sm font-medium"
-					>Duration (hrs) <span class="text-xs text-muted-foreground">(optional, e.g. 1.5)</span
+					>Duration (hrs) <span class="text-muted-foreground text-xs">(optional, e.g. 1.5)</span
 					></label
 				>
 				<Input
@@ -168,13 +166,13 @@
 					placeholder="1.5"
 				/>
 				{#if $errors.durationHours}
-					<p class="text-sm text-destructive">{$errors.durationHours}</p>
+					<p class="text-destructive text-sm">{$errors.durationHours}</p>
 				{/if}
 			</div>
 
 			<div class="space-y-2">
 				<label for="job-notes" class="text-sm font-medium"
-					>Notes <span class="text-xs text-muted-foreground">(optional)</span></label
+					>Notes <span class="text-muted-foreground text-xs">(optional)</span></label
 				>
 				<Textarea
 					id="job-notes"
@@ -184,7 +182,7 @@
 					rows={2}
 				/>
 				{#if $errors.notes}
-					<p class="text-sm text-destructive">{$errors.notes}</p>
+					<p class="text-destructive text-sm">{$errors.notes}</p>
 				{/if}
 			</div>
 

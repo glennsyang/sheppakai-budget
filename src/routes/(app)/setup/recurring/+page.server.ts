@@ -1,8 +1,3 @@
-import { fail } from '@sveltejs/kit';
-import { and, eq } from 'drizzle-orm';
-import { superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-
 import { recurringSchema } from '$lib/formSchemas/finances';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
@@ -10,6 +5,10 @@ import { getDb } from '$lib/server/db';
 import { recurringQueries } from '$lib/server/db/queries';
 import { recurring } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { fail } from '@sveltejs/kit';
+import { and, eq } from 'drizzle-orm';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { PageServerLoad } from './$types';
 
@@ -30,7 +29,7 @@ export const actions = {
 		table: recurring,
 		entityName: 'Recurring expense',
 		transformCreate: (data, userId) => ({
-			amount: Number(data.amount),
+			amount: data.amount,
 			description: data.description,
 			merchant: data.merchant,
 			cadence: data.cadence,
@@ -45,8 +44,10 @@ export const actions = {
 	}),
 	togglePaid: requireAuth(async ({ request }, user) => {
 		const formData = await request.formData();
-		const recurringId = formData.get('id')?.toString();
-		const currentPaid = formData.get('paid')?.toString() === 'true';
+		const rawId = formData.get('id');
+		const recurringId = typeof rawId === 'string' ? rawId : undefined;
+		const rawPaid = formData.get('paid');
+		const currentPaid = rawPaid === 'true';
 
 		if (!recurringId) {
 			return fail(400, { error: 'Recurring ID is required' });

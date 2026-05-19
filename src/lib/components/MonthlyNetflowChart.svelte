@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { scaleBand } from 'd3-scale';
-	import { BarChart, Highlight } from 'layerchart';
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import type { MonthlyNetflowData } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
+	import { scaleBand } from 'd3-scale';
+	import { BarChart, Highlight } from 'layerchart';
 
 	interface Props {
 		chartData: MonthlyNetflowData[];
@@ -24,7 +24,7 @@
 	} satisfies Chart.ChartConfig;
 </script>
 
-<Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
+<Card.Root class="from-primary/5 to-card dark:bg-card bg-linear-to-t shadow-xs">
 	<Card.Header>
 		<div class="flex items-center gap-1.5">
 			<Card.Title>{chartTitle}</Card.Title>

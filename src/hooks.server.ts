@@ -1,10 +1,9 @@
+import { building, dev } from '$app/environment';
+import { auth } from '$lib/server/auth';
 import * as Sentry from '@sentry/sveltekit';
 import type { Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
-
-import { building, dev } from '$app/environment';
-import { auth } from '$lib/server/auth';
 
 export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, resolve }) => {
 	if (dev && event.url.pathname === '/.well-known/appspecific/com.chrome.devtools.json') {

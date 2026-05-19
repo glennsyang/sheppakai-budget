@@ -1,8 +1,7 @@
-import { type RequestHandler } from '@sveltejs/kit';
-import { json } from '@sveltejs/kit';
-
 import { runWeeklySummaryEmail } from '$lib/server/jobs/weeklySummaryEmail';
 import { logger } from '$lib/server/logger';
+import { type RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 
 import { getEnv } from '../../../../env';
 

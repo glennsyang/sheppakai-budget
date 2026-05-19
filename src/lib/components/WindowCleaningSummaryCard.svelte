@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { WrenchIcon } from '@lucide/svelte/icons';
-
-	import * as Card from '$lib/components/ui/card/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import * as Card from '$lib/components/ui/card/index.js';
 	import { formatCurrency } from '$lib/utils';
+	import { WrenchIcon } from '@lucide/svelte/icons';
 
 	interface Props {
 		revenue: number;
@@ -16,8 +15,8 @@
 <Card.Root class="gap-3 py-4">
 	<Card.Content class="px-4">
 		<div class="flex items-center gap-2">
-			<WrenchIcon class="size-3.5 text-muted-foreground" />
-			<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+			<WrenchIcon class="text-muted-foreground size-3.5" />
+			<p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
 				Window Cleaning
 			</p>
 		</div>
@@ -29,7 +28,7 @@
 				{jobCount}
 				{jobCount === 1 ? 'job' : 'jobs'}
 			</Badge>
-			<span class="text-xs text-muted-foreground">this month</span>
+			<span class="text-muted-foreground text-xs">this month</span>
 		</div>
 	</Card.Content>
 </Card.Root>

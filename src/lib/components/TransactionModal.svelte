@@ -1,9 +1,5 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { superForm } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { BaseModalProps, Category } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
@@ -11,8 +7,10 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { transactionSchema } from '$lib/formSchemas';
 	import { extractDateFromTimestamp, getTodayDate } from '$lib/utils/dates';
-
-	import type { BaseModalProps, Category } from '$lib';
+	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	interface Props extends Omit<BaseModalProps<z.infer<typeof transactionSchema>>, 'initialData'> {
 		initialData?: Partial<z.infer<typeof transactionSchema>>;
@@ -29,7 +27,7 @@
 		transactionForm
 	}: Props = $props();
 
-	let sortedCategories = $derived([...categories].sort((a, b) => a.name.localeCompare(b.name)));
+	let sortedCategories = $derived([...categories].toSorted((a, b) => a.name.localeCompare(b.name)));
 
 	const formInstance = $derived(
 		superForm(transactionForm, {

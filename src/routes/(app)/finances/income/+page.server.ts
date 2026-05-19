@@ -1,11 +1,10 @@
-import { superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
-
 import { incomeSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { incomeQueries } from '$lib/server/db/queries';
 import { income } from '$lib/server/db/schema';
 import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { PageServerLoad } from './$types';
 
@@ -18,8 +17,14 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	const currentDate = new Date();
 	const currentYear = currentDate.getFullYear();
-	const completedMonthsSinceJanuary =
-		year < currentYear ? 12 : year > currentYear ? 0 : currentDate.getMonth();
+	let completedMonthsSinceJanuary: number;
+	if (year < currentYear) {
+		completedMonthsSinceJanuary = 12;
+	} else if (year > currentYear) {
+		completedMonthsSinceJanuary = 0;
+	} else {
+		completedMonthsSinceJanuary = currentDate.getMonth();
+	}
 
 	// Load monthly incomes for user
 	const monthlyIncomes = await incomeQueries.findByDateRange(startDate, endDate);

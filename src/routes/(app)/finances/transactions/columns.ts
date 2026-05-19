@@ -1,13 +1,11 @@
-import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
-
+import type { Transaction } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
+import type { ColumnDef } from '@tanstack/table-core';
+import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
-
-import type { Transaction } from '$lib';
 
 export const columns: ColumnDef<Transaction>[] = [
 	{
@@ -80,7 +78,7 @@ export const columns: ColumnDef<Transaction>[] = [
 		cell: ({ row }) => {
 			// Pass both the ID and the entire expense data for editing
 			return renderComponent(DataTableActions, {
-				id: row.original.id.toString(),
+				id: row.original.id,
 				transactionData: row.original
 			});
 		}

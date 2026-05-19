@@ -1,10 +1,8 @@
+import type { User } from '$lib/types';
 import type { InferSelectModel } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
 
-import type { User } from '$lib/types';
-
 import { account, user } from '../schema';
-
 import { createQueryBuilder } from './factory';
 
 type Account = InferSelectModel<typeof account>;

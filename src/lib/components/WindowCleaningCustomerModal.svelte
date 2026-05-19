@@ -1,16 +1,14 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { superForm } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { BaseModalProps, WindowCleaningCustomer } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { windowCleaningCustomerSchema } from '$lib/formSchemas';
-
-	import type { BaseModalProps, WindowCleaningCustomer } from '$lib';
+	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	interface Props extends BaseModalProps<WindowCleaningCustomer> {
 		customerForm: SuperValidated<z.infer<typeof windowCleaningCustomerSchema>>;
@@ -106,7 +104,7 @@
 					required
 				/>
 				{#if $errors.name}
-					<p class="text-sm text-destructive">{$errors.name}</p>
+					<p class="text-destructive text-sm">{$errors.name}</p>
 				{/if}
 			</div>
 
@@ -123,7 +121,7 @@
 					required
 				/>
 				{#if $errors.address}
-					<p class="text-sm text-destructive">{$errors.address}</p>
+					<p class="text-destructive text-sm">{$errors.address}</p>
 				{/if}
 			</div>
 
@@ -141,13 +139,13 @@
 						required
 					/>
 					{#if $errors.city}
-						<p class="text-sm text-destructive">{$errors.city}</p>
+						<p class="text-destructive text-sm">{$errors.city}</p>
 					{/if}
 				</div>
 
 				<div class="space-y-2">
 					<label for="customer-unit" class="text-sm font-medium"
-						>Unit # <span class="text-xs text-muted-foreground">(optional)</span></label
+						>Unit # <span class="text-muted-foreground text-xs">(optional)</span></label
 					>
 					<Input
 						id="customer-unit"
@@ -162,7 +160,7 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
 					<label for="customer-buzzer" class="text-sm font-medium"
-						>Buzzer # <span class="text-xs text-muted-foreground">(optional)</span></label
+						>Buzzer # <span class="text-muted-foreground text-xs">(optional)</span></label
 					>
 					<Input
 						id="customer-buzzer"
@@ -175,7 +173,7 @@
 
 				<div class="space-y-2">
 					<label for="customer-phone" class="text-sm font-medium"
-						>Phone <span class="text-xs text-muted-foreground">(optional)</span></label
+						>Phone <span class="text-muted-foreground text-xs">(optional)</span></label
 					>
 					<Input
 						id="customer-phone"
@@ -189,7 +187,7 @@
 
 			<div class="space-y-2">
 				<label for="customer-notes" class="text-sm font-medium"
-					>Notes <span class="text-xs text-muted-foreground">(optional)</span></label
+					>Notes <span class="text-muted-foreground text-xs">(optional)</span></label
 				>
 				<Textarea
 					id="customer-notes"
@@ -199,7 +197,7 @@
 					rows={2}
 				/>
 				{#if $errors.notes}
-					<p class="text-sm text-destructive">{$errors.notes}</p>
+					<p class="text-destructive text-sm">{$errors.notes}</p>
 				{/if}
 			</div>
 

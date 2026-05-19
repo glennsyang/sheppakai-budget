@@ -1,7 +1,6 @@
-import { redirect } from '@sveltejs/kit';
-
 import { requireAdmin } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
+import { redirect } from '@sveltejs/kit';
 
 import type { LayoutServerLoad } from './$types';
 

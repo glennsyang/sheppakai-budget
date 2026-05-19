@@ -1,7 +1,5 @@
 <script lang="ts">
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { UserWithSessions } from '$lib';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import {
@@ -10,10 +8,10 @@
 		setUserRoleFormContext
 	} from '$lib/contexts';
 	import { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import { columns } from './columns';
-
-	import type { UserWithSessions } from '$lib';
 
 	interface Props {
 		data: {

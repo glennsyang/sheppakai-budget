@@ -1,16 +1,14 @@
 <script lang="ts">
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { Savings } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import SavingsModal from '$lib/components/SavingsModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { savingsFormContext } from '$lib/contexts';
 	import type { savingsSchema } from '$lib/formSchemas';
-
-	import type { Savings } from '$lib';
+	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	let { id, savingsData }: { id: string; savingsData: Savings } = $props();
 

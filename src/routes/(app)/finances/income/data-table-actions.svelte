@@ -1,16 +1,14 @@
 <script lang="ts">
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { Income } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { incomeFormContext } from '$lib/contexts';
 	import type { incomeSchema } from '$lib/formSchemas';
-
-	import type { Income } from '$lib';
+	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	let { id, incomeData }: { id: string; incomeData: Income } = $props();
 

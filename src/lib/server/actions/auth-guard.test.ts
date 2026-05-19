@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
 const mockFail = vi.hoisted(() =>
-	vi.fn((status: number, data: Record<string, unknown>) => ({ status, data, __failure: true }))
+	vi.fn<
+		(
+			status: number,
+			data: Record<string, unknown>
+		) => { status: number; data: Record<string, unknown>; __failure: boolean }
+	>((status, data) => ({ status, data, __failure: true }))
 );
 
 vi.mock('@sveltejs/kit', () => ({
@@ -12,7 +17,7 @@ import { requireAuth } from './auth-guard';
 
 describe('requireAuth', () => {
 	it('returns 401 failure when user is missing', async () => {
-		const handler = vi.fn();
+		const handler = vi.fn<() => Promise<unknown>>();
 		const wrapped = requireAuth(handler);
 		const event = {
 			locals: { user: null }
@@ -26,7 +31,7 @@ describe('requireAuth', () => {
 	});
 
 	it('calls handler with authenticated user', async () => {
-		const handler = vi.fn(async () => ({ ok: true }));
+		const handler = vi.fn<() => Promise<{ ok: boolean }>>(async () => ({ ok: true }));
 		const wrapped = requireAuth(handler);
 		const user = { id: 'user-123' };
 		const event = {

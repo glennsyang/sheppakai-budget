@@ -1,9 +1,7 @@
+import type { SavingsGoal } from '$lib/types';
 import { asc, ne } from 'drizzle-orm';
 
-import type { SavingsGoal } from '$lib/types';
-
 import { savingsGoal } from '../schema';
-
 import { createQueryBuilder } from './factory';
 
 const baseBuilder = createQueryBuilder<typeof savingsGoal, SavingsGoal>({

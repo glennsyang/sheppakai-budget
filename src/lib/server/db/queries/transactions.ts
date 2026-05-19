@@ -1,9 +1,7 @@
+import type { Transaction } from '$lib/types';
 import { and, desc, eq, isNotNull, ne, or, sql } from 'drizzle-orm';
 
-import type { Transaction } from '$lib/types';
-
 import { transaction } from '../schema';
-
 import { createQueryBuilder } from './factory';
 
 // Hard cap on full-text search results. Leading-wildcard LIKE patterns cannot use a

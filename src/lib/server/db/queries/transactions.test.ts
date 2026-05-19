@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
-	findAll: vi.fn(async (_options?: { where?: unknown }) => []),
+	findAll: vi.fn<(_options?: { where?: unknown }) => Promise<unknown[]>>(
+		async (_options?: { where?: unknown }) => []
+	),
 	createdBuilder: null as unknown,
 	findByDateRangeSpy: null as unknown
 }));
@@ -34,8 +36,8 @@ vi.mock('./factory', () => ({
 	createQueryBuilder: () => {
 		const builder = {
 			findAll: mockState.findAll,
-			findById: vi.fn(),
-			findFirst: vi.fn()
+			findById: vi.fn<() => void>(),
+			findFirst: vi.fn<() => void>()
 		};
 		mockState.createdBuilder = builder;
 		return builder;

@@ -1,27 +1,25 @@
 <script lang="ts">
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import SearchIcon from '@lucide/svelte/icons/search';
-	import XIcon from '@lucide/svelte/icons/x';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import type { Budget, Transaction } from '$lib';
 	import CategoryBudgetProgress from '$lib/components/CategoryBudgetProgress.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import { Input } from '$lib/components/ui/input';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
 	import { months } from '$lib/utils';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import SearchIcon from '@lucide/svelte/icons/search';
+	import XIcon from '@lucide/svelte/icons/x';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import { columns } from './columns';
-
-	import type { Budget, Transaction } from '$lib';
 
 	interface Props {
 		data: {
@@ -152,7 +150,7 @@
 			<!-- Global transaction search -->
 			<div class="relative">
 				<SearchIcon
-					class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+					class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
 				/>
 				<Input
 					type="search"
@@ -166,7 +164,7 @@
 					<button
 						type="button"
 						onclick={clearSearch}
-						class="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+						class="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
 						aria-label="Clear search"
 					>
 						<XIcon class="h-4 w-4" />
@@ -174,10 +172,10 @@
 				{/if}
 			</div>
 			{#if data.searchQuery}
-				<p class="text-sm text-muted-foreground">
+				<p class="text-muted-foreground text-sm">
 					{data.transactions.length}
 					{data.transactions.length === 1 ? 'result' : 'results'} for "<span
-						class="font-medium text-foreground">{data.searchQuery}</span
+						class="text-foreground font-medium">{data.searchQuery}</span
 					>"{#if data.searchLimitReached}
 						— showing first {data.transactions.length}; refine your search to see more{/if}
 				</p>
@@ -193,7 +191,7 @@
 					<div class="mb-4 flex items-center justify-between">
 						<div>
 							<h1 class="text-3xl font-bold tracking-tight">Transactions</h1>
-							<p class="mt-2 text-muted-foreground">
+							<p class="text-muted-foreground mt-2">
 								Manage your daily financial transactions and expenses
 							</p>
 						</div>
@@ -221,7 +219,7 @@
 						<h2 class="text-center text-2xl font-bold tracking-tight">Budget Summary</h2>
 						<div class="my-4 border-t"></div>
 						{#if sortedBudgets.length === 0}
-							<p class="text-center text-sm text-muted-foreground">No budgets set for this month</p>
+							<p class="text-muted-foreground text-center text-sm">No budgets set for this month</p>
 						{:else}
 							{#each sortedBudgets as budgetItem (budgetItem.id)}
 								{#if budgetItem.category}

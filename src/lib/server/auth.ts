@@ -1,16 +1,14 @@
+import { getRequestEvent } from '$app/server';
+import { logger } from '$lib/server/logger';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { admin } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 
-import { getRequestEvent } from '$app/server';
-import { logger } from '$lib/server/logger';
-
 import { getEnv } from '../../env';
-
-import * as schema from './db/schema';
 import { getDb } from './db';
+import * as schema from './db/schema';
 import {
 	sendNewUserEmail,
 	sendPasswordChangedEmail,

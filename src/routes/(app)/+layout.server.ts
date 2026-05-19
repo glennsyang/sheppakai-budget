@@ -1,6 +1,5 @@
-import { redirect } from '@sveltejs/kit';
-
 import { categoryQueries } from '$lib/server/db/queries';
+import { redirect } from '@sveltejs/kit';
 
 import type { LayoutServerLoad } from './$types';
 

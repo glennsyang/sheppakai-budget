@@ -1,9 +1,5 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { superForm } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { BaseModalProps } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
@@ -11,8 +7,10 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { savingsGoalSchema } from '$lib/formSchemas/savings';
 	import { extractDateFromTimestamp } from '$lib/utils/dates';
-
-	import type { BaseModalProps } from '$lib';
+	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	interface Props extends BaseModalProps<z.infer<typeof savingsGoalSchema>> {
 		savingsGoalForm: SuperValidated<z.infer<typeof savingsGoalSchema>>;
@@ -119,7 +117,7 @@
 					required
 				/>
 				{#if $errors.name}
-					<p class="text-sm text-destructive">{$errors.name}</p>
+					<p class="text-destructive text-sm">{$errors.name}</p>
 				{/if}
 			</div>
 
@@ -133,7 +131,7 @@
 					rows={2}
 				/>
 				{#if $errors.description}
-					<p class="text-sm text-destructive">{$errors.description}</p>
+					<p class="text-destructive text-sm">{$errors.description}</p>
 				{/if}
 			</div>
 
@@ -150,7 +148,7 @@
 					required
 				/>
 				{#if $errors.targetAmount}
-					<p class="text-sm text-destructive">{$errors.targetAmount}</p>
+					<p class="text-destructive text-sm">{$errors.targetAmount}</p>
 				{/if}
 			</div>
 
@@ -158,7 +156,7 @@
 				<label for="goal-target-date" class="text-sm font-medium">Target Date (Optional)</label>
 				<Input id="goal-target-date" name="targetDate" type="date" bind:value={$form.targetDate} />
 				{#if $errors.targetDate}
-					<p class="text-sm text-destructive">{$errors.targetDate}</p>
+					<p class="text-destructive text-sm">{$errors.targetDate}</p>
 				{/if}
 			</div>
 
@@ -175,7 +173,7 @@
 					</Select.Content>
 				</Select.Root>
 				{#if $errors.status}
-					<p class="text-sm text-destructive">{$errors.status}</p>
+					<p class="text-destructive text-sm">{$errors.status}</p>
 				{/if}
 			</div>
 

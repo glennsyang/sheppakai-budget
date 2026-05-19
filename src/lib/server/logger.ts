@@ -1,6 +1,5 @@
-import * as Sentry from '@sentry/sveltekit';
-
 import { dev } from '$app/environment';
+import * as Sentry from '@sentry/sveltekit';
 
 /**
  * Structured logger utility for server-side logging.
@@ -9,10 +8,6 @@ import { dev } from '$app/environment';
  */
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
-
-interface LogContext {
-	[key: string]: unknown;
-}
 
 /**
  * Sanitizes data by removing PII fields in production mode.
@@ -33,10 +28,18 @@ function sanitizeData(data: unknown): unknown {
 
 	// For objects, remove common PII fields
 	const sanitized: Record<string, unknown> = {};
-	const piiFields = ['userId', 'email', 'password', 'token', 'id', 'createdBy', 'updatedBy'];
+	const piiFields = new Set([
+		'userId',
+		'email',
+		'password',
+		'token',
+		'id',
+		'createdBy',
+		'updatedBy'
+	]);
 
 	for (const [key, value] of Object.entries(data)) {
-		if (piiFields.includes(key)) {
+		if (piiFields.has(key)) {
 			continue; // Skip PII fields
 		}
 		sanitized[key] = value;
@@ -55,6 +58,21 @@ function formatMessage(level: LogLevel, message: string): string {
 }
 
 /**
+ * Calls the given console function with the formatted message and optional sanitized data.
+ */
+function printLog(
+	fn: (...args: unknown[]) => void,
+	formattedMessage: string,
+	sanitized: unknown
+): void {
+	if (sanitized === undefined) {
+		fn(formattedMessage);
+	} else {
+		fn(formattedMessage, sanitized);
+	}
+}
+
+/**
  * Core logging function.
  */
 function log(level: LogLevel, message: string, data?: unknown): void {
@@ -63,11 +81,7 @@ function log(level: LogLevel, message: string, data?: unknown): void {
 
 	switch (level) {
 		case 'ERROR':
-			if (sanitized === undefined) {
-				console.error(formattedMessage);
-			} else {
-				console.error(formattedMessage, sanitized);
-			}
+			printLog(console.error, formattedMessage, sanitized);
 			// Send errors to Sentry in production
 			if (!dev) {
 				if (data instanceof Error) {
@@ -85,11 +99,7 @@ function log(level: LogLevel, message: string, data?: unknown): void {
 			}
 			break;
 		case 'WARN':
-			if (sanitized === undefined) {
-				console.warn(formattedMessage);
-			} else {
-				console.warn(formattedMessage, sanitized);
-			}
+			printLog(console.warn, formattedMessage, sanitized);
 			// Send warnings to Sentry in production
 			if (!dev) {
 				Sentry.captureMessage(message, {
@@ -101,11 +111,7 @@ function log(level: LogLevel, message: string, data?: unknown): void {
 			break;
 		case 'INFO':
 		case 'DEBUG':
-			if (sanitized === undefined) {
-				console.log(formattedMessage);
-			} else {
-				console.log(formattedMessage, sanitized);
-			}
+			printLog(console.log, formattedMessage, sanitized);
 			break;
 	}
 }
@@ -115,7 +121,7 @@ export const logger = {
 	 * Log informational messages.
 	 * In production, PII is automatically sanitized.
 	 */
-	info: (message: string, data?: LogContext | unknown): void => {
+	info: (message: string, data?: unknown): void => {
 		log('INFO', message, data);
 	},
 
@@ -123,7 +129,7 @@ export const logger = {
 	 * Log warning messages.
 	 * In production, PII is automatically sanitized.
 	 */
-	warn: (message: string, data?: LogContext | unknown): void => {
+	warn: (message: string, data?: unknown): void => {
 		log('WARN', message, data);
 	},
 
@@ -131,7 +137,7 @@ export const logger = {
 	 * Log error messages.
 	 * In production, PII and stack traces are sanitized.
 	 */
-	error: (message: string, error?: Error | unknown): void => {
+	error: (message: string, error?: unknown): void => {
 		log('ERROR', message, error);
 	},
 
@@ -139,7 +145,7 @@ export const logger = {
 	 * Log debug messages.
 	 * Only logs in development mode, completely silent in production.
 	 */
-	debug: (message: string, data?: LogContext | unknown): void => {
+	debug: (message: string, data?: unknown): void => {
 		if (dev) {
 			log('DEBUG', message, data);
 		}

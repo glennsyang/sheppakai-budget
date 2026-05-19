@@ -1,16 +1,14 @@
 <script lang="ts">
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import { getContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { WindowCleaningJob } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
 	import type { windowCleaningJobSchema } from '$lib/formSchemas';
-
-	import type { WindowCleaningJob } from '$lib';
+	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import { getContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	let { jobData }: { jobData: WindowCleaningJob } = $props();
 

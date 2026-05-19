@@ -32,21 +32,21 @@
 	}
 </script>
 
-<Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
+<Card.Root class="from-primary/5 to-card dark:bg-card bg-linear-to-t shadow-xs">
 	<Card.Header>
-		<Card.Title class="text-base font-medium text-muted-foreground">Monthly Overview</Card.Title>
+		<Card.Title class="text-muted-foreground text-base font-medium">Monthly Overview</Card.Title>
 	</Card.Header>
 	<Card.Content class="pb-4">
 		{#if loading}
 			<div class="space-y-4">
-				<div class="h-20 animate-pulse rounded-lg bg-muted"></div>
-				<div class="h-20 animate-pulse rounded-lg bg-muted"></div>
+				<div class="bg-muted h-20 animate-pulse rounded-lg"></div>
+				<div class="bg-muted h-20 animate-pulse rounded-lg"></div>
 			</div>
 		{:else}
 			<!-- Hero net balance -->
 			<div class="mb-6 flex items-center justify-between">
 				<div>
-					<p class="text-sm text-muted-foreground">Net Balance</p>
+					<p class="text-muted-foreground text-sm">Net Balance</p>
 					<p
 						class={`text-4xl font-bold tracking-tight tabular-nums ${isOverspent ? 'text-destructive' : 'text-green-600 dark:text-green-400'}`}
 					>
@@ -79,26 +79,26 @@
 						class={progressClass(budgetPct)}
 					/>
 					<div class="space-y-0.5">
-						<div class="flex justify-between text-xs text-muted-foreground">
+						<div class="text-muted-foreground flex justify-between text-xs">
 							<span>Recurring</span>
-							<span class="font-medium text-foreground tabular-nums"
+							<span class="text-foreground font-medium tabular-nums"
 								>{formatCurrency(recurringTotal)}</span
 							>
 						</div>
-						<div class="flex justify-between text-xs text-muted-foreground">
+						<div class="text-muted-foreground flex justify-between text-xs">
 							<span>Spent</span>
-							<span class="font-medium text-foreground tabular-nums"
+							<span class="text-foreground font-medium tabular-nums"
 								>{formatCurrency(nonRecurringSpent)}</span
 							>
 						</div>
-						<div class="flex justify-between text-xs text-muted-foreground">
+						<div class="text-muted-foreground flex justify-between text-xs">
 							<span>Budget</span>
-							<span class="font-medium text-foreground tabular-nums"
+							<span class="text-foreground font-medium tabular-nums"
 								>{formatCurrency(plannedBudget)}</span
 							>
 						</div>
 						{#if actualSpent > plannedBudget && plannedBudget > 0}
-							<p class="text-xs font-medium text-destructive">
+							<p class="text-destructive text-xs font-medium">
 								Over by {formatCurrency(actualSpent - plannedBudget)}
 							</p>
 						{:else if plannedBudget > 0}
@@ -121,26 +121,26 @@
 						class={progressClass(incomePct)}
 					/>
 					<div class="space-y-0.5">
-						<div class="flex justify-between text-xs text-muted-foreground">
+						<div class="text-muted-foreground flex justify-between text-xs">
 							<span>Recurring</span>
-							<span class="font-medium text-foreground tabular-nums"
+							<span class="text-foreground font-medium tabular-nums"
 								>{formatCurrency(recurringTotal)}</span
 							>
 						</div>
-						<div class="flex justify-between text-xs text-muted-foreground">
+						<div class="text-muted-foreground flex justify-between text-xs">
 							<span>Spent</span>
-							<span class="font-medium text-foreground tabular-nums"
+							<span class="text-foreground font-medium tabular-nums"
 								>{formatCurrency(nonRecurringSpent)}</span
 							>
 						</div>
-						<div class="flex justify-between text-xs text-muted-foreground">
+						<div class="text-muted-foreground flex justify-between text-xs">
 							<span>Income</span>
-							<span class="font-medium text-foreground tabular-nums"
+							<span class="text-foreground font-medium tabular-nums"
 								>{formatCurrency(totalIncome)}</span
 							>
 						</div>
 						{#if actualSpent > totalIncome && totalIncome > 0}
-							<p class="text-xs font-medium text-destructive">
+							<p class="text-destructive text-xs font-medium">
 								Over income by {formatCurrency(actualSpent - totalIncome)}
 							</p>
 						{:else if totalIncome > 0}

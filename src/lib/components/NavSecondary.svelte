@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { Component } from 'svelte';
-
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { User } from '$lib/types';
+	import type { Component } from 'svelte';
 
 	let {
 		title,
