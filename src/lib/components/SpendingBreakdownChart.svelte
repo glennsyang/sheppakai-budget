@@ -17,7 +17,7 @@
 	) satisfies Chart.ChartConfig;
 
 	let hasData = $derived(chartData.length > 0 && totalSpent > 0);
-	let sortedChartData = $derived([...chartData].sort((a, b) => b.amount - a.amount));
+	let sortedChartData = $derived([...chartData].toSorted((a, b) => b.amount - a.amount));
 </script>
 
 <div class="flex flex-col gap-4 lg:flex-row lg:justify-between">

@@ -24,8 +24,8 @@ export default defineConfig({
 	singleQuote: true,
 	sortImports: true,
 	sortTailwindcss: true,
-	trailingComma: 'none',
 	svelte: true,
 	tabWidth: 2,
+	trailingComma: 'none',
 	useTabs: true
 });

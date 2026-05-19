@@ -165,6 +165,7 @@ export async function sendVerificationEmail(to: string, name: string, verificati
 				</html>
 			`
 		});
+		return null;
 	} catch (error) {
 		logger.error('❌ Failed to send verification email:', error);
 		return error;
@@ -216,6 +217,7 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
 				</html>
 			`
 		});
+		return null;
 	} catch (error) {
 		logger.error('❌ Failed to send password reset email:', error);
 		return error;
@@ -267,6 +269,7 @@ export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayl
 				</html>
 			`
 		});
+		return null;
 	} catch (error) {
 		logger.error('❌ Failed to send password changed email:', error);
 		return error;
@@ -286,6 +289,7 @@ export async function sendNewUserEmail(to: string, name: string, email: string) 
 			subject: '[Sheppakai Budget] New User was registered!',
 			html: `Hi ${name || email}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
 		});
+		return null;
 	} catch (error) {
 		logger.error('❌ Failed to send email', error);
 		return error;

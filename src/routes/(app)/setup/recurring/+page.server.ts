@@ -29,7 +29,7 @@ export const actions = {
 		table: recurring,
 		entityName: 'Recurring expense',
 		transformCreate: (data, userId) => ({
-			amount: Number(data.amount),
+			amount: data.amount,
 			description: data.description,
 			merchant: data.merchant,
 			cadence: data.cadence,

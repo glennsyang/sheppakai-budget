@@ -1,22 +1,22 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 
-// withAuditFieldsForUpdate calls getCurrentUTCTimestamp inline, so we
-// can control the clock via fake timers.
+// WithAuditFieldsForUpdate calls getCurrentUTCTimestamp inline, so we
+// Can control the clock via fake timers.
 import { generateId, withAuditFieldsForCreate, withAuditFieldsForUpdate } from './utils';
 
 const makeUser = (id = 'user-1') =>
 	({
-		id,
-		name: 'Test User',
+		createdAt: new Date(),
 		email: 'test@example.com',
 		emailVerified: false,
-		createdAt: new Date(),
+		id,
+		name: 'Test User',
 		updatedAt: new Date()
 	}) as unknown as Parameters<typeof withAuditFieldsForCreate>[1];
 
 describe('withAuditFieldsForCreate', () => {
 	it('adds createdBy and updatedBy from user.id', () => {
-		const data = { name: 'groceries', amount: 50 };
+		const data = { amount: 50, name: 'groceries' };
 		const result = withAuditFieldsForCreate(data, makeUser('abc'));
 
 		expect(result.createdBy).toBe('abc');
@@ -24,7 +24,7 @@ describe('withAuditFieldsForCreate', () => {
 	});
 
 	it('preserves all original data fields', () => {
-		const data = { name: 'rent', amount: 1200, categoryId: 'cat-1' };
+		const data = { amount: 1200, categoryId: 'cat-1', name: 'rent' };
 		const result = withAuditFieldsForCreate(data, makeUser());
 
 		expect(result.name).toBe('rent');
@@ -63,7 +63,7 @@ describe('withAuditFieldsForUpdate', () => {
 	});
 
 	it('preserves all original data fields', () => {
-		const data = { name: 'updated name', amount: 99 };
+		const data = { amount: 99, name: 'updated name' };
 		const result = withAuditFieldsForUpdate(data, makeUser());
 
 		expect(result.name).toBe('updated name');
@@ -80,7 +80,7 @@ describe('withAuditFieldsForUpdate', () => {
 
 describe('generateId', () => {
 	it('returns a non-empty string', () => {
-		expect(typeof generateId()).toBe('string');
+		expectTypeOf(generateId()).toBeString();
 		expect(generateId().length).toBeGreaterThan(0);
 	});
 

@@ -16,7 +16,7 @@
 
 	let open = $state(true);
 
-	let sorted = $derived([...recurring].sort((a, b) => b.amount - a.amount));
+	let sorted = $derived([...recurring].toSorted((a, b) => b.amount - a.amount));
 </script>
 
 <Card.Root>

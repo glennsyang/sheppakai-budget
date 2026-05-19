@@ -66,7 +66,7 @@ export const columns: ColumnDef<Income>[] = [
 		id: 'actions',
 		cell: ({ row }) => {
 			return renderComponent(DataTableActions, {
-				id: row.original.id.toString(),
+				id: row.original.id,
 				incomeData: row.original
 			});
 		}

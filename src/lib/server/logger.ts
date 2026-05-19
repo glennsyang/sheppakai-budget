@@ -28,7 +28,15 @@ function sanitizeData(data: unknown): unknown {
 
 	// For objects, remove common PII fields
 	const sanitized: Record<string, unknown> = {};
-	const piiFields = new Set(['userId', 'email', 'password', 'token', 'id', 'createdBy', 'updatedBy']);
+	const piiFields = new Set([
+		'userId',
+		'email',
+		'password',
+		'token',
+		'id',
+		'createdBy',
+		'updatedBy'
+	]);
 
 	for (const [key, value] of Object.entries(data)) {
 		if (piiFields.has(key)) {

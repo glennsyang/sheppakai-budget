@@ -60,7 +60,7 @@ export const columns: ColumnDef<Recurring>[] = [
 		cell: ({ row }) => {
 			// Pass both the ID and the entire recurring data for editing
 			return renderComponent(DataTableActions, {
-				id: row.original.id.toString(),
+				id: row.original.id,
 				recurringData: row.original
 			});
 		}

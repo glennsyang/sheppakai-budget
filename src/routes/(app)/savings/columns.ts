@@ -53,7 +53,7 @@ export const columns: ColumnDef<Savings>[] = [
 		id: 'actions',
 		cell: ({ row }) => {
 			return renderComponent(DataTableActions, {
-				id: row.original.id.toString(),
+				id: row.original.id,
 				savingsData: row.original
 			});
 		}

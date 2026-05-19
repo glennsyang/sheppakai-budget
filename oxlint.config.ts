@@ -1,17 +1,13 @@
 import { defineConfig } from 'oxlint';
 
 export default defineConfig({
-	categories: { correctness: 'error' },
+	categories: { correctness: 'error', perf: 'off', style: 'off', suspicious: 'off' },
 	env: {
 		browser: true,
 		node: true,
-		vitest: true,
-		svelte: true
+		svelte: true,
+		vitest: true
 	},
-	options: {
-    typeAware: true,
-    typeCheck: true,
-  },
 	ignorePatterns: [
 		'**/node_modules',
 		'**/.claude',
@@ -25,6 +21,10 @@ export default defineConfig({
 		'**/*.db',
 		'src/lib/components/ui/**'
 	],
+	options: {
+		typeAware: true,
+		typeCheck: true
+	},
 	plugins: ['eslint', 'typescript', 'oxc', 'vitest', 'unicorn'],
 	rules: {
 		'no-unused-vars': [

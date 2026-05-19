@@ -34,7 +34,7 @@ export function withAuditFieldsForUpdate<T extends Record<string, unknown>>(
 ): T & { updatedBy: string; updatedAt: string } {
 	// Import getCurrentUTCTimestamp inline to avoid circular dependency
 	const getCurrentUTCTimestamp = () => new Date().toISOString().replace('T', ' ').split('.')[0];
-	const userId = user.id.toString();
+	const userId = user.id;
 
 	return {
 		...data,

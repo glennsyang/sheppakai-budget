@@ -97,7 +97,7 @@ function createCreateAction<
 			return fail(400, { form });
 		}
 
-		const userId = user.id.toString();
+		const userId = user.id;
 
 		try {
 			// Run beforeCreate hook if provided
@@ -173,7 +173,7 @@ function createUpdateAction<
 			return fail(400, { error: 'ID is required for update' });
 		}
 
-		const userId = user.id.toString();
+		const userId = user.id;
 		let updateContext: TUpdateContext | undefined;
 
 		try {
@@ -248,7 +248,7 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
 			}
 
 			const recordId = (form.data as Record<string, unknown> & { id: string }).id;
-			const userId = user.id.toString();
+			const userId = user.id;
 
 			try {
 				// Run beforeDelete hook if provided
@@ -295,7 +295,7 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
 		}
 
 		const recordId = data.get('id') as string;
-		const userId = user.id.toString();
+		const userId = user.id;
 
 		try {
 			// Run beforeDelete hook if provided

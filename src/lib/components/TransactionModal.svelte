@@ -27,7 +27,7 @@
 		transactionForm
 	}: Props = $props();
 
-	let sortedCategories = $derived([...categories].sort((a, b) => a.name.localeCompare(b.name)));
+	let sortedCategories = $derived([...categories].toSorted((a, b) => a.name.localeCompare(b.name)));
 
 	const formInstance = $derived(
 		superForm(transactionForm, {

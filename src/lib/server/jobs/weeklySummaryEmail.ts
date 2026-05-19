@@ -237,24 +237,24 @@ export async function runWeeklySummaryEmail(date = new Date()): Promise<WeeklySu
 		spendByCategoryId
 	});
 
-	let emailsSent = 0;
-	let emailsFailed = 0;
-
-	for (const recipient of recipients) {
-		try {
-			await sendWeeklySummaryEmail({
+	const emailResults = await Promise.allSettled(
+		recipients.map((recipient) =>
+			sendWeeklySummaryEmail({
 				to: recipient.email,
 				name: recipient.name ?? 'there',
 				monthLabel: monthRange.monthLabel,
 				overBudgetCategories: overBudgetRows,
 				nearLimitCategories: nearLimitRows
-			});
-			emailsSent += 1;
-		} catch (error) {
-			emailsFailed += 1;
-			logger.error('Failed to send weekly summary email to recipient', error);
-		}
-	}
+			})
+		)
+	);
+
+	const emailsSent = emailResults.filter((r) => r.status === 'fulfilled').length;
+	const emailsFailed = emailResults.filter((r) => r.status === 'rejected').length;
+
+	emailResults
+		.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+		.forEach((r) => logger.error('Failed to send weekly summary email to recipient', r.reason));
 
 	logger.info('Weekly summary email run completed', {
 		recipientsScanned: recipients.length,

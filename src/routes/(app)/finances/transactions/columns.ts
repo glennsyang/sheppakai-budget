@@ -78,7 +78,7 @@ export const columns: ColumnDef<Transaction>[] = [
 		cell: ({ row }) => {
 			// Pass both the ID and the entire expense data for editing
 			return renderComponent(DataTableActions, {
-				id: row.original.id.toString(),
+				id: row.original.id,
 				transactionData: row.original
 			});
 		}

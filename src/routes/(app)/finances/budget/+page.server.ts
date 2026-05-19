@@ -125,7 +125,7 @@ export const actions = {
 							month: form.data.month,
 							presetType: form.data.presetType || null,
 							categoryId: form.data.categoryId,
-							userId: user.id.toString()
+							userId: user.id
 						},
 						user
 					)
