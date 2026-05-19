@@ -1,13 +1,12 @@
 <script lang="ts">
+	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Chart from '$lib/components/ui/chart/index.js';
+	import type { ChartData } from '$lib/types';
 	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import { scaleUtc } from 'd3-scale';
 	import { curveNatural } from 'd3-shape';
 	import { LineChart } from 'layerchart';
-
-	import * as Card from '$lib/components/ui/card/index.js';
-	import * as Chart from '$lib/components/ui/chart/index.js';
-	import type { ChartData } from '$lib/types';
 
 	interface Props {
 		categoryName: string;
@@ -91,7 +90,7 @@
 					</div>
 				{/if}
 				{#if monthRange}
-					<div class="flex items-center gap-2 leading-none text-muted-foreground">
+					<div class="text-muted-foreground flex items-center gap-2 leading-none">
 						{monthRange}
 					</div>
 				{/if}

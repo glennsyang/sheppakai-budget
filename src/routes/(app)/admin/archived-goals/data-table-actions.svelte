@@ -1,15 +1,13 @@
 <script lang="ts">
-	import ArchiveRestoreIcon from '@lucide/svelte/icons/archive-restore';
-	import { toast } from 'svelte-sonner';
-	import { superForm, type SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { SavingsGoal } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { unArchiveFormContext } from '$lib/contexts';
 	import type { unArchiveSchema } from '$lib/formSchemas';
-
-	import type { SavingsGoal } from '$lib';
+	import ArchiveRestoreIcon from '@lucide/svelte/icons/archive-restore';
+	import { toast } from 'svelte-sonner';
+	import { superForm, type SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	let { goal }: { goal: SavingsGoal } = $props();
 

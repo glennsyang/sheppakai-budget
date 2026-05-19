@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { PenIcon, PlusIcon, Trash2Icon } from '@lucide/svelte/icons';
-
+	import type { SavingsGoalWithProgress } from '$lib';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Progress } from '$lib/components/ui/progress';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
-
-	import type { SavingsGoalWithProgress } from '$lib';
+	import { PenIcon, PlusIcon, Trash2Icon } from '@lucide/svelte/icons';
 
 	interface Props {
 		goal: SavingsGoalWithProgress;
@@ -41,7 +39,7 @@
 </script>
 
 <Card
-	class="cursor-pointer border-2 {statusColor} transition-colors hover:bg-muted/30"
+	class="cursor-pointer border-2 {statusColor} hover:bg-muted/30 transition-colors"
 	onclick={() => onViewContributions(goal)}
 >
 	<CardHeader class="pb-3">
@@ -49,7 +47,7 @@
 			<div class="flex-1">
 				<CardTitle class="text-lg">{goal.name}</CardTitle>
 				{#if goal.description}
-					<p class="mt-1 text-sm text-muted-foreground">{goal.description}</p>
+					<p class="text-muted-foreground mt-1 text-sm">{goal.description}</p>
 				{/if}
 			</div>
 			<div class="flex gap-1">
@@ -58,7 +56,7 @@
 						class={buttonVariants({
 							variant: 'ghost',
 							size: 'icon',
-							class: 'h-8 w-8 hover:text-muted-foreground'
+							class: 'hover:text-muted-foreground h-8 w-8'
 						})}
 						onclick={(event) => {
 							event.stopPropagation();
@@ -76,7 +74,7 @@
 						class={buttonVariants({
 							variant: 'ghost',
 							size: 'icon',
-							class: 'h-8 w-8 text-destructive hover:text-destructive'
+							class: 'text-destructive hover:text-destructive h-8 w-8'
 						})}
 						onclick={(event) => {
 							event.stopPropagation();
@@ -150,7 +148,7 @@
 
 		<!-- Target Date -->
 		{#if goal.targetDate}
-			<div class="text-center text-sm text-muted-foreground">
+			<div class="text-muted-foreground text-center text-sm">
 				Target: {formatLocalTimestamp(goal.targetDate)}
 			</div>
 		{/if}

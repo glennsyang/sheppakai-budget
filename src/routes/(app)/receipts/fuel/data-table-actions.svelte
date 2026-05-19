@@ -1,6 +1,6 @@
 <script lang="ts">
-	import RowActions from '$lib/components/RowActions.svelte';
 	import type { Transaction } from '$lib';
+	import RowActions from '$lib/components/RowActions.svelte';
 
 	let { id, transactionData }: { id: string; transactionData: Transaction } = $props();
 </script>

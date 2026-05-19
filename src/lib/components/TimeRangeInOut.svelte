@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { scaleBand } from 'd3-scale';
-	import { BarChart, Highlight } from 'layerchart';
-	import { cubicInOut } from 'svelte/easing';
-
+	import type { TimeRangeInOutData } from '$lib';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
 	import { formatCurrency } from '$lib/utils';
-	import type { TimeRangeInOutData } from '$lib';
+	import { scaleBand } from 'd3-scale';
+	import { BarChart, Highlight } from 'layerchart';
+	import { cubicInOut } from 'svelte/easing';
 
 	interface Props {
 		chartTitle: string;
@@ -77,18 +76,18 @@
 							></div>
 							{chartConfig[name as keyof typeof chartConfig]?.label || name}
 							<div
-								class="ms-auto flex items-baseline gap-0.5 font-mono font-medium text-foreground tabular-nums"
+								class="text-foreground ms-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums"
 							>
 								{formatCurrency(value as number)}
 							</div>
 							<!-- Add this after the last item-->
 							{#if index === 1}
 								<div
-									class="mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium text-foreground"
+									class="text-foreground mt-1.5 flex basis-full items-center border-t pt-1.5 text-xs font-medium"
 								>
 									Remaining
 									<div
-										class="ms-auto flex items-baseline gap-0.5 font-mono font-medium text-foreground tabular-nums"
+										class="text-foreground ms-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums"
 									>
 										{formatCurrency(
 											((payload.find((s) => s.key === 'in')?.value as number) ?? 0) -

@@ -1,6 +1,5 @@
-import { Resend } from 'resend';
-
 import { formatCurrency } from '$lib/utils';
+import { Resend } from 'resend';
 
 import { getEnv } from '../../../env';
 import { logger } from '../logger';

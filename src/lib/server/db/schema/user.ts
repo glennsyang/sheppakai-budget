@@ -2,7 +2,6 @@ import { relations } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { generateId } from '../utils';
-
 import budget from './budget';
 import expense from './transaction';
 

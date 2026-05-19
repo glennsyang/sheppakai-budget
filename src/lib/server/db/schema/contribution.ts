@@ -2,7 +2,6 @@ import { relations, sql } from 'drizzle-orm';
 import { real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { generateId } from '../utils';
-
 import savingsGoal from './savingsGoal';
 import user from './user';
 

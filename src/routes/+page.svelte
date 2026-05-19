@@ -1,10 +1,9 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { Button } from '$lib/components/ui/button';
 	import MoonIcon from '@lucide/svelte/icons/moon';
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import { toggleMode } from 'mode-watcher';
-
-	import { goto } from '$app/navigation';
-	import { Button } from '$lib/components/ui/button';
 
 	const handleSignIn = () => goto('/auth/sign-in');
 	const handleRegister = () => goto('/auth/register');

@@ -1,10 +1,5 @@
 <script lang="ts">
-	import { Pencil, Trash2 } from '@lucide/svelte';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { WindowCleaningCustomerWithStats, WindowCleaningJob } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -15,10 +10,13 @@
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
 	import type { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp, formatTime12h } from '$lib/utils/dates';
+	import { Pencil, Trash2 } from '@lucide/svelte';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { setContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import { columns } from './columns';
-
-	import type { WindowCleaningCustomerWithStats, WindowCleaningJob } from '$lib';
 
 	interface Props {
 		data: {
@@ -91,7 +89,7 @@
 	<div class="mb-6 flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold tracking-tight">Window Cleaning</h1>
-			<p class="mt-1 text-muted-foreground">Manage your customers and track jobs</p>
+			<p class="text-muted-foreground mt-1">Manage your customers and track jobs</p>
 		</div>
 		<Button size="sm" onclick={() => (openAddCustomerModal = true)}>
 			<PlusIcon class="mr-2 h-4 w-4" />
@@ -103,19 +101,19 @@
 	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
 		<Card>
 			<CardContent class="pt-6">
-				<p class="text-sm text-muted-foreground">Customers</p>
+				<p class="text-muted-foreground text-sm">Customers</p>
 				<p class="text-2xl font-bold">{data.totalCustomers}</p>
 			</CardContent>
 		</Card>
 		<Card>
 			<CardContent class="pt-6">
-				<p class="text-sm text-muted-foreground">Jobs This Month</p>
+				<p class="text-muted-foreground text-sm">Jobs This Month</p>
 				<p class="text-2xl font-bold">{data.jobsThisMonthCount}</p>
 			</CardContent>
 		</Card>
 		<Card>
 			<CardContent class="pt-6">
-				<p class="text-sm text-muted-foreground">Earned This Month</p>
+				<p class="text-muted-foreground text-sm">Earned This Month</p>
 				<p class="text-2xl font-bold text-green-600 dark:text-green-400">
 					{currencyFormatter.format(data.earnedThisMonth)}
 				</p>
@@ -123,7 +121,7 @@
 		</Card>
 		<Card>
 			<CardContent class="pt-6">
-				<p class="text-sm text-muted-foreground">Earned This Year</p>
+				<p class="text-muted-foreground text-sm">Earned This Year</p>
 				<p class="text-2xl font-bold text-green-600 dark:text-green-400">
 					{currencyFormatter.format(data.earnedThisYear)}
 				</p>
@@ -190,7 +188,7 @@
 						</p>
 					{/if}
 					{#if selectedCustomer.notes}
-						<p class="rounded-md bg-muted px-3 py-2 text-sm italic">
+						<p class="bg-muted rounded-md px-3 py-2 text-sm italic">
 							{selectedCustomer.notes}
 						</p>
 					{/if}
@@ -232,7 +230,7 @@
 				<!-- Jobs Table -->
 				{#if selectedCustomerJobs.length === 0}
 					<div
-						class="flex h-24 items-center justify-center rounded-md border text-sm text-muted-foreground"
+						class="text-muted-foreground flex h-24 items-center justify-center rounded-md border text-sm"
 					>
 						No jobs logged for this customer yet.
 					</div>
@@ -268,7 +266,7 @@
 										<Table.Cell class="text-right text-sm font-medium">
 											{currencyFormatter.format(job.amountCharged + job.tip)}
 										</Table.Cell>
-										<Table.Cell class="max-w-32 truncate text-sm text-muted-foreground">
+										<Table.Cell class="text-muted-foreground max-w-32 truncate text-sm">
 											{job.notes ?? ''}
 										</Table.Cell>
 										<Table.Cell>
@@ -285,7 +283,7 @@
 												<Button
 													size="icon"
 													variant="outline"
-													class="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
+													class="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 w-7"
 													aria-label="Delete Job"
 													onclick={() => handleDeleteJob(job.id)}
 												>

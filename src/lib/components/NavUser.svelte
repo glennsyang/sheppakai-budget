@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { EllipsisVerticalIcon } from '@lucide/svelte';
-	import { CircleUserIcon } from '@lucide/svelte';
-	import { LogOutIcon } from '@lucide/svelte';
-
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { User } from '$lib/types';
+	import { EllipsisVerticalIcon } from '@lucide/svelte';
+	import { CircleUserIcon } from '@lucide/svelte';
+	import { LogOutIcon } from '@lucide/svelte';
 
 	interface Props {
 		user: User;
@@ -36,7 +35,7 @@
 						</Avatar.Root>
 						<div class="grid flex-1 text-start text-sm leading-tight">
 							<span class="truncate font-medium">{user?.name || ''}</span>
-							<span class="truncate text-xs text-muted-foreground">
+							<span class="text-muted-foreground truncate text-xs">
 								{user.email}
 							</span>
 						</div>
@@ -59,7 +58,7 @@
 						</Avatar.Root>
 						<div class="grid flex-1 text-start text-sm leading-tight">
 							<span class="truncate font-medium">{user?.name || ''}</span>
-							<span class="truncate text-xs text-muted-foreground">
+							<span class="text-muted-foreground truncate text-xs">
 								{user.email}
 							</span>
 						</div>

@@ -1,8 +1,7 @@
 <script lang="ts">
-	import PlusIcon from '@lucide/svelte/icons/plus';
-
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import type { Income } from '$lib';
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
@@ -11,11 +10,10 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { incomeFormContext } from '$lib/contexts';
 	import { formatCurrency, months } from '$lib/utils';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
-
-	import type { Income } from '$lib';
 
 	let { data }: PageProps = $props();
 
@@ -112,7 +110,7 @@
 					<div class="mb-4 flex items-center justify-between">
 						<div>
 							<h1 class="text-3xl font-bold tracking-tight">Income</h1>
-							<p class="mt-2 text-muted-foreground">Manage your income sources</p>
+							<p class="text-muted-foreground mt-2">Manage your income sources</p>
 						</div>
 						<div class="flex items-center gap-2">
 							<Button size="sm" onclick={() => (openModal = true)}>

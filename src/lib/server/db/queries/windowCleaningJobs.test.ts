@@ -25,8 +25,8 @@ vi.mock('../schema', () => ({
 vi.mock('./factory', () => ({
 	createQueryBuilder: () => ({
 		findAll: mockState.findAll,
-		findById: vi.fn(),
-		findFirst: vi.fn()
+		findById: vi.fn<() => void>,
+		findFirst: vi.fn<() => void>
 	})
 }));
 

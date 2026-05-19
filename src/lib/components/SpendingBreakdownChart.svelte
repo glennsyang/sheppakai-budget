@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { Arc, PieChart, Text } from 'layerchart';
-
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { SpendingBreakdownData } from '$lib/types';
 	import { abbreviateCategoryName, formatCurrency } from '$lib/utils';
+	import { Arc, PieChart, Text } from 'layerchart';
 
 	interface Props {
 		chartData: SpendingBreakdownData[];
@@ -23,7 +22,7 @@
 
 <div class="flex flex-col gap-4 lg:flex-row lg:justify-between">
 	<div class="w-full lg:flex-1/2">
-		<Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
+		<Card.Root class="from-primary/5 to-card dark:bg-card bg-linear-to-t shadow-xs">
 			<Card.Header>
 				<Card.Title>Spending Breakdown</Card.Title>
 				<Card.Description>Amount and share per category</Card.Description>
@@ -36,11 +35,11 @@
 								class="size-2.5 shrink-0 rounded-sm"
 								style="background-color: {item.color}"
 							></div>
-							<span class="truncate text-muted-foreground">{item.category}</span>
+							<span class="text-muted-foreground truncate">{item.category}</span>
 						</div>
 						<div class="ml-2 flex shrink-0 items-center gap-2">
 							<span class="font-medium tabular-nums">{formatCurrency(item.amount)}</span>
-							<span class="w-10 text-right text-xs text-muted-foreground">
+							<span class="text-muted-foreground w-10 text-right text-xs">
 								{totalSpent > 0 ? ((item.amount / totalSpent) * 100).toFixed(0) : 0}%
 							</span>
 						</div>
@@ -50,14 +49,14 @@
 		</Card.Root>
 	</div>
 	<div class="w-full lg:flex-1/2">
-		<Card.Root class="bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
+		<Card.Root class="from-primary/5 to-card dark:bg-card bg-linear-to-t shadow-xs">
 			<Card.Header>
 				<Card.Title>Spending by Category</Card.Title>
 				<Card.Description>Where your money went this month</Card.Description>
 			</Card.Header>
 			<Card.Content class="flex-1">
 				{#if !hasData}
-					<div class="flex h-48 items-center justify-center text-sm text-muted-foreground">
+					<div class="text-muted-foreground flex h-48 items-center justify-center text-sm">
 						No spending recorded yet
 					</div>
 				{:else}

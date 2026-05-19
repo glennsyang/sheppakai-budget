@@ -1,8 +1,7 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
-
-	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		currentYear: number;

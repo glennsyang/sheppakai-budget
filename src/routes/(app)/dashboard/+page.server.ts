@@ -1,5 +1,5 @@
-import { inArray, sum } from 'drizzle-orm';
-
+import type { SavingsGoalWithProgress, TimeRangeInOutData } from '$lib';
+import { getDb } from '$lib/server/db';
 import {
 	budgetQueries,
 	incomeQueries,
@@ -8,7 +8,6 @@ import {
 	transactionQueries,
 	windowCleaningJobQueries
 } from '$lib/server/db/queries';
-import { getDb } from '$lib/server/db';
 import { contribution } from '$lib/server/db/schema';
 import { monthNames } from '$lib/utils';
 import {
@@ -18,9 +17,9 @@ import {
 	getPreviousMonthsRange,
 	getYearDateRange
 } from '$lib/utils/dates';
+import { inArray, sum } from 'drizzle-orm';
 
 import type { PageServerLoad } from './$types';
-import type { SavingsGoalWithProgress, TimeRangeInOutData } from '$lib';
 
 type RecurringItem = { cadence: string; amount: number };
 

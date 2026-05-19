@@ -1,12 +1,11 @@
 <script lang="ts">
+	import type { MonthlySpentChartData } from '$lib';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Chart from '$lib/components/ui/chart/index.js';
+	import { formatCurrency } from '$lib/utils';
 	import { scaleBand } from 'd3-scale';
 	import { BarChart, Highlight } from 'layerchart';
 	import { cubicInOut } from 'svelte/easing';
-
-	import * as Card from '$lib/components/ui/card/index.js';
-	import * as Chart from '$lib/components/ui/chart/index.js';
-	import type { MonthlySpentChartData } from '$lib';
-	import { formatCurrency } from '$lib/utils';
 
 	interface Props {
 		chartTitle: string;
@@ -78,7 +77,7 @@
 	<Card.Footer>
 		<div class="flex w-full items-start gap-2 text-sm">
 			<div class="grid gap-2">
-				<div class="flex items-center gap-2 leading-none font-medium text-muted-foreground">
+				<div class="text-muted-foreground flex items-center gap-2 leading-none font-medium">
 					Avg/month: <span class="text-foreground">{formatCurrency(averageSpent)}</span>
 				</div>
 			</div>

@@ -1,6 +1,5 @@
-import * as Sentry from '@sentry/sveltekit';
-
 import { dev } from '$app/environment';
+import * as Sentry from '@sentry/sveltekit';
 
 /**
  * Structured logger utility for server-side logging.

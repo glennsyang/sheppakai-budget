@@ -1,16 +1,14 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { superForm } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { BaseModalProps } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { savingsSchema } from '$lib/formSchemas';
-
-	import type { BaseModalProps } from '$lib';
+	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	interface Props extends BaseModalProps<z.infer<typeof savingsSchema>> {
 		savingsForm: SuperValidated<z.infer<typeof savingsSchema>>;

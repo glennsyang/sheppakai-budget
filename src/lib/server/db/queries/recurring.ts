@@ -1,9 +1,7 @@
+import type { Recurring } from '$lib/types';
 import { asc } from 'drizzle-orm';
 
-import type { Recurring } from '$lib/types';
-
 import { recurring } from '../schema';
-
 import { createQueryBuilder } from './factory';
 
 const baseBuilder = createQueryBuilder<typeof recurring, Recurring>({

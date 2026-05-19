@@ -1,17 +1,15 @@
 <script lang="ts">
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import { getContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { WindowCleaningCustomer, WindowCleaningCustomerWithStats } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import WindowCleaningCustomerModal from '$lib/components/WindowCleaningCustomerModal.svelte';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
 	import type { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
-
-	import type { WindowCleaningCustomer, WindowCleaningCustomerWithStats } from '$lib';
+	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import { getContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	let { customerData }: { customerData: WindowCleaningCustomerWithStats } = $props();
 

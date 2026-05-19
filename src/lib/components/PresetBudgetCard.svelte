@@ -1,13 +1,12 @@
 <script lang="ts">
-	import CheckIcon from '@lucide/svelte/icons/check';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import PencilIcon from '@lucide/svelte/icons/pencil';
-	import XIcon from '@lucide/svelte/icons/x';
-
 	import { enhance as enhanceAction } from '$app/forms';
 	import { Input } from '$lib/components/ui/input';
 	import { formatCurrency } from '$lib/utils';
 	import { padMonth } from '$lib/utils/dates';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import PencilIcon from '@lucide/svelte/icons/pencil';
+	import XIcon from '@lucide/svelte/icons/x';
 
 	interface Props {
 		title: string;
@@ -47,7 +46,7 @@
 {#if isCustom}
 	<!-- Custom Amount Card -->
 	<div
-		class="relative cursor-pointer rounded-lg border bg-card p-4 shadow transition-all {isSelected
+		class="bg-card relative cursor-pointer rounded-lg border p-4 shadow transition-all {isSelected
 			? 'border-green-500 hover:border-green-500'
 			: 'hover:border-primary'}"
 		onclick={onSelect}
@@ -108,11 +107,11 @@
 				<p class="text-2xl font-bold">{formatCurrency(amount)}</p>
 			{/if}
 			<div class="flex items-center justify-center gap-1">
-				<p class="text-center text-sm text-muted-foreground">{title}</p>
+				<p class="text-muted-foreground text-center text-sm">{title}</p>
 				{#if !isEditing}
 					<button
 						type="button"
-						class="rounded p-1 hover:bg-muted"
+						class="hover:bg-muted rounded p-1"
 						onclick={(e) => {
 							e.stopPropagation();
 							if (onEdit) onEdit();
@@ -142,7 +141,7 @@
 		<input type="hidden" name="presetType" value={presetType} />
 		<button
 			type="submit"
-			class="relative w-full rounded-lg border bg-card p-4 shadow transition-all {isSelected
+			class="bg-card relative w-full rounded-lg border p-4 shadow transition-all {isSelected
 				? 'border-green-500 hover:border-green-500'
 				: 'hover:border-primary'}"
 			onclick={(e) => {
@@ -160,7 +159,7 @@
 			</div>
 			<div class="flex flex-col items-center justify-center space-y-2 pt-2">
 				<p class="text-2xl font-bold">{formatCurrency(amount)}</p>
-				<p class="text-center text-sm text-muted-foreground">{title}</p>
+				<p class="text-muted-foreground text-center text-sm">{title}</p>
 			</div>
 		</button>
 	</form>{/if}

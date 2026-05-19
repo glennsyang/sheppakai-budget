@@ -34,8 +34,8 @@ vi.mock('./factory', () => ({
 	createQueryBuilder: () => {
 		const builder = {
 			findAll: mockState.findAll,
-			findById: vi.fn(),
-			findFirst: vi.fn()
+			findById: vi.fn<() => void>(),
+			findFirst: vi.fn<() => void>()
 		};
 		mockState.createdBuilder = builder;
 		return builder;

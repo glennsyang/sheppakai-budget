@@ -1,10 +1,8 @@
-import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
-
 import type { WindowCleaningCustomer } from '$lib/types';
+import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 
 import { getDb } from '../index';
 import { windowCleaningCustomer } from '../schema';
-
 import { createQueryBuilder } from './factory';
 
 const baseBuilder = createQueryBuilder<typeof windowCleaningCustomer, WindowCleaningCustomer>({

@@ -1,18 +1,16 @@
 <script lang="ts">
-	import { setContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import type { WindowCleaningJob } from '$lib';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import YearSwitcher from '$lib/components/YearSwitcher.svelte';
 	import type { windowCleaningJobSchema } from '$lib/formSchemas';
+	import { setContext } from 'svelte';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	import { columns } from './columns';
-
-	import type { WindowCleaningJob } from '$lib';
 
 	interface Props {
 		data: {
@@ -67,7 +65,7 @@
 	<!-- Header -->
 	<div class="mb-6">
 		<h1 class="text-3xl font-bold tracking-tight">All Jobs</h1>
-		<p class="mt-1 text-muted-foreground">Jobs for {selectedYear} across all customers</p>
+		<p class="text-muted-foreground mt-1">Jobs for {selectedYear} across all customers</p>
 	</div>
 
 	<!-- Year Selector -->
@@ -79,25 +77,25 @@
 	<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
 		<Card>
 			<CardContent class="pt-6">
-				<p class="text-sm text-muted-foreground">Jobs</p>
+				<p class="text-muted-foreground text-sm">Jobs</p>
 				<p class="text-2xl font-bold">{data.jobCount}</p>
 			</CardContent>
 		</Card>
 		<Card>
 			<CardContent class="pt-6">
-				<p class="text-sm text-muted-foreground">Charged</p>
+				<p class="text-muted-foreground text-sm">Charged</p>
 				<p class="text-2xl font-bold">{currencyFormatter.format(data.totalCharged)}</p>
 			</CardContent>
 		</Card>
 		<Card>
 			<CardContent class="pt-6">
-				<p class="text-sm text-muted-foreground">Tips</p>
+				<p class="text-muted-foreground text-sm">Tips</p>
 				<p class="text-2xl font-bold">{currencyFormatter.format(data.totalTips)}</p>
 			</CardContent>
 		</Card>
 		<Card>
 			<CardContent class="pt-6">
-				<p class="text-sm text-muted-foreground">Total Earned</p>
+				<p class="text-muted-foreground text-sm">Total Earned</p>
 				<p class="text-2xl font-bold text-green-600 dark:text-green-400">
 					{currencyFormatter.format(data.totalEarned)}
 				</p>

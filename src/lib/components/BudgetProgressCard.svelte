@@ -38,7 +38,7 @@
 	);
 </script>
 
-<Card.Root class="@container/card bg-linear-to-t from-primary/5 to-card shadow-xs dark:bg-card">
+<Card.Root class="from-primary/5 to-card dark:bg-card @container/card bg-linear-to-t shadow-xs">
 	{#if loading}
 		<Skeleton class="mb-2 h-4 w-full" />
 		<Skeleton class="mb-2 h-2 w-full" />
@@ -62,7 +62,7 @@
 				class={progressClass}
 			/>
 			<div class="mt-2">
-				<span class="text-sm text-muted-foreground">{label1}: {formatCurrency(actual)}</span>
+				<span class="text-muted-foreground text-sm">{label1}: {formatCurrency(actual)}</span>
 			</div>
 			{#if isOverBudget}
 				<p class="text-sm font-medium text-red-600">

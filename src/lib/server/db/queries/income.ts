@@ -1,9 +1,7 @@
+import type { Income } from '$lib/types';
 import { and, asc, sql } from 'drizzle-orm';
 
-import type { Income } from '$lib/types';
-
 import { income } from '../schema';
-
 import { createQueryBuilder } from './factory';
 
 const baseBuilder = createQueryBuilder<typeof income, Income>({

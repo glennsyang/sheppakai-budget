@@ -1,13 +1,12 @@
+import { auth } from '$lib/server/auth';
+import { logger } from '$lib/server/logger';
+import { getBetterAuthErrorMessage } from '$lib/utils';
 import { fail, isRedirect, redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
-import { auth } from '$lib/server/auth';
-import { logger } from '$lib/server/logger';
-import { getBetterAuthErrorMessage } from '$lib/utils';
 import { getEnv } from '../../../env';
-
 import type { Actions, PageServerLoad } from './$types';
 
 const forgotSchema = z.object({

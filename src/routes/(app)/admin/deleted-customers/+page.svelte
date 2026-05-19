@@ -1,14 +1,12 @@
 <script lang="ts">
+	import type { WindowCleaningCustomer } from '$lib';
+	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
+	import type { restoreCustomerSchema } from '$lib/formSchemas';
 	import { setContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
-	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
-	import type { restoreCustomerSchema } from '$lib/formSchemas';
-
 	import { columns } from './columns';
-
-	import type { WindowCleaningCustomer } from '$lib';
 
 	type DeletedCustomer = WindowCleaningCustomer & { user: { name: string; email: string } };
 

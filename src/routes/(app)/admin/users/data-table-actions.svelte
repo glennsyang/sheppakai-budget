@@ -1,10 +1,5 @@
 <script lang="ts">
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
-	import { toast } from 'svelte-sonner';
-	import { superForm, type SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { UserWithSessions } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -21,8 +16,11 @@
 	} from '$lib/contexts';
 	import type { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
-
-	import type { UserWithSessions } from '$lib';
+	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+	import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
+	import { toast } from 'svelte-sonner';
+	import { superForm, type SuperValidated } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	let { user }: { user: UserWithSessions } = $props();
 
@@ -328,7 +326,7 @@
 
 		<div class="flex-1 overflow-y-auto px-4 py-4">
 			{#if !user.sessions || user.sessions.length === 0}
-				<div class="flex h-32 items-center justify-center text-muted-foreground">
+				<div class="text-muted-foreground flex h-32 items-center justify-center">
 					No sessions found
 				</div>
 			{:else}

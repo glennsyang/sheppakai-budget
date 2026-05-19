@@ -16,7 +16,7 @@ vi.mock('../../../env', () => ({
 vi.mock('../logger', () => ({
 	logger: {
 		error: mockState.loggerError,
-		info: vi.fn()
+		info: vi.fn<() => void>()
 	}
 }));
 

@@ -1,12 +1,10 @@
+import type { WindowCleaningCustomer } from '$lib';
+import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 
-import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
-import { formatLocalTimestamp } from '$lib/utils/dates';
-
 import DataTableActions from './data-table-actions.svelte';
-
-import type { WindowCleaningCustomer } from '$lib';
 
 type DeletedCustomer = WindowCleaningCustomer & { user: { name: string; email: string } };
 

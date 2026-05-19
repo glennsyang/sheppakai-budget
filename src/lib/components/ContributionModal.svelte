@@ -1,9 +1,5 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import { superForm } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
+	import type { BaseModalProps, SavingsGoal } from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
@@ -11,8 +7,10 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { contributionSchema } from '$lib/formSchemas/savings';
 	import { extractDateFromTimestamp, getTodayDate } from '$lib/utils/dates';
-
-	import type { BaseModalProps, SavingsGoal } from '$lib';
+	import { toast } from 'svelte-sonner';
+	import type { SuperValidated } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
+	import type { z } from 'zod';
 
 	interface Props extends BaseModalProps<z.infer<typeof contributionSchema>> {
 		goals: SavingsGoal[];
@@ -117,7 +115,7 @@
 					</Select.Content>
 				</Select.Root>
 				{#if $errors.goalId}
-					<p class="text-sm text-destructive">{$errors.goalId}</p>
+					<p class="text-destructive text-sm">{$errors.goalId}</p>
 				{/if}
 			</div>
 
@@ -134,7 +132,7 @@
 					required
 				/>
 				{#if $errors.amount}
-					<p class="text-sm text-destructive">{$errors.amount}</p>
+					<p class="text-destructive text-sm">{$errors.amount}</p>
 				{/if}
 			</div>
 
@@ -142,7 +140,7 @@
 				<label for="contribution-date" class="text-sm font-medium">Date</label>
 				<Input id="contribution-date" name="date" type="date" bind:value={$form.date} required />
 				{#if $errors.date}
-					<p class="text-sm text-destructive">{$errors.date}</p>
+					<p class="text-destructive text-sm">{$errors.date}</p>
 				{/if}
 			</div>
 
@@ -158,7 +156,7 @@
 					rows={2}
 				/>
 				{#if $errors.description}
-					<p class="text-sm text-destructive">{$errors.description}</p>
+					<p class="text-destructive text-sm">{$errors.description}</p>
 				{/if}
 			</div>
 

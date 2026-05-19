@@ -1,12 +1,7 @@
 <script lang="ts">
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
-	import { toast } from 'svelte-sonner';
-	import { superForm } from 'sveltekit-superforms';
-
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import type { Budget, ChartData } from '$lib';
 	import LineChart from '$lib/components/LineChart.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
@@ -15,10 +10,13 @@
 	import { getCategoriesContext } from '$lib/contexts';
 	import { months } from '$lib/utils';
 	import { padMonth } from '$lib/utils/dates';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
+	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
+	import { toast } from 'svelte-sonner';
+	import { superForm } from 'sveltekit-superforms';
 
 	import type { PageProps } from './$types';
-
-	import type { Budget, ChartData } from '$lib';
 
 	let { data }: PageProps = $props();
 
@@ -347,7 +345,7 @@
 		<!-- Column 1: Category List -->
 		<div class="sticky top-[calc(var(--header-height)+0.5rem)] col-span-3 self-start">
 			<div
-				class="flex flex-col rounded-lg border bg-card shadow"
+				class="bg-card flex flex-col rounded-lg border shadow"
 				style="max-height: calc(100vh - var(--header-height) - 5.5rem)"
 			>
 				<div class="shrink-0 border-b p-6">
@@ -359,9 +357,9 @@
 					{#each sortedCategories as category (category.id)}
 						{@const categoryBudget = getBudgetForCategory(category.id)}
 						<button
-							class="w-full px-4 py-3 text-left transition-colors hover:bg-muted {selectedCategoryId ===
+							class="hover:bg-muted w-full px-4 py-3 text-left transition-colors {selectedCategoryId ===
 							category.id
-								? 'border-l-4 border-primary bg-muted'
+								? 'border-primary bg-muted border-l-4'
 								: 'border-l-4 border-transparent'}"
 							onclick={() => (selectedCategoryId = category.id)}
 						>
@@ -370,7 +368,7 @@
 								{#if categoryBudget}
 									<CheckCircleIcon class="h-4 w-4 text-green-500" />
 								{:else}
-									<HelpCircleIcon class="h-4 w-4 text-muted-foreground" />
+									<HelpCircleIcon class="text-muted-foreground h-4 w-4" />
 								{/if}
 							</div>
 						</button>
@@ -461,8 +459,8 @@
 					/>
 				</div>
 			{:else}
-				<div class="rounded-lg border bg-card shadow">
-					<div class="p-12 text-center text-muted-foreground">
+				<div class="bg-card rounded-lg border shadow">
+					<div class="text-muted-foreground p-12 text-center">
 						<p>Select a category to view or edit its budget</p>
 					</div>
 				</div>
@@ -472,7 +470,7 @@
 		<!-- Column 3: Total Summary -->
 		<div class="col-span-3">
 			<!-- Budget Status Box -->
-			<div class="mb-4 rounded-lg border bg-card shadow">
+			<div class="bg-card mb-4 rounded-lg border shadow">
 				<div class="relative p-6">
 					<div class="absolute top-4 right-4">
 						{#if allBudgetsSet}
@@ -482,25 +480,25 @@
 						{/if}
 					</div>
 					<div class="flex flex-col items-center justify-center space-y-2">
-						<SlidersHorizontalIcon class="h-5 w-5 text-muted-foreground" />
+						<SlidersHorizontalIcon class="text-muted-foreground h-5 w-5" />
 						<p class="text-lg font-semibold">
 							Set {months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label ||
 								'Monthly'} Budget
 						</p>
 						{#if categoriesWithoutBudget.length > 0}
-							<p class="text-sm text-muted-foreground">
+							<p class="text-muted-foreground text-sm">
 								There is no budget set for {categoriesWithoutBudget.length}
 								{categoriesWithoutBudget.length === 1 ? 'category' : 'categories'}.
 							</p>
 						{:else}
-							<p class="text-sm text-muted-foreground">All budgets are set!</p>
+							<p class="text-muted-foreground text-sm">All budgets are set!</p>
 						{/if}
 					</div>
 				</div>
 			</div>
 
 			<!-- Spending Overview Box -->
-			<div class="rounded-lg border bg-card shadow">
+			<div class="bg-card rounded-lg border shadow">
 				<div class="border-b p-6">
 					<h3 class="text-lg font-semibold">
 						{months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label || 'Monthly'} Spending

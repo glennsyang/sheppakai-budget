@@ -2,7 +2,6 @@ import { relations, sql } from 'drizzle-orm';
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { generateId } from '../utils';
-
 import user from './user';
 
 const windowCleaningCustomer = sqliteTable('window_cleaning_customers', {

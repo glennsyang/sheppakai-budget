@@ -1,8 +1,7 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button/index.js';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import type { ComponentProps } from 'svelte';
-
-	import { Button } from '$lib/components/ui/button/index.js';
 
 	interface DataTableSortButtonProps extends ComponentProps<typeof Button> {
 		columnName: string;

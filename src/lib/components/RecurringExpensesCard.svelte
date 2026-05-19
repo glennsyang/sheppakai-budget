@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { ChevronDownIcon, RepeatIcon } from '@lucide/svelte/icons';
-
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
 	import * as Separator from '$lib/components/ui/separator/index.js';
 	import type { Recurring } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
+	import { ChevronDownIcon, RepeatIcon } from '@lucide/svelte/icons';
 
 	interface Props {
 		recurring: Recurring[];
@@ -25,14 +24,14 @@
 		<Card.Header class="pb-3">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-2">
-					<RepeatIcon class="size-4 text-muted-foreground" />
+					<RepeatIcon class="text-muted-foreground size-4" />
 					<Card.Title class="text-base">Recurring Expenses</Card.Title>
 				</div>
 				<div class="flex items-center gap-3">
 					<span class="text-sm font-semibold tabular-nums">{formatCurrency(monthlyTotal)}/mo</span>
 					<Collapsible.Trigger class="group flex cursor-pointer items-center">
 						<ChevronDownIcon
-							class="size-4 text-muted-foreground transition-transform duration-200 {open
+							class="text-muted-foreground size-4 transition-transform duration-200 {open
 								? ''
 								: '-rotate-90'}"
 						/>
@@ -43,7 +42,7 @@
 		<Collapsible.Content>
 			<Card.Content class="pt-0">
 				{#if sorted.length === 0}
-					<p class="py-4 text-center text-sm text-muted-foreground">No recurring expenses</p>
+					<p class="text-muted-foreground py-4 text-center text-sm">No recurring expenses</p>
 				{:else}
 					<div class="max-h-72 overflow-y-auto">
 						{#each sorted as item, i (item.id)}
@@ -55,7 +54,7 @@
 									<div>
 										<p class="text-sm font-medium">{item.merchant}</p>
 										{#if item.description}
-											<p class="text-xs text-muted-foreground">{item.description}</p>
+											<p class="text-muted-foreground text-xs">{item.description}</p>
 										{/if}
 									</div>
 								</div>
@@ -64,7 +63,7 @@
 										<Badge class="bg-green-500 text-xs text-white hover:bg-green-500">Paid</Badge>
 									{:else}
 										<Badge
-											class="bg-muted-foreground/30 text-xs text-white hover:bg-muted-foreground/30"
+											class="bg-muted-foreground/30 hover:bg-muted-foreground/30 text-xs text-white"
 											>Not Yet Paid</Badge
 										>
 									{/if}
