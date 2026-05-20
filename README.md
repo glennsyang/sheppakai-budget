@@ -33,7 +33,7 @@ A personal finance and business management app built with SvelteKit. Track month
 | Charts         | Layerchart (D3-based)   |
 | Monitoring     | Sentry                  |
 | Testing        | Vitest + Playwright     |
-| Linting        | Oxlint                  |
+| Linting        | Oxlint + Oxfmt          |
 
 ## Getting Started 🚀
 
@@ -52,12 +52,22 @@ DATABASE_URL=file://./local-copy.db
 
 # Authentication (required in production, min 32 characters)
 BETTER_AUTH_SECRET=your-secure-secret-key-minimum-32-characters-long
-BETTER_AUTH_BASE_URL=http://localhost
+BETTER_AUTH_BASE_URL=http://localhost:5173
+
+# Cron job protection (required in production)
+CRON_SECRET=your-cron-secret-here
 
 # Email (Resend API for transactional emails)
 RESEND_API_KEY=re_your_api_key_here
 RESEND_FROM_ADDRESS=noreply@yourdomain.com
 RESEND_NEW_USER_ADDRESS=admin@yourdomain.com
+
+# Admin
+ADMIN_USER_IDS=comma-separated-user-ids
+
+# Notification webhooks
+AUTH_ALERTS_URL=https://your-notification-service/auth-alerts
+BUDGET_ALERTS_URL=https://your-notification-service/budget-alerts
 
 # Monitoring (optional in development)
 SENTRY_AUTH_TOKEN=your_sentry_auth_token_here
@@ -68,7 +78,8 @@ NODE_ENV=development
 
 **Notes:**
 
-- `BETTER_AUTH_SECRET` is **required** in production and must be at least 32 characters
+- `BETTER_AUTH_SECRET`, `DATABASE_URL`, and `CRON_SECRET` are **required** in production
+- `BETTER_AUTH_SECRET` must be at least 32 characters
 - In development, fallback values are used for convenience
 - The app will fail fast on startup if required variables are missing in production
 
@@ -97,11 +108,13 @@ NODE_ENV=development
 ### Useful Scripts
 
 ```bash
+npm run fmt           # Format code with Oxfmt
+npm run lint          # Run Oxlint and static analysis checks
+npm run check:all     # Format, lint, and test in one pass
 npm run db:generate   # Generate Drizzle schema types
 npm run db:migrate    # Run database migrations
 npm run db:studio     # Open Drizzle Studio (database browser)
 npm run test          # Run unit tests
-npm run lint          # Run Oxlint
 ```
 
 ---
