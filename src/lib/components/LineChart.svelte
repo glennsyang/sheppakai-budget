@@ -87,6 +87,7 @@
 						labelFormatter={(v: Date) => {
 							return v.toLocaleDateString('en-US', {
 								month: 'long',
+								year: 'numeric',
 								timeZone: 'America/Los_Angeles'
 							});
 						}}

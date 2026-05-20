@@ -30,7 +30,7 @@ This is a SvelteKit web application for tracking monthly budgets, managing expen
 - Common scripts (run with `npm run <script>`):
   - `dev` – Start the dev server
   - `build` – Build the app
-  - `check`, `check:watch` – Type/lint/check project
+  - `check`, `check:watch` – Svelte/check project
   - `fmt` – Format with Oxfmt
   - `fmt:check` – Check formatting without writing changes
   - `lint` – Run Oxlint and static analysis checks
