@@ -30,8 +30,12 @@ This is a SvelteKit web application for tracking monthly budgets, managing expen
 - Common scripts (run with `npm run <script>`):
   - `dev` – Start the dev server
   - `build` – Build the app
-  - `check`, `check:watch` – Type/lint/check project
-  - `lint` – Run Prettier and ESLint
+  - `check`, `check:watch` – Svelte/check project
+  - `fmt` – Format with Oxfmt
+  - `fmt:check` – Check formatting without writing changes
+  - `lint` – Run Oxlint and static analysis checks
+  - `lint:fix` – Auto-fix Oxlint violations
+  - `check:all` – Format, lint, and test in one pass
   - `test`, `test:unit` – Vitest unit tests
   - `db:migrate`, `db:generate`, `db:studio` – Drizzle database actions
 
@@ -39,15 +43,18 @@ This is a SvelteKit web application for tracking monthly budgets, managing expen
 
 - Main config file: `src/env.ts`
 - Reads from `.env` file (if present):
-  - `NODE_ENV`, `DATABASE_URL`, `DB_MIGRATING`, `DB_SEEDING`
-- You must set these environment variables for production/development as needed.
+  - `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `CRON_SECRET`
+  - `RESEND_API_KEY`, `RESEND_FROM_ADDRESS`, `RESEND_NEW_USER_ADDRESS`
+  - `ADMIN_USER_IDS`, `AUTH_ALERTS_URL`, `BUDGET_ALERTS_URL`, `NODE_ENV`
+- `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `CRON_SECRET` are required in production; the app exits on startup if they are missing or still set to dummy values.
+- In development, fallback values are provided automatically.
 
 ## Coding Standards
 
 - Use semicolons at the end of each statement.
 - Use single quotes for strings.
 - Avoid using `any` type entirely - use proper typing, generics, or `unknown` instead.
-- Follows ESLint (`eslint.config.js`) and Prettier conventions.
+- Follows Oxlint (`oxlint.config.ts`) and Oxfmt (`oxfmt.config.ts`) conventions.
 - Uses Tailwind CSS for consistent styling.
 
 ## Svelte/SvelteKit Reactive Patterns

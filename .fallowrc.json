@@ -1,13 +1,21 @@
 {
 	"$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
 	"entry": ["src/index.{ts,tsx,js,jsx}", "src/main.{ts,tsx,js,jsx}"],
-	"ignorePatterns": ["**/*.generated.ts", "**/*.d.ts", "src/lib/components/ui/**"],
+	"ignorePatterns": [
+		"**/*.generated.ts",
+		"**/*.d.ts",
+		"src/lib/components/ui/**",
+		"*.config.ts",
+		"src/instrumentation.server.ts",
+		"src/lib/hooks/is-mobile.svelte.ts"
+	],
 	"duplicates": {
 		"ignore": ["src/lib/components/ui/**/*.{ts,tsx}"]
 	},
 	"rules": {
 		"unresolved-imports": "error",
 		"unlisted-dependencies": "error",
-		"unused-exports": "warn"
+		"unused-exports": "warn",
+		"circular-dependencies": "off"
 	}
 }

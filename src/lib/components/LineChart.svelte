@@ -1,7 +1,9 @@
 <script lang="ts">
+	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { ChartData } from '$lib/types';
+	import { formatCurrency } from '$lib/utils.js';
 	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import { scaleUtc } from 'd3-scale';
@@ -26,6 +28,21 @@
 		if (direction === 'up') return 'text-destructive';
 		return 'text-green-600 dark:text-green-400';
 	}
+
+	const completedMonths = $derived(chartData.slice(0, -1).filter((d) => d.actual > 0));
+	const avgSpend = $derived(
+		completedMonths.length > 0
+			? completedMonths.reduce((sum, d) => sum + d.actual, 0) / completedMonths.length
+			: null
+	);
+	const currentPlanned = $derived(chartData.at(-1)?.planned ?? 0);
+	const avgColorClass = $derived(
+		avgSpend === null || currentPlanned === 0
+			? 'text-muted-foreground'
+			: avgSpend < currentPlanned
+				? 'text-green-600 dark:text-green-400'
+				: 'text-destructive'
+	);
 </script>
 
 <Card.Root>
@@ -58,18 +75,24 @@
 				props={{
 					spline: { curve: curveNatural, motion: 'tween', strokeWidth: 2 },
 					xAxis: {
-						format: (v: Date) => {
-							// Format date to show month only
-							const dateStr = v.toISOString().replace('T', ' ').split('.')[0];
-							const date = new Date(dateStr);
-							return date.toLocaleString('en-US', { month: 'short' });
-						}
+						format: (v: Date) =>
+							v.toLocaleDateString('en-US', { month: 'short', timeZone: 'America/Los_Angeles' })
 					},
-					highlight: { points: { r: 4 } }
+					highlight: { points: { r: 6 } }
 				}}
+				legend
 			>
 				{#snippet tooltip()}
-					<Chart.Tooltip hideLabel />
+					<Chart.Tooltip
+						labelFormatter={(v: Date) => {
+							return v.toLocaleDateString('en-US', {
+								month: 'long',
+								year: 'numeric',
+								timeZone: 'America/Los_Angeles'
+							});
+						}}
+						indicator="line"
+					/>
 				{/snippet}
 			</LineChart>
 		</Chart.Container>
@@ -81,7 +104,9 @@
 					<div
 						class={`flex items-center gap-2 leading-none font-medium ${getTrendToneClass(trendingData.direction)}`}
 					>
-						Trending {trendingData.direction} by {trendingData.value.toFixed(1)}% this month
+						{trendingData.direction[0].toUpperCase() + trendingData.direction.slice(1)} by {trendingData.value.toFixed(
+							1
+						)}% this month (vs last month)
 						{#if trendingData.direction === 'up'}
 							<TrendingUpIcon class="size-4" />
 						{:else}
@@ -92,6 +117,15 @@
 				{#if monthRange}
 					<div class="text-muted-foreground flex items-center gap-2 leading-none">
 						{monthRange}
+					</div>
+				{/if}
+				{#if avgSpend !== null}
+					<div class="flex items-center gap-1.5 leading-none {avgColorClass}">
+						Last 6 months avg spend: {formatCurrency(avgSpend)}
+						<InfoTooltip
+							size="sm"
+							text="Average actual spend across completed months with transactions, excluding the current (partial) month."
+						/>
 					</div>
 				{/if}
 			</div>
