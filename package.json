@@ -19,6 +19,7 @@
 		"check:dead-exports": "node scripts/check-dead-exports.mjs",
 		"check:redirect-throws": "node scripts/check-redirect-throws.mjs",
 		"check:no-explicit-any": "node scripts/check-no-explicit-any.mjs",
+		"check:dead-code": "fallow dead-code --format human",
 		"test": "npm run test:unit -- --run",
 		"test:unit": "vitest",
 		"test:ci": "npm run test:unit -- --run && npm run test:coverage",

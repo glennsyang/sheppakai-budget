@@ -31,8 +31,9 @@ function getLast6MonthsRange(currentMonth: number, currentYear: number): MonthRa
 			targetYear -= 1;
 		}
 
-		// Use UTC to avoid timezone issues during serialization
-		const targetDate = new Date(Date.UTC(targetYear, targetMonth - 1, 1));
+		// Use noon UTC to avoid timezone issues during serialization
+		// Midnight UTC is the previous evening in Pacific time, so noon UTC stays on the correct calendar day
+		const targetDate = new Date(Date.UTC(targetYear, targetMonth - 1, 1, 12, 0, 0));
 
 		months.push({
 			month: padMonth(targetMonth.toString()),

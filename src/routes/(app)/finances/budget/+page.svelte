@@ -157,8 +157,16 @@
 		const firstDate = chartData[0].date;
 		const lastDate = chartData[chartData.length - 1].date;
 
-		const firstMonth = firstDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-		const lastMonth = lastDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+		const firstMonth = firstDate.toLocaleDateString('en-US', {
+			month: 'long',
+			year: 'numeric',
+			timeZone: 'America/Los_Angeles'
+		});
+		const lastMonth = lastDate.toLocaleDateString('en-US', {
+			month: 'long',
+			year: 'numeric',
+			timeZone: 'America/Los_Angeles'
+		});
 
 		return `${firstMonth} - ${lastMonth}`;
 	});
