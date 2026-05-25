@@ -2,8 +2,7 @@ name: Weekly Summary Email
 
 on:
   schedule:
-    - cron: '10 15 * * 1' # Monday 8:10am PDT
-    - cron: '10 16 * * 1' # Monday 8:10am PST
+    - cron: '10 16 * * 1' # Monday 8:10am PST / 9:10am PDT
   workflow_dispatch: # Allow manual trigger
 
 jobs:

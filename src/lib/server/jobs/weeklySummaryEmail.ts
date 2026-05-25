@@ -86,7 +86,7 @@ function buildMonthRange(date: Date) {
 
 function shouldRunAtScheduledPacificTime(date: Date): boolean {
 	const pacificParts = getPacificDateParts(date);
-	return pacificParts.weekday === 1 && pacificParts.hour === 8;
+	return pacificParts.weekday === 1;
 }
 
 function toSummaryRows(params: {
@@ -137,7 +137,7 @@ export async function runWeeklySummaryEmail(date = new Date()): Promise<WeeklySu
 		return {
 			success: true,
 			skipped: true,
-			reason: 'Not Monday 8am Pacific time',
+			reason: 'Not Monday Pacific time',
 			monthLabel: monthRange.monthLabel,
 			recipientsScanned: 0,
 			emailsSent: 0,
