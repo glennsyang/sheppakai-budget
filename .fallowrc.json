@@ -9,6 +9,18 @@
 		"src/instrumentation.server.ts",
 		"src/lib/hooks/is-mobile.svelte.ts"
 	],
+	"ignoreDependencies": [
+		"@flydotio/dockerfile",
+		"@internationalized/date",
+		"@tailwindcss/typography",
+		"@tailwindcss/vite",
+		"bits-ui",
+		"globals",
+		"tailwind-variants"
+	],
+	"ignoreExports": [
+		{ "file": "src/lib/utils.ts", "exports": ["WithoutChildrenOrChild", "WithElementRef"] }
+	],
 	"duplicates": {
 		"ignore": ["src/lib/components/ui/**/*.{ts,tsx}"]
 	},

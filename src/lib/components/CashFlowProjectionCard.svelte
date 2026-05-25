@@ -44,6 +44,9 @@
 		daysRemaining > 0 ? Math.max(discretionaryRemaining, 0) / daysRemaining : 0
 	);
 
+	let budgetRemaining = $derived(Math.max(0, plannedExpensesTotal - actualSpent));
+	let dailyBudgetRemaining = $derived(daysRemaining > 0 ? budgetRemaining / daysRemaining : 0);
+
 	let projectionColor = $derived(
 		projectedEnd > totalIncome
 			? 'text-destructive'
@@ -132,18 +135,37 @@
 					</p>
 				</div>
 
-				<div class="bg-muted/50 rounded-lg px-4 py-3">
-					<div class="flex items-center gap-1">
-						<p class="text-muted-foreground text-xs">Daily budget remaining</p>
-						<InfoTooltip
-							size="sm"
-							text="Discretionary left (income − spent − recurring) divided by the number of days remaining in the month."
-						/>
+				<div class="grid grid-cols-2 gap-2">
+					<div class="bg-muted/50 rounded-lg px-3 py-3">
+						<div class="flex items-center gap-1">
+							<p class="text-muted-foreground text-xs">Daily budget</p>
+							<InfoTooltip
+								size="sm"
+								text="Your planned budget remaining (planned total − spent so far) divided by days left in the month. This is what your budget plan says you can spend per day."
+							/>
+						</div>
+						<p
+							class="mt-0.5 text-lg font-bold tabular-nums {dailyBudgetRemaining <= 0
+								? 'text-destructive'
+								: 'text-foreground'}"
+						>
+							{formatCurrency(dailyBudgetRemaining)}
+							<span class="text-muted-foreground text-xs font-normal">/day</span>
+						</p>
 					</div>
-					<p class="mt-0.5 text-xl font-bold tabular-nums {projectionColor}">
-						{formatCurrency(dailyDiscretionary)}
-						<span class="text-muted-foreground text-sm font-normal">/day</span>
-					</p>
+					<div class="bg-muted/50 rounded-lg px-3 py-3">
+						<div class="flex items-center gap-1">
+							<p class="text-muted-foreground text-xs">Daily spend</p>
+							<InfoTooltip
+								size="sm"
+								text="Discretionary left (income − spent − recurring) divided by days remaining. This is what your actual cash position allows you to spend per day."
+							/>
+						</div>
+						<p class="mt-0.5 text-lg font-bold tabular-nums {projectionColor}">
+							{formatCurrency(dailyDiscretionary)}
+							<span class="text-muted-foreground text-xs font-normal">/day</span>
+						</p>
+					</div>
 				</div>
 			</div>
 		</div>
