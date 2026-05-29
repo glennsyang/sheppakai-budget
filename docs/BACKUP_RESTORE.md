@@ -4,11 +4,11 @@ This document describes how to backup and restore the SQLite database for the Sv
 
 ## Automated Backups
 
-The application uses GitHub Actions to automatically backup the production database daily at 6:00 AM UTC.
+The backup system uses a GitHub Actions workflow that can be triggered on demand.
 
 ### How It Works
 
-- **Schedule**: Daily at 6:00 AM UTC (1:00 AM EST, 10:00 PM PST)
+- **Trigger**: Manual (`workflow_dispatch`) from GitHub Actions or `gh workflow run`
 - **Storage**: GitHub Artifacts with 30-day retention
 - **Format**: Gzipped SQL dump files (`.sql.gz`)
 - **Naming**: `db-backup-YYYY-MM-DD-HHMMSS` (e.g., `db-backup-2026-01-17-060000`)
@@ -24,7 +24,7 @@ The workflow automatically:
 
 ### Manual Backup
 
-You can manually trigger a backup anytime:
+This is the primary backup flow and can be run anytime:
 
 1. Go to **Actions** tab in GitHub
 2. Select **Database Backup** workflow
@@ -267,9 +267,9 @@ Use the provided test script for streamlined testing:
 
 ### Recovery Point Objective (RPO)
 
-- **Maximum data loss**: 24 hours (daily backup schedule)
-- **Typical data loss**: < 24 hours depending on time of failure
-- **Recommendation**: For critical changes, trigger manual backup before deployment
+- **Maximum data loss**: Depends on when the most recent backup was triggered
+- **Typical data loss**: Equal to time since the last successful backup
+- **Recommendation**: Trigger a backup before deployments or major data changes
 
 ## Troubleshooting
 
@@ -324,7 +324,7 @@ This script automatically verifies:
 
 ### Manual Checklist
 
-- [ ] **Backup schedule is running** - Check GitHub Actions for recent successful runs
+- [ ] **Backup workflow is runnable** - Confirm `backup-database.yml` can be triggered successfully
 - [ ] **Artifacts are being created** - Verify artifacts exist in recent workflow runs
 - [ ] **Backup size is reasonable** - Compare with previous backups (should be similar)
 - [ ] **Restore tested monthly** - Last successful restore test date: \***\*\_\*\***

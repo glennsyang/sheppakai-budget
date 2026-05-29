@@ -1,6 +1,6 @@
 # Sheppakai Budget
 
-A personal finance and business management app built with SvelteKit. Track monthly income and expenses, organize spending into categories, set savings goals, manage receipts, and handle window cleaning business operations — all in one place.
+Sheppakai Budget is a full-stack personal finance and small business management app built as a portfolio project. It combines household budgeting with business workflows in one clean interface: track spending, monitor goals, manage recurring items, and stay on top of day-to-day financial decisions.
 
 ## Features ✨
 
@@ -35,53 +35,22 @@ A personal finance and business management app built with SvelteKit. Track month
 | Testing        | Vitest + Playwright     |
 | Linting        | Oxlint + Oxfmt          |
 
-## Getting Started 🚀
+## What This Project Demonstrates
+
+- Building and shipping a production-style SvelteKit application end to end
+- Designing reusable UI systems with component-driven architecture
+- Modeling real-world financial workflows in a relational database
+- Implementing authentication, validation, and robust form handling
+- Maintaining code quality with automated formatting, linting, and tests
+
+## Running Locally
+
+This project is developer-ready and runs locally with a standard Node setup.
 
 ### Prerequisites
 
 - **Node.js 22.22.2** (required for better-sqlite3 compatibility)
-  - Use nvm: `nvm use 22.22.2` or `nvm install 22.22.2`
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Database
-DATABASE_URL=file://./local-copy.db
-
-# Authentication (required in production, min 32 characters)
-BETTER_AUTH_SECRET=your-secure-secret-key-minimum-32-characters-long
-BETTER_AUTH_BASE_URL=http://localhost:5173
-
-# Cron job protection (required in production)
-CRON_SECRET=your-cron-secret-here
-
-# Email (Resend API for transactional emails)
-RESEND_API_KEY=re_your_api_key_here
-RESEND_FROM_ADDRESS=noreply@yourdomain.com
-RESEND_NEW_USER_ADDRESS=admin@yourdomain.com
-
-# Admin
-ADMIN_USER_IDS=comma-separated-user-ids
-
-# Notification webhooks
-AUTH_ALERTS_URL=https://your-notification-service/auth-alerts
-BUDGET_ALERTS_URL=https://your-notification-service/budget-alerts
-
-# Monitoring (optional in development)
-SENTRY_AUTH_TOKEN=your_sentry_auth_token_here
-
-# Node Environment
-NODE_ENV=development
-```
-
-**Notes:**
-
-- `BETTER_AUTH_SECRET`, `DATABASE_URL`, and `CRON_SECRET` are **required** in production
-- `BETTER_AUTH_SECRET` must be at least 32 characters
-- In development, fallback values are used for convenience
-- The app will fail fast on startup if required variables are missing in production
+  - Optional with nvm: `nvm use 22.22.2`
 
 ### Installation
 
@@ -105,7 +74,7 @@ NODE_ENV=development
 
 4. **Open http://localhost:5173**
 
-### Useful Scripts
+### Common Scripts
 
 ```bash
 npm run fmt           # Format code with Oxfmt
@@ -117,31 +86,7 @@ npm run db:studio     # Open Drizzle Studio (database browser)
 npm run test          # Run unit tests
 ```
 
----
+## Additional Documentation
 
-## Database Backups 💾
-
-The application includes automated daily backups of the production database.
-
-- **Schedule**: Daily at 6:00 AM UTC
-- **Retention**: 30 days via GitHub Artifacts
-- **Manual trigger**: Available via GitHub Actions
-
-### Quick Backup Commands
-
-```bash
-# Trigger manual backup
-gh workflow run backup-database.yml
-
-# Test restore locally
-./scripts/test-restore.sh backup-YYYY-MM-DD-HHMMSS.sql.gz
-
-# Emergency production backup
-flyctl ssh console -a sheppakai-budget -C \
-  "sqlite3 /data/sheppakaibudget.db .dump" > backup-$(date +%Y%m%d).sql
-```
-
-📖 **Full Documentation**:
-
-- [BACKUP_RESTORE.md](./docs/BACKUP_RESTORE.md) — Complete backup and restore procedures
-- [BACKUP_QUICK_REFERENCE.md](./docs/BACKUP_QUICK_REFERENCE.md) — Quick command reference
+- [BACKUP_RESTORE.md](./docs/BACKUP_RESTORE.md) for operational backup and recovery procedures
+- [BACKUP_QUICK_REFERENCE.md](./docs/BACKUP_QUICK_REFERENCE.md) for fast backup commands
