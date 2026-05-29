@@ -16,6 +16,14 @@
 		goals: SavingsGoal[];
 		preselectedGoalId?: string;
 		contributionForm: SuperValidated<z.infer<typeof contributionSchema>>;
+		onSuccess?: (payload: ContributionSuccessPayload) => void;
+	}
+
+	interface ContributionSuccessPayload {
+		goalId: string;
+		amount: number;
+		previousGoalId?: string;
+		previousAmount?: number;
 	}
 
 	let {
@@ -25,7 +33,8 @@
 		isLoading = $bindable(false),
 		goals,
 		preselectedGoalId,
-		contributionForm
+		contributionForm,
+		onSuccess
 	}: Props = $props();
 
 	let activeGoals = $derived(goals.filter((g) => g.status !== 'archived'));
@@ -35,6 +44,17 @@
 			resetForm: true,
 			onUpdate: ({ form }) => {
 				if (form.valid) {
+					const successPayload: ContributionSuccessPayload = {
+						goalId: form.data.goalId,
+						amount: form.data.amount
+					};
+
+					if (isEditing && initialData?.goalId && typeof initialData.amount === 'number') {
+						successPayload.previousGoalId = initialData.goalId;
+						successPayload.previousAmount = initialData.amount;
+					}
+
+					onSuccess?.(successPayload);
 					open = false;
 					toast.success(
 						isEditing ? 'Contribution updated successfully!' : 'Contribution added successfully!'

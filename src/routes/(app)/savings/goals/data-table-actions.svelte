@@ -10,6 +10,13 @@
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
+	interface ContributionSuccessPayload {
+		goalId: string;
+		amount: number;
+		previousGoalId?: string;
+		previousAmount?: number;
+	}
+
 	let { id, contributionData }: { id: string; contributionData: Contribution } = $props();
 
 	let openEditModal = $state<boolean>(false);
@@ -19,6 +26,9 @@
 	const contributionForm = getContext('contributionForm') as SuperValidated<
 		z.infer<typeof contributionSchema>
 	>;
+	const onContributionSuccess = getContext('onContributionSuccess') as (
+		payload: ContributionSuccessPayload
+	) => void;
 </script>
 
 <DropdownMenu.Root>
@@ -48,6 +58,7 @@
 	isEditing
 	goals={goals()}
 	{contributionForm}
+	onSuccess={onContributionSuccess}
 />
 
 <ConfirmModal
