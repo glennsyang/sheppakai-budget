@@ -83,7 +83,7 @@ flyctl scale count 1 -a sheppakai-budget
 
 ## Backup Schedule
 
-- **Frequency**: Daily at 6:00 AM UTC (1:00 AM EST / 10:00 PM PST)
+- **Frequency**: On demand (manual trigger via GitHub Actions)
 - **Retention**: 30 days (GitHub Artifacts)
 - **Format**: Gzipped SQL dumps (.sql.gz)
 - **Storage**: GitHub Actions Artifacts
@@ -91,7 +91,7 @@ flyctl scale count 1 -a sheppakai-budget
 ## Recovery Metrics
 
 - **RTO (Recovery Time Objective)**: < 30 minutes
-- **RPO (Recovery Point Objective)**: 24 hours
+- **RPO (Recovery Point Objective)**: Depends on time since the last successful backup
 - **Backup Size**: ~50-500 KB (compressed, varies with data)
 
 ## Monthly Testing Checklist
@@ -105,7 +105,7 @@ flyctl scale count 1 -a sheppakai-budget
 
 ## Monitoring
 
-- **Success**: Backups run automatically, no action needed
+- **Success**: Workflow runs complete successfully and artifacts are uploaded
 - **Failure**: GitHub issue auto-created with `backup-failure` label
 - **View runs**: https://github.com/glennsyang/sheppakai-budget/actions/workflows/backup-database.yml
 
