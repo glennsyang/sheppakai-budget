@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Contribution, SavingsGoalWithProgress } from '$lib';
+	import Confetti from '$lib/components/Confetti.svelte';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import ContributionModal from '$lib/components/ContributionModal.svelte';
 	import SavingsGoalCard from '$lib/components/SavingsGoalCard.svelte';
@@ -26,6 +27,13 @@
 		};
 	}
 
+	interface ContributionSuccessPayload {
+		goalId: string;
+		amount: number;
+		previousGoalId?: string;
+		previousAmount?: number;
+	}
+
 	let { data }: Props = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -35,6 +43,7 @@
 
 	// Make goals available to child components via context
 	setContext('savingsGoals', () => data.goals);
+	setContext('onContributionSuccess', handleContributionSuccess);
 
 	let openGoalModal = $state<boolean>(false);
 	let openContributionModal = $state<boolean>(false);
@@ -46,6 +55,7 @@
 	let selectedGoalForSheet = $state<SavingsGoalWithProgress | null>(null);
 	let selectedGoalId = $state<string>('');
 	let deletingGoalId = $state<string>('');
+	let celebrationBurstId = $state(0);
 
 	function handleCreateGoal() {
 		editingGoal = null;
@@ -70,6 +80,30 @@
 	function handleDeleteGoal(goalId: string) {
 		deletingGoalId = goalId;
 		openDeleteModal = true;
+	}
+
+	function makeConfettiBurst() {
+		celebrationBurstId += 1;
+	}
+
+	function handleContributionSuccess(payload: ContributionSuccessPayload) {
+		const goal = data.goals.find((entry) => entry.id === payload.goalId);
+		if (!goal || goal.targetAmount <= 0) {
+			return;
+		}
+
+		let projectedAmount = goal.currentAmount + payload.amount;
+
+		if (payload.previousGoalId === payload.goalId && typeof payload.previousAmount === 'number') {
+			projectedAmount = goal.currentAmount - payload.previousAmount + payload.amount;
+		}
+
+		const didCrossTarget =
+			goal.currentAmount < goal.targetAmount && projectedAmount >= goal.targetAmount;
+
+		if (didCrossTarget) {
+			makeConfettiBurst();
+		}
 	}
 
 	// Calculate totals
@@ -97,6 +131,8 @@
 <svelte:head>
 	<title>Savings Goals</title>
 </svelte:head>
+
+<Confetti burstId={celebrationBurstId} />
 
 <div class="px-4 py-6 sm:px-0">
 	<!-- Header -->
@@ -296,6 +332,7 @@
 	goals={data.goals}
 	preselectedGoalId={selectedGoalId}
 	contributionForm={data.contributionForm}
+	onSuccess={handleContributionSuccess}
 />
 
 <ConfirmModal
