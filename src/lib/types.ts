@@ -59,6 +59,7 @@ export type Transaction = {
 	notes: string;
 	date: string;
 	gstAmount?: number | null;
+	excludedFromBudget: boolean;
 	category: Category | null;
 	user: User;
 };

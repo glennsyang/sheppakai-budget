@@ -65,6 +65,7 @@
 				$form.notes = initialData.notes || '';
 				$form.date = initialData.date ? extractDateFromTimestamp(initialData.date) : '';
 				$form.gstAmount = initialData.gstAmount || 0;
+				$form.excludedFromBudget = initialData.excludedFromBudget || false;
 				$form.categoryId = initialData.categoryId || '';
 			} else {
 				$form.id = '';
@@ -72,6 +73,7 @@
 				$form.payee = '';
 				$form.notes = '';
 				$form.gstAmount = 0;
+				$form.excludedFromBudget = false;
 				$form.categoryId = '';
 				$form.date = getTodayDate();
 			}
@@ -176,6 +178,26 @@
 				{#if $errors.date}
 					<p class="text-sm text-red-500">{$errors.date}</p>
 				{/if}
+			</div>
+
+			<div class="space-y-2">
+				<div class="flex items-start gap-2">
+					<input
+						id="transaction-excluded"
+						name="excludedFromBudget"
+						type="checkbox"
+						bind:checked={$form.excludedFromBudget}
+						class="border-input text-primary focus:ring-ring mt-0.5 h-4 w-4 rounded"
+					/>
+					<div>
+						<label for="transaction-excluded" class="text-sm font-medium">
+							Exclude from monthly budget
+						</label>
+						<p class="text-muted-foreground text-xs">
+							This transaction stays visible in tracking and search.
+						</p>
+					</div>
+				</div>
 			</div>
 
 			<div class="space-y-2">

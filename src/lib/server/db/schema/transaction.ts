@@ -1,5 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import { real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 import { generateId } from '../utils';
 import category from './category';
@@ -12,6 +12,7 @@ const transaction = sqliteTable('transactions', {
 	notes: text('notes').notNull(),
 	date: text('date').notNull(),
 	gstAmount: real('gst_amount'),
+	excludedFromBudget: integer('excluded_from_budget', { mode: 'boolean' }).notNull().default(false),
 	categoryId: text('category_id')
 		.notNull()
 		.references(() => category.id),

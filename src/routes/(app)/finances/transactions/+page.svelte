@@ -12,7 +12,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
-	import { months } from '$lib/utils';
+	import { formatCurrency, months } from '$lib/utils';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -26,6 +26,7 @@
 			transactions: Transaction[];
 			budgets: Budget[];
 			categorySpending: Record<string, number>;
+			excludedFromBudgetTotal?: number;
 			form: SuperValidated<z.infer<typeof transactionSchema>>;
 			searchQuery: string;
 			searchLimitReached?: boolean;
@@ -194,6 +195,12 @@
 							<p class="text-muted-foreground mt-2">
 								Manage your daily financial transactions and expenses
 							</p>
+							{#if (data.excludedFromBudgetTotal ?? 0) > 0}
+								<p class="text-muted-foreground mt-1 text-xs">
+									Budget summary excludes {formatCurrency(data.excludedFromBudgetTotal ?? 0)}
+									marked as excluded.
+								</p>
+							{/if}
 						</div>
 						<div class="flex items-center gap-2">
 							<Button size="sm" onclick={() => (openModal = true)}>

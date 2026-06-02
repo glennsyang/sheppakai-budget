@@ -237,6 +237,7 @@
 			? Math.min((recurringMonthlyTotal / data.totalIncome) * 100, 100)
 			: 0
 	);
+	let excludedExpensesTotal = $derived(data.excludedExpensesTotal || 0);
 
 	// Savings velocity: total current contributions across all goals
 	let savingsVelocity = $derived(
@@ -448,6 +449,7 @@
 					plannedBudget={data.plannedExpensesTotal || 0}
 					totalIncome={data.totalIncome || 0}
 					recurringTotal={recurringMonthlyTotal}
+					excludedSpendTotal={excludedExpensesTotal}
 					{loading}
 				/>
 			</div>
@@ -573,7 +575,7 @@
 		</Collapsible.Root>
 	{:else}
 		<!-- Yearly YTD KPI row -->
-		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
 			<div class="bg-card rounded-xl border p-4 shadow-xs">
 				<p class="text-muted-foreground text-sm">YTD Income</p>
 				<p class="mt-1 text-2xl font-bold tabular-nums">{formatCurrency(data.totalIncome || 0)}</p>
@@ -592,6 +594,15 @@
 					{ytdNet >= 0 ? '+' : ''}{formatCurrency(ytdNet)}
 				</p>
 			</div>
+			{#if excludedExpensesTotal > 0}
+				<div class="bg-card rounded-xl border p-4 shadow-xs">
+					<p class="text-muted-foreground text-sm">YTD Excluded Spend</p>
+					<p class="mt-1 text-2xl font-bold text-amber-700 tabular-nums dark:text-amber-300">
+						{formatCurrency(excludedExpensesTotal)}
+					</p>
+					<p class="text-muted-foreground mt-1 text-xs">Not counted in budget totals</p>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Net Savings table (yearly) -->
