@@ -66,7 +66,7 @@
 		"layerchart": "^2.0.0-next.63",
 		"lefthook": "^2.0.16",
 		"lint-staged": "^17.0.4",
-		"oxfmt": "^0.52.0",
+		"oxfmt": "^0.53.0",
 		"oxlint": "^1.66.0",
 		"oxlint-tsgolint": "^0.23.0",
 		"svelte": "^5.55.2",
