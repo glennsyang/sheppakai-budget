@@ -83,7 +83,7 @@
 		"zod": "^4.4.3"
 	},
 	"lint-staged": {
-		"*.{js,ts,svelte}": [
+		"*.(js,ts,svelte)": [
 			"npm run fmt",
 			"npm run lint"
 		],
