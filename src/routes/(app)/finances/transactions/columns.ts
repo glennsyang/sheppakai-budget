@@ -5,7 +5,6 @@ import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 
-import BudgetStatusBadge from './budget-status-badge.svelte';
 import DataTableActions from './data-table-actions.svelte';
 
 export const columns: ColumnDef<Transaction>[] = [
@@ -30,15 +29,6 @@ export const columns: ColumnDef<Transaction>[] = [
 		accessorFn: (row) => row.category?.name,
 		cell: ({ row }) => {
 			return row.original.category ? row.original.category.name : 'Uncategorized';
-		}
-	},
-	{
-		accessorKey: 'excludedFromBudget',
-		header: 'Budget',
-		cell: ({ row }) => {
-			return renderComponent(BudgetStatusBadge, {
-				excludedFromBudget: row.original.excludedFromBudget
-			});
 		}
 	},
 	{
