@@ -26,6 +26,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			transactions,
 			budgets: [],
 			categorySpending: {},
+			excludedFromBudgetTotal: 0,
 			form,
 			searchQuery,
 			searchLimitReached: transactions.length >= SEARCH_RESULT_LIMIT
@@ -33,12 +34,17 @@ export const load: PageServerLoad = async ({ url }) => {
 	}
 
 	const transactions = await transactionQueries.findByDateRange(startDate, endDate);
+	const budgetTransactions = transactions.filter((txn) => !txn.excludedFromBudget);
+	const excludedFromBudgetTotal = transactions.reduce(
+		(sum, txn) => sum + (txn.excludedFromBudget ? txn.amount : 0),
+		0
+	);
 
 	// Load budgets for the current month/year
 	const budgets = await budgetQueries.findByMonthYear(month, year);
 
 	// Calculate spending per category
-	const categorySpending = transactions.reduce<Record<string, number>>((acc, txn) => {
+	const categorySpending = budgetTransactions.reduce<Record<string, number>>((acc, txn) => {
 		if (txn.category) {
 			const categoryId = txn.category.id;
 			acc[categoryId] = (acc[categoryId] || 0) + txn.amount;
@@ -50,6 +56,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		transactions,
 		budgets,
 		categorySpending,
+		excludedFromBudgetTotal,
 		form,
 		searchQuery
 	};
@@ -66,6 +73,7 @@ export const actions = createCrudActions({
 		payee: data.payee,
 		notes: data.notes,
 		date: formatDateForStorage(data.date),
+		excludedFromBudget: data.excludedFromBudget,
 		categoryId: data.categoryId,
 		userId
 	}),
@@ -75,6 +83,7 @@ export const actions = createCrudActions({
 		payee: data.payee,
 		notes: data.notes,
 		date: formatDateForStorage(data.date),
+		excludedFromBudget: data.excludedFromBudget,
 		categoryId: data.categoryId
 	})
 });

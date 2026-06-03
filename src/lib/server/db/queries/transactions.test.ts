@@ -26,6 +26,7 @@ vi.mock('../schema', () => ({
 	transaction: {
 		date: 'transaction.date',
 		categoryId: 'transaction.category_id',
+		excludedFromBudget: 'transaction.excluded_from_budget',
 		gstAmount: 'transaction.gst_amount',
 		payee: 'transaction.payee',
 		notes: 'transaction.notes'
@@ -113,6 +114,34 @@ describe('transactionQueries', () => {
 		expect(arg.where.conditions).toHaveLength(3);
 	});
 
+	it('findByDateRangeIncludedInBudget enforces excludedFromBudget=false', async () => {
+		await transactionQueries.findByDateRangeIncludedInBudget('2026-01-01', '2026-01-31');
+
+		const call = mockState.findAll.mock.lastCall;
+		expect(call).toBeDefined();
+		const arg = call?.[0] as unknown as { where: { conditions: unknown[] } };
+		expect(arg.where.conditions).toHaveLength(3);
+		expect(arg.where.conditions[2]).toEqual({
+			type: 'eq',
+			field: 'transaction.excluded_from_budget',
+			value: false
+		});
+	});
+
+	it('findByDateRangeExcludedFromBudget enforces excludedFromBudget=true', async () => {
+		await transactionQueries.findByDateRangeExcludedFromBudget('2026-01-01', '2026-01-31');
+
+		const call = mockState.findAll.mock.lastCall;
+		expect(call).toBeDefined();
+		const arg = call?.[0] as unknown as { where: { conditions: unknown[] } };
+		expect(arg.where.conditions).toHaveLength(3);
+		expect(arg.where.conditions[2]).toEqual({
+			type: 'eq',
+			field: 'transaction.excluded_from_budget',
+			value: true
+		});
+	});
+
 	describe('search', () => {
 		type SqlCondition = { type: string; text: string; values: unknown[] };
 		type OrWhere = { type: string; conditions: SqlCondition[] };
@@ -161,32 +190,32 @@ describe('transactionQueries', () => {
 			await transactionQueries.search('100%off');
 
 			const where = getWhere();
-			expect(where.conditions[0].values[1]).toBe('%100\\%off%');
-			expect(where.conditions[1].values[1]).toBe('%100\\%off%');
+			expect(where.conditions[0].values[1]).toBe(String.raw`%100\%off%`);
+			expect(where.conditions[1].values[1]).toBe(String.raw`%100\%off%`);
 		});
 
 		it('escapes _ to prevent single-character wildcard injection', async () => {
 			await transactionQueries.search('a_b');
 
 			const where = getWhere();
-			expect(where.conditions[0].values[1]).toBe('%a\\_b%');
-			expect(where.conditions[1].values[1]).toBe('%a\\_b%');
+			expect(where.conditions[0].values[1]).toBe(String.raw`%a\_b%`);
+			expect(where.conditions[1].values[1]).toBe(String.raw`%a\_b%`);
 		});
 
 		it('escapes backslashes to prevent corruption of the LIKE escape sequence', async () => {
-			await transactionQueries.search('a\\b');
+			await transactionQueries.search(String.raw`a\b`);
 
 			const where = getWhere();
-			expect(where.conditions[0].values[1]).toBe('%a\\\\b%');
-			expect(where.conditions[1].values[1]).toBe('%a\\\\b%');
+			expect(where.conditions[0].values[1]).toBe(String.raw`%a\\b%`);
+			expect(where.conditions[1].values[1]).toBe(String.raw`%a\\b%`);
 		});
 
 		it('handles all three special characters in a single query', async () => {
-			await transactionQueries.search('50%_off\\deal');
+			await transactionQueries.search(String.raw`50%_off\deal`);
 
 			const where = getWhere();
-			expect(where.conditions[0].values[1]).toBe('%50\\%\\_off\\\\deal%');
-			expect(where.conditions[1].values[1]).toBe('%50\\%\\_off\\\\deal%');
+			expect(where.conditions[0].values[1]).toBe(String.raw`%50\%\_off\\deal%`);
+			expect(where.conditions[1].values[1]).toBe(String.raw`%50\%\_off\\deal%`);
 		});
 	});
 });

@@ -84,7 +84,8 @@ export const load: PageServerLoad = async ({ url }) => {
 		.where(
 			and(
 				sql`date(${transaction.date}) >= date(${startDate})`,
-				sql`date(${transaction.date}) <= date(${endDateStr})`
+				sql`date(${transaction.date}) <= date(${endDateStr})`,
+				eq(transaction.excludedFromBudget, false)
 			)
 		)
 		.groupBy(transaction.categoryId, sql`substr(${transaction.date}, 1, 7)`)

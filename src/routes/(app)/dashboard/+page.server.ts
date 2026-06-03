@@ -65,16 +65,24 @@ async function getGoalsWithProgress(): Promise<SavingsGoalWithProgress[]> {
 async function loadMonthlyDashboard(url: URL) {
 	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
 
-	const [actualExpenses, plannedExpenses, recurringExpenses, incomeRecords, goalsWithProgress] =
-		await Promise.all([
-			transactionQueries.findByDateRange(startDate, endDate),
-			budgetQueries.findByMonthYear(month, year),
-			recurringQueries.findAll(),
-			incomeQueries.findByDateRange(startDate, endDate),
-			getGoalsWithProgress()
-		]);
+	const [
+		actualExpenses,
+		excludedExpenses,
+		plannedExpenses,
+		recurringExpenses,
+		incomeRecords,
+		goalsWithProgress
+	] = await Promise.all([
+		transactionQueries.findByDateRangeIncludedInBudget(startDate, endDate),
+		transactionQueries.findByDateRangeExcludedFromBudget(startDate, endDate),
+		budgetQueries.findByMonthYear(month, year),
+		recurringQueries.findAll(),
+		incomeQueries.findByDateRange(startDate, endDate),
+		getGoalsWithProgress()
+	]);
 
 	const recurringMonthlyTotal = calcMonthlyRecurringTotal(recurringExpenses);
+	const excludedExpensesTotal = excludedExpenses.reduce((acc, e) => acc + e.amount, 0);
 	const actualExpensesTotal =
 		actualExpenses.reduce((acc, e) => acc + e.amount, 0) + recurringMonthlyTotal;
 	const plannedExpensesTotal =
@@ -107,7 +115,7 @@ async function loadMonthlyDashboard(url: URL) {
 		const chartStart = historicalMonths[0].monthStart;
 
 		const [allChartTx, allChartIncome] = await Promise.all([
-			transactionQueries.findByDateRange(chartStart, chartEnd),
+			transactionQueries.findByDateRangeIncludedInBudget(chartStart, chartEnd),
 			incomeQueries.findByDateRange(chartStart, chartEnd)
 		]);
 
@@ -142,6 +150,7 @@ async function loadMonthlyDashboard(url: URL) {
 		plannedExpenses,
 		recurringExpenses,
 		actualExpensesTotal,
+		excludedExpensesTotal,
 		plannedExpensesTotal,
 		totalIncome,
 		remainingBalance,
@@ -161,14 +170,21 @@ async function loadYearlyDashboard(url: URL) {
 	const year = yearParam ? Number.parseInt(yearParam) : currentYear;
 	const { startDate, endDate } = getYearDateRange(year);
 
-	const [actualExpenses, incomeRecords, recurringExpenses, allYearBudgets, goalsWithProgress] =
-		await Promise.all([
-			transactionQueries.findByDateRange(startDate, endDate),
-			incomeQueries.findByDateRange(startDate, endDate),
-			recurringQueries.findAll(),
-			budgetQueries.findByYear(year),
-			getGoalsWithProgress()
-		]);
+	const [
+		actualExpenses,
+		excludedExpenses,
+		incomeRecords,
+		recurringExpenses,
+		allYearBudgets,
+		goalsWithProgress
+	] = await Promise.all([
+		transactionQueries.findByDateRangeIncludedInBudget(startDate, endDate),
+		transactionQueries.findByDateRangeExcludedFromBudget(startDate, endDate),
+		incomeQueries.findByDateRange(startDate, endDate),
+		recurringQueries.findAll(),
+		budgetQueries.findByYear(year),
+		getGoalsWithProgress()
+	]);
 
 	const yearlyBudgets: Array<{ categoryId: string; amount: number }> = [];
 	allYearBudgets.forEach((b) => {
@@ -182,6 +198,7 @@ async function loadYearlyDashboard(url: URL) {
 
 	const elapsedMonths = year === currentYear ? new Date().getMonth() + 1 : 12;
 	const recurringYearlyTotal = calcYearlyRecurringTotal(recurringExpenses, elapsedMonths);
+	const excludedExpensesTotal = excludedExpenses.reduce((acc, e) => acc + e.amount, 0);
 	const actualExpensesTotal =
 		actualExpenses.reduce((acc, e) => acc + e.amount, 0) + recurringYearlyTotal;
 	const plannedExpensesTotal =
@@ -202,7 +219,7 @@ async function loadYearlyDashboard(url: URL) {
 		const monthlyRecurringTotal = calcMonthlyRecurringTotal(recurringExpenses);
 
 		const [allChartTx, allChartIncome] = await Promise.all([
-			transactionQueries.findByDateRange(chartStart, chartEnd),
+			transactionQueries.findByDateRangeIncludedInBudget(chartStart, chartEnd),
 			incomeQueries.findByDateRange(chartStart, chartEnd)
 		]);
 
@@ -232,6 +249,7 @@ async function loadYearlyDashboard(url: URL) {
 		yearlyBudgets,
 		allYearBudgets,
 		actualExpensesTotal,
+		excludedExpensesTotal,
 		plannedExpensesTotal,
 		totalIncome,
 		remainingBalance,

@@ -20,6 +20,7 @@ type TransactionBudgetAlertRecord = {
 	categoryId: string;
 	amount: number;
 	date: string;
+	excludedFromBudget: boolean;
 };
 
 type TransactionBudgetAlertUpdateContext = {
@@ -160,7 +161,6 @@ async function loadBudgetCategorySnapshot(
 }
 
 async function loadCategoryMonthSpend(
-	userId: string,
 	categoryId: string,
 	month: number,
 	year: number
@@ -171,8 +171,8 @@ async function loadCategoryMonthSpend(
 			amount: true
 		},
 		where: and(
-			eq(transaction.userId, userId),
 			eq(transaction.categoryId, categoryId),
+			eq(transaction.excludedFromBudget, false),
 			sql`date(${transaction.date}) >= date(${startDate})`,
 			sql`date(${transaction.date}) <= date(${endDate})`
 		)
@@ -265,16 +265,20 @@ function mergeUpdatedTransactionRecord(
 		userId: updatedData.userId ?? previousTransaction.userId,
 		categoryId: updatedData.categoryId ?? previousTransaction.categoryId,
 		amount: updatedData.amount ?? previousTransaction.amount,
-		date: updatedData.date ?? previousTransaction.date
+		date: updatedData.date ?? previousTransaction.date,
+		excludedFromBudget: updatedData.excludedFromBudget ?? previousTransaction.excludedFromBudget
 	};
 }
 
 export async function evaluateCreatedTransactionBudgetAlert(
 	transactionRecord: TransactionBudgetAlertRecord
 ): Promise<void> {
+	if (transactionRecord.excludedFromBudget) {
+		return;
+	}
+
 	const { month, year } = getMonthYearFromStoredTransactionDate(transactionRecord.date);
 	const currentSpentAmount = await loadCategoryMonthSpend(
-		transactionRecord.userId,
 		transactionRecord.categoryId,
 		month,
 		year
@@ -300,7 +304,8 @@ export async function buildTransactionBudgetAlertUpdateContext(
 			userId: true,
 			categoryId: true,
 			amount: true,
-			date: true
+			date: true,
+			excludedFromBudget: true
 		},
 		where: eq(transaction.id, transactionId)
 	});
@@ -322,9 +327,15 @@ export async function evaluateUpdatedTransactionBudgetAlert(
 	}
 
 	const nextTransaction = mergeUpdatedTransactionRecord(previousTransaction, updatedData);
+	if (nextTransaction.excludedFromBudget) {
+		return;
+	}
+
 	const previousMonthYear = getMonthYearFromStoredTransactionDate(previousTransaction.date);
 	const nextMonthYear = getMonthYearFromStoredTransactionDate(nextTransaction.date);
 	const isSameBudgetBucket =
+		!previousTransaction.excludedFromBudget &&
+		!nextTransaction.excludedFromBudget &&
 		previousTransaction.userId === nextTransaction.userId &&
 		previousTransaction.categoryId === nextTransaction.categoryId &&
 		previousMonthYear.month === nextMonthYear.month &&
@@ -332,7 +343,6 @@ export async function evaluateUpdatedTransactionBudgetAlert(
 
 	if (isSameBudgetBucket) {
 		const currentSpentAmount = await loadCategoryMonthSpend(
-			nextTransaction.userId,
 			nextTransaction.categoryId,
 			nextMonthYear.month,
 			nextMonthYear.year
@@ -354,7 +364,6 @@ export async function evaluateUpdatedTransactionBudgetAlert(
 	}
 
 	const currentSpentAmount = await loadCategoryMonthSpend(
-		nextTransaction.userId,
 		nextTransaction.categoryId,
 		nextMonthYear.month,
 		nextMonthYear.year

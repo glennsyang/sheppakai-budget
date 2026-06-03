@@ -8,6 +8,7 @@
 		plannedBudget: number;
 		totalIncome: number;
 		recurringTotal?: number;
+		excludedSpendTotal?: number;
 		loading?: boolean;
 	}
 
@@ -16,6 +17,7 @@
 		plannedBudget,
 		totalIncome,
 		recurringTotal = 0,
+		excludedSpendTotal = 0,
 		loading = false
 	}: Props = $props();
 
@@ -64,6 +66,19 @@
 					{isOverspent ? '⚠️' : '✓'}
 				</div>
 			</div>
+
+			{#if excludedSpendTotal > 0}
+				<div
+					class="mb-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs dark:border-amber-900/50 dark:bg-amber-950/40"
+				>
+					<p class="font-medium text-amber-900 dark:text-amber-200">
+						Excluded from budget: {formatCurrency(excludedSpendTotal)}
+					</p>
+					<p class="mt-0.5 text-amber-700 dark:text-amber-300">
+						Tracked separately and not counted in budget usage.
+					</p>
+				</div>
+			{/if}
 
 			<!-- Two columns: vs Budget | vs Income -->
 			<div class="grid grid-cols-2 gap-4">

@@ -29,6 +29,34 @@ export const transactionQueries = {
 		});
 	},
 
+	// Find budget-counted transactions by date range.
+	findByDateRangeIncludedInBudget: async (
+		startDate: string,
+		endDate: string
+	): Promise<Transaction[]> => {
+		return baseBuilder.findAll({
+			where: and(
+				sql`date(${transaction.date}) >= date(${startDate})`,
+				sql`date(${transaction.date}) <= date(${endDate})`,
+				eq(transaction.excludedFromBudget, false)
+			)
+		});
+	},
+
+	// Find excluded transactions by date range for separate reporting.
+	findByDateRangeExcludedFromBudget: async (
+		startDate: string,
+		endDate: string
+	): Promise<Transaction[]> => {
+		return baseBuilder.findAll({
+			where: and(
+				sql`date(${transaction.date}) >= date(${startDate})`,
+				sql`date(${transaction.date}) <= date(${endDate})`,
+				eq(transaction.excludedFromBudget, true)
+			)
+		});
+	},
+
 	// Find by month/year (convenience method)
 	findByMonth: async (month: number, year: number): Promise<Transaction[]> => {
 		const paddedMonth = String(month).padStart(2, '0');

@@ -78,7 +78,8 @@ describe('budget-threshold-alerts', () => {
 			userId: 'user-1',
 			categoryId: 'cat-1',
 			amount: 10,
-			date: '2026-03-10 08:15:00'
+			date: '2026-03-10 08:15:00',
+			excludedFromBudget: false
 		});
 
 		expect(mockState.sendBudgetAlerts).toHaveBeenCalledWith(
@@ -97,7 +98,8 @@ describe('budget-threshold-alerts', () => {
 			userId: 'user-1',
 			categoryId: 'cat-1',
 			amount: 30,
-			date: '2026-03-11 12:00:00'
+			date: '2026-03-11 12:00:00',
+			excludedFromBudget: false
 		});
 
 		expect(mockState.sendBudgetAlerts).toHaveBeenCalledWith(
@@ -116,7 +118,21 @@ describe('budget-threshold-alerts', () => {
 			userId: 'user-1',
 			categoryId: 'cat-1',
 			amount: 25,
-			date: '2026-03-12 10:00:00'
+			date: '2026-03-12 10:00:00',
+			excludedFromBudget: false
+		});
+
+		expect(mockState.sendBudgetAlerts).not.toHaveBeenCalled();
+	});
+
+	it('skips threshold alerts for transactions marked as excluded from budget', async () => {
+		await evaluateCreatedTransactionBudgetAlert({
+			id: 'tx-3b',
+			userId: 'user-1',
+			categoryId: 'cat-1',
+			amount: 25,
+			date: '2026-03-12 10:00:00',
+			excludedFromBudget: true
 		});
 
 		expect(mockState.sendBudgetAlerts).not.toHaveBeenCalled();
@@ -128,7 +144,8 @@ describe('budget-threshold-alerts', () => {
 			userId: 'user-1',
 			categoryId: 'cat-1',
 			amount: 5,
-			date: '2026-03-10 08:15:00'
+			date: '2026-03-10 08:15:00',
+			excludedFromBudget: false
 		});
 
 		const result = await buildTransactionBudgetAlertUpdateContext('tx-4');
@@ -139,7 +156,8 @@ describe('budget-threshold-alerts', () => {
 				userId: 'user-1',
 				categoryId: 'cat-1',
 				amount: 5,
-				date: '2026-03-10 08:15:00'
+				date: '2026-03-10 08:15:00',
+				excludedFromBudget: false
 			}
 		});
 	});
@@ -160,7 +178,8 @@ describe('budget-threshold-alerts', () => {
 					userId: 'user-1',
 					categoryId: 'cat-1',
 					amount: 5,
-					date: '2026-03-10 08:15:00'
+					date: '2026-03-10 08:15:00',
+					excludedFromBudget: false
 				}
 			}
 		);
@@ -188,7 +207,8 @@ describe('budget-threshold-alerts', () => {
 					userId: 'user-1',
 					categoryId: 'cat-1',
 					amount: 10,
-					date: '2026-03-30 09:00:00'
+					date: '2026-03-30 09:00:00',
+					excludedFromBudget: false
 				}
 			}
 		);

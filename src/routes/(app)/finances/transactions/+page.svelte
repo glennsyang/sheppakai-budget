@@ -12,7 +12,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
-	import { months } from '$lib/utils';
+	import { formatCurrency, months } from '$lib/utils';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -26,6 +26,7 @@
 			transactions: Transaction[];
 			budgets: Budget[];
 			categorySpending: Record<string, number>;
+			excludedFromBudgetTotal?: number;
 			form: SuperValidated<z.infer<typeof transactionSchema>>;
 			searchQuery: string;
 			searchLimitReached?: boolean;
@@ -105,6 +106,12 @@
 	}
 
 	const categories = getCategoriesContext();
+	let excludedFromBudgetTotal = $derived(data.excludedFromBudgetTotal ?? 0);
+
+	function getTransactionRowClass(transaction: Transaction) {
+		if (!transaction.excludedFromBudget) return '';
+		return 'bg-amber-50 hover:[&,&>svelte-css-wrapper]:[&>th,td]:bg-amber-100/60 dark:bg-amber-950/20 dark:hover:[&,&>svelte-css-wrapper]:[&>th,td]:bg-amber-950/35';
+	}
 
 	// Sort budgets alphabetically by category name
 	let sortedBudgets = $derived(
@@ -205,7 +212,11 @@
 					{#if loading}
 						<TableSkeleton rows={5} columns={4} />
 					{:else}
-						<DataTable {columns} data={data.transactions as Transaction[]} />
+						<DataTable
+							{columns}
+							data={data.transactions as Transaction[]}
+							rowClassName={getTransactionRowClass}
+						/>
 					{/if}
 				</div>
 			</div>
@@ -217,6 +228,17 @@
 				<div class="overflow-hidden rounded-lg border shadow">
 					<div class="p-6">
 						<h2 class="text-center text-2xl font-bold tracking-tight">Budget Summary</h2>
+						<div
+							class="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900/50 dark:bg-amber-950/25"
+						>
+							<div class="flex items-center justify-between text-sm font-medium">
+								<span>Excluded</span>
+								<span class="tabular-nums">{formatCurrency(excludedFromBudgetTotal)}</span>
+							</div>
+							<p class="text-muted-foreground mt-1 text-xs">
+								Tracked separately and not counted in budget totals.
+							</p>
+						</div>
 						<div class="my-4 border-t"></div>
 						{#if sortedBudgets.length === 0}
 							<p class="text-muted-foreground text-center text-sm">No budgets set for this month</p>
