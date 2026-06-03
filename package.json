@@ -83,14 +83,14 @@
 		"zod": "^4.4.3"
 	},
 	"lint-staged": {
-		"*.(js|ts|svelte)": [
+		"*.{js,ts,svelte}": [
 			"npm run fmt",
 			"npm run lint"
 		],
 		"*.svelte": [
 			"svelte-check --threshold error"
 		],
-		"*.(json|md|css|html|svg)": [
+		"*.{json,md,css,html,svg}": [
 			"npm run fmt"
 		]
 	}

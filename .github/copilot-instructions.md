@@ -51,9 +51,18 @@ npm run db:studio      # Open Drizzle Studio (GUI)
 # Development
 npm run dev            # Start dev server (localhost:5173)
 npm run check          # Type checking
-npm run lint           # Prettier + ESLint
+npm run fmt            # Format with Oxfmt
+npm run lint           # Oxlint + repo static checks
 npm test               # Run Vitest unit tests
+npm run check:all      # Format, lint, and test in one pass
 ```
+
+## Preferred Review Mode
+
+- When a user asks for a review, prioritize findings first (bugs, risks, regressions, missing tests), ordered by severity.
+- Keep summaries brief and place them after findings.
+- Include precise file references for each finding.
+- If no findings are present, explicitly state that and note any residual testing gaps.
 
 ## Code Conventions
 

@@ -57,6 +57,13 @@ This is a SvelteKit web application for tracking monthly budgets, managing expen
 - Follows Oxlint (`oxlint.config.ts`) and Oxfmt (`oxfmt.config.ts`) conventions.
 - Uses Tailwind CSS for consistent styling.
 
+## Preferred Review Mode
+
+- If the user asks for a review, lead with findings first (bugs, behavioral regressions, risks, and missing tests), ordered by severity.
+- Keep any implementation summary secondary and brief.
+- Include concrete file references with each finding.
+- If no issues are found, state that clearly and call out any remaining test or validation gaps.
+
 ## Svelte/SvelteKit Reactive Patterns
 
 ### ❌ AVOID: EventListener and onMount Anti-Patterns

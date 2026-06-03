@@ -161,7 +161,6 @@ async function loadBudgetCategorySnapshot(
 }
 
 async function loadCategoryMonthSpend(
-	userId: string,
 	categoryId: string,
 	month: number,
 	year: number
@@ -172,7 +171,6 @@ async function loadCategoryMonthSpend(
 			amount: true
 		},
 		where: and(
-			eq(transaction.userId, userId),
 			eq(transaction.categoryId, categoryId),
 			eq(transaction.excludedFromBudget, false),
 			sql`date(${transaction.date}) >= date(${startDate})`,
@@ -281,7 +279,6 @@ export async function evaluateCreatedTransactionBudgetAlert(
 
 	const { month, year } = getMonthYearFromStoredTransactionDate(transactionRecord.date);
 	const currentSpentAmount = await loadCategoryMonthSpend(
-		transactionRecord.userId,
 		transactionRecord.categoryId,
 		month,
 		year
@@ -346,7 +343,6 @@ export async function evaluateUpdatedTransactionBudgetAlert(
 
 	if (isSameBudgetBucket) {
 		const currentSpentAmount = await loadCategoryMonthSpend(
-			nextTransaction.userId,
 			nextTransaction.categoryId,
 			nextMonthYear.month,
 			nextMonthYear.year
@@ -368,7 +364,6 @@ export async function evaluateUpdatedTransactionBudgetAlert(
 	}
 
 	const currentSpentAmount = await loadCategoryMonthSpend(
-		nextTransaction.userId,
 		nextTransaction.categoryId,
 		nextMonthYear.month,
 		nextMonthYear.year
