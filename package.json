@@ -89,9 +89,6 @@
 		],
 		"*.svelte": [
 			"svelte-check --threshold error"
-		],
-		"*.(json|md|css|html|svg)": [
-			"npm run fmt"
 		]
 	}
 }
