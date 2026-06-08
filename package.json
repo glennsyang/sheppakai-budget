@@ -81,17 +81,5 @@
 		"vite": "^8.0.13",
 		"vitest": "^4.1.6",
 		"zod": "^4.4.3"
-	},
-	"lint-staged": {
-		"*.(js,ts,svelte)": [
-			"npm run fmt",
-			"npm run lint"
-		],
-		"*.svelte": [
-			"svelte-check --threshold error"
-		],
-		"*.{json,md,css,html,svg}": [
-			"npm run fmt"
-		]
 	}
 }
