@@ -60,7 +60,7 @@
 		"@vitest/coverage-v8": "^4.0.18",
 		"bits-ui": "^2.18.1",
 		"clsx": "^2.1.1",
-		"fallow": "^2.76.0",
+		"fallow": "^2.96.0",
 		"globals": "^17.1.0",
 		"knip": "^6.11.0",
 		"layerchart": "^2.0.0-next.63",
