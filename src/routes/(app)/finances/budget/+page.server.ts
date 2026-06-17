@@ -1,7 +1,7 @@
 import { budgetSchema } from '$lib/formSchemas';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { getDb } from '$lib/server/db';
-import { budgetQueries, categoryQueries, recurringQueries } from '$lib/server/db/queries';
+import { budgetQueries, recurringQueries } from '$lib/server/db/queries';
 import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
@@ -98,7 +98,6 @@ export const load: PageServerLoad = async ({ url }) => {
 		historicalBudgets,
 		historicalTransactions,
 		last6Months,
-		categories: await categoryQueries.findAll(),
 		recurring: await recurringQueries.findAll(),
 		form
 	};
