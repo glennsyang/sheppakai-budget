@@ -5,7 +5,7 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, parent }) => {
 	const { categories } = await parent();
-	const { gasCategory, month, year, startDate, endDate, yearStartDate, yearEndDate, form } =
+	const { gasCategory, startDate, endDate, yearStartDate, yearEndDate, form } =
 		await getReceiptLoadContext(url, categories);
 
 	const [monthlyTransactions, yearlyTransactions] = await Promise.all([
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 		)
 	]);
 
-	return { monthlyTransactions, yearlyTransactions, month, year, form };
+	return { monthlyTransactions, yearlyTransactions, form };
 };
 
 export { receiptActions as actions } from '$lib/server/receipts/load-helpers';

@@ -10,7 +10,7 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
 	// Get month, year, and date range from URL params or use current month/year
-	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
+	const { year, startDate, endDate } = getMonthRangeFromUrl(url);
 
 	// Get yearly date range
 	const { startDate: yearStartDate, endDate: yearEndDate } = getYearDateRange(year);
@@ -38,8 +38,6 @@ export const load: PageServerLoad = async ({ url }) => {
 		monthlyIncomes,
 		yearlyIncomes,
 		completedMonthsSinceJanuary,
-		month,
-		year,
 		form
 	};
 };

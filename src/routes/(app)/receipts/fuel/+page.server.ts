@@ -5,7 +5,7 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, parent }) => {
 	const { categories } = await parent();
-	const { gasCategory, month, year, startDate, endDate, yearStartDate, yearEndDate, form } =
+	const { gasCategory, year, startDate, endDate, yearStartDate, yearEndDate, form } =
 		await getReceiptLoadContext(url, categories);
 
 	const currentDate = new Date();
@@ -25,8 +25,6 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 		monthlyTransactions,
 		yearlyTransactions,
 		completedMonthsSinceJanuary,
-		month,
-		year,
 		form
 	};
 };
