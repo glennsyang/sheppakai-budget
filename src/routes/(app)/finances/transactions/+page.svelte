@@ -13,6 +13,7 @@
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
 	import { formatCurrency, months } from '$lib/utils';
+	import { calculateTransactionSummary } from '$lib/utils/transaction-summary';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -27,6 +28,8 @@
 			budgets: Budget[];
 			categorySpending: Record<string, number>;
 			excludedFromBudgetTotal?: number;
+			yearlyTransactions: Transaction[];
+			completedMonthsSinceJanuary: number;
 			form: SuperValidated<z.infer<typeof transactionSchema>>;
 			searchQuery: string;
 			searchLimitReached?: boolean;
@@ -120,6 +123,14 @@
 			const nameB = b.category?.name || '';
 			return nameA.localeCompare(nameB);
 		})
+	);
+
+	let summary = $derived(
+		calculateTransactionSummary(
+			data.transactions,
+			data.yearlyTransactions,
+			data.completedMonthsSinceJanuary
+		)
 	);
 </script>
 
@@ -225,7 +236,7 @@
 		<!-- Summary Card Column (hidden in search mode) -->
 		{#if !data.searchQuery}
 			<div class="lg:col-span-1">
-				<div class="overflow-hidden rounded-lg border shadow">
+				<div class="mb-6 overflow-hidden rounded-lg border shadow">
 					<div class="p-6">
 						<h2 class="text-center text-2xl font-bold tracking-tight">Budget Summary</h2>
 						<div
@@ -253,6 +264,38 @@
 								{/if}
 							{/each}
 						{/if}
+					</div>
+				</div>
+
+				<!-- Monthly Summary Card -->
+				<div class="mb-6 overflow-hidden rounded-lg border shadow">
+					<div class="p-6">
+						<h2 class="text-center text-2xl font-bold tracking-tight">Monthly Summary</h2>
+						<div class="my-4 border-t"></div>
+						<div class="flex items-center justify-between">
+							<span class="text-base font-medium">Total Spending:</span>
+							<span class="text-2xl font-bold">{formatCurrency(summary.monthlyTotal)}</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Yearly Summary Card -->
+				<div class="overflow-hidden rounded-lg border shadow">
+					<div class="p-6">
+						<h2 class="text-center text-2xl font-bold tracking-tight">Yearly Summary</h2>
+						<div class="my-4 border-t"></div>
+						<div class="mb-3 flex items-center justify-between">
+							<span class="text-base font-medium">Total Spending:</span>
+							<span class="text-2xl font-bold">{formatCurrency(summary.yearlyTotal)}</span>
+						</div>
+						<div class="mb-3 flex items-center justify-between">
+							<span class="text-base font-medium">Monthly Average:</span>
+							<span class="text-xl font-bold"
+								>{summary.monthlyAverage === null
+									? '—'
+									: formatCurrency(summary.monthlyAverage)}</span
+							>
+						</div>
 					</div>
 				</div>
 			</div>

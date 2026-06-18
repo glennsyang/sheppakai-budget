@@ -4,7 +4,7 @@ import { budgetQueries, transactionQueries } from '$lib/server/db/queries';
 import { SEARCH_RESULT_LIMIT } from '$lib/server/db/queries/transactions';
 import { transaction } from '$lib/server/db/schema';
 import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
-import { formatDateForStorage, getMonthRangeFromUrl } from '$lib/utils/dates';
+import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -13,6 +13,20 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ url }) => {
 	// Get month, year, and date range from URL params or use current month/year
 	const { month, year, startDate, endDate } = getMonthRangeFromUrl(url);
+
+	// Get yearly date range
+	const { startDate: yearStartDate, endDate: yearEndDate } = getYearDateRange(year);
+
+	const currentDate = new Date();
+	const currentYear = currentDate.getFullYear();
+	let completedMonthsSinceJanuary: number;
+	if (year < currentYear) {
+		completedMonthsSinceJanuary = 12;
+	} else if (year > currentYear) {
+		completedMonthsSinceJanuary = 0;
+	} else {
+		completedMonthsSinceJanuary = currentDate.getMonth();
+	}
 
 	// Normalize on the server regardless of what the client sends: trim whitespace and cap at
 	// the notes column max length (800 chars) so a crafted URL can't trigger an oversized query.
@@ -27,6 +41,8 @@ export const load: PageServerLoad = async ({ url }) => {
 			budgets: [],
 			categorySpending: {},
 			excludedFromBudgetTotal: 0,
+			yearlyTransactions: [],
+			completedMonthsSinceJanuary: 0,
 			form,
 			searchQuery,
 			searchLimitReached: transactions.length >= SEARCH_RESULT_LIMIT
@@ -52,11 +68,15 @@ export const load: PageServerLoad = async ({ url }) => {
 		return acc;
 	}, {});
 
+	const yearlyTransactions = await transactionQueries.findByDateRange(yearStartDate, yearEndDate);
+
 	return {
 		transactions,
 		budgets,
 		categorySpending,
 		excludedFromBudgetTotal,
+		yearlyTransactions,
+		completedMonthsSinceJanuary,
 		form,
 		searchQuery
 	};
