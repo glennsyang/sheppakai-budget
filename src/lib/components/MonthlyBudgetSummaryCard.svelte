@@ -26,7 +26,6 @@
 	let nonRecurringBudgetPct = $derived(
 		nonRecurringBudget > 0 ? (nonRecurringSpent / nonRecurringBudget) * 100 : 0
 	);
-	let budgetPct = $derived(plannedBudget > 0 ? (actualSpent / plannedBudget) * 100 : 0);
 	let incomePct = $derived(totalIncome > 0 ? (actualSpent / totalIncome) * 100 : 0);
 	let netBalance = $derived(totalIncome - actualSpent);
 	let isOverspent = $derived(netBalance < 0);
@@ -90,19 +89,14 @@
 				<div class="space-y-2">
 					<div class="flex items-center justify-between text-sm">
 						<span class="font-medium">vs Budget</span>
-						<div class="text-right">
-							<span class="text-muted-foreground tabular-nums">{budgetPct.toFixed(0)}%</span>
-							{#if nonRecurringBudget > 0}
-								<p class="text-muted-foreground text-xs tabular-nums">
-									{nonRecurringBudgetPct.toFixed(0)}% excl. recurring
-								</p>
-							{/if}
-						</div>
+						<span class="text-muted-foreground tabular-nums"
+							>{nonRecurringBudgetPct.toFixed(0)}%</span
+						>
 					</div>
 					<Progress
-						value={actualSpent}
-						max={plannedBudget > 0 ? plannedBudget : 100}
-						class={progressClass(budgetPct)}
+						value={nonRecurringSpent}
+						max={nonRecurringBudget > 0 ? nonRecurringBudget : 100}
+						class={progressClass(nonRecurringBudgetPct)}
 					/>
 					<div class="space-y-0.5">
 						<div class="text-muted-foreground flex justify-between text-xs">
@@ -118,18 +112,18 @@
 							>
 						</div>
 						<div class="text-muted-foreground flex justify-between text-xs">
-							<span>Budget</span>
+							<span>Budgeted</span>
 							<span class="text-foreground font-medium tabular-nums"
-								>{formatCurrency(plannedBudget)}</span
+								>{formatCurrency(nonRecurringBudget)}</span
 							>
 						</div>
-						{#if actualSpent > plannedBudget && plannedBudget > 0}
+						{#if nonRecurringSpent > nonRecurringBudget && nonRecurringBudget > 0}
 							<p class="text-destructive text-xs font-medium">
-								Over by {formatCurrency(actualSpent - plannedBudget)}
+								Over by {formatCurrency(nonRecurringSpent - nonRecurringBudget)}
 							</p>
-						{:else if plannedBudget > 0}
+						{:else if nonRecurringBudget > 0}
 							<p class="text-xs font-medium text-green-600 dark:text-green-400">
-								{formatCurrency(plannedBudget - actualSpent)} left
+								{formatCurrency(nonRecurringBudget - nonRecurringSpent)} left
 							</p>
 						{/if}
 					</div>
