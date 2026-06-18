@@ -9,6 +9,7 @@
 
 	interface Props {
 		label: string;
+		labelNote?: string;
 		value: string;
 		subtext?: string;
 		tooltip?: string;
@@ -20,6 +21,7 @@
 
 	let {
 		label,
+		labelNote,
 		value,
 		subtext,
 		tooltip,
@@ -57,7 +59,11 @@
 <Card.Root class="gap-3 py-4">
 	<Card.Content class="px-4">
 		<div class="flex items-center gap-1">
-			<p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">{label}</p>
+			<p class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+				{label}{#if labelNote}<span class="ml-1 font-normal tracking-normal normal-case"
+						>{labelNote}</span
+					>{/if}
+			</p>
 			{#if tooltip}
 				<InfoTooltip text={tooltip} size="sm" />
 			{/if}

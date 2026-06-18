@@ -22,6 +22,10 @@
 	}: Props = $props();
 
 	let nonRecurringSpent = $derived(Math.max(0, actualSpent - recurringTotal));
+	let nonRecurringBudget = $derived(Math.max(0, plannedBudget - recurringTotal));
+	let nonRecurringBudgetPct = $derived(
+		nonRecurringBudget > 0 ? (nonRecurringSpent / nonRecurringBudget) * 100 : 0
+	);
 	let budgetPct = $derived(plannedBudget > 0 ? (actualSpent / plannedBudget) * 100 : 0);
 	let incomePct = $derived(totalIncome > 0 ? (actualSpent / totalIncome) * 100 : 0);
 	let netBalance = $derived(totalIncome - actualSpent);
@@ -86,7 +90,14 @@
 				<div class="space-y-2">
 					<div class="flex items-center justify-between text-sm">
 						<span class="font-medium">vs Budget</span>
-						<span class="text-muted-foreground tabular-nums">{budgetPct.toFixed(0)}%</span>
+						<div class="text-right">
+							<span class="text-muted-foreground tabular-nums">{budgetPct.toFixed(0)}%</span>
+							{#if nonRecurringBudget > 0}
+								<p class="text-muted-foreground text-xs tabular-nums">
+									{nonRecurringBudgetPct.toFixed(0)}% excl. recurring
+								</p>
+							{/if}
+						</div>
 					</div>
 					<Progress
 						value={actualSpent}
