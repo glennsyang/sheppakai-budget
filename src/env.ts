@@ -1,115 +1,68 @@
-import { building, dev } from '$app/environment';
-import { env } from '$env/dynamic/private';
+import { building } from '$app/env';
+import { defineEnvVars } from '@sveltejs/kit/hooks';
 import { z } from 'zod';
 
-const envSchema = z.object({
-	DATABASE_URL: z.string().min(1),
-	BETTER_AUTH_SECRET: z.string().min(32),
-	CRON_SECRET: z.string().min(1),
-	BETTER_AUTH_BASE_URL: z.url(),
-	RESEND_API_KEY: z.string().min(1),
-	RESEND_FROM_ADDRESS: z.email(),
-	RESEND_NEW_USER_ADDRESS: z.email(),
-	ADMIN_USER_IDS: z.string().min(1),
-	AUTH_ALERTS_URL: z.url(),
-	BUDGET_ALERTS_URL: z.url(),
-	NODE_ENV: z.enum(['development', 'production', 'test']).default('development')
+const DUMMY_DB_URL = 'file:///tmp/build.db';
+const DUMMY_AUTH_SECRET = 'build_time_dummy_secret_min_32_chars_long';
+const DUMMY_CRON_SECRET = 'dummy_cron_secret_for_build';
+
+export const variables = defineEnvVars({
+	DATABASE_URL: {
+		description: 'SQLite database file path (e.g. data/mybudget.db)',
+		schema: building
+			? z.string().default(DUMMY_DB_URL)
+			: z
+					.string()
+					.min(1)
+					.refine((v) => v !== DUMMY_DB_URL, {
+						message: 'Cannot use the build-time dummy DATABASE_URL'
+					})
+	},
+	BETTER_AUTH_SECRET: {
+		description: 'Secret key for Better Auth (minimum 32 characters)',
+		schema: building
+			? z.string().default(DUMMY_AUTH_SECRET)
+			: z
+					.string()
+					.min(32)
+					.refine((v) => v !== DUMMY_AUTH_SECRET, {
+						message: 'Cannot use the build-time dummy BETTER_AUTH_SECRET'
+					})
+	},
+	CRON_SECRET: {
+		description: 'Secret token for authenticating cron job HTTP requests',
+		schema: building ? z.string().default(DUMMY_CRON_SECRET) : z.string().min(1)
+	},
+	BETTER_AUTH_BASE_URL: {
+		description: 'Base URL for Better Auth callbacks and password reset redirects',
+		schema: z.url().default('http://localhost:5173')
+	},
+	RESEND_API_KEY: {
+		description: 'Resend API key for sending transactional emails',
+		schema: z.string().default('dummy_key_for_build')
+	},
+	RESEND_FROM_ADDRESS: {
+		description: 'From address for outgoing transactional emails',
+		schema: z.email().default('noreply@example.com')
+	},
+	RESEND_NEW_USER_ADDRESS: {
+		description: 'Address to CC on new user registration confirmation emails',
+		schema: z.email().default('admin@example.com')
+	},
+	ADMIN_USER_IDS: {
+		description: 'Comma-separated list of hardcoded admin user IDs',
+		schema: z.string().default('dummy_admin_id')
+	},
+	AUTH_ALERTS_URL: {
+		description: 'Ntfy.sh URL for authentication and security alert push notifications',
+		schema: z.url().default('https://notification-service.com/dummy-auth-alerts')
+	},
+	BUDGET_ALERTS_URL: {
+		description: 'Ntfy.sh URL for budget threshold alert push notifications',
+		schema: z.url().default('https://notification-service.com/dummy-budget-alerts')
+	},
+	NODE_ENV: {
+		description: 'Application runtime environment',
+		schema: z.enum(['development', 'production', 'test']).default('development')
+	}
 });
-
-// Only validate in production (skip during build and dev)
-if (!building && !dev) {
-	try {
-		envSchema.parse(process.env);
-	} catch (error) {
-		console.error('❌ Environment validation failed:', error);
-		process.exit(1);
-	}
-}
-
-/**
- * Build-time fallback values for environment variables.
- * These are used when the app is being built and actual env vars may not be available.
- */
-const ENV_FALLBACKS = {
-	DATABASE_URL: 'file:///tmp/build.db',
-	BETTER_AUTH_SECRET: 'build_time_dummy_secret_min_32_chars_long',
-	CRON_SECRET: 'dummy_cron_secret_for_build',
-	BETTER_AUTH_BASE_URL: 'http://localhost:5173',
-	RESEND_API_KEY: 'dummy_key_for_build',
-	RESEND_FROM_ADDRESS: 'noreply@example.com',
-	RESEND_NEW_USER_ADDRESS: 'admin@example.com',
-	ADMIN_USER_IDS: 'dummy_admin_id',
-	AUTH_ALERTS_URL: 'https://notification-service.com/dummy-auth-alerts',
-	BUDGET_ALERTS_URL: 'https://notification-service.com/dummy-budget-alerts',
-	NODE_ENV: 'development'
-} as const;
-
-/**
- * Get environment variables with automatic fallback to build-time defaults.
- * This is the single source of truth for accessing environment variables.
- *
- * Critical variables (BETTER_AUTH_SECRET, DATABASE_URL):
- * - During build: use fallbacks
- * - In development: allow fallbacks for convenience
- * - In production: require real values, no fallbacks, fail fast if missing or using dummy values
- *
- * @returns Object containing all environment variables with fallbacks applied
- */
-export function getEnv() {
-	let betterAuthSecret: string;
-	let cronSecret: string;
-	let databaseUrl: string;
-
-	if (building) {
-		// During build: use fallbacks
-		betterAuthSecret = ENV_FALLBACKS.BETTER_AUTH_SECRET;
-		cronSecret = ENV_FALLBACKS.CRON_SECRET;
-		databaseUrl = ENV_FALLBACKS.DATABASE_URL;
-	} else if (dev) {
-		// In development: allow fallbacks for convenience
-		betterAuthSecret = env.BETTER_AUTH_SECRET || ENV_FALLBACKS.BETTER_AUTH_SECRET;
-		cronSecret = env.CRON_SECRET || ENV_FALLBACKS.CRON_SECRET;
-		databaseUrl = env.DATABASE_URL || ENV_FALLBACKS.DATABASE_URL;
-	} else {
-		// In production: require real values, no fallbacks
-		if (!env.BETTER_AUTH_SECRET) {
-			console.error('❌ CRITICAL: BETTER_AUTH_SECRET is required in production');
-			process.exit(1);
-		}
-		if (env.BETTER_AUTH_SECRET === ENV_FALLBACKS.BETTER_AUTH_SECRET) {
-			console.error('❌ CRITICAL: Cannot use dummy BETTER_AUTH_SECRET in production');
-			process.exit(1);
-		}
-		if (!env.DATABASE_URL) {
-			console.error('❌ CRITICAL: DATABASE_URL is required in production');
-			process.exit(1);
-		}
-		if (env.DATABASE_URL === ENV_FALLBACKS.DATABASE_URL) {
-			console.error('❌ CRITICAL: Cannot use dummy DATABASE_URL in production');
-			process.exit(1);
-		}
-
-		betterAuthSecret = env.BETTER_AUTH_SECRET;
-		databaseUrl = env.DATABASE_URL;
-		if (!env.CRON_SECRET) {
-			console.error('❌ CRITICAL: CRON_SECRET is required in production');
-			process.exit(1);
-		}
-		cronSecret = env.CRON_SECRET;
-	}
-
-	return {
-		DATABASE_URL: databaseUrl,
-		BETTER_AUTH_SECRET: betterAuthSecret,
-		CRON_SECRET: cronSecret,
-		// Less critical vars can use fallbacks in any environment
-		BETTER_AUTH_BASE_URL: env.BETTER_AUTH_BASE_URL || ENV_FALLBACKS.BETTER_AUTH_BASE_URL,
-		RESEND_API_KEY: env.RESEND_API_KEY || ENV_FALLBACKS.RESEND_API_KEY,
-		RESEND_FROM_ADDRESS: env.RESEND_FROM_ADDRESS || ENV_FALLBACKS.RESEND_FROM_ADDRESS,
-		RESEND_NEW_USER_ADDRESS: env.RESEND_NEW_USER_ADDRESS || ENV_FALLBACKS.RESEND_NEW_USER_ADDRESS,
-		ADMIN_USER_IDS: env.ADMIN_USER_IDS || ENV_FALLBACKS.ADMIN_USER_IDS,
-		AUTH_ALERTS_URL: env.AUTH_ALERTS_URL || ENV_FALLBACKS.AUTH_ALERTS_URL,
-		BUDGET_ALERTS_URL: env.BUDGET_ALERTS_URL || ENV_FALLBACKS.BUDGET_ALERTS_URL,
-		NODE_ENV: (env.NODE_ENV as 'development' | 'production' | 'test') || ENV_FALLBACKS.NODE_ENV
-	};
-}

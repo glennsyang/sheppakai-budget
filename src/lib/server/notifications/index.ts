@@ -1,7 +1,6 @@
-import { getEnv } from '../../../env';
-import { logger } from '../logger';
+import { AUTH_ALERTS_URL, BUDGET_ALERTS_URL } from '$app/env/private';
 
-const env = getEnv();
+import { logger } from '../logger';
 
 /**
  * Sends a notification to your phone
@@ -11,7 +10,7 @@ const env = getEnv();
  */
 export async function sendAuthAlerts(message: string, title = 'App Alert', priority = 3) {
 	try {
-		const response = await fetch(`${env.AUTH_ALERTS_URL}`, {
+		const response = await fetch(`${AUTH_ALERTS_URL}`, {
 			method: 'POST',
 			body: message,
 			headers: {
@@ -40,7 +39,7 @@ export async function sendBudgetAlerts(
 	priority = 3
 ) {
 	try {
-		const response = await fetch(`${env.BUDGET_ALERTS_URL}`, {
+		const response = await fetch(`${BUDGET_ALERTS_URL}`, {
 			method: 'POST',
 			body: message,
 			headers: {

@@ -71,7 +71,7 @@ You are a Svelte expert tasked to build components and utilities for Svelte deve
 - title: @sveltejs/kit/node/polyfills, use_cases: node.js environments, custom servers, non-standard runtimes, ssr setup, web api compatibility, polyfill requirements, path: kit/@sveltejs-kit-node-polyfills
 - title: @sveltejs/kit/node, use_cases: node.js adapter, custom server setup, http integration, streaming files, node deployment, server-side rendering with node, path: kit/@sveltejs-kit-node
 - title: @sveltejs/kit/vite, use_cases: project setup, vite configuration, initial sveltekit setup, build tooling, path: kit/@sveltejs-kit-vite
-- title: $app/environment, use_cases: always, conditional logic, client-side code, server-side code, build-time logic, prerendering, development vs production, environment detection, path: kit/$app-environment
+- title: $app/env, use_cases: always, conditional logic, client-side code, server-side code, build-time logic, prerendering, development vs production, environment detection, path: kit/$app-environment
 - title: $app/forms, use_cases: forms, user input, data submission, progressive enhancement, custom form handling, form validation, path: kit/$app-forms
 - title: $app/navigation, use_cases: routing, navigation, multi-page apps, programmatic navigation, data reloading, preloading, shallow routing, navigation lifecycle, scroll handling, view transitions, path: kit/$app-navigation
 - title: $app/paths, use_cases: static assets, images, fonts, public files, base path configuration, subdirectory deployment, cdn setup, asset urls, links, navigation, path: kit/$app-paths
