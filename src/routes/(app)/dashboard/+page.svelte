@@ -5,6 +5,7 @@
 	import type { MonthlyNetflowData, SpendingBreakdownData } from '$lib';
 	import BudgetAlertRow from '$lib/components/BudgetAlertRow.svelte';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
+	import CardBeam from '$lib/components/CardBeam.svelte';
 	import CashFlowProjectionCard from '$lib/components/CashFlowProjectionCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
 	import GoalsSummaryStrip from '$lib/components/GoalsSummaryStrip.svelte';
@@ -162,6 +163,16 @@
 		return getActualAmount(categoryId) > planned;
 	}
 
+	// Beam color mirrors BudgetProgressCard's progressClass logic
+	function getCategoryBeamColor(categoryId: string): string {
+		const planned = getPlannedAmount(categoryId);
+		const actual = getActualAmount(categoryId);
+		if (planned > 0 && actual > planned) return 'rgb(239, 68, 68)'; // red
+		const pct = planned > 0 ? (actual / planned) * 100 : 0;
+		if (planned > 0 && pct >= 90) return 'rgb(234, 179, 8)'; // amber
+		return 'rgb(34, 197, 94)'; // green
+	}
+
 	// Spending breakdown donut chart data (monthly)
 	let spendingBreakdownData: SpendingBreakdownData[] = $derived.by(() => {
 		if (!data.actualExpenses) return [];
@@ -232,17 +243,23 @@
 			? Math.min(((data.actualExpensesTotal || 0) / data.plannedExpensesTotal) * 100, 999)
 			: 0
 	);
+	let nonRecurringActual = $derived(
+		Math.max(0, (data.actualExpensesTotal || 0) - recurringMonthlyTotal)
+	);
+	let nonRecurringBudgetPlanned = $derived(
+		Math.max(0, (data.plannedExpensesTotal || 0) - recurringMonthlyTotal)
+	);
+	let nonRecurringBudgetPct = $derived(
+		nonRecurringBudgetPlanned > 0
+			? Math.min((nonRecurringActual / nonRecurringBudgetPlanned) * 100, 999)
+			: 0
+	);
 	let recurringBurdenPct = $derived(
 		data.totalIncome && data.totalIncome > 0
 			? Math.min((recurringMonthlyTotal / data.totalIncome) * 100, 100)
 			: 0
 	);
 	let excludedExpensesTotal = $derived(data.excludedExpensesTotal || 0);
-
-	// Savings velocity: total current contributions across all goals
-	let savingsVelocity = $derived(
-		(data.goalsWithProgress || []).reduce((sum, g) => sum + g.currentAmount, 0)
-	);
 
 	// Pre-built lookup map for allYearBudgets: key is `${categoryId}-${monthValue}-${year}`
 	let allYearBudgetsMap = $derived.by(() => {
@@ -409,11 +426,23 @@
 			/>
 			<KpiSparklineCard
 				label="Budget Used"
-				value={`${budgetPct.toFixed(0)}%`}
+				value={`${nonRecurringBudgetPct.toFixed(0)}%`}
 				subtext="of planned budget"
+				colorScheme={nonRecurringBudgetPct > 100
+					? 'red'
+					: nonRecurringBudgetPct > 85
+						? 'amber'
+						: 'green'}
+				sparklineData={spendingSparkline}
+				tooltip="Your discretionary spending vs. planned budget, excluding recurring expenses. More sensitive than the all-in % — can read higher because the recurring amount isn't cushioning either side."
+			/>
+			<KpiSparklineCard
+				label="Budget Used"
+				value={`${budgetPct.toFixed(0)}%`}
+				subtext="of planned budget (incl. recurring)"
 				colorScheme={budgetPct > 100 ? 'red' : budgetPct > 85 ? 'amber' : 'green'}
 				sparklineData={spendingSparkline}
-				tooltip="How much of your total planned budget you've used so far. Over 100% means you've exceeded your budget. The chart shows your total spending per month over the last 6 months."
+				tooltip="Your total spending vs. total planned budget, including recurring expenses. Can read lower than the excl. recurring % when you're over on discretionary spend, since the recurring amount dilutes both sides equally."
 			/>
 			<KpiSparklineCard
 				label="Recurring Burden"
@@ -426,13 +455,6 @@
 						: 'neutral'}
 				tooltip="The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending."
 			/>
-			<KpiSparklineCard
-				label="Savings Progress"
-				value={formatCurrency(savingsVelocity)}
-				subtext="total across active goals"
-				colorScheme="green"
-				tooltip="The total amount saved across all your active savings goals."
-			/>
 			{#if data.windowCleaningJobCount}
 				<WindowCleaningSummaryCard
 					revenue={data.windowCleaningRevenue || 0}
@@ -444,14 +466,16 @@
 		<!-- Monthly budget summary + spending breakdown -->
 		<div class="mb-6 flex flex-col gap-4 lg:grid lg:grid-cols-12">
 			<div class="lg:col-span-5">
-				<MonthlyBudgetSummaryCard
-					actualSpent={data.actualExpensesTotal || 0}
-					plannedBudget={data.plannedExpensesTotal || 0}
-					totalIncome={data.totalIncome || 0}
-					recurringTotal={recurringMonthlyTotal}
-					excludedSpendTotal={excludedExpensesTotal}
-					{loading}
-				/>
+				<CardBeam color="#3b82f6">
+					<MonthlyBudgetSummaryCard
+						actualSpent={data.actualExpensesTotal || 0}
+						plannedBudget={data.plannedExpensesTotal || 0}
+						totalIncome={data.totalIncome || 0}
+						recurringTotal={recurringMonthlyTotal}
+						excludedSpendTotal={excludedExpensesTotal}
+						{loading}
+					/>
+				</CardBeam>
 			</div>
 			<div class="lg:col-span-7">
 				<SpendingBreakdownChart
@@ -492,19 +516,21 @@
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each topRiskCategories as category (category.id)}
 						{@const categoryOverBudget = isCategoryOverBudget(category.id)}
-						<button
-							type="button"
-							onclick={() => openCategoryDetails(category.id)}
-							class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-destructive/40 ring-1' : ''}`}
-						>
-							<BudgetProgressCard
-								title={category.name}
-								planned={getPlannedAmount(category.id)}
-								actual={getActualAmount(category.id)}
-								{loading}
-								label1="Spent"
-							/>
-						</button>
+						<CardBeam color={getCategoryBeamColor(category.id)}>
+							<button
+								type="button"
+								onclick={() => openCategoryDetails(category.id)}
+								class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-destructive/40 ring-1' : ''}`}
+							>
+								<BudgetProgressCard
+									title={category.name}
+									planned={getPlannedAmount(category.id)}
+									actual={getActualAmount(category.id)}
+									{loading}
+									label1="Spent"
+								/>
+							</button>
+						</CardBeam>
 					{/each}
 				</div>
 			</div>
