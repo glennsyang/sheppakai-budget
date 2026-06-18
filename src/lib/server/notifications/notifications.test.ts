@@ -2,15 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
 	fetch: vi.fn<(input: string, init?: RequestInit) => Promise<unknown>>(),
-	loggerError: vi.fn<() => void>(),
-	getEnv: vi.fn<() => { AUTH_ALERTS_URL: string; BUDGET_ALERTS_URL: string }>(() => ({
-		AUTH_ALERTS_URL: 'https://alerts.example.com/auth',
-		BUDGET_ALERTS_URL: 'https://alerts.example.com/budget'
-	}))
+	loggerError: vi.fn<() => void>()
 }));
 
-vi.mock('../../../env', () => ({
-	getEnv: mockState.getEnv
+vi.mock('$app/env/private', () => ({
+	AUTH_ALERTS_URL: 'https://alerts.example.com/auth',
+	BUDGET_ALERTS_URL: 'https://alerts.example.com/budget'
 }));
 
 vi.mock('../logger', () => ({

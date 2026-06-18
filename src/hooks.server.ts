@@ -1,4 +1,4 @@
-import { building, dev } from '$app/environment';
+import { building, dev } from '$app/env';
 import { auth } from '$lib/server/auth';
 import * as Sentry from '@sentry/sveltekit';
 import type { Handle } from '@sveltejs/kit';

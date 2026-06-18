@@ -151,7 +151,7 @@ describe('Logger Utility', () => {
 		});
 
 		it('should handle undefined data', () => {
-			logger.info('Test', undefined);
+			logger.info('Test');
 			expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[INFO] Test'));
 		});
 

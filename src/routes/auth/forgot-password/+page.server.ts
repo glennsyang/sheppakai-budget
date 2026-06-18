@@ -1,3 +1,4 @@
+import { BETTER_AUTH_BASE_URL } from '$app/env/private';
 import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import { getBetterAuthErrorMessage } from '$lib/utils';
@@ -6,7 +7,6 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
-import { getEnv } from '../../../env';
 import type { Actions, PageServerLoad } from './$types';
 
 const forgotSchema = z.object({
@@ -43,7 +43,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			const redirectTo = `${getEnv().BETTER_AUTH_BASE_URL}/auth/reset-password`;
+			const redirectTo = `${BETTER_AUTH_BASE_URL}/auth/reset-password`;
 
 			await auth.api.requestPasswordReset({
 				body: {

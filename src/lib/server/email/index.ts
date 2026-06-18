@@ -1,13 +1,11 @@
+import { RESEND_API_KEY, RESEND_FROM_ADDRESS, RESEND_NEW_USER_ADDRESS } from '$app/env/private';
 import { formatCurrency } from '$lib/utils';
 import { Resend } from 'resend';
 
-import { getEnv } from '../../../env';
 import { logger } from '../logger';
 
-const env = getEnv();
-
 // Initialize Resend email client
-const resend = new Resend(env.RESEND_API_KEY);
+const resend = new Resend(RESEND_API_KEY);
 
 export type WeeklySummaryCategory = {
 	categoryName: string;
@@ -77,7 +75,7 @@ export async function sendWeeklySummaryEmail(payload: WeeklySummaryEmailPayload)
 
 	try {
 		await resend.emails.send({
-			from: env.RESEND_FROM_ADDRESS,
+			from: RESEND_FROM_ADDRESS,
 			to: payload.to,
 			subject: `[Sheppakai Budget] Weekly Budget Summary - ${payload.monthLabel}`,
 			html: `
@@ -125,7 +123,7 @@ export async function sendVerificationEmail(to: string, name: string, verificati
 
 	try {
 		await resend.emails.send({
-			from: env.RESEND_FROM_ADDRESS,
+			from: RESEND_FROM_ADDRESS,
 			to,
 			subject: '[Sheppakai Budget] Verify your email address',
 			html: `
@@ -177,7 +175,7 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
 
 	try {
 		await resend.emails.send({
-			from: env.RESEND_FROM_ADDRESS,
+			from: RESEND_FROM_ADDRESS,
 			to,
 			subject: '[Sheppakai Budget] Reset your password',
 			html: `
@@ -234,7 +232,7 @@ export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayl
 
 	try {
 		await resend.emails.send({
-			from: env.RESEND_FROM_ADDRESS,
+			from: RESEND_FROM_ADDRESS,
 			to: payload.to,
 			subject: '[Sheppakai Budget] Your password was changed',
 			html: `
@@ -280,11 +278,11 @@ export async function sendNewUserEmail(to: string, name: string, email: string) 
 	logger.debug('📧 Sending new user email to:', { to });
 
 	// Append gsheppard.yang@gmail.com to the to address for monitoring
-	to = `${to}, ${env.RESEND_NEW_USER_ADDRESS}`;
+	to = `${to}, ${RESEND_NEW_USER_ADDRESS}`;
 
 	try {
 		await resend.emails.send({
-			from: env.RESEND_FROM_ADDRESS,
+			from: RESEND_FROM_ADDRESS,
 			to,
 			subject: '[Sheppakai Budget] New User was registered!',
 			html: `Hi ${name || email}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
