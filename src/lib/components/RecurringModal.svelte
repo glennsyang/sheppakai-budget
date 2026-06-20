@@ -18,7 +18,6 @@
 		open = $bindable(),
 		initialData = undefined,
 		isEditing = false,
-		isLoading = $bindable(false),
 		recurringForm
 	}: Props = $props();
 

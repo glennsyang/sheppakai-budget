@@ -48,4 +48,4 @@
 	</div>
 </div>
 
-<CategoryModal bind:open={openModal} bind:isLoading={loading} categoryForm={data.form!} />
+<CategoryModal bind:open={openModal} categoryForm={data.form!} />

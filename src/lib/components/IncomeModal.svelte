@@ -19,7 +19,6 @@
 		open = $bindable(),
 		initialData = undefined,
 		isEditing = false,
-		isLoading = $bindable(false),
 		incomeForm
 	}: Props = $props();
 

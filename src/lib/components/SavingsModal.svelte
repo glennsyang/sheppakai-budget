@@ -14,13 +14,7 @@
 		savingsForm: SuperValidated<z.infer<typeof savingsSchema>>;
 	}
 
-	let {
-		open = $bindable(),
-		initialData,
-		isEditing,
-		isLoading = $bindable(false),
-		savingsForm
-	}: Props = $props();
+	let { open = $bindable(), initialData, isEditing, savingsForm }: Props = $props();
 
 	const formInstance = $derived(
 		superForm(savingsForm, {
