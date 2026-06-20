@@ -311,7 +311,6 @@
 <!-- Modals -->
 <SavingsGoalModal
 	bind:open={openGoalModal}
-	bind:isLoading={loading}
 	initialData={editingGoal
 		? {
 				id: editingGoal.id,
@@ -328,7 +327,6 @@
 
 <ContributionModal
 	bind:open={openContributionModal}
-	bind:isLoading={loading}
 	goals={data.goals}
 	preselectedGoalId={selectedGoalId}
 	contributionForm={data.contributionForm}

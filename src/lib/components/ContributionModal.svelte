@@ -30,7 +30,6 @@
 		open = $bindable(),
 		initialData,
 		isEditing,
-		isLoading = $bindable(false),
 		goals,
 		preselectedGoalId,
 		contributionForm,

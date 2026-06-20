@@ -1,6 +1,6 @@
 {
 	"name": "sheppakai-budget",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -56,11 +56,11 @@
 		"@types/canvas-confetti": "^1.9.0",
 		"@types/d3-scale": "^4.0.9",
 		"@types/d3-shape": "^3.1.7",
-		"@types/node": "^25.7.0",
+		"@types/node": "^26.0.0",
 		"@vitest/coverage-v8": "^4.0.18",
 		"bits-ui": "^2.18.1",
 		"clsx": "^2.1.1",
-		"fallow": "^2.76.0",
+		"fallow": "^2.99.0",
 		"globals": "^17.1.0",
 		"knip": "^6.11.0",
 		"layerchart": "^2.0.0-next.63",

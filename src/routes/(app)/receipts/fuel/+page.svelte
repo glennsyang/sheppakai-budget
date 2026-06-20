@@ -189,9 +189,4 @@
 	</div>
 </div>
 
-<TransactionModal
-	bind:open={openModal}
-	bind:isLoading={loading}
-	transactionForm={data.form!}
-	categories={categories()}
-/>
+<TransactionModal bind:open={openModal} transactionForm={data.form!} categories={categories()} />

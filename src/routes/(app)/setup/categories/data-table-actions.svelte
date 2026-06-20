@@ -47,7 +47,7 @@
 <ConfirmModal
 	bind:open={openDeleteModal}
 	{id}
-	actionUrl="/categories?/delete"
+	actionUrl="/setup/categories?/delete"
 	title="Delete Category"
 	message="Are you sure you want to delete this category?"
 	confirmButtonText="Delete"

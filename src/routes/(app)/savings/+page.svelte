@@ -88,4 +88,4 @@
 	</div>
 </div>
 
-<SavingsModal bind:open={openModal} bind:isLoading={loading} savingsForm={data.form} />
+<SavingsModal bind:open={openModal} savingsForm={data.form} />

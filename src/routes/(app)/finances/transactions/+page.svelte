@@ -303,9 +303,4 @@
 	</div>
 </div>
 
-<TransactionModal
-	bind:open={openModal}
-	bind:isLoading={loading}
-	categories={categories()}
-	transactionForm={data.form}
-/>
+<TransactionModal bind:open={openModal} categories={categories()} transactionForm={data.form} />

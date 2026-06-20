@@ -165,4 +165,4 @@
 	</div>
 </div>
 
-<IncomeModal bind:open={openModal} bind:isLoading={loading} incomeForm={data.form!} />
+<IncomeModal bind:open={openModal} incomeForm={data.form!} />

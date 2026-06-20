@@ -18,14 +18,7 @@
 		transactionForm: SuperValidated<z.infer<typeof transactionSchema>>;
 	}
 
-	let {
-		open = $bindable(),
-		initialData,
-		isEditing,
-		isLoading = $bindable(false),
-		categories,
-		transactionForm
-	}: Props = $props();
+	let { open = $bindable(), initialData, isEditing, categories, transactionForm }: Props = $props();
 
 	let sortedCategories = $derived([...categories].toSorted((a, b) => a.name.localeCompare(b.name)));
 

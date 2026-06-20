@@ -110,4 +110,4 @@
 	</div>
 </div>
 
-<RecurringModal bind:open={openModal} bind:isLoading={loading} recurringForm={data.form!} />
+<RecurringModal bind:open={openModal} recurringForm={data.form!} />
