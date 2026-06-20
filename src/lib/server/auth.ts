@@ -12,6 +12,7 @@ import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { admin } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 
+import { buildResetUrl } from './auth-reset-url';
 import { getDb } from './db';
 import * as schema from './db/schema';
 import {
@@ -51,13 +52,13 @@ export const auth = betterAuth({
 		revokeSessionsOnPasswordReset: true,
 		resetPasswordTokenExpiresIn: 60 * 10, // 10 minutes
 		sendResetPassword: async ({ user, url, token }) => {
-			// Construct the reset URL with token
-			const urlObj = new URL(url, 'http://localhost'); // Need a base for relative URLs
+			// Extract and validate callbackURL before building reset link
+			const urlObj = new URL(url);
 			const callbackURL = urlObj.searchParams.get('callbackURL');
 			if (!callbackURL) {
 				throw new Error('Missing callbackURL parameter');
 			}
-			const resetUrl = `${callbackURL}?token=${token}`;
+			const resetUrl = buildResetUrl(callbackURL, token);
 			void sendPasswordResetEmail(user.email, user.name || user.email, resetUrl);
 		},
 		onPasswordReset: async ({ user }) => {
@@ -162,7 +163,7 @@ export const auth = betterAuth({
 		}
 	},
 	trustedOrigins: [
-		'https://sheppakai-budget.fly.dev',
+		new URL(BETTER_AUTH_BASE_URL).origin,
 		...(NODE_ENV === 'development' ? ['http://localhost:5173'] : [])
 	],
 	rateLimit: {
