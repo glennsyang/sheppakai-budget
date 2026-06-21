@@ -15,11 +15,14 @@ const config = {
 			mode: 'nonce',
 			directives: {
 				'default-src': ['self'],
-				// unsafe-eval is required by layerchart/d3 (Function constructor / eval use).
 				// unsafe-inline is intentionally absent — replaced by the per-request nonce.
-				'script-src': ['self', 'unsafe-eval'],
-				// unsafe-inline retained: Svelte injects inline <style> during SSR for scoped CSS.
-				'style-src': ['self', 'unsafe-inline'],
+				// unsafe-eval is not included: layerchart/d3-scale/d3-shape do not use
+				// Function() or eval(); d3-dsv (which does) is never imported.
+				'script-src': ['self'],
+				// unsafe-inline is absent: SvelteKit nonce mode injects a nonce attribute
+				// onto every <style> element it renders during SSR, so inline styles
+				// are covered by the nonce rather than the blanket unsafe-inline.
+				'style-src': ['self'],
 				'img-src': ['self', 'data:', 'https:'],
 				'font-src': ['self'],
 				'connect-src': ['self', 'https://*.ingest.us.sentry.io', 'https://*.ingest.sentry.io'],
