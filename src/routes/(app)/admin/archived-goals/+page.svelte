@@ -12,6 +12,7 @@
 	interface Props {
 		data: {
 			archivedGoals: SavingsGoal[];
+			loadError?: string;
 			form: SuperValidated<z.infer<typeof unArchiveSchema>>;
 		};
 	}
@@ -35,6 +36,12 @@
 
 	{#if loading}
 		<TableSkeleton rows={5} columns={6} />
+	{:else if data.loadError}
+		<div
+			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
+		>
+			{data.loadError}
+		</div>
 	{:else if data.archivedGoals.length === 0}
 		<div class="flex h-64 items-center justify-center rounded-lg border border-dashed">
 			<p class="text-muted-foreground">No archived goals found</p>

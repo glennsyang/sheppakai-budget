@@ -44,6 +44,7 @@ export const load: PageServerLoad = async () => {
 		logger.error('Failed to load archived goals:', error);
 		return {
 			archivedGoals: [],
+			loadError: 'Failed to load archived goals. Please try refreshing the page.',
 			form
 		};
 	}

@@ -30,7 +30,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return { deletedCustomers, form };
 	} catch (error) {
 		logger.error('Failed to load deleted customers', error);
-		return { deletedCustomers: [], form };
+		return {
+			deletedCustomers: [],
+			loadError: 'Failed to load deleted customers. Please try refreshing the page.',
+			form
+		};
 	}
 };
 

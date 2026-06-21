@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { navigating } from '$app/state';
 	import type { UserWithSessions } from '$lib';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
@@ -16,6 +17,7 @@
 	interface Props {
 		data: {
 			usersWithSessions: UserWithSessions[];
+			loadError?: string;
 			setRoleForm: SuperValidated<z.infer<typeof setUserRoleSchema>>;
 			setPasswordForm: SuperValidated<z.infer<typeof setPasswordSchema>>;
 			banUserForm: SuperValidated<z.infer<typeof banUserSchema>>;
@@ -24,7 +26,7 @@
 
 	let { data }: Props = $props();
 
-	let loading = $state<boolean>(false);
+	const loading = $derived(navigating.to !== null);
 
 	// Type guard to ensure role is defined and banned is boolean
 	const usersWithSessionsAndRole = $derived(
@@ -56,6 +58,12 @@
 
 	{#if loading}
 		<TableSkeleton rows={5} columns={6} />
+	{:else if data.loadError}
+		<div
+			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
+		>
+			{data.loadError}
+		</div>
 	{:else}
 		<DataTable {columns} data={usersWithSessionsAndRole} />
 	{/if}
