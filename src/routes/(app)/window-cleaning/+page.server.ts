@@ -1,6 +1,7 @@
 import { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { createAction, updateAction } from '$lib/server/actions/crud-helpers';
+import { deleteJob, updateJob } from '$lib/server/actions/window-cleaning-jobs';
 import { getDb } from '$lib/server/db';
 import { windowCleaningCustomerQueries, windowCleaningJobQueries } from '$lib/server/db/queries';
 import { windowCleaningCustomer, windowCleaningJob } from '$lib/server/db/schema';
@@ -13,7 +14,7 @@ import { eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
 	const [customers, allJobs, customerStats] = await Promise.all([
@@ -155,36 +156,6 @@ export const actions = {
 		})
 	}),
 
-	updateJob: updateAction({
-		schema: windowCleaningJobSchema,
-		table: windowCleaningJob,
-		entityName: 'Job',
-		transformUpdate: (data) => ({
-			customerId: data.customerId,
-			jobDate: formatDateForStorage(data.jobDate),
-			jobTime: data.jobTime || null,
-			amountCharged: data.amountCharged,
-			tip: data.tip ?? 0,
-			durationHours: data.durationHours ?? null,
-			notes: data.notes || null
-		})
-	}),
-
-	deleteJob: requireAuth(async (event) => {
-		const data = await event.request.formData();
-		const id = data.get('id') as string | null;
-
-		if (!id) {
-			return fail(400, { error: 'Job ID is required' });
-		}
-
-		try {
-			await getDb().delete(windowCleaningJob).where(eq(windowCleaningJob.id, id));
-			logger.info(`Job deleted: ${id}`);
-			return { success: true, delete: true };
-		} catch (error) {
-			logger.error('Failed to delete job', error);
-			return fail(500, { error: 'Failed to delete job' });
-		}
-	})
-};
+	updateJob,
+	deleteJob
+} satisfies Actions;

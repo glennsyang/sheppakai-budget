@@ -40,6 +40,7 @@ export const load: PageServerLoad = async ({ request }) => {
 		if (!result?.users) {
 			return {
 				usersWithSessions: [],
+				loadError: 'Failed to retrieve user list from the auth provider.',
 				setRoleForm,
 				setPasswordForm,
 				banUserForm
@@ -78,6 +79,7 @@ export const load: PageServerLoad = async ({ request }) => {
 		logger.error('Failed to load users:', error);
 		return {
 			usersWithSessions: [],
+			loadError: 'Failed to load users. Please try refreshing the page.',
 			setRoleForm,
 			setPasswordForm,
 			banUserForm
@@ -281,4 +283,4 @@ export const actions: Actions = {
 			return fail(500, { error: 'Failed to delete user' });
 		}
 	}
-};
+} satisfies Actions;

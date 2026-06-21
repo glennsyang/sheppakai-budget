@@ -8,7 +8,7 @@ import { desc, eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
 	// Fetch all goals
@@ -147,4 +147,4 @@ export const actions = {
 		entityName: 'Contribution',
 		deleteSchema: deleteSchema
 	})
-};
+} satisfies Actions;

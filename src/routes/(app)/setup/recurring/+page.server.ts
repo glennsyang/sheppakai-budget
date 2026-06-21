@@ -5,12 +5,13 @@ import { getDb } from '$lib/server/db';
 import { recurringQueries } from '$lib/server/db/queries';
 import { recurring } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { logger } from '$lib/server/logger';
 import { fail } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = locals.user!;
@@ -53,11 +54,16 @@ export const actions = {
 			return fail(400, { error: 'Recurring ID is required' });
 		}
 
-		await getDb()
-			.update(recurring)
-			.set(withAuditFieldsForUpdate({ paid: !currentPaid }, user))
-			.where(and(eq(recurring.id, recurringId), eq(recurring.userId, user.id.toString())));
+		try {
+			await getDb()
+				.update(recurring)
+				.set(withAuditFieldsForUpdate({ paid: !currentPaid }, user))
+				.where(and(eq(recurring.id, recurringId), eq(recurring.userId, user.id.toString())));
+		} catch (error) {
+			logger.error('Failed to toggle recurring paid status', error);
+			return fail(500, { error: 'Failed to update recurring expense' });
+		}
 
 		return { success: true };
 	})
-};
+} satisfies Actions;

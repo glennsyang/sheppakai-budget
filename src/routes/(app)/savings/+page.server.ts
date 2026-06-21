@@ -5,7 +5,7 @@ import { savings } from '$lib/server/db/schema';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
 	const allSavings = await savingsQueries.findAll();
@@ -33,4 +33,4 @@ export const actions = createCrudActions({
 		description: data.description || null,
 		amount: data.amount
 	})
-});
+}) satisfies Actions;

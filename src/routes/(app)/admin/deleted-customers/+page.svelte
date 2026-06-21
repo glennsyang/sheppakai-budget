@@ -13,6 +13,7 @@
 	interface Props {
 		data: {
 			deletedCustomers: DeletedCustomer[];
+			loadError?: string;
 			form: SuperValidated<z.infer<typeof restoreCustomerSchema>>;
 		};
 	}
@@ -33,7 +34,13 @@
 		<p class="text-muted-foreground">View and restore soft-deleted window cleaning customers</p>
 	</div>
 
-	{#if data.deletedCustomers.length === 0}
+	{#if data.loadError}
+		<div
+			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
+		>
+			{data.loadError}
+		</div>
+	{:else if data.deletedCustomers.length === 0}
 		<div class="flex h-64 items-center justify-center rounded-lg border border-dashed">
 			<p class="text-muted-foreground">No deleted customers found</p>
 		</div>
