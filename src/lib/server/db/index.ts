@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
-import { DATABASE_URL } from '$app/env/private';
+import { DATABASE_URL, NODE_ENV } from '$app/env/private';
 import { logger } from '$lib/server/logger';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
@@ -20,7 +20,10 @@ export function getDb() {
 		mkdirSync(dir, { recursive: true });
 
 		const connection = new Database(dbPath);
-		_db = drizzle(connection, { schema, logger: true });
+		// Disable SQL query logging in production to prevent sensitive auth values
+		// (access_token, refresh_token, id_token, password) from leaking into logs.
+		const enableQueryLogging = NODE_ENV !== 'production';
+		_db = drizzle(connection, { schema, logger: enableQueryLogging });
 	}
 
 	return _db;
