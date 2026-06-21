@@ -5,7 +5,7 @@ import { category } from '$lib/server/db/schema';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
 	const categories = await categoryQueries.findAll();
@@ -29,4 +29,4 @@ export const actions = createCrudActions({
 			return { error: 'Cannot delete category that is in use by transactions' };
 		}
 	}
-});
+}) satisfies Actions;

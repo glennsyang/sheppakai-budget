@@ -13,7 +13,7 @@ import { eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
 	const [customers, allJobs, customerStats] = await Promise.all([
@@ -187,4 +187,4 @@ export const actions = {
 			return fail(500, { error: 'Failed to delete job' });
 		}
 	})
-};
+} satisfies Actions;

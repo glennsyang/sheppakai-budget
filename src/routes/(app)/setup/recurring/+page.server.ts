@@ -10,7 +10,7 @@ import { and, eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = locals.user!;
@@ -60,4 +60,4 @@ export const actions = {
 
 		return { success: true };
 	})
-};
+} satisfies Actions;

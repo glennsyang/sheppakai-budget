@@ -8,7 +8,7 @@ import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$l
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
 	// Get month, year, and date range from URL params or use current month/year
@@ -106,4 +106,4 @@ export const actions = createCrudActions({
 		excludedFromBudget: data.excludedFromBudget,
 		categoryId: data.categoryId
 	})
-});
+}) satisfies Actions;
