@@ -15,14 +15,17 @@ const config = {
 			mode: 'nonce',
 			directives: {
 				'default-src': ['self'],
-				// unsafe-inline is intentionally absent — replaced by the per-request nonce.
-				// unsafe-eval is not included: layerchart/d3-scale/d3-shape do not use
-				// Function() or eval(); d3-dsv (which does) is never imported.
+				// No unsafe-eval or unsafe-inline: layerchart/d3-scale/d3-shape do not use
+				// Function() or eval(); nonce-based CSP covers SvelteKit-injected scripts.
 				'script-src': ['self'],
-				// unsafe-inline is absent: SvelteKit nonce mode injects a nonce attribute
-				// onto every <style> element it renders during SSR, so inline styles
-				// are covered by the nonce rather than the blanket unsafe-inline.
-				'style-src': ['self'],
+				// <style> elements: SvelteKit nonce covers SSR-injected ones.
+				// unsafe-inline also required for chart libraries (layerchart) that inject
+				// <style> elements at runtime after SSR, where no nonce is available.
+				'style-src-elem': ['self', 'unsafe-inline'],
+				// style="" attributes: unsafe-inline required for dynamic CSS custom
+				// properties (e.g. bits-ui --bits-collapsible-content-height, chart colour
+				// vars) whose values are computed at runtime and cannot be hashed.
+				'style-src-attr': ['unsafe-inline'],
 				'img-src': ['self', 'data:', 'https:'],
 				'font-src': ['self'],
 				'connect-src': ['self', 'https://*.ingest.us.sentry.io', 'https://*.ingest.sentry.io'],
