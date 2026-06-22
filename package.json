@@ -65,7 +65,7 @@
 		"knip": "^6.11.0",
 		"layerchart": "^2.0.0-next.63",
 		"lefthook": "^2.0.16",
-		"lint-staged": "^17.0.4",
+		"lint-staged": "^17.0.8",
 		"oxfmt": "^0.55.0",
 		"oxlint": "^1.66.0",
 		"oxlint-tsgolint": "^0.23.0",
