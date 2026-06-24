@@ -6,7 +6,7 @@
 	import { formatLocalTimestamp } from '$lib/utils/dates';
 
 	interface Props {
-		open: boolean;
+		openSheet: boolean;
 		transactions: Transaction[];
 		category: Category | null | undefined;
 		month?: string;
@@ -16,7 +16,7 @@
 	}
 
 	let {
-		open = $bindable(),
+		openSheet = $bindable(),
 		transactions,
 		category,
 		month,
@@ -28,7 +28,7 @@
 	let categoryTotal = $derived(transactions.reduce((sum, t) => sum + t.amount, 0));
 </script>
 
-<Sheet.Root bind:open>
+<Sheet.Root bind:open={openSheet}>
 	<Sheet.Content side="right" class="flex w-full flex-col sm:max-w-lg">
 		<Sheet.Header>
 			<Sheet.Title>{category?.name} Transactions</Sheet.Title>
