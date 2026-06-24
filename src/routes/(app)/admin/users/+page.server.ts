@@ -1,5 +1,6 @@
 import { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
-import { auth, requireAdmin } from '$lib/server/auth';
+import { adminAuthFailure } from '$lib/server/actions/admin-guard';
+import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import type { UserWithSessions } from '$lib/types';
 import { fail } from '@sveltejs/kit';
@@ -7,18 +8,6 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
-
-function adminAuthFailure(locals: App.Locals) {
-	try {
-		requireAdmin(locals);
-		return null;
-	} catch {
-		return fail(locals.user ? 403 : 401, {
-			error: locals.user ? 'Forbidden' : 'Unauthorized'
-		});
-	}
-}
-
 export const load: PageServerLoad = async ({ request }) => {
 	// Initialize all forms with unique IDs
 	const setRoleForm = await superValidate(zod4(setUserRoleSchema), { id: 'setUserRole' });
