@@ -1,5 +1,5 @@
 import { unArchiveSchema } from '$lib/formSchemas';
-import { requireAdmin } from '$lib/server/auth';
+import { adminAuthFailure } from '$lib/server/actions/admin-guard';
 import { getDb } from '$lib/server/db';
 import { savingsGoal } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -10,17 +10,6 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
-
-function adminAuthFailure(locals: App.Locals) {
-	try {
-		requireAdmin(locals);
-		return null;
-	} catch {
-		return fail(locals.user ? 403 : 401, {
-			error: locals.user ? 'Forbidden' : 'Unauthorized'
-		});
-	}
-}
 
 export const load: PageServerLoad = async () => {
 	const form = await superValidate(zod4(unArchiveSchema));

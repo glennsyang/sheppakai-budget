@@ -4,6 +4,7 @@ import { budgetQueries, transactionQueries } from '$lib/server/db/queries';
 import { SEARCH_RESULT_LIMIT } from '$lib/server/db/queries/transactions';
 import { transaction } from '$lib/server/db/schema';
 import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
+import { calculateMonthsSinceJanuary } from '$lib/utils/date-metrics';
 import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -17,16 +18,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	// Get yearly date range
 	const { startDate: yearStartDate, endDate: yearEndDate } = getYearDateRange(year);
 
-	const currentDate = new Date();
-	const currentYear = currentDate.getFullYear();
-	let completedMonthsSinceJanuary: number;
-	if (year < currentYear) {
-		completedMonthsSinceJanuary = 12;
-	} else if (year > currentYear) {
-		completedMonthsSinceJanuary = 0;
-	} else {
-		completedMonthsSinceJanuary = currentDate.getMonth();
-	}
+	let completedMonthsSinceJanuary = calculateMonthsSinceJanuary(year);
 
 	// Normalize on the server regardless of what the client sends: trim whitespace and cap at
 	// the notes column max length (800 chars) so a crafted URL can't trigger an oversized query.

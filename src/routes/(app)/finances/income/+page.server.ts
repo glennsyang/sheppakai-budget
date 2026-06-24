@@ -2,6 +2,7 @@ import { incomeSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { incomeQueries } from '$lib/server/db/queries';
 import { income } from '$lib/server/db/schema';
+import { calculateMonthsSinceJanuary } from '$lib/utils/date-metrics';
 import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -15,16 +16,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	// Get yearly date range
 	const { startDate: yearStartDate, endDate: yearEndDate } = getYearDateRange(year);
 
-	const currentDate = new Date();
-	const currentYear = currentDate.getFullYear();
-	let completedMonthsSinceJanuary: number;
-	if (year < currentYear) {
-		completedMonthsSinceJanuary = 12;
-	} else if (year > currentYear) {
-		completedMonthsSinceJanuary = 0;
-	} else {
-		completedMonthsSinceJanuary = currentDate.getMonth();
-	}
+	let completedMonthsSinceJanuary = calculateMonthsSinceJanuary(year);
 
 	// Load monthly incomes for user
 	const monthlyIncomes = await incomeQueries.findByDateRange(startDate, endDate);

@@ -41,3 +41,8 @@ export const recurringSchema = z.object({
 		.max(100, 'Merchant must be at most 100 characters'),
 	cadence: z.string().min(1, 'Cadence is required').max(50, 'Cadence must be at most 50 characters')
 });
+
+export const togglePaidSchema = z.object({
+	id: z.string().min(1, 'Recurring ID is required'),
+	paid: z.boolean()
+});

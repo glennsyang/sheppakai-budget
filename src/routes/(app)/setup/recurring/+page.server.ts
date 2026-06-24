@@ -1,4 +1,4 @@
-import { recurringSchema } from '$lib/formSchemas/finances';
+import { recurringSchema, togglePaidSchema } from '$lib/formSchemas/finances';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';
@@ -6,9 +6,8 @@ import { recurringQueries } from '$lib/server/db/queries';
 import { recurring } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
-import { fail } from '@sveltejs/kit';
-import { and, eq } from 'drizzle-orm';
-import { superValidate } from 'sveltekit-superforms';
+import { eq } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -44,26 +43,29 @@ export const actions = {
 		})
 	}),
 	togglePaid: requireAuth(async ({ request }, user) => {
-		const formData = await request.formData();
-		const rawId = formData.get('id');
-		const recurringId = typeof rawId === 'string' ? rawId : undefined;
-		const rawPaid = formData.get('paid');
-		const currentPaid = rawPaid === 'true';
+		const form = await superValidate(request, zod4(togglePaidSchema));
 
-		if (!recurringId) {
-			return fail(400, { error: 'Recurring ID is required' });
+		if (!form.valid) {
+			return message(
+				form,
+				{ type: 'error', text: 'Please correct the errors in the form' },
+				{ status: 400 }
+			);
 		}
 
 		try {
 			await getDb()
 				.update(recurring)
-				.set(withAuditFieldsForUpdate({ paid: !currentPaid }, user))
-				.where(and(eq(recurring.id, recurringId), eq(recurring.userId, user.id.toString())));
+				.set(withAuditFieldsForUpdate({ paid: form.data.paid }, user))
+				.where(eq(recurring.id, form.data.id));
+			logger.info(`Toggled paid status for recurring expense ${form.data.id} to ${form.data.paid}`);
 		} catch (error) {
 			logger.error('Failed to toggle recurring paid status', error);
-			return fail(500, { error: 'Failed to update recurring expense' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to toggle paid status. Please try again.' },
+				{ status: 500 }
+			);
 		}
-
-		return { success: true };
 	})
 } satisfies Actions;
