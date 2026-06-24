@@ -692,7 +692,7 @@
 
 {#if selectedMode === 'monthly'}
 	<CategoryTransactionSheet
-		bind:open={openTransactionSheet}
+		bind:openSheet={openTransactionSheet}
 		transactions={filteredTransactions}
 		category={selectedCategory}
 		month={selectedMonth}
