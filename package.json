@@ -62,7 +62,7 @@
 		"clsx": "^2.1.1",
 		"fallow": "^2.99.0",
 		"globals": "^17.1.0",
-		"knip": "^6.11.0",
+		"knip": "^6.23.0",
 		"layerchart": "^2.0.0-next.63",
 		"lefthook": "^2.0.16",
 		"lint-staged": "^17.0.4",
