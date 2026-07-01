@@ -30,7 +30,10 @@
 		today.getFullYear() === year && today.getMonth() + 1 === month ? today.getDate() : daysInMonth
 	);
 	let daysElapsed = $derived(Math.max(currentDay, 1));
+	// Days strictly after today; used for projecting spend on top of actualSpent (which already covers today).
 	let daysRemaining = $derived(Math.max(daysInMonth - currentDay, 0));
+	// Days from today through month-end, inclusive; used for "how much can I still spend" metrics.
+	let daysRemainingInclusive = $derived(Math.max(daysInMonth - currentDay + 1, 1));
 
 	let dailyBurnRate = $derived(actualSpent / daysElapsed);
 	let projectedEnd = $derived(actualSpent + dailyBurnRate * daysRemaining);
@@ -40,12 +43,10 @@
 
 	let nonRecurringSpent = $derived(Math.max(0, actualSpent - recurringMonthlyTotal));
 	let discretionaryRemaining = $derived(totalIncome - nonRecurringSpent - recurringMonthlyTotal);
-	let dailyDiscretionary = $derived(
-		daysRemaining > 0 ? Math.max(discretionaryRemaining, 0) / daysRemaining : 0
-	);
+	let dailyDiscretionary = $derived(Math.max(discretionaryRemaining, 0) / daysRemainingInclusive);
 
 	let budgetRemaining = $derived(Math.max(0, plannedExpensesTotal - actualSpent));
-	let dailyBudgetRemaining = $derived(daysRemaining > 0 ? budgetRemaining / daysRemaining : 0);
+	let dailyBudgetRemaining = $derived(budgetRemaining / daysRemainingInclusive);
 
 	let projectionColor = $derived(
 		projectedEnd > totalIncome
@@ -73,7 +74,9 @@
 				maxWidth="max-w-72"
 				text="Shows where your money stands this month. The left side breaks down income, what you've spent on transactions, and recurring commitments to calculate your discretionary budget remaining. The right side projects your total spend by month-end based on your daily burn rate, and shows how much you can safely spend per day."
 			/>
-			<span class="text-muted-foreground ml-auto text-xs">{daysRemaining} days remaining</span>
+			<span class="text-muted-foreground ml-auto text-xs"
+				>{daysRemainingInclusive} day{daysRemainingInclusive === 1 ? '' : 's'} remaining</span
+			>
 		</div>
 	</Card.Header>
 	<Card.Content class="pt-0">
