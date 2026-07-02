@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import type { Budget, ChartData } from '$lib';
-	import LineChart from '$lib/components/LineChart.svelte';
+	import AreaChart from '$lib/components/AreaChart.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
 	import SummaryRow from '$lib/components/SummaryRow.svelte';
@@ -14,6 +14,7 @@
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
 	import { toast } from 'svelte-sonner';
+	import { get } from 'svelte/store';
 	import { superForm } from 'sveltekit-superforms';
 
 	import type { PageProps } from './$types';
@@ -30,8 +31,9 @@
 					// Reset editing states
 					editingCustomAmount = false;
 				}
-				if ($message?.type === 'error') {
-					toast.error(`Error saving budget: ${$message.text}`);
+				const currentMessage = get(messageStore);
+				if (currentMessage?.type === 'error') {
+					toast.error(`Error saving budget: ${currentMessage.text}`);
 				}
 			},
 			onError: ({ result }) => {
@@ -40,7 +42,7 @@
 		})
 	);
 
-	const { message } = $derived(formInstance);
+	const { message: messageStore } = $derived(formInstance);
 
 	let selectedCategoryId = $state<string | null>(null);
 	let editAmount = $state<string>('');
@@ -127,48 +129,11 @@
 			);
 
 			return {
-				date: monthData.date,
+				date: new Date(monthData.date),
 				planned: budgetForMonth?.amount || 0,
 				actual: transactionForMonth?.total || 0
 			} as ChartData;
 		});
-	});
-
-	// Calculate trending percentage for the chart
-	let trendingPercentage = $derived.by(() => {
-		if (chartData.length < 2) return null;
-
-		const lastMonth = chartData[chartData.length - 1].actual;
-		const previousMonth = chartData[chartData.length - 2].actual;
-
-		if (previousMonth === 0) return null;
-
-		const percentChange = ((lastMonth - previousMonth) / previousMonth) * 100;
-		return {
-			value: Math.abs(percentChange),
-			direction: percentChange >= 0 ? ('up' as const) : ('down' as const)
-		};
-	});
-
-	// Calculate month range label for the chart
-	let monthRangeLabel = $derived.by(() => {
-		if (chartData.length === 0) return '';
-
-		const firstDate = chartData[0].date;
-		const lastDate = chartData[chartData.length - 1].date;
-
-		const firstMonth = firstDate.toLocaleDateString('en-US', {
-			month: 'long',
-			year: 'numeric',
-			timeZone: 'America/Los_Angeles'
-		});
-		const lastMonth = lastDate.toLocaleDateString('en-US', {
-			month: 'long',
-			year: 'numeric',
-			timeZone: 'America/Los_Angeles'
-		});
-
-		return `${firstMonth} - ${lastMonth}`;
 	});
 
 	// Set first category as selected by default
@@ -349,19 +314,18 @@
 	</div>
 
 	<!-- Three Column Layout -->
-	<div class="grid grid-cols-13 gap-4">
+	<div class="flex flex-col gap-4 lg:grid lg:grid-cols-13">
 		<!-- Column 1: Category List -->
-		<div class="sticky top-[calc(var(--header-height)+0.5rem)] col-span-3 self-start">
+		<div class="lg:sticky lg:top-[calc(var(--header-height)+0.5rem)] lg:col-span-3 lg:self-start">
 			<div
-				class="bg-card flex flex-col rounded-lg border shadow"
-				style="max-height: calc(100vh - var(--header-height) - 5.5rem)"
+				class="bg-card flex flex-col rounded-lg border shadow lg:max-h-[calc(100vh-var(--header-height)-5.5rem)]"
 			>
 				<div class="shrink-0 border-b p-6">
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Categories</h3>
 					</div>
 				</div>
-				<div class="min-h-0 flex-1 overflow-y-auto p-0">
+				<div class="p-0 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
 					{#each sortedCategories as category (category.id)}
 						{@const categoryBudget = getBudgetForCategory(category.id)}
 						<button
@@ -386,7 +350,7 @@
 		</div>
 
 		<!-- Column 2: Category Detail -->
-		<div class="col-span-7">
+		<div class="lg:col-span-7">
 			{#if selectedCategory}
 				<!-- Heading -->
 				<div class="mb-6">
@@ -396,7 +360,7 @@
 				</div>
 
 				<!-- Four Mini Cards -->
-				<div class="mb-6 grid grid-cols-4 gap-4">
+				<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 					<!-- Last Month Spent -->
 					<PresetBudgetCard
 						title="How much I spent last month"
@@ -457,14 +421,9 @@
 					/>
 				</div>
 
-				<!-- Line Chart -->
+				<!-- Area Chart -->
 				<div class="mt-6">
-					<LineChart
-						categoryName={selectedCategory.name}
-						{chartData}
-						trendingData={trendingPercentage}
-						monthRange={monthRangeLabel}
-					/>
+					<AreaChart categoryName={selectedCategory.name} {chartData} />
 				</div>
 			{:else}
 				<div class="bg-card rounded-lg border shadow">
@@ -476,7 +435,7 @@
 		</div>
 
 		<!-- Column 3: Total Summary -->
-		<div class="col-span-3">
+		<div class="lg:col-span-3">
 			<!-- Budget Status Box -->
 			<div class="bg-card mb-4 rounded-lg border shadow">
 				<div class="relative p-6">

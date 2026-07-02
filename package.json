@@ -81,5 +81,10 @@
 		"vite": "^8.1.2",
 		"vitest": "^4.1.6",
 		"zod": "^4.4.3"
+	},
+	"overrides": {
+		"sveltekit-superforms": {
+			"typebox": "1.2.19"
+		}
 	}
 }

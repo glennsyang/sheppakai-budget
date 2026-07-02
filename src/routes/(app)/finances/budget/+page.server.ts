@@ -13,14 +13,17 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
-// Helper function to calculate date range for the last 6 months
+// Helper function to calculate a month range ending at the selected month/year
 type MonthEntry = { month: string; year: string; date: Date };
-type MonthRange = [MonthEntry, MonthEntry, MonthEntry, MonthEntry, MonthEntry, MonthEntry];
 
-function getLast6MonthsRange(currentMonth: number, currentYear: number): MonthRange {
+function getLastMonthsRange(
+	currentMonth: number,
+	currentYear: number,
+	count: number
+): MonthEntry[] {
 	const months: MonthEntry[] = [];
 
-	for (let i = 5; i >= 0; i--) {
+	for (let i = count - 1; i >= 0; i--) {
 		// Calculate target month and year, handling negative months
 		let targetMonth = currentMonth - i;
 		let targetYear = currentYear;
@@ -42,24 +45,24 @@ function getLast6MonthsRange(currentMonth: number, currentYear: number): MonthRa
 		});
 	}
 
-	return months as MonthRange;
+	return months;
 }
 
 export const load: PageServerLoad = async ({ url }) => {
 	// Get month and year from URL params or use current month/year
 	const { month, year } = getMonthYearFromUrl(url);
 
-	// Calculate date range for last 6 months
-	const last6Months = getLast6MonthsRange(month, year);
-	const earliestMonth = last6Months[0];
-	const latestMonth = last6Months[5];
+	// Calculate date range for last 12 months (UI can filter to last 3/6/12)
+	const last12Months = getLastMonthsRange(month, year, 12);
+	const earliestMonth = last12Months[0];
+	const latestMonth = last12Months.at(-1) ?? earliestMonth;
 
 	// Calculate start and end dates for transaction filtering
 	const startDate = `${earliestMonth.year}-${earliestMonth.month}-01`;
 	const endDate = new Date(Number(latestMonth.year), Number(latestMonth.month), 0);
 	const endDateStr = `${latestMonth.year}-${latestMonth.month}-${padMonth(endDate.getDate().toString())}`;
 
-	// Fetch historical budgets for the last 6 months
+	// Fetch historical budgets for the chart window
 	const historicalBudgets = await getDb().query.budget.findMany({
 		with: {
 			category: true,
@@ -72,7 +75,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		orderBy: [budget.year, budget.month]
 	});
 
-	// Fetch and aggregate transactions for the last 6 months
+	// Fetch and aggregate transactions for the chart window
 	const historicalTransactions = getDb()
 		.select({
 			categoryId: transaction.categoryId,
@@ -97,7 +100,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		budget: await budgetQueries.findByMonthYear(month, year),
 		historicalBudgets,
 		historicalTransactions,
-		last6Months,
+		last6Months: last12Months,
 		recurring: await recurringQueries.findAll(),
 		form
 	};
