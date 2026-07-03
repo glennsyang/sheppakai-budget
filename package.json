@@ -1,6 +1,6 @@
 {
 	"name": "sheppakai-budget",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -37,7 +37,6 @@
 		"canvas-confetti": "^1.9.4",
 		"d3-scale": "^4.0.2",
 		"d3-shape": "^3.2.0",
-		"drizzle-kit": "^0.31.9",
 		"drizzle-orm": "^0.45.1",
 		"mode-watcher": "^1.1.0",
 		"resend": "^6.10.0"
@@ -60,6 +59,7 @@
 		"@vitest/coverage-v8": "^4.0.18",
 		"bits-ui": "^2.18.1",
 		"clsx": "^2.1.1",
+		"drizzle-kit": "^0.31.9",
 		"fallow": "^2.99.0",
 		"globals": "^17.1.0",
 		"knip": "^6.11.0",

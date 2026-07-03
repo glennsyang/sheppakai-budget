@@ -8,7 +8,8 @@
 		"*.config.ts",
 		"src/env.ts",
 		"src/instrumentation.server.ts",
-		"src/lib/hooks/is-mobile.svelte.ts"
+		"src/lib/hooks/is-mobile.svelte.ts",
+		"scripts/migrate.js"
 	],
 	"ignoreDependencies": [
 		"@flydotio/dockerfile",
