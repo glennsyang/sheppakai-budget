@@ -1,3 +1,3 @@
-# allow crawling everything by default
+# Private budget app — not meant to be crawled or indexed.
 User-agent: *
-Disallow:
+Disallow: /

@@ -10,6 +10,18 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 		return new Response(undefined, { status: 404 });
 	}
 
+	// TEMPORARY: request logging to identify traffic keeping the Fly machine awake
+	// (cost investigation, Jul 2026). Remove once the source is identified.
+	// Grep the Fly logs for "[REQ]".
+	{
+		const ua = event.request.headers.get('user-agent') ?? '-';
+		const ip =
+			event.request.headers.get('fly-client-ip') ??
+			event.request.headers.get('x-forwarded-for') ??
+			'-';
+		console.log(`[REQ] ${event.request.method} ${event.url.pathname} ip=${ip} ua="${ua}"`);
+	}
+
 	// Fetch current session from Better Auth
 	const session = await auth.api.getSession({
 		headers: event.request.headers

@@ -1,10 +1,11 @@
 {
-	"permissions": {
-		"allow": [
-			"WebFetch(domain:www.shadcn-svelte.com)",
-			"WebFetch(domain:github.com)",
-			"Bash(gh api *)",
-			"Bash(python3 -c \"import json,sys,base64; data=json.load\\(sys.stdin\\); print\\(base64.b64decode\\(data['content']\\).decode\\(\\)\\)\")"
-		]
-	}
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.shadcn-svelte.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh api *)",
+      "Bash(python3 -c \"import json,sys,base64; data=json.load\\(sys.stdin\\); print\\(base64.b64decode\\(data['content']\\).decode\\(\\)\\)\")",
+      "Bash(echo \"exit: $?\")"
+    ]
+  }
 }

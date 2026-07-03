@@ -23,12 +23,12 @@ primary_region = 'yyz'
   min_machines_running = 0
   processes = ['app']
 
-[[http_service.checks]]
-  grace_period = "10s"     # How long to wait for the app to start
-    interval = "60s"       # How often to check
-    method = "get"
-    path = "/api/healthz"  # The URL we created above
-    timeout = "5s"         # Max time allowed for a response
+  [[http_service.checks]]
+    interval = '15m0s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'get'
+    path = '/api/healthz'
 
 [processes]
   app = "./start.sh"
