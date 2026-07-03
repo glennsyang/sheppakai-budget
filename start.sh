@@ -5,7 +5,7 @@ echo "🚀 Starting SheppakaiBudget..."
 
 # Run database migrations
 echo "📦 Running database migrations..."
-npx drizzle-kit migrate
+./node_modules/.bin/drizzle-kit migrate
 
 # Start the SvelteKit app
 echo "🚀 Starting SvelteKit server..."
