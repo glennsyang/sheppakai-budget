@@ -64,7 +64,7 @@
 		"globals": "^17.1.0",
 		"knip": "^6.11.0",
 		"layerchart": "^2.0.0-next.63",
-		"lefthook": "^2.0.16",
+		"lefthook": "^2.1.10",
 		"lint-staged": "^17.0.4",
 		"oxfmt": "^0.57.0",
 		"oxlint": "^1.72.0",
