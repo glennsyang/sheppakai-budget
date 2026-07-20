@@ -31,7 +31,7 @@
 		"db:studio": "drizzle-kit studio"
 	},
 	"dependencies": {
-		"@sentry/sveltekit": "^10.47.0",
+		"@sentry/sveltekit": "^10.67.0",
 		"better-auth": "^1.6.23",
 		"better-sqlite3": "^12.6.2",
 		"canvas-confetti": "^1.9.4",
