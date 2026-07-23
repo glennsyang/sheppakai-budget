@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
+	import { Spinner } from '$lib/components/ui/spinner';
 	import { superForm } from 'sveltekit-superforms';
 
 	import type { PageData } from './$types';
@@ -8,7 +9,7 @@
 	let { data }: { data: PageData } = $props();
 
 	// svelte-ignore state_referenced_locally
-	const { form, errors, message, submitting } = superForm(data.form, {
+	const { form, errors, message, submitting, enhance } = superForm(data.form, {
 		onUpdated: ({ form }) => {
 			if (form.message) {
 				// The error message will be displayed below
@@ -26,7 +27,7 @@
 			<p class="mt-2">Enter your new password</p>
 		</div>
 
-		<form method="POST" class="space-y-4">
+		<form method="POST" class="space-y-4" use:enhance>
 			{#if $message}
 				<div
 					class="rounded-md p-4 {$message.includes('successful')
@@ -77,8 +78,13 @@
 				{/if}
 			</div>
 
-			<Button type="submit" class="w-full" disabled={$submitting}>
-				{$submitting ? 'Resetting...' : 'Reset Password'}
+			<Button type="submit" class="w-full" disabled={$submitting} aria-busy={$submitting}>
+				{#if $submitting}
+					<Spinner class="mr-2" aria-hidden="true" />
+					Resetting...
+				{:else}
+					Reset Password
+				{/if}
 			</Button>
 		</form>
 
