@@ -1,5 +1,5 @@
 import { building } from '$app/env';
-import { defineEnvVars } from '@sveltejs/kit/hooks';
+import { defineEnvVars } from '@sveltejs/kit/env';
 import { z } from 'zod';
 
 const DUMMY_DB_URL = 'file:///tmp/build.db';
