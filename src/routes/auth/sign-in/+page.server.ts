@@ -32,11 +32,7 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(signInSchema));
 
 		if (!form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form.' },
-				{ status: 400 }
-			);
+			return message(form, 'Please correct the errors in the form.', { status: 400 });
 		}
 
 		try {
@@ -62,7 +58,7 @@ export const actions: Actions = {
 				'An error occurred during sign-in. Please try again.'
 			);
 
-			return message(form, { type: 'error', text: errorMessage }, { status: 400 });
+			return message(form, errorMessage, { status: 400 });
 		}
 	}
 } satisfies Actions;
