@@ -3,13 +3,12 @@
 	import { page } from '$app/state';
 	import type { Income } from '$lib';
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
-	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
+	import MonthlyTablePageShell from '$lib/components/MonthlyTablePageShell.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import { incomeFormContext } from '$lib/contexts';
-	import { formatCurrency, months } from '$lib/utils';
+	import { formatCurrency } from '$lib/utils';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import type { PageProps } from './$types';
@@ -74,64 +73,35 @@
 	<title>Income</title>
 </svelte:head>
 
-<div class="px-4 py-6 sm:px-0">
-	<div class="mb-8">
-		<div class="flex items-center justify-between gap-4">
-			<div class="hidden md:flex">
-				<MonthYearSwitcher
-					currentMonth={selectedMonth}
-					currentYear={selectedYear}
-					onMonthChange={onMonthYearChange}
-				/>
-			</div>
-			<div class="w-full md:w-44">
-				<Select.Root type="single" value={selectedMonth.toString()} onValueChange={onMonthJump}>
-					<Select.Trigger class="w-full">
-						{months.find((m) => m.value === selectedMonth.toString())?.label || 'Jump to Month'}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Label>Jump to Month</Select.Label>
-						{#each months as month (month.value)}
-							<Select.Item value={month.value} label={month.label}>
-								{month.label}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-		</div>
-	</div>
+<MonthlyTablePageShell
+	title="Income"
+	description="Manage your income sources"
+	{selectedMonth}
+	{selectedYear}
+	{onMonthYearChange}
+	{onMonthJump}
+	mainClass="flex flex-col gap-6 lg:grid lg:grid-cols-4"
+	tableColumnClass="lg:col-span-3"
+	summaryColumnClass="lg:col-span-1"
+>
+	{#snippet headerActions()}
+		<Button size="sm" onclick={() => (openModal = true)}>
+			<PlusIcon />
+			Add
+		</Button>
+	{/snippet}
 
-	<div class="flex flex-col gap-6 lg:grid lg:grid-cols-4">
-		<!-- Table Column (larger) -->
-		<div class="lg:col-span-3">
+	{#snippet tableContent()}
+		{#if loading}
+			<TableSkeleton rows={5} columns={3} />
+		{:else}
+			<DataTable {columns} data={data.monthlyIncomes} />
+		{/if}
+	{/snippet}
+
+	{#snippet summaryContent()}
+		<div class="flex flex-col gap-6">
 			<div class="overflow-hidden rounded-lg border shadow">
-				<div class="p-6">
-					<div class="mb-4 flex items-center justify-between">
-						<div>
-							<h1 class="text-3xl font-bold tracking-tight">Income</h1>
-							<p class="text-muted-foreground mt-2">Manage your income sources</p>
-						</div>
-						<div class="flex items-center gap-2">
-							<Button size="sm" onclick={() => (openModal = true)}>
-								<PlusIcon />
-								Add
-							</Button>
-						</div>
-					</div>
-					{#if loading}
-						<TableSkeleton rows={5} columns={3} />
-					{:else}
-						<DataTable {columns} data={data.monthlyIncomes} />
-					{/if}
-				</div>
-			</div>
-		</div>
-
-		<!-- Summary Cards Column -->
-		<div class="lg:col-span-1">
-			<!-- Monthly Summary Card -->
-			<div class="mb-6 overflow-hidden rounded-lg border shadow">
 				<div class="p-6">
 					<h2 class="text-center text-2xl font-bold tracking-tight">Monthly Summary</h2>
 					<div class="my-4 border-t"></div>
@@ -142,8 +112,7 @@
 				</div>
 			</div>
 
-			<!-- Yearly Summary Card -->
-			<div class="mb-6 overflow-hidden rounded-lg border shadow">
+			<div class="overflow-hidden rounded-lg border shadow">
 				<div class="p-6">
 					<h2 class="text-center text-2xl font-bold tracking-tight">Yearly Summary</h2>
 					<div class="my-4 border-t"></div>
@@ -162,7 +131,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
+	{/snippet}
+</MonthlyTablePageShell>
 
 <IncomeModal bind:open={openModal} incomeForm={data.form!} />
