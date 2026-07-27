@@ -1,8 +1,7 @@
 import { registerSchema } from '$lib/formSchemas';
+import { handleAuthFormAction } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
-import { logger } from '$lib/server/logger';
-import { getBetterAuthErrorMessage } from '$lib/utils';
-import { isRedirect, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -38,32 +37,27 @@ export const actions: Actions = {
 			);
 		}
 
-		try {
-			await auth.api.signUpEmail({
-				body: {
-					email: form.data.email,
-					password: form.data.password,
-					name: form.data.name
-				},
-				headers: request.headers
-			});
+		return handleAuthFormAction(
+			form,
+			async () => {
+				await auth.api.signUpEmail({
+					body: {
+						email: form.data.email,
+						password: form.data.password,
+						name: form.data.name
+					},
+					headers: request.headers
+				});
 
-			// Redirect to verify-email page with user's email
-			throw redirect(302, `/auth/verify-email?email=${encodeURIComponent(form.data.email)}`);
-		} catch (error) {
-			// Don't catch redirects as errors - re-throw them
-			if (isRedirect(error)) {
-				throw error;
+				// Redirect to verify-email page with user's email
+				throw redirect(302, `/auth/verify-email?email=${encodeURIComponent(form.data.email)}`);
+			},
+			{
+				loggerContext: 'Registration failed',
+				fallbackMessage: 'Registration failed. Please try again.',
+				buildErrorPayload: (errorMessage) => ({ type: 'error', text: errorMessage }),
+				status: 400
 			}
-
-			logger.error('Registration failed', error);
-			// Get user-friendly error message from better-auth error
-			const errorMessage = getBetterAuthErrorMessage(
-				error,
-				'Registration failed. Please try again.'
-			);
-
-			return message(form, { type: 'error', text: errorMessage }, { status: 400 });
-		}
+		);
 	}
 } satisfies Actions;

@@ -1,8 +1,7 @@
 import { signInSchema } from '$lib/formSchemas';
+import { handleAuthFormAction } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
-import { logger } from '$lib/server/logger';
-import { getBetterAuthErrorMessage } from '$lib/utils';
-import { isRedirect, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -35,30 +34,24 @@ export const actions: Actions = {
 			return message(form, 'Please correct the errors in the form.', { status: 400 });
 		}
 
-		try {
-			await auth.api.signInEmail({
-				body: {
-					email: form.data.email,
-					password: form.data.password
-				},
-				headers: request.headers
-			});
+		return handleAuthFormAction(
+			form,
+			async () => {
+				await auth.api.signInEmail({
+					body: {
+						email: form.data.email,
+						password: form.data.password
+					},
+					headers: request.headers
+				});
 
-			throw redirect(302, '/dashboard');
-		} catch (error) {
-			// Don't catch redirects as errors - re-throw them
-			if (isRedirect(error)) {
-				throw error;
+				throw redirect(302, '/dashboard');
+			},
+			{
+				loggerContext: 'Sign-in failed',
+				fallbackMessage: 'An error occurred during sign-in. Please try again.',
+				buildErrorPayload: (errorMessage) => errorMessage
 			}
-
-			logger.error('Sign-in failed', error);
-			// Get user-friendly error message from better-auth error
-			const errorMessage = getBetterAuthErrorMessage(
-				error,
-				'An error occurred during sign-in. Please try again.'
-			);
-
-			return message(form, errorMessage, { status: 400 });
-		}
+		);
 	}
 } satisfies Actions;
