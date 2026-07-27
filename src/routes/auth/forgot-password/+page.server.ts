@@ -1,8 +1,7 @@
 import { BETTER_AUTH_BASE_URL } from '$app/env/private';
+import { handleAuthFormAction } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
-import { logger } from '$lib/server/logger';
-import { getBetterAuthErrorMessage } from '$lib/utils';
-import { fail, isRedirect, redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
@@ -42,36 +41,30 @@ export const actions: Actions = {
 			});
 		}
 
-		try {
-			const redirectTo = `${BETTER_AUTH_BASE_URL}/auth/reset-password`;
+		return handleAuthFormAction(
+			form,
+			async () => {
+				const redirectTo = `${BETTER_AUTH_BASE_URL}/auth/reset-password`;
 
-			await auth.api.requestPasswordReset({
-				body: {
-					email: form.data.email,
-					redirectTo
-				}
-			});
+				await auth.api.requestPasswordReset({
+					body: {
+						email: form.data.email,
+						redirectTo
+					}
+				});
 
-			// Don't reveal if the email exists or not for security reasons
-			return message(
-				form,
-				'If an account exists with that email, you will receive a password reset link.'
-			);
-		} catch (error) {
-			// Don't catch redirects as errors - re-throw them
-			if (isRedirect(error)) {
-				throw error;
+				// Don't reveal if the email exists or not for security reasons
+				return message(
+					form,
+					'If an account exists with that email, you will receive a password reset link.'
+				);
+			},
+			{
+				loggerContext: 'Password reset request failed',
+				fallbackMessage:
+					'If an account exists with that email, you will receive a password reset link.',
+				buildErrorPayload: (errorMessage) => errorMessage
 			}
-
-			logger.error('Password reset request failed', error);
-			// Get user-friendly error message from better-auth error
-			// Don't reveal if the email exists or not for security reasons
-			const errorMessage = getBetterAuthErrorMessage(
-				error,
-				'If an account exists with that email, you will receive a password reset link.'
-			);
-
-			return message(form, errorMessage);
-		}
+		);
 	}
 } satisfies Actions;

@@ -1,7 +1,6 @@
+import { handleAuthFormAction } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
-import { logger } from '$lib/server/logger';
-import { getBetterAuthErrorMessage } from '$lib/utils';
-import { isRedirect, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
@@ -61,29 +60,24 @@ export const actions: Actions = {
 			);
 		}
 
-		try {
-			await auth.api.resetPassword({
-				body: {
-					token: form.data.token,
-					newPassword: form.data.password
-				}
-			});
+		return handleAuthFormAction(
+			form,
+			async () => {
+				await auth.api.resetPassword({
+					body: {
+						token: form.data.token,
+						newPassword: form.data.password
+					}
+				});
 
-			throw redirect(302, '/auth/sign-in?message=Password reset successful! Please sign in.');
-		} catch (error) {
-			// Don't catch redirects as errors - re-throw them
-			if (isRedirect(error)) {
-				throw error;
+				throw redirect(302, '/auth/sign-in?message=Password reset successful! Please sign in.');
+			},
+			{
+				loggerContext: 'Password reset failed',
+				fallbackMessage: 'Failed to reset password. Please try again.',
+				buildErrorPayload: (errorMessage) => ({ type: 'error', text: errorMessage }),
+				status: 400
 			}
-
-			logger.error('Password reset failed', error);
-			// Get user-friendly error message from better-auth error
-			const errorMessage = getBetterAuthErrorMessage(
-				error,
-				'Failed to reset password. Please try again.'
-			);
-
-			return message(form, { type: 'error', text: errorMessage }, { status: 400 });
-		}
+		);
 	}
 } satisfies Actions;
