@@ -5,6 +5,12 @@ import type { Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 
+Sentry.init({
+	dsn: 'https://fc093590cdb84cd23c74c0af71692560@o4510809399492608.ingest.us.sentry.io/4510809402638336',
+	tracesSampleRate: 1.0,
+	enableLogs: true
+});
+
 export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, resolve }) => {
 	if (dev && event.url.pathname === '/.well-known/appspecific/com.chrome.devtools.json') {
 		return new Response(undefined, { status: 404 });

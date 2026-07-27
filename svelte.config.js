@@ -36,15 +36,7 @@ const config = {
 		},
 
 		experimental: {
-			explicitEnvironmentVariables: true,
-
-			tracing: {
-				server: true
-			},
-
-			instrumentation: {
-				server: true
-			}
+			explicitEnvironmentVariables: true
 		}
 	}
 };
