@@ -1,15 +1,14 @@
 import { CRON_SECRET } from '$app/env/private';
+import { verifyCronAuthorization } from '$lib/server/cron-auth';
 import { runWeeklySummaryEmail } from '$lib/server/jobs/weeklySummaryEmail';
 import { logger } from '$lib/server/logger';
-import { type RequestHandler } from '@sveltejs/kit';
-import { json } from '@sveltejs/kit';
+import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const authHeader = request.headers.get('authorization');
-	const expectedToken = CRON_SECRET;
+	const authResult = verifyCronAuthorization(request.headers.get('authorization'), CRON_SECRET);
 
-	if (!authHeader || authHeader !== `Bearer ${expectedToken}`) {
-		logger.warn('⚠️ Unauthorized cron job attempt');
+	if (!authResult.authorized) {
+		logger.warn('⚠️ Unauthorized cron job attempt', { reason: authResult.reason });
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
