@@ -2,20 +2,30 @@ import { savingsSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { savingsQueries } from '$lib/server/db/queries';
 import { savings } from '$lib/server/db/schema';
+import { logger } from '$lib/server/logger';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const allSavings = await savingsQueries.findAll();
-
 	const form = await superValidate(zod4(savingsSchema));
 
-	return {
-		savings: allSavings,
-		form
-	};
+	try {
+		const allSavings = await savingsQueries.findAll();
+
+		return {
+			savings: allSavings,
+			form
+		};
+	} catch (error) {
+		logger.error('Failed to load savings:', error);
+		return {
+			savings: [],
+			loadError: 'Failed to load savings. Please try refreshing the page.',
+			form
+		};
+	}
 };
 
 export const actions = createCrudActions({

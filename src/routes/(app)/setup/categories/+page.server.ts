@@ -2,17 +2,27 @@ import { categorySchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { categoryQueries, transactionQueries } from '$lib/server/db/queries';
 import { category } from '$lib/server/db/schema';
+import { logger } from '$lib/server/logger';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const categories = await categoryQueries.findAll();
-
 	const form = await superValidate(zod4(categorySchema));
 
-	return { categories, form };
+	try {
+		const categories = await categoryQueries.findAll();
+
+		return { categories, form };
+	} catch (error) {
+		logger.error('Failed to load categories:', error);
+		return {
+			categories: [],
+			loadError: 'Failed to load categories. Please try refreshing the page.',
+			form
+		};
+	}
 };
 
 export const actions = createCrudActions({

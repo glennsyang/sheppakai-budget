@@ -2,6 +2,7 @@ import { incomeSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { incomeQueries } from '$lib/server/db/queries';
 import { income } from '$lib/server/db/schema';
+import { logger } from '$lib/server/logger';
 import { calculateMonthsSinceJanuary } from '$lib/utils/date-metrics';
 import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
 import { superValidate } from 'sveltekit-superforms';
@@ -18,20 +19,31 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	let completedMonthsSinceJanuary = calculateMonthsSinceJanuary(year);
 
-	// Load monthly incomes for user
-	const monthlyIncomes = await incomeQueries.findByDateRange(startDate, endDate);
-
-	// Load yearly incomes for user
-	const yearlyIncomes = await incomeQueries.findByDateRange(yearStartDate, yearEndDate);
-
 	const form = await superValidate(zod4(incomeSchema));
 
-	return {
-		monthlyIncomes,
-		yearlyIncomes,
-		completedMonthsSinceJanuary,
-		form
-	};
+	try {
+		// Load monthly incomes for user
+		const monthlyIncomes = await incomeQueries.findByDateRange(startDate, endDate);
+
+		// Load yearly incomes for user
+		const yearlyIncomes = await incomeQueries.findByDateRange(yearStartDate, yearEndDate);
+
+		return {
+			monthlyIncomes,
+			yearlyIncomes,
+			completedMonthsSinceJanuary,
+			form
+		};
+	} catch (error) {
+		logger.error('Failed to load income data:', error);
+		return {
+			monthlyIncomes: [],
+			yearlyIncomes: [],
+			completedMonthsSinceJanuary,
+			loadError: 'Failed to load income data. Please try refreshing the page.',
+			form
+		};
+	}
 };
 
 export const actions = createCrudActions({
