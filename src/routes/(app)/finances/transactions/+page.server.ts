@@ -3,6 +3,7 @@ import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { budgetQueries, transactionQueries } from '$lib/server/db/queries';
 import { SEARCH_RESULT_LIMIT } from '$lib/server/db/queries/transactions';
 import { transaction } from '$lib/server/db/schema';
+import { logger } from '$lib/server/logger';
 import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
 import { calculateMonthsSinceJanuary } from '$lib/utils/date-metrics';
 import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
@@ -25,53 +26,68 @@ export const load: PageServerLoad = async ({ url }) => {
 	const searchQuery = (url.searchParams.get('search') ?? '').trim().slice(0, 800);
 	const form = await superValidate(zod4(transactionSchema));
 
-	// In search mode: query across all months, skip budget data (sidebar is hidden)
-	if (searchQuery) {
-		const transactions = await transactionQueries.search(searchQuery);
+	try {
+		// In search mode: query across all months, skip budget data (sidebar is hidden)
+		if (searchQuery) {
+			const transactions = await transactionQueries.search(searchQuery);
+			return {
+				transactions,
+				budgets: [],
+				categorySpending: {},
+				excludedFromBudgetTotal: 0,
+				yearlyTransactions: [],
+				completedMonthsSinceJanuary: 0,
+				form,
+				searchQuery,
+				searchLimitReached: transactions.length >= SEARCH_RESULT_LIMIT
+			};
+		}
+
+		const transactions = await transactionQueries.findByDateRange(startDate, endDate);
+		const budgetTransactions = transactions.filter((txn) => !txn.excludedFromBudget);
+		const excludedFromBudgetTotal = transactions.reduce(
+			(sum, txn) => sum + (txn.excludedFromBudget ? txn.amount : 0),
+			0
+		);
+
+		// Load budgets for the current month/year
+		const budgets = await budgetQueries.findByMonthYear(month, year);
+
+		// Calculate spending per category
+		const categorySpending = budgetTransactions.reduce<Record<string, number>>((acc, txn) => {
+			if (txn.category) {
+				const categoryId = txn.category.id;
+				acc[categoryId] = (acc[categoryId] || 0) + txn.amount;
+			}
+			return acc;
+		}, {});
+
+		const yearlyTransactions = await transactionQueries.findByDateRange(yearStartDate, yearEndDate);
+
 		return {
 			transactions,
+			budgets,
+			categorySpending,
+			excludedFromBudgetTotal,
+			yearlyTransactions,
+			completedMonthsSinceJanuary,
+			form,
+			searchQuery
+		};
+	} catch (error) {
+		logger.error('Failed to load transaction data:', error);
+		return {
+			transactions: [],
 			budgets: [],
 			categorySpending: {},
 			excludedFromBudgetTotal: 0,
 			yearlyTransactions: [],
-			completedMonthsSinceJanuary: 0,
+			completedMonthsSinceJanuary,
+			loadError: 'Failed to load transaction data. Please try refreshing the page.',
 			form,
-			searchQuery,
-			searchLimitReached: transactions.length >= SEARCH_RESULT_LIMIT
+			searchQuery
 		};
 	}
-
-	const transactions = await transactionQueries.findByDateRange(startDate, endDate);
-	const budgetTransactions = transactions.filter((txn) => !txn.excludedFromBudget);
-	const excludedFromBudgetTotal = transactions.reduce(
-		(sum, txn) => sum + (txn.excludedFromBudget ? txn.amount : 0),
-		0
-	);
-
-	// Load budgets for the current month/year
-	const budgets = await budgetQueries.findByMonthYear(month, year);
-
-	// Calculate spending per category
-	const categorySpending = budgetTransactions.reduce<Record<string, number>>((acc, txn) => {
-		if (txn.category) {
-			const categoryId = txn.category.id;
-			acc[categoryId] = (acc[categoryId] || 0) + txn.amount;
-		}
-		return acc;
-	}, {});
-
-	const yearlyTransactions = await transactionQueries.findByDateRange(yearStartDate, yearEndDate);
-
-	return {
-		transactions,
-		budgets,
-		categorySpending,
-		excludedFromBudgetTotal,
-		yearlyTransactions,
-		completedMonthsSinceJanuary,
-		form,
-		searchQuery
-	};
 };
 
 export const actions = createCrudActions({

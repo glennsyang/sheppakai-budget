@@ -1,4 +1,5 @@
 import { categoryQueries } from '$lib/server/db/queries';
+import { logger } from '$lib/server/logger';
 import { redirect } from '@sveltejs/kit';
 
 import type { LayoutServerLoad } from './$types';
@@ -16,8 +17,19 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(302, '/auth/sign-in');
 	}
 
-	return {
-		user: locals.user,
-		categories: await categoryQueries.findAll()
-	};
+	try {
+		const categories = await categoryQueries.findAll();
+
+		return {
+			user: locals.user,
+			categories
+		};
+	} catch (error) {
+		logger.error('Failed to load categories:', error);
+		return {
+			user: locals.user,
+			categories: [],
+			loadError: 'Failed to load categories. Please try refreshing the page.'
+		};
+	}
 };
