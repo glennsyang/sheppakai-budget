@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	// If no email provided, redirect to sign-in
 	if (!email) {
-		throw redirect(302, '/auth/sign-in?message=Invalid verification link');
+		throw redirect(302, '/auth/sign-in?message=Invalid verification link&messageType=error');
 	}
 
 	return {

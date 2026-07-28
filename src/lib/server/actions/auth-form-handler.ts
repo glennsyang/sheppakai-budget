@@ -9,7 +9,12 @@ type MessageOptions = NonNullable<Parameters<typeof message>[2]>;
 interface AuthFormActionOptions {
 	loggerContext: string;
 	fallbackMessage: string;
-	buildErrorPayload: (errorMessage: string) => Parameters<typeof message>[1];
+	/**
+	 * Banner style for the failure path. Defaults to `'error'`; routes that must
+	 * stay indistinguishable between success and failure (see forgot-password,
+	 * which hides whether an account exists) pass `'success'` instead.
+	 */
+	errorType?: App.Superforms.Message['type'];
 	status?: MessageOptions['status'];
 }
 
@@ -28,8 +33,10 @@ export async function handleAuthFormAction<TForm extends Record<string, unknown>
 		logger.error(options.loggerContext, error);
 		const errorMessage = getBetterAuthErrorMessage(error, options.fallbackMessage);
 
-		return message(form, options.buildErrorPayload(errorMessage), {
-			status: (options.status ?? 400) as MessageOptions['status']
-		});
+		return message(
+			form,
+			{ type: options.errorType ?? 'error', text: errorMessage },
+			{ status: (options.status ?? 400) as MessageOptions['status'] }
+		);
 	}
 }

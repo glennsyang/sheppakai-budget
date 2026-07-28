@@ -10,9 +10,9 @@ describe('AuthFormMessage', () => {
 		expect(html).not.toContain('<div');
 	});
 
-	it('renders success styling for messages containing "successful"', () => {
+	it('renders success styling for a success message', () => {
 		const html = render(AuthFormMessage, {
-			props: { message: 'Registration successful! Please sign in.' }
+			props: { message: { type: 'success', text: 'Registration successful! Please sign in.' } }
 		}).body;
 
 		expect(html).toContain('Registration successful! Please sign in.');
@@ -20,13 +20,29 @@ describe('AuthFormMessage', () => {
 		expect(html).toContain('text-green-700');
 	});
 
-	it('renders error styling for any other message', () => {
+	it('renders error styling for an error message', () => {
 		const html = render(AuthFormMessage, {
-			props: { message: 'Invalid email or password' }
+			props: { message: { type: 'error', text: 'Invalid email or password' } }
 		}).body;
 
 		expect(html).toContain('Invalid email or password');
 		expect(html).toContain('bg-red-50/80');
 		expect(html).toContain('text-red-700');
+	});
+
+	it('styles from the type rather than the wording of the text', () => {
+		// The old implementation sniffed for "successful" in the text, which mis-styled
+		// forgot-password's success message as an error.
+		const html = render(AuthFormMessage, {
+			props: {
+				message: {
+					type: 'success',
+					text: 'If an account exists with that email, you will receive a password reset link.'
+				}
+			}
+		}).body;
+
+		expect(html).toContain('bg-green-50/80');
+		expect(html).not.toContain('bg-red-50/80');
 	});
 });
