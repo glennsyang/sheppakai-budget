@@ -81,6 +81,7 @@
 	mainClass="flex flex-col gap-6 lg:grid lg:grid-cols-4"
 	tableColumnClass="lg:col-span-3"
 	summaryColumnClass="lg:col-span-1"
+	skeletonColumns={columns.length}
 >
 	{#snippet headerActions()}
 		<Button size="sm" onclick={() => (openModal = true)}>
