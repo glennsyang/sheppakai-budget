@@ -159,7 +159,11 @@ export const actions = {
 			);
 		}
 
-		const budgetId = form.data.id!;
+		const budgetId = form.data.id;
+
+		if (!budgetId) {
+			return message(form, { type: 'error', text: 'Budget ID is required.' }, { status: 400 });
+		}
 
 		try {
 			await getDb()
