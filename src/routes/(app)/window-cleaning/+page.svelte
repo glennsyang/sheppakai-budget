@@ -59,9 +59,12 @@
 	});
 
 	let selectedCustomerJobs = $derived.by(() => {
-		if (!selectedCustomer) return [];
-		const c = data.customers.find((c) => c.id === selectedCustomer!.id);
-		return c ? [...c.jobs].toSorted((a, b) => b.jobDate.localeCompare(a.jobDate)) : [];
+		const selected = selectedCustomer;
+		if (!selected) return [];
+		const customer = data.customers.find((c) => c.id === selected.id);
+		return customer
+			? [...customer.jobs].toSorted((a, b) => b.jobDate.localeCompare(a.jobDate))
+			: [];
 	});
 
 	function handleLogJob() {

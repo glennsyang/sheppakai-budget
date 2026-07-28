@@ -25,7 +25,7 @@
 
 	// Initialize superform
 	const formInstance = $derived(
-		superForm(data.form!, {
+		superForm(data.form, {
 			resetForm: false,
 			onUpdate: ({ form }) => {
 				if (form.valid) {

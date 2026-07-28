@@ -25,6 +25,15 @@ export default defineConfig({
 		typeAware: true,
 		typeCheck: true
 	},
+	overrides: [
+		{
+			// Non-null assertions are legitimate in test fixtures, where the setup guarantees the value.
+			files: ['**/*.test.ts'],
+			rules: {
+				'typescript/no-non-null-assertion': 'off'
+			}
+		}
+	],
 	plugins: ['eslint', 'typescript', 'oxc', 'vitest', 'unicorn'],
 	rules: {
 		'no-unused-vars': [
@@ -33,6 +42,7 @@ export default defineConfig({
 				argsIgnorePattern: '^_',
 				varsIgnorePattern: '^_'
 			}
-		]
+		],
+		'typescript/no-non-null-assertion': 'error'
 	}
 });
