@@ -6,10 +6,50 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import { handleAuthFormAction } from './auth-form-handler';
+import { handleAuthFormAction, invalidAuthForm } from './auth-form-handler';
 
 const testSchema = z.object({
 	email: z.string().email()
+});
+
+describe('invalidAuthForm', () => {
+	it('returns a 400 form failure carrying a renderable error banner', async () => {
+		const form = await superValidate(zod4(testSchema));
+
+		expect(invalidAuthForm(form)).toMatchObject({
+			status: 400,
+			data: {
+				form: expect.objectContaining({
+					valid: false,
+					message: { type: 'error', text: 'Please correct the errors in the form.' }
+				})
+			}
+		});
+	});
+
+	it('honours a custom message text', async () => {
+		const form = await superValidate(zod4(testSchema));
+
+		expect(invalidAuthForm(form, 'That reset link is no longer valid.')).toMatchObject({
+			data: {
+				form: expect.objectContaining({
+					message: { type: 'error', text: 'That reset link is no longer valid.' }
+				})
+			}
+		});
+	});
+
+	it('produces a payload the auth banner can actually render', async () => {
+		const form = await superValidate(zod4(testSchema));
+		const result = invalidAuthForm(form) as unknown as {
+			data: { form: { message: App.Superforms.Message } };
+		};
+
+		const html = render(AuthFormMessage, { props: { message: result.data.form.message } }).body;
+
+		expect(html).toContain('Please correct the errors in the form.');
+		expect(html).toContain('bg-red-50/80');
+	});
 });
 
 describe('handleAuthFormAction', () => {
