@@ -56,7 +56,6 @@
 		return parsedMonth.toString().padStart(2, '0');
 	}
 
-	let loading: boolean = $state(false);
 	let selectedMode = $derived(page.url.searchParams.get('mode') ?? data.mode ?? 'monthly');
 	let selectedMonth: string = $derived(
 		normalizeMonthValue(
@@ -473,7 +472,6 @@
 						totalIncome={data.totalIncome || 0}
 						recurringTotal={recurringMonthlyTotal}
 						excludedSpendTotal={excludedExpensesTotal}
-						{loading}
 					/>
 				</CardBeam>
 			</div>
@@ -526,7 +524,6 @@
 									title={category.name}
 									planned={getPlannedAmount(category.id)}
 									actual={getActualAmount(category.id)}
-									{loading}
 									label1="Spent"
 								/>
 							</button>
@@ -591,7 +588,6 @@
 								title={category.name}
 								planned={getPlannedAmount(category.id)}
 								actual={getActualAmount(category.id)}
-								{loading}
 								label1="Spent"
 							/>
 						</button>

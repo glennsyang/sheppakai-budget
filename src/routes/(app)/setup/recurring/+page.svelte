@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Recurring } from '$lib';
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { formatCurrency } from '$lib/utils';
@@ -17,7 +16,6 @@
 	setContext('recurringForm', data.form);
 
 	let openModal = $state<boolean>(false);
-	let loading = $state(false);
 	const unpaidAsOf = new Intl.DateTimeFormat('en-US', {
 		month: 'short',
 		day: 'numeric',
@@ -65,15 +63,11 @@
 							</Button>
 						</div>
 					</div>
-					{#if loading}
-						<TableSkeleton rows={5} columns={4} />
-					{:else}
-						<DataTable
-							{columns}
-							data={data.recurrings as Recurring[]}
-							rowClassName={getRecurringRowClass}
-						/>
-					{/if}
+					<DataTable
+						{columns}
+						data={data.recurrings as Recurring[]}
+						rowClassName={getRecurringRowClass}
+					/>
 				</div>
 			</div>
 		</div>

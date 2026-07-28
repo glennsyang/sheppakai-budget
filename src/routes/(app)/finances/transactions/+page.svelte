@@ -4,7 +4,6 @@
 	import type { Budget, Transaction } from '$lib';
 	import CategoryBudgetProgress from '$lib/components/CategoryBudgetProgress.svelte';
 	import MonthlyTablePageShell from '$lib/components/MonthlyTablePageShell.svelte';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
@@ -43,7 +42,6 @@
 	}
 
 	let openModal = $state<boolean>(false);
-	let loading = $state(false);
 
 	// svelte-ignore state_referenced_locally
 	let searchInput = $state(data.searchQuery ?? '');
@@ -192,15 +190,11 @@
 	{/snippet}
 
 	{#snippet tableContent()}
-		{#if loading}
-			<TableSkeleton rows={5} columns={4} />
-		{:else}
-			<DataTable
-				{columns}
-				data={data.transactions as Transaction[]}
-				rowClassName={getTransactionRowClass}
-			/>
-		{/if}
+		<DataTable
+			{columns}
+			data={data.transactions as Transaction[]}
+			rowClassName={getTransactionRowClass}
+		/>
 	{/snippet}
 
 	{#snippet summaryContent()}

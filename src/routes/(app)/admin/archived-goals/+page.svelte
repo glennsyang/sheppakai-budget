@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { SavingsGoal } from '$lib';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import { unArchiveFormContext } from '$lib/contexts';
 	import type { unArchiveSchema } from '$lib/formSchemas';
@@ -19,7 +18,6 @@
 
 	let { data }: Props = $props();
 
-	let loading = $state<boolean>(false);
 	// svelte-ignore state_referenced_locally
 	if (data.form) unArchiveFormContext.set(data.form);
 </script>
@@ -34,9 +32,7 @@
 		<p class="text-muted-foreground">View and restore archived savings goals</p>
 	</div>
 
-	{#if loading}
-		<TableSkeleton rows={5} columns={6} />
-	{:else if data.loadError}
+	{#if data.loadError}
 		<div
 			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
 		>

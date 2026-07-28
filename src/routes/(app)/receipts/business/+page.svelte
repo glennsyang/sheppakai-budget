@@ -3,7 +3,6 @@
 	import { page } from '$app/state';
 	import type { Transaction } from '$lib';
 	import MonthlyTablePageShell from '$lib/components/MonthlyTablePageShell.svelte';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
@@ -22,7 +21,6 @@
 	}
 
 	let openModal = $state<boolean>(false);
-	let loading = $state(false);
 
 	// Calculate monthly totals
 	let monthlyTotalAmount = $derived(
@@ -97,11 +95,7 @@
 	{/snippet}
 
 	{#snippet tableContent()}
-		{#if loading}
-			<TableSkeleton rows={5} columns={5} />
-		{:else}
-			<DataTable {columns} data={data.monthlyTransactions} />
-		{/if}
+		<DataTable {columns} data={data.monthlyTransactions} />
 	{/snippet}
 
 	{#snippet summaryContent()}

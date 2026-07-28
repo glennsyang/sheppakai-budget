@@ -1,6 +1,5 @@
 <script lang="ts">
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -15,7 +14,6 @@
 	setContext('categoryForm', data.form);
 
 	let openModal = $state<boolean>(false);
-	let loading = $state(false);
 </script>
 
 <svelte:head>
@@ -39,11 +37,7 @@
 					</Button>
 				</div>
 			</div>
-			{#if loading}
-				<TableSkeleton rows={5} columns={3} />
-			{:else}
-				<DataTable {columns} data={data.categories} />
-			{/if}
+			<DataTable {columns} data={data.categories} />
 		</div>
 	</div>
 </div>
