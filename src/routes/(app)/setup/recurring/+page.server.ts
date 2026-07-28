@@ -1,6 +1,7 @@
 import { recurringSchema, togglePaidSchema } from '$lib/formSchemas/finances';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
+import { requireUser } from '$lib/server/auth-guard-load';
 import { getDb } from '$lib/server/db';
 import { recurringQueries } from '$lib/server/db/queries';
 import { recurring } from '$lib/server/db/schema';
@@ -13,7 +14,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const user = locals.user!;
+	const user = requireUser(locals);
 	const recurrings = await recurringQueries.findAll({
 		where: eq(recurring.userId, user.id)
 	});
