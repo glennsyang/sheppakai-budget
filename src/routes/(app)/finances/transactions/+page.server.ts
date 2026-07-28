@@ -1,7 +1,6 @@
 import { transactionSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { budgetQueries, transactionQueries } from '$lib/server/db/queries';
-import { SEARCH_RESULT_LIMIT } from '$lib/server/db/queries/transactions';
 import { transaction } from '$lib/server/db/schema';
 import { logger } from '$lib/server/logger';
 import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
@@ -29,7 +28,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	try {
 		// In search mode: query across all months, skip budget data (sidebar is hidden)
 		if (searchQuery) {
-			const transactions = await transactionQueries.search(searchQuery);
+			const { transactions, limitReached } = await transactionQueries.search(searchQuery);
 			return {
 				transactions,
 				budgets: [],
@@ -39,7 +38,7 @@ export const load: PageServerLoad = async ({ url }) => {
 				completedMonthsSinceJanuary: 0,
 				form,
 				searchQuery,
-				searchLimitReached: transactions.length >= SEARCH_RESULT_LIMIT
+				searchLimitReached: limitReached
 			};
 		}
 

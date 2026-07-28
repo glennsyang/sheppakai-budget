@@ -8,7 +8,8 @@ import { createQueryBuilder } from './factory';
 // B-tree index, so this limits the work done per interactive query. If the table grows
 // to a scale where this bound is regularly hit, replace with an SQLite FTS5 virtual
 // table and use MATCH instead of LIKE.
-export const SEARCH_RESULT_LIMIT = 200;
+// Kept module-private: callers read `limitReached` off the search result instead.
+const SEARCH_RESULT_LIMIT = 200;
 
 const baseBuilder = createQueryBuilder<typeof transaction, Transaction>({
 	tableName: 'transaction',
@@ -84,8 +85,11 @@ export const transactionQueries = {
 
 	// Search across all transactions by payee or notes (cross-month).
 	// Bounded to SEARCH_RESULT_LIMIT rows to prevent unbounded full-table scans;
-	// a leading-wildcard LIKE cannot use a B-tree index.
-	search: async (query: string): Promise<Transaction[]> => {
+	// a leading-wildcard LIKE cannot use a B-tree index. `limitReached` reports whether the
+	// cap truncated the result set so callers can warn without knowing the limit itself.
+	search: async (
+		query: string
+	): Promise<{ transactions: Transaction[]; limitReached: boolean }> => {
 		// Escape LIKE wildcards (\, %, _) so user input is treated as a literal string.
 		// The ESCAPE clause tells SQLite that \ is the escape character in the pattern.
 		const escaped = query
@@ -93,13 +97,14 @@ export const transactionQueries = {
 			.replaceAll('%', String.raw`\%`)
 			.replaceAll('_', String.raw`\_`);
 		const pattern = `%${escaped}%`;
-		return baseBuilder.findAll({
+		const transactions = await baseBuilder.findAll({
 			where: or(
 				sql`${transaction.payee} LIKE ${pattern} ESCAPE '\\'`,
 				sql`${transaction.notes} LIKE ${pattern} ESCAPE '\\'`
 			),
 			limit: SEARCH_RESULT_LIMIT
 		});
+		return { transactions, limitReached: transactions.length >= SEARCH_RESULT_LIMIT };
 	},
 
 	// Find by date range excluding a specific category (for business receipts)

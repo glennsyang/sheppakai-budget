@@ -146,6 +146,10 @@ describe('transactionQueries', () => {
 		type SqlCondition = { type: string; text: string; values: unknown[] };
 		type OrWhere = { type: string; conditions: SqlCondition[] };
 
+		function makeRows(count: number) {
+			return Array.from({ length: count }, (_, index) => ({ id: `txn-${index}` }));
+		}
+
 		function getWhere() {
 			const call = mockState.findAll.mock.lastCall;
 			expect(call).toBeDefined();
@@ -216,6 +220,32 @@ describe('transactionQueries', () => {
 			const where = getWhere();
 			expect(where.conditions[0].values[1]).toBe(String.raw`%50\%\_off\\deal%`);
 			expect(where.conditions[1].values[1]).toBe(String.raw`%50\%\_off\\deal%`);
+		});
+
+		it('caps the query at 200 rows', async () => {
+			await transactionQueries.search('coffee');
+
+			const call = mockState.findAll.mock.lastCall;
+			expect(call).toBeDefined();
+			expect((call![0] as unknown as { limit: number }).limit).toBe(200);
+		});
+
+		it('returns the rows with limitReached false when under the cap', async () => {
+			const rows = makeRows(199);
+			mockState.findAll.mockResolvedValue(rows);
+
+			const result = await transactionQueries.search('coffee');
+
+			expect(result.transactions).toEqual(rows);
+			expect(result.limitReached).toBe(false);
+		});
+
+		it('flags limitReached when the result set fills the cap', async () => {
+			mockState.findAll.mockResolvedValue(makeRows(200));
+
+			const result = await transactionQueries.search('coffee');
+
+			expect(result.limitReached).toBe(true);
 		});
 	});
 });
