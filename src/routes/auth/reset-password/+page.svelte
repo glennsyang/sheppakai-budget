@@ -1,6 +1,8 @@
 <script lang="ts">
+	import AuthCardLayout from '$lib/components/AuthCardLayout.svelte';
+	import AuthFormField from '$lib/components/AuthFormField.svelte';
+	import AuthFormMessage from '$lib/components/AuthFormMessage.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import { superForm } from 'sveltekit-superforms';
 
@@ -9,89 +11,50 @@
 	let { data }: { data: PageData } = $props();
 
 	// svelte-ignore state_referenced_locally
-	const { form, errors, message, submitting, enhance } = superForm(data.form, {
-		onUpdated: ({ form }) => {
-			if (form.message) {
-				// The error message will be displayed below
-			}
-		}
-	});
+	const { form, errors, message, submitting, enhance } = superForm(data.form);
 </script>
 
-<div class="flex min-h-screen items-center justify-center">
-	<div
-		class="mx-4 w-full max-w-md space-y-6 rounded-xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md"
-	>
-		<div class="text-center">
-			<h1 class="text-3xl font-bold">Reset Password</h1>
-			<p class="mt-2">Enter your new password</p>
-		</div>
+<AuthCardLayout title="Reset Password" description="Enter your new password">
+	<form method="POST" class="space-y-4" use:enhance>
+		<AuthFormMessage message={$message} />
 
-		<form method="POST" class="space-y-4" use:enhance>
-			{#if $message}
-				<div
-					class="rounded-md p-4 {$message.includes('successful')
-						? 'bg-green-50/80'
-						: 'bg-red-50/80'} backdrop-blur-sm"
-				>
-					<div
-						class="text-sm {$message.includes('successful') ? 'text-green-700' : 'text-red-700'}"
-					>
-						{$message}
-					</div>
-				</div>
+		<input type="hidden" name="token" bind:value={data.token} />
+
+		<AuthFormField
+			id="password"
+			label="New Password"
+			type="password"
+			placeholder="Enter new password (min 8 characters)"
+			bind:value={$form.password}
+			errors={$errors.password}
+			autocomplete="new-password"
+			required
+		/>
+
+		<AuthFormField
+			id="confirmPassword"
+			label="Confirm Password"
+			type="password"
+			placeholder="Confirm new password"
+			bind:value={$form.confirmPassword}
+			errors={$errors.confirmPassword}
+			autocomplete="new-password"
+			required
+		/>
+
+		<Button type="submit" class="w-full" disabled={$submitting} aria-busy={$submitting}>
+			{#if $submitting}
+				<Spinner class="mr-2" aria-hidden="true" />
+				Resetting...
+			{:else}
+				Reset Password
 			{/if}
+		</Button>
+	</form>
 
-			<input type="hidden" name="token" bind:value={data.token} />
-
-			<div class="space-y-2">
-				<label for="password" class="block text-sm font-medium">New Password</label>
-				<Input
-					id="password"
-					name="password"
-					type="password"
-					placeholder="Enter new password (min 8 characters)"
-					bind:value={$form.password}
-					class={$errors.password ? 'border-red-400 bg-white/80' : 'bg-white/80'}
-					autocomplete="new-password"
-					required
-				/>
-				{#if $errors.password}
-					<p class="text-sm text-red-200">{$errors.password}</p>
-				{/if}
-			</div>
-
-			<div class="space-y-2">
-				<label for="confirmPassword" class="block text-sm font-medium">Confirm Password</label>
-				<Input
-					id="confirmPassword"
-					name="confirmPassword"
-					type="password"
-					placeholder="Confirm new password"
-					bind:value={$form.confirmPassword}
-					class={$errors.confirmPassword ? 'border-red-400 bg-white/80' : 'bg-white/80'}
-					autocomplete="new-password"
-					required
-				/>
-				{#if $errors.confirmPassword}
-					<p class="text-sm text-red-200">{$errors.confirmPassword}</p>
-				{/if}
-			</div>
-
-			<Button type="submit" class="w-full" disabled={$submitting} aria-busy={$submitting}>
-				{#if $submitting}
-					<Spinner class="mr-2" aria-hidden="true" />
-					Resetting...
-				{:else}
-					Reset Password
-				{/if}
-			</Button>
-		</form>
-
-		<div class="text-center">
-			<p class="text-sm">
-				<a href="/auth/sign-in" class="font-medium underline"> Back to sign in </a>
-			</p>
-		</div>
-	</div>
-</div>
+	{#snippet footer()}
+		<p class="text-sm">
+			<a href="/auth/sign-in" class="font-medium underline"> Back to sign in </a>
+		</p>
+	{/snippet}
+</AuthCardLayout>
