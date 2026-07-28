@@ -1,3 +1,4 @@
+import { SIGN_IN_ROUTE } from '$lib/server/auth-guard-load';
 import { categoryQueries } from '$lib/server/db/queries';
 import { logger } from '$lib/server/logger';
 import { redirect } from '@sveltejs/kit';
@@ -14,7 +15,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
 	// Redirect to sign-in if not authenticated for other routes
 	if (!locals.user) {
-		throw redirect(302, '/auth/sign-in');
+		throw redirect(302, SIGN_IN_ROUTE);
 	}
 
 	try {
