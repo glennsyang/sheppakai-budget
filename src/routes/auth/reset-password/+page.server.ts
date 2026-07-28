@@ -70,12 +70,14 @@ export const actions: Actions = {
 					}
 				});
 
-				throw redirect(302, '/auth/sign-in?message=Password reset successful! Please sign in.');
+				throw redirect(
+					302,
+					'/auth/sign-in?message=Password reset successful! Please sign in.&messageType=success'
+				);
 			},
 			{
 				loggerContext: 'Password reset failed',
 				fallbackMessage: 'Failed to reset password. Please try again.',
-				buildErrorPayload: (errorMessage) => ({ type: 'error', text: errorMessage }),
 				status: 400
 			}
 		);

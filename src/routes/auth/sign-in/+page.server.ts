@@ -1,5 +1,6 @@
 import { signInSchema } from '$lib/formSchemas';
 import { handleAuthFormAction } from '$lib/server/actions/auth-form-handler';
+import { formMessageFromUrl } from '$lib/server/actions/form-message';
 import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
@@ -15,11 +16,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	const form = await superValidate(zod4(signInSchema));
 
-	// Check for success message from registration
-	const message = url.searchParams.get('message');
-	if (message) {
-		form.message = message;
-	}
+	// Check for a message handed over by a redirect
+	form.message = formMessageFromUrl(url);
 
 	return {
 		form
@@ -31,7 +29,11 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(signInSchema));
 
 		if (!form.valid) {
-			return message(form, 'Please correct the errors in the form.', { status: 400 });
+			return message(
+				form,
+				{ type: 'error', text: 'Please correct the errors in the form.' },
+				{ status: 400 }
+			);
 		}
 
 		return handleAuthFormAction(
@@ -49,8 +51,7 @@ export const actions: Actions = {
 			},
 			{
 				loggerContext: 'Sign-in failed',
-				fallbackMessage: 'An error occurred during sign-in. Please try again.',
-				buildErrorPayload: (errorMessage) => errorMessage
+				fallbackMessage: 'An error occurred during sign-in. Please try again.'
 			}
 		);
 	}

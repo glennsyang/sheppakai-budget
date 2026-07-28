@@ -19,11 +19,8 @@
 	// svelte-ignore state_referenced_locally
 	const profileFormStore = superForm(data.profileForm, {
 		onUpdate: ({ form }) => {
-			if (form.message) {
-				// Reset editing state on success
-				if (form.message.includes('successfully')) {
-					isEditingProfile = false;
-				}
+			if (form.message?.type === 'success') {
+				isEditingProfile = false;
 			}
 		}
 	});
@@ -40,11 +37,8 @@
 	const passwordFormStore = superForm(data.passwordForm, {
 		resetForm: true,
 		onUpdate: ({ form }) => {
-			if (form.message) {
-				// Reset editing state and form on success
-				if (form.message.includes('successfully')) {
-					isEditingPassword = false;
-				}
+			if (form.message?.type === 'success') {
+				isEditingPassword = false;
 			}
 		}
 	});
@@ -110,18 +104,16 @@
 					<div class="space-y-4">
 						{#if $profileMessage}
 							<div
-								class="flex items-center gap-2 rounded-md p-3 {$profileMessage.includes(
-									'successfully'
-								)
+								class="flex items-center gap-2 rounded-md p-3 {$profileMessage.type === 'success'
 									? 'border border-green-200 bg-green-50 text-green-700'
 									: 'border border-red-200 bg-red-50 text-red-700'}"
 							>
-								{#if $profileMessage.includes('successfully')}
+								{#if $profileMessage.type === 'success'}
 									<CheckCircleIcon class="h-4 w-4" />
 								{:else}
 									<AlertCircleIcon class="h-4 w-4" />
 								{/if}
-								<span class="text-sm">{$profileMessage}</span>
+								<span class="text-sm">{$profileMessage.text}</span>
 							</div>
 						{/if}
 						<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -207,18 +199,16 @@
 						<div class="space-y-4">
 							{#if $passwordMessage}
 								<div
-									class="flex items-center gap-2 rounded-md p-3 {$passwordMessage.includes(
-										'successfully'
-									)
+									class="flex items-center gap-2 rounded-md p-3 {$passwordMessage.type === 'success'
 										? 'border border-green-200 bg-green-50 text-green-700'
 										: 'border border-red-200 bg-red-50 text-red-700'}"
 								>
-									{#if $passwordMessage.includes('successfully')}
+									{#if $passwordMessage.type === 'success'}
 										<CheckCircleIcon class="h-4 w-4" />
 									{:else}
 										<AlertCircleIcon class="h-4 w-4" />
 									{/if}
-									<span class="text-sm">{$passwordMessage}</span>
+									<span class="text-sm">{$passwordMessage.text}</span>
 								</div>
 							{/if}
 							<div>
