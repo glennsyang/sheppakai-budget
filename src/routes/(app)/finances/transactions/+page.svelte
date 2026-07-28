@@ -3,16 +3,15 @@
 	import { page } from '$app/state';
 	import type { Budget, Transaction } from '$lib';
 	import CategoryBudgetProgress from '$lib/components/CategoryBudgetProgress.svelte';
-	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
+	import MonthlyTablePageShell from '$lib/components/MonthlyTablePageShell.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { Input } from '$lib/components/ui/input';
-	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
-	import { formatCurrency, months } from '$lib/utils';
+	import { formatCurrency } from '$lib/utils';
 	import { calculateTransactionSummary } from '$lib/utils/transaction-summary';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -138,169 +137,136 @@
 	<title>Transactions</title>
 </svelte:head>
 
-<div class="px-4 py-6 sm:px-0">
-	<div class="mb-8">
-		<div class="flex flex-col gap-3">
-			<div class="flex items-center justify-between gap-4">
-				<div class="hidden md:flex">
-					<MonthYearSwitcher
-						currentMonth={selectedMonth}
-						currentYear={selectedYear}
-						onMonthChange={onMonthYearChange}
-					/>
-				</div>
-				<div class="w-full md:w-44">
-					<Select.Root type="single" value={selectedMonth.toString()} onValueChange={onMonthJump}>
-						<Select.Trigger class="w-full">
-							{months.find((m) => m.value === selectedMonth.toString())?.label || 'Jump to Month'}
-						</Select.Trigger>
-						<Select.Content>
-							<Select.Label>Jump to Month</Select.Label>
-							{#each months as month (month.value)}
-								<Select.Item value={month.value} label={month.label}>
-									{month.label}
-								</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
-				</div>
-			</div>
-			<!-- Global transaction search -->
-			<div class="relative">
-				<SearchIcon
-					class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-				/>
-				<Input
-					type="search"
-					placeholder="Search all transactions by payee or notes…"
-					aria-label="Search transactions"
-					class="pl-9 {data.searchQuery ? 'pr-9' : ''}"
-					value={searchInput}
-					oninput={(e) => onSearchInput(e.currentTarget.value)}
-				/>
-				{#if data.searchQuery}
-					<button
-						type="button"
-						onclick={clearSearch}
-						class="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
-						aria-label="Clear search"
-					>
-						<XIcon class="h-4 w-4" />
-					</button>
-				{/if}
-			</div>
+<MonthlyTablePageShell
+	title="Transactions"
+	description="Manage your daily financial transactions and expenses"
+	{selectedMonth}
+	{selectedYear}
+	{onMonthYearChange}
+	{onMonthJump}
+	mainClass={data.searchQuery
+		? 'flex flex-col gap-6'
+		: 'flex flex-col gap-6 lg:grid lg:grid-cols-4'}
+	tableColumnClass={data.searchQuery ? '' : 'lg:col-span-3'}
+	summaryColumnClass={data.searchQuery ? '' : 'lg:col-span-1'}
+	showSummary={!data.searchQuery}
+>
+	{#snippet topControls()}
+		<div class="relative">
+			<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+			<Input
+				type="search"
+				placeholder="Search all transactions by payee or notes…"
+				aria-label="Search transactions"
+				class="pl-9 {data.searchQuery ? 'pr-9' : ''}"
+				value={searchInput}
+				oninput={(e) => onSearchInput(e.currentTarget.value)}
+			/>
 			{#if data.searchQuery}
-				<p class="text-muted-foreground text-sm">
-					{data.transactions.length}
-					{data.transactions.length === 1 ? 'result' : 'results'} for "<span
-						class="text-foreground font-medium">{data.searchQuery}</span
-					>"{#if data.searchLimitReached}
-						— showing first {data.transactions.length}; refine your search to see more{/if}
-				</p>
+				<button
+					type="button"
+					onclick={clearSearch}
+					class="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
+					aria-label="Clear search"
+				>
+					<XIcon class="h-4 w-4" />
+				</button>
 			{/if}
 		</div>
-	</div>
+		{#if data.searchQuery}
+			<p class="text-muted-foreground text-sm">
+				{data.transactions.length}
+				{data.transactions.length === 1 ? 'result' : 'results'} for "<span
+					class="text-foreground font-medium">{data.searchQuery}</span
+				>"{#if data.searchLimitReached}
+					— showing first {data.transactions.length}; refine your search to see more{/if}
+			</p>
+		{/if}
+	{/snippet}
 
-	<div class="flex flex-col gap-6 {data.searchQuery ? '' : 'lg:grid lg:grid-cols-4'}">
-		<!-- Table Column (larger) -->
-		<div class={data.searchQuery ? '' : 'lg:col-span-3'}>
+	{#snippet headerActions()}
+		<Button size="sm" onclick={() => (openModal = true)}>
+			<PlusIcon />
+			Add
+		</Button>
+	{/snippet}
+
+	{#snippet tableContent()}
+		{#if loading}
+			<TableSkeleton rows={5} columns={4} />
+		{:else}
+			<DataTable
+				{columns}
+				data={data.transactions as Transaction[]}
+				rowClassName={getTransactionRowClass}
+			/>
+		{/if}
+	{/snippet}
+
+	{#snippet summaryContent()}
+		<div class="flex flex-col gap-6">
 			<div class="overflow-hidden rounded-lg border shadow">
 				<div class="p-6">
-					<div class="mb-4 flex items-center justify-between">
-						<div>
-							<h1 class="text-3xl font-bold tracking-tight">Transactions</h1>
-							<p class="text-muted-foreground mt-2">
-								Manage your daily financial transactions and expenses
-							</p>
+					<h2 class="text-center text-2xl font-bold tracking-tight">Budget Summary</h2>
+					<div
+						class="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900/50 dark:bg-amber-950/25"
+					>
+						<div class="flex items-center justify-between text-sm font-medium">
+							<span>Excluded</span>
+							<span class="tabular-nums">{formatCurrency(excludedFromBudgetTotal)}</span>
 						</div>
-						<div class="flex items-center gap-2">
-							<Button size="sm" onclick={() => (openModal = true)}>
-								<PlusIcon />
-								Add
-							</Button>
-						</div>
+						<p class="text-muted-foreground mt-1 text-xs">
+							Tracked separately and not counted in budget totals.
+						</p>
 					</div>
-					{#if loading}
-						<TableSkeleton rows={5} columns={4} />
+					<div class="my-4 border-t"></div>
+					{#if sortedBudgets.length === 0}
+						<p class="text-muted-foreground text-center text-sm">No budgets set for this month</p>
 					{:else}
-						<DataTable
-							{columns}
-							data={data.transactions as Transaction[]}
-							rowClassName={getTransactionRowClass}
-						/>
+						{#each sortedBudgets as budgetItem (budgetItem.id)}
+							{#if budgetItem.category}
+								<CategoryBudgetProgress
+									categoryName={budgetItem.category.name}
+									spent={data.categorySpending[budgetItem.category.id] || 0}
+									budgeted={budgetItem.amount}
+								/>
+							{/if}
+						{/each}
 					{/if}
 				</div>
 			</div>
-		</div>
 
-		<!-- Summary Card Column (hidden in search mode) -->
-		{#if !data.searchQuery}
-			<div class="lg:col-span-1">
-				<div class="mb-6 overflow-hidden rounded-lg border shadow">
-					<div class="p-6">
-						<h2 class="text-center text-2xl font-bold tracking-tight">Budget Summary</h2>
-						<div
-							class="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900/50 dark:bg-amber-950/25"
-						>
-							<div class="flex items-center justify-between text-sm font-medium">
-								<span>Excluded</span>
-								<span class="tabular-nums">{formatCurrency(excludedFromBudgetTotal)}</span>
-							</div>
-							<p class="text-muted-foreground mt-1 text-xs">
-								Tracked separately and not counted in budget totals.
-							</p>
-						</div>
-						<div class="my-4 border-t"></div>
-						{#if sortedBudgets.length === 0}
-							<p class="text-muted-foreground text-center text-sm">No budgets set for this month</p>
-						{:else}
-							{#each sortedBudgets as budgetItem (budgetItem.id)}
-								{#if budgetItem.category}
-									<CategoryBudgetProgress
-										categoryName={budgetItem.category.name}
-										spent={data.categorySpending[budgetItem.category.id] || 0}
-										budgeted={budgetItem.amount}
-									/>
-								{/if}
-							{/each}
-						{/if}
-					</div>
-				</div>
-
-				<!-- Monthly Summary Card -->
-				<div class="mb-6 overflow-hidden rounded-lg border shadow">
-					<div class="p-6">
-						<h2 class="text-center text-2xl font-bold tracking-tight">Monthly Summary</h2>
-						<div class="my-4 border-t"></div>
-						<div class="flex items-center justify-between">
-							<span class="text-base font-medium">Total Spending:</span>
-							<span class="text-2xl font-bold">{formatCurrency(summary.monthlyTotal)}</span>
-						</div>
-					</div>
-				</div>
-
-				<!-- Yearly Summary Card -->
-				<div class="overflow-hidden rounded-lg border shadow">
-					<div class="p-6">
-						<h2 class="text-center text-2xl font-bold tracking-tight">Yearly Summary</h2>
-						<div class="my-4 border-t"></div>
-						<div class="mb-3 flex items-center justify-between">
-							<span class="text-base font-medium">Total Spending:</span>
-							<span class="text-2xl font-bold">{formatCurrency(summary.yearlyTotal)}</span>
-						</div>
-						<div class="mb-3 flex items-center justify-between">
-							<span class="text-base font-medium">Monthly Average:</span>
-							<span class="text-xl font-bold"
-								>{summary.monthlyAverage === null
-									? '—'
-									: formatCurrency(summary.monthlyAverage)}</span
-							>
-						</div>
+			<div class="overflow-hidden rounded-lg border shadow">
+				<div class="p-6">
+					<h2 class="text-center text-2xl font-bold tracking-tight">Monthly Summary</h2>
+					<div class="my-4 border-t"></div>
+					<div class="flex items-center justify-between">
+						<span class="text-base font-medium">Total Spending:</span>
+						<span class="text-2xl font-bold">{formatCurrency(summary.monthlyTotal)}</span>
 					</div>
 				</div>
 			</div>
-		{/if}
-	</div>
-</div>
 
-<TransactionModal bind:open={openModal} categories={categories()} transactionForm={data.form} />
+			<div class="overflow-hidden rounded-lg border shadow">
+				<div class="p-6">
+					<h2 class="text-center text-2xl font-bold tracking-tight">Yearly Summary</h2>
+					<div class="my-4 border-t"></div>
+					<div class="mb-3 flex items-center justify-between">
+						<span class="text-base font-medium">Total Spending:</span>
+						<span class="text-2xl font-bold">{formatCurrency(summary.yearlyTotal)}</span>
+					</div>
+					<div class="mb-3 flex items-center justify-between">
+						<span class="text-base font-medium">Monthly Average:</span>
+						<span class="text-xl font-bold"
+							>{summary.monthlyAverage === null
+								? '—'
+								: formatCurrency(summary.monthlyAverage)}</span
+						>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/snippet}
+</MonthlyTablePageShell>
+
+<TransactionModal bind:open={openModal} transactionForm={data.form!} categories={categories()} />
