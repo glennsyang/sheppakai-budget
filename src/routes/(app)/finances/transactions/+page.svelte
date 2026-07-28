@@ -148,6 +148,8 @@
 	tableColumnClass={data.searchQuery ? '' : 'lg:col-span-3'}
 	summaryColumnClass={data.searchQuery ? '' : 'lg:col-span-1'}
 	showSummary={!data.searchQuery}
+	skeletonColumns={columns.length}
+	skeletonSummaryCards={3}
 >
 	{#snippet topControls()}
 		<div class="relative">

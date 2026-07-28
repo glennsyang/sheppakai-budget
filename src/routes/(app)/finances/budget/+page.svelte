@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import type { Budget, ChartData } from '$lib';
 	import AreaChart from '$lib/components/AreaChart.svelte';
+	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
 	import SummaryRow from '$lib/components/SummaryRow.svelte';
@@ -10,6 +11,7 @@
 	import { getCategoriesContext } from '$lib/contexts';
 	import { months } from '$lib/utils';
 	import { padMonth } from '$lib/utils/dates';
+	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
@@ -73,6 +75,10 @@
 	}
 
 	const categories = getCategoriesContext();
+
+	// A month switch is a same-route navigation. Column 1 (the category list)
+	// stays clickable; only the month-dependent columns skeleton.
+	const reloading = usePendingReload();
 
 	// Sort categories alphabetically
 	let sortedCategories = $derived([...categories()].sort((a, b) => a.name.localeCompare(b.name)));
@@ -351,7 +357,15 @@
 
 		<!-- Column 2: Category Detail -->
 		<div class="lg:col-span-7">
-			{#if selectedCategory}
+			{#if reloading.current}
+				<CardGridSkeleton
+					cards={1}
+					linesPerCard={3}
+					lineClass="h-24"
+					class="flex flex-col gap-4"
+					label="Loading category budget"
+				/>
+			{:else if selectedCategory}
 				<!-- Heading -->
 				<div class="mb-6">
 					<h2 class="text-2xl font-semibold">
@@ -436,56 +450,65 @@
 
 		<!-- Column 3: Total Summary -->
 		<div class="lg:col-span-3">
-			<!-- Budget Status Box -->
-			<div class="bg-card mb-4 rounded-lg border shadow">
-				<div class="relative p-6">
-					<div class="absolute top-4 right-4">
-						{#if allBudgetsSet}
-							<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-						{:else}
-							<CheckCircleIcon class="h-5 w-5 text-gray-300" />
-						{/if}
-					</div>
-					<div class="flex flex-col items-center justify-center space-y-2">
-						<SlidersHorizontalIcon class="text-muted-foreground h-5 w-5" />
-						<p class="text-lg font-semibold">
-							Set {months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label ||
-								'Monthly'} Budget
-						</p>
-						{#if categoriesWithoutBudget.length > 0}
-							<p class="text-muted-foreground text-sm">
-								There is no budget set for {categoriesWithoutBudget.length}
-								{categoriesWithoutBudget.length === 1 ? 'category' : 'categories'}.
+			{#if reloading.current}
+				<CardGridSkeleton
+					cards={2}
+					linesPerCard={3}
+					class="flex flex-col gap-4"
+					label="Loading budget summary"
+				/>
+			{:else}
+				<!-- Budget Status Box -->
+				<div class="bg-card mb-4 rounded-lg border shadow">
+					<div class="relative p-6">
+						<div class="absolute top-4 right-4">
+							{#if allBudgetsSet}
+								<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
+							{:else}
+								<CheckCircleIcon class="h-5 w-5 text-gray-300" />
+							{/if}
+						</div>
+						<div class="flex flex-col items-center justify-center space-y-2">
+							<SlidersHorizontalIcon class="text-muted-foreground h-5 w-5" />
+							<p class="text-lg font-semibold">
+								Set {months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label ||
+									'Monthly'} Budget
 							</p>
-						{:else}
-							<p class="text-muted-foreground text-sm">All budgets are set!</p>
-						{/if}
+							{#if categoriesWithoutBudget.length > 0}
+								<p class="text-muted-foreground text-sm">
+									There is no budget set for {categoriesWithoutBudget.length}
+									{categoriesWithoutBudget.length === 1 ? 'category' : 'categories'}.
+								</p>
+							{:else}
+								<p class="text-muted-foreground text-sm">All budgets are set!</p>
+							{/if}
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<!-- Spending Overview Box -->
-			<div class="bg-card rounded-lg border shadow">
-				<div class="border-b p-6">
-					<h3 class="text-lg font-semibold">
-						{months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label || 'Monthly'} Spending
-						Overview
-					</h3>
-				</div>
-				<div class="p-6">
-					<div class="space-y-4">
-						<SummaryRow label="Recurring Expenses" amount={totalRecurring} />
-						<SummaryRow label="You Budgeted" amount={totalBudget} />
-						<SummaryRow
-							label="You Expect To Spend"
-							amount={totalRecurring + totalBudget}
-							emphasized={true}
-							bordered={true}
-							muted={false}
-						/>
+				<!-- Spending Overview Box -->
+				<div class="bg-card rounded-lg border shadow">
+					<div class="border-b p-6">
+						<h3 class="text-lg font-semibold">
+							{months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label ||
+								'Monthly'} Spending Overview
+						</h3>
+					</div>
+					<div class="p-6">
+						<div class="space-y-4">
+							<SummaryRow label="Recurring Expenses" amount={totalRecurring} />
+							<SummaryRow label="You Budgeted" amount={totalBudget} />
+							<SummaryRow
+								label="You Expect To Spend"
+								amount={totalRecurring + totalBudget}
+								emphasized={true}
+								bordered={true}
+								muted={false}
+							/>
+						</div>
 					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 	</div>
 </div>

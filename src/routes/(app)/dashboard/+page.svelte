@@ -6,6 +6,7 @@
 	import BudgetAlertRow from '$lib/components/BudgetAlertRow.svelte';
 	import BudgetProgressCard from '$lib/components/BudgetProgressCard.svelte';
 	import CardBeam from '$lib/components/CardBeam.svelte';
+	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
 	import CashFlowProjectionCard from '$lib/components/CashFlowProjectionCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
 	import GoalsSummaryStrip from '$lib/components/GoalsSummaryStrip.svelte';
@@ -25,6 +26,7 @@
 	import WindowCleaningSummaryCard from '$lib/components/WindowCleaningSummaryCard.svelte';
 	import { getCategoriesContext } from '$lib/contexts';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
+	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { ChevronDownIcon } from '@lucide/svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 
@@ -77,6 +79,10 @@
 
 	const categories = getCategoriesContext();
 	const dashboardPath = resolve('/dashboard');
+
+	// Mode/month/year changes are same-route navigations: keep the controls
+	// interactive and skeleton the body, which re-derives entirely from `data`.
+	const reloading = usePendingReload();
 
 	const chartColors = [
 		'var(--chart-1)',
@@ -408,7 +414,21 @@
 		</div>
 	</div>
 
-	{#if selectedMode === 'monthly'}
+	{#if reloading.current}
+		<CardGridSkeleton
+			cards={4}
+			linesPerCard={2}
+			class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+			label="Loading dashboard figures"
+		/>
+		<CardGridSkeleton
+			cards={2}
+			linesPerCard={1}
+			lineClass="h-56"
+			class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2"
+			label="Loading dashboard charts"
+		/>
+	{:else if selectedMode === 'monthly'}
 		<!-- KPI Sparkline Row -->
 		<div
 			class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 {data.windowCleaningJobCount

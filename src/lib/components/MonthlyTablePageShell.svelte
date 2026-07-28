@@ -1,7 +1,10 @@
 <script lang="ts">
+	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
+	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { months } from '$lib/utils';
+	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -19,6 +22,9 @@
 		tableColumnClass?: string;
 		summaryColumnClass?: string;
 		showSummary?: boolean;
+		skeletonRows?: number;
+		skeletonColumns?: number;
+		skeletonSummaryCards?: number;
 	}
 
 	let {
@@ -35,8 +41,15 @@
 		mainClass = 'flex flex-col gap-6 lg:grid lg:grid-cols-4',
 		tableColumnClass = 'lg:col-span-3',
 		summaryColumnClass = 'lg:col-span-1',
-		showSummary = true
+		showSummary = true,
+		skeletonRows = 8,
+		skeletonColumns = 5,
+		skeletonSummaryCards = 2
 	}: Props = $props();
+
+	// A month/year switch is a same-route navigation: keep the frame and the
+	// controls interactive, and skeleton only the regions fed by `data`.
+	const reloading = usePendingReload();
 </script>
 
 <div class="px-4 py-6 sm:px-0">
@@ -89,14 +102,26 @@
 							</div>
 						{/if}
 					</div>
-					{@render tableContent()}
+					{#if reloading.current}
+						<TableSkeleton rows={skeletonRows} columns={skeletonColumns} />
+					{:else}
+						{@render tableContent()}
+					{/if}
 				</div>
 			</div>
 		</div>
 
 		{#if showSummary && summaryContent}
 			<div class={summaryColumnClass}>
-				{@render summaryContent()}
+				{#if reloading.current}
+					<CardGridSkeleton
+						cards={skeletonSummaryCards}
+						class="flex flex-col gap-6"
+						label="Loading summary"
+					/>
+				{:else}
+					{@render summaryContent()}
+				{/if}
 			</div>
 		{/if}
 	</div>
