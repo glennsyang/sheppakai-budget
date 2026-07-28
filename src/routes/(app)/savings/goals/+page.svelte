@@ -49,7 +49,6 @@
 	let openContributionModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
 	let openContributionsSheet = $state<boolean>(false);
-	let loading = $state(false);
 
 	let editingGoal = $state<SavingsGoalWithProgress | null>(null);
 	let selectedGoalForSheet = $state<SavingsGoalWithProgress | null>(null);

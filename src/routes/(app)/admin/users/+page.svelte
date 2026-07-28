@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { navigating } from '$app/state';
 	import type { UserWithSessions } from '$lib';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import {
 		banUserFormContext,
@@ -25,8 +23,6 @@
 	}
 
 	let { data }: Props = $props();
-
-	const loading = $derived(navigating.to !== null);
 
 	// Type guard to ensure role is defined and banned is boolean
 	const usersWithSessionsAndRole = $derived(
@@ -56,9 +52,7 @@
 		<p class="text-muted-foreground">Manage user accounts, roles, and permissions</p>
 	</div>
 
-	{#if loading}
-		<TableSkeleton rows={5} columns={6} />
-	{:else if data.loadError}
+	{#if data.loadError}
 		<div
 			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
 		>

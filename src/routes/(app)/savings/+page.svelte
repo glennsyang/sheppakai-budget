@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Savings } from '$lib';
 	import SavingsModal from '$lib/components/SavingsModal.svelte';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { DataTable } from '$lib/components/ui/data-table';
@@ -29,7 +28,6 @@
 	}
 
 	let openModal = $state<boolean>(false);
-	let loading = $state(false);
 
 	// Calculate total savings
 	let totalSavings = $derived(data.savings.reduce((sum, saving) => sum + saving.amount, 0));
@@ -57,11 +55,7 @@
 							</Button>
 						</div>
 					</div>
-					{#if loading}
-						<TableSkeleton rows={5} columns={4} />
-					{:else}
-						<DataTable {columns} data={data.savings} />
-					{/if}
+					<DataTable {columns} data={data.savings} />
 				</div>
 			</div>
 		</div>

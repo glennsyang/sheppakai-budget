@@ -4,7 +4,6 @@
 	import type { Income } from '$lib';
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import MonthlyTablePageShell from '$lib/components/MonthlyTablePageShell.svelte';
-	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { incomeFormContext } from '$lib/contexts';
@@ -22,7 +21,6 @@
 	}
 
 	let openModal = $state<boolean>(false);
-	let loading = $state(false);
 
 	// Calculate monthly total income
 	let monthlyTotalIncome = $derived(
@@ -92,11 +90,7 @@
 	{/snippet}
 
 	{#snippet tableContent()}
-		{#if loading}
-			<TableSkeleton rows={5} columns={3} />
-		{:else}
-			<DataTable {columns} data={data.monthlyIncomes} />
-		{/if}
+		<DataTable {columns} data={data.monthlyIncomes} />
 	{/snippet}
 
 	{#snippet summaryContent()}
