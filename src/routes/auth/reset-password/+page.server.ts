@@ -1,7 +1,7 @@
-import { handleAuthFormAction } from '$lib/server/actions/auth-form-handler';
+import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
-import { message, superValidate } from 'sveltekit-superforms';
+import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
@@ -53,11 +53,7 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(resetPasswordSchema));
 
 		if (!form.data.token || !form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form.' },
-				{ status: 400 }
-			);
+			return invalidAuthForm(form);
 		}
 
 		return handleAuthFormAction(
@@ -77,8 +73,7 @@ export const actions: Actions = {
 			},
 			{
 				loggerContext: 'Password reset failed',
-				fallbackMessage: 'Failed to reset password. Please try again.',
-				status: 400
+				fallbackMessage: 'Failed to reset password. Please try again.'
 			}
 		);
 	}

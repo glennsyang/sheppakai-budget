@@ -1,8 +1,8 @@
 import { BETTER_AUTH_BASE_URL } from '$app/env/private';
-import { handleAuthFormAction } from '$lib/server/actions/auth-form-handler';
+import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { formMessageFromUrl } from '$lib/server/actions/form-message';
 import { auth } from '$lib/server/auth';
-import { fail, redirect } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
@@ -34,9 +34,7 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(forgotSchema));
 
 		if (!form.valid) {
-			return fail(400, {
-				form
-			});
+			return invalidAuthForm(form);
 		}
 
 		return handleAuthFormAction(

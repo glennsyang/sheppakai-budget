@@ -18,6 +18,19 @@ interface AuthFormActionOptions {
 	status?: MessageOptions['status'];
 }
 
+/**
+ * The single validation-failure response for auth actions. Superforms turns a
+ * `message(...)` with a 4xx status into `fail(status, { form })`, so the page
+ * gets field errors *and* a banner from one call — no route needs a bare
+ * `fail(...)` and no page has to branch on which shape it received.
+ */
+export function invalidAuthForm<TForm extends Record<string, unknown>>(
+	form: SuperValidated<TForm>,
+	text = 'Please correct the errors in the form.'
+) {
+	return message(form, { type: 'error', text }, { status: 400 });
+}
+
 export async function handleAuthFormAction<TForm extends Record<string, unknown>>(
 	form: SuperValidated<TForm>,
 	action: () => Promise<unknown>,

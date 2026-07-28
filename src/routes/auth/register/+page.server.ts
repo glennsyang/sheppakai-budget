@@ -1,9 +1,9 @@
 import { registerSchema } from '$lib/formSchemas';
-import { handleAuthFormAction } from '$lib/server/actions/auth-form-handler';
+import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { formMessageFromUrl } from '$lib/server/actions/form-message';
 import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
-import { message, superValidate } from 'sveltekit-superforms';
+import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -28,11 +28,7 @@ export const actions: Actions = {
 		const form = await superValidate(request, zod4(registerSchema));
 
 		if (!form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form.' },
-				{ status: 400 }
-			);
+			return invalidAuthForm(form);
 		}
 
 		return handleAuthFormAction(
@@ -52,8 +48,7 @@ export const actions: Actions = {
 			},
 			{
 				loggerContext: 'Registration failed',
-				fallbackMessage: 'Registration failed. Please try again.',
-				status: 400
+				fallbackMessage: 'Registration failed. Please try again.'
 			}
 		);
 	}

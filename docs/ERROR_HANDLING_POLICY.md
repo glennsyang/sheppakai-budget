@@ -78,26 +78,58 @@ export const load: PageServerLoad = async ({ url }) => {
 
 ## Policy: Actions
 
-Actions already have consistent error handling via `createCrudActions` helper or explicit try/catch blocks. The pattern is:
+### Response contract
+
+A form action returns exactly one of three things. There is no fourth shape — in particular, never a
+bare `fail(...)` and never an ad-hoc `{ success: true }`.
+
+| Outcome                            | Response                                             | HTTP    |
+| ---------------------------------- | ---------------------------------------------------- | ------- |
+| Success, navigate away             | `throw redirect(302, '/somewhere')`                  | 302     |
+| Success, stay on page              | `message(form, { type: 'success', text })`           | 200     |
+| Failure (validation **or** server) | `message(form, { type: 'error', text }, { status })` | 4xx/5xx |
+
+Superforms converts a `message(...)` with a 4xx/5xx status into `fail(status, { form })`, so the
+failure case still carries field-level errors — it just also carries a banner. Every failure
+therefore has a renderable `App.Superforms.Message` (declared in `src/app.d.ts`), and pages only ever
+read `$message` and `$errors`. No page has to branch on which shape the server happened to send.
+
+### Implementations
+
+Both halves live in `src/lib/server/actions/auth-form-handler.ts`:
 
 ```typescript
-try {
-	// Perform action
-	await someAction();
-	logger.info('Action completed successfully', { context });
-	return { success: true, form };
-} catch (error) {
-	logger.error('Action failed:', error);
-	return message(
-		form,
-		{
-			type: 'error',
-			text: 'Friendly error message for user'
-		},
-		{ status: 500 }
-	);
+// Validation failure
+if (!form.valid) {
+	return invalidAuthForm(form);
 }
+
+// Server failure: rethrows redirects, logs, maps the Better Auth error to a
+// friendly message, and returns the failure banner.
+return handleAuthFormAction(
+	form,
+	async () => {
+		await auth.api.signInEmail({ body: { ... }, headers: request.headers });
+		throw redirect(302, '/dashboard');
+	},
+	{
+		loggerContext: 'Sign-in failed',
+		fallbackMessage: 'An error occurred during sign-in. Please try again.'
+	}
+);
 ```
+
+`handleAuthFormAction` defaults to status 400; pass `status` only to override it. Pass
+`errorType: 'success'` where a failure must stay indistinguishable from a success (see
+`src/routes/auth/forgot-password/+page.server.ts`, which hides whether an account exists).
+
+### Migration status
+
+All `/auth` actions follow this contract. CRUD actions built on `createCrudActions`
+(`src/lib/server/actions/crud-helpers.ts`) are consistent within themselves but not yet aligned to
+the table above — `src/routes/(app)/admin/users/+page.server.ts` and
+`src/routes/(app)/finances/budget/+page.server.ts` still return `{ success: true }`. Adopt this
+contract when touching them.
 
 ## Exceptions
 
@@ -124,5 +156,6 @@ Components should check for `loadError` and display it prominently:
 
 ## References
 
-- Example implementation: `src/routes/(app)/admin/users/+page.server.ts`
-- Structure review: `docs/structure-review/2026-07-27-review.md` (Finding: Error Handling → Finding 1)
+- Example load implementation: `src/routes/(app)/admin/users/+page.server.ts`
+- Example action implementation: `src/routes/auth/sign-in/+page.server.ts`
+- Structure review: `docs/structure-review/2026-07-27-review.md` (Error Handling → Findings 1 and 2)
