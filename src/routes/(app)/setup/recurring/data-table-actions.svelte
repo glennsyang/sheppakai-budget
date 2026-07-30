@@ -7,6 +7,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import type { recurringSchema } from '$lib/formSchemas';
+	import { actionMessage } from '$lib/utils/actionMessage';
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import { getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -45,11 +46,14 @@
 					togglingPaid = true;
 					return async ({ result, update }) => {
 						if (result.type === 'success') {
+							// Silent on success — a toast on every checkbox tick would be noise.
 							await invalidateAll();
-						} else if (result.type === 'failure' && result.data?.error) {
-							toast.error((result.data.error as string) || 'Failed to toggle paid status');
 						} else {
-							toast.error('Failed to toggle paid status');
+							const { text } = actionMessage(result, {
+								success: 'Paid status updated',
+								error: 'Failed to toggle paid status'
+							});
+							toast.error(text);
 						}
 
 						await update();

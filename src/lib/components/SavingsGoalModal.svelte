@@ -22,16 +22,13 @@
 		superForm(savingsGoalForm, {
 			resetForm: true,
 			onUpdate: ({ form }) => {
-				if (form.valid) {
+				// Read form.message, not $message: superforms clears the store on submit and only
+				// repopulates it after onUpdate has run, so the store is always undefined here.
+				if (form.message?.type === 'success') {
 					open = false;
-					toast.success(
-						isEditing ? 'Savings goal updated successfully!' : 'Savings goal created successfully!'
-					);
-				}
-				if ($message?.type === 'error') {
-					toast.error(
-						`Error ${isEditing ? 'updating' : 'creating'} savings goal. Reason: ${$message.text}`
-					);
+					toast.success(form.message.text);
+				} else if (form.message?.type === 'error') {
+					toast.error(form.message.text);
 				}
 			},
 			onError: ({ result }) => {
@@ -42,7 +39,7 @@
 		})
 	);
 
-	const { form, errors, enhance, message, submitting } = $derived(formInstance);
+	const { form, errors, enhance, submitting } = $derived(formInstance);
 
 	// Determine available status options based on current status
 	const availableStatuses = $derived(() => {

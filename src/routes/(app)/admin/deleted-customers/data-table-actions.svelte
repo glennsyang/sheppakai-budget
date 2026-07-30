@@ -19,15 +19,16 @@
 		z.infer<typeof restoreCustomerSchema>
 	>;
 
-	const { form, enhance, message, submitting } = superForm(restoreForm, {
+	const { form, enhance, submitting } = superForm(restoreForm, {
 		resetForm: true,
 		onUpdate: ({ form }) => {
-			if (form.valid) {
+			// Read form.message, not $message: superforms clears the store on submit and only
+			// repopulates it after onUpdate has run, so the store is always undefined here.
+			if (form.message?.type === 'success') {
 				openRestoreDialog = false;
-				toast.success('Customer restored successfully');
-			}
-			if ($message?.type === 'error') {
-				toast.error(`Error: ${$message.text}`);
+				toast.success(form.message.text);
+			} else if (form.message?.type === 'error') {
+				toast.error(form.message.text);
 			}
 		},
 		onError: ({ result }) => {

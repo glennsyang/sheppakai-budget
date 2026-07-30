@@ -1,4 +1,4 @@
-import { contributionSchema, deleteSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
+import { contributionSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
 import { createAction, deleteAction, updateAction } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';
 import { savingsGoalQueries } from '$lib/server/db/queries';
@@ -101,7 +101,6 @@ export const actions = {
 	deleteGoal: deleteAction({
 		table: savingsGoal,
 		entityName: 'Savings goal',
-		deleteSchema: deleteSchema,
 		beforeDelete: async (id) => {
 			// Check if contributions exist for this goal
 			const existingContributions = await getDb()
@@ -144,7 +143,6 @@ export const actions = {
 
 	deleteContribution: deleteAction({
 		table: contribution,
-		entityName: 'Contribution',
-		deleteSchema: deleteSchema
+		entityName: 'Contribution'
 	})
 } satisfies Actions;

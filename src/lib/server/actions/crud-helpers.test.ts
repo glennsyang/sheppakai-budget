@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 type MockState = {
 	superValidateResult: { valid: boolean; data: Record<string, unknown> };
-	fail: ReturnType<typeof vi.fn>;
 	message: ReturnType<typeof vi.fn>;
 	superValidate: ReturnType<typeof vi.fn>;
 	insertReturning: ReturnType<typeof vi.fn>;
@@ -37,16 +36,6 @@ type MockState = {
 const mockState: MockState = vi.hoisted((): MockState => {
 	const state = {
 		superValidateResult: { valid: true, data: {} as Record<string, unknown> },
-		fail: vi.fn<
-			(
-				status: number,
-				data: Record<string, unknown>
-			) => { status: number; data: Record<string, unknown>; __failure: boolean }
-		>((status, data) => ({
-			status,
-			data,
-			__failure: true
-		})),
 		message: vi.fn<
 			(
 				form: Record<string, unknown>,
@@ -145,10 +134,6 @@ mockState.db = {
 	delete: mockState.deleteFrom
 };
 
-vi.mock('@sveltejs/kit', () => ({
-	fail: mockState.fail
-}));
-
 vi.mock('sveltekit-superforms', () => ({
 	superValidate: mockState.superValidate,
 	message: mockState.message
@@ -209,7 +194,6 @@ describe('crud-helpers', () => {
 			valid: true,
 			data: { id: 'record-1', name: 'Row 1', amount: 10 }
 		};
-		mockState.fail.mockClear();
 		mockState.message.mockClear();
 		mockState.superValidate.mockClear();
 		mockState.insertReturning.mockReset();
@@ -231,17 +215,22 @@ describe('crud-helpers', () => {
 		mockState.loggerError.mockClear();
 	});
 
-	it('createAction returns 400 when form is invalid', async () => {
+	it('createAction returns a 400 message when form is invalid', async () => {
 		mockState.superValidateResult = { valid: false, data: {} };
 		const action = createAction({ schema: baseSchema, table: mockTable, entityName: 'Thing' });
 
 		const result = await action(makeEvent() as never);
 
-		expect(mockState.fail).toHaveBeenCalledWith(400, { form: mockState.superValidateResult });
+		expect(mockState.message).toHaveBeenCalledWith(
+			mockState.superValidateResult,
+			{ type: 'error', text: 'Please correct the errors in the form.' },
+			{ status: 400 }
+		);
 		expect(result).toEqual({
 			status: 400,
-			data: { form: mockState.superValidateResult },
-			__failure: true
+			form: mockState.superValidateResult,
+			message: { type: 'error', text: 'Please correct the errors in the form.' },
+			__message: true
 		});
 	});
 
@@ -276,7 +265,16 @@ describe('crud-helpers', () => {
 		expect(inserted.createdBy).toBe('user-1');
 		expect(inserted.updatedBy).toBe('user-1');
 		expect(mockState.afterCreate).toHaveBeenCalledWith('new-id', { id: 'new-id', name: 'created' });
-		expect(result).toEqual({ success: true, create: true, form: mockState.superValidateResult });
+		expect(mockState.message).toHaveBeenCalledWith(mockState.superValidateResult, {
+			type: 'success',
+			text: 'Thing created successfully'
+		});
+		expect(result).toEqual({
+			status: 200,
+			form: mockState.superValidateResult,
+			message: { type: 'success', text: 'Thing created successfully' },
+			__message: true
+		});
 	});
 
 	it('updateAction requires id', async () => {
@@ -285,11 +283,16 @@ describe('crud-helpers', () => {
 
 		const result = await action(makeEvent() as never);
 
-		expect(mockState.fail).toHaveBeenCalledWith(400, { error: 'ID is required for update' });
+		expect(mockState.message).toHaveBeenCalledWith(
+			mockState.superValidateResult,
+			{ type: 'error', text: 'ID is required for update' },
+			{ status: 400 }
+		);
 		expect(result).toEqual({
 			status: 400,
-			data: { error: 'ID is required for update' },
-			__failure: true
+			form: mockState.superValidateResult,
+			message: { type: 'error', text: 'ID is required for update' },
+			__message: true
 		});
 	});
 
@@ -329,7 +332,16 @@ describe('crud-helpers', () => {
 			expect.objectContaining({ name: 'Row 1' }),
 			undefined
 		);
-		expect(result).toEqual({ success: true, update: true, form: mockState.superValidateResult });
+		expect(mockState.message).toHaveBeenCalledWith(mockState.superValidateResult, {
+			type: 'success',
+			text: 'Thing updated successfully'
+		});
+		expect(result).toEqual({
+			status: 200,
+			form: mockState.superValidateResult,
+			message: { type: 'success', text: 'Thing updated successfully' },
+			__message: true
+		});
 	});
 
 	it('updateAction passes beforeUpdate context to afterUpdate', async () => {
@@ -359,16 +371,49 @@ describe('crud-helpers', () => {
 	});
 
 	it('deleteAction without id fails validation', async () => {
+		mockState.superValidateResult = { valid: false, data: {} };
 		const action = deleteAction({ table: mockTable, entityName: 'Thing' });
 
 		const result = await action(makeEvent() as never);
 
-		expect(mockState.fail).toHaveBeenCalledWith(400, { hasId: false });
-		expect(result).toEqual({ status: 400, data: { hasId: false }, __failure: true });
+		expect(mockState.message).toHaveBeenCalledWith(
+			mockState.superValidateResult,
+			{ type: 'error', text: 'Please correct the errors in the form.' },
+			{ status: 400 }
+		);
+		expect(result).toEqual({
+			status: 400,
+			form: mockState.superValidateResult,
+			message: { type: 'error', text: 'Please correct the errors in the form.' },
+			__message: true
+		});
+		expect(mockState.deleteFrom).not.toHaveBeenCalled();
+	});
+
+	it('deleteAction deletes the record and returns a success message', async () => {
+		mockState.superValidateResult = { valid: true, data: { id: 'row-1' } };
+		const afterDelete = mockState.afterDelete as unknown as NonNullable<
+			Parameters<typeof deleteAction>[0]['afterDelete']
+		>;
+
+		const action = deleteAction({ table: mockTable, entityName: 'Thing', afterDelete });
+
+		const result = await action(makeEvent([['id', 'row-1']]) as never);
+
+		expect(mockState.deleteFrom).toHaveBeenCalledWith(mockTable);
+		expect(mockState.deleteWhere).toHaveBeenCalledWith({ field: 'id-column', value: 'row-1' });
+		expect(mockState.afterDelete).toHaveBeenCalledWith('row-1');
+		expect(result).toEqual({
+			status: 200,
+			form: mockState.superValidateResult,
+			message: { type: 'success', text: 'Thing deleted successfully' },
+			__message: true
+		});
 	});
 
 	it('deleteAction returns hook error from beforeDelete', async () => {
-		mockState.beforeDelete.mockResolvedValue({ error: 'Cannot delete' });
+		mockState.superValidateResult = { valid: true, data: { id: 'row-2' } };
+		mockState.beforeDelete.mockResolvedValue({ error: 'Blocked by dependency' });
 		const beforeDelete = mockState.beforeDelete as unknown as NonNullable<
 			Parameters<typeof deleteAction>[0]['beforeDelete']
 		>;
@@ -379,30 +424,9 @@ describe('crud-helpers', () => {
 			beforeDelete
 		});
 
-		const result = await action(makeEvent([['id', 'row-1']]) as never);
-
-		expect(mockState.beforeDelete).toHaveBeenCalledWith('row-1', 'user-1');
-		expect(mockState.fail).toHaveBeenCalledWith(400, { error: 'Cannot delete' });
-		expect(result).toEqual({ status: 400, data: { error: 'Cannot delete' }, __failure: true });
-		expect(mockState.deleteFrom).not.toHaveBeenCalled();
-	});
-
-	it('deleteAction with schema uses superforms message for hook errors', async () => {
-		mockState.superValidateResult = { valid: true, data: { id: 'row-2' } };
-		mockState.beforeDelete.mockResolvedValue({ error: 'Blocked by dependency' });
-		const beforeDelete = mockState.beforeDelete as unknown as NonNullable<
-			Parameters<typeof deleteAction>[0]['beforeDelete']
-		>;
-
-		const action = deleteAction({
-			table: mockTable,
-			entityName: 'Thing',
-			beforeDelete,
-			deleteSchema: z.object({ id: z.string() })
-		});
-
 		const result = await action(makeEvent([['id', 'row-2']]) as never);
 
+		expect(mockState.beforeDelete).toHaveBeenCalledWith('row-2', 'user-1');
 		expect(mockState.message).toHaveBeenCalledWith(
 			mockState.superValidateResult,
 			{ type: 'error', text: 'Blocked by dependency' },
@@ -412,6 +436,24 @@ describe('crud-helpers', () => {
 			status: 400,
 			form: mockState.superValidateResult,
 			message: { type: 'error', text: 'Blocked by dependency' },
+			__message: true
+		});
+		expect(mockState.deleteFrom).not.toHaveBeenCalled();
+	});
+
+	it('deleteAction returns a 500 message on database exception', async () => {
+		mockState.superValidateResult = { valid: true, data: { id: 'row-3' } };
+		mockState.deleteWhere.mockRejectedValueOnce(new Error('delete failed'));
+
+		const action = deleteAction({ table: mockTable, entityName: 'Thing' });
+
+		const result = await action(makeEvent([['id', 'row-3']]) as never);
+
+		expect(mockState.loggerError).toHaveBeenCalled();
+		expect(result).toEqual({
+			status: 500,
+			form: mockState.superValidateResult,
+			message: { type: 'error', text: 'Failed to delete thing. A database error occurred.' },
 			__message: true
 		});
 	});

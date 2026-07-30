@@ -60,6 +60,7 @@ export const actions = {
 				.set(withAuditFieldsForUpdate({ paid: form.data.paid }, user))
 				.where(eq(recurring.id, form.data.id));
 			logger.info(`Toggled paid status for recurring expense ${form.data.id} to ${form.data.paid}`);
+			return message(form, { type: 'success', text: 'Paid status updated' });
 		} catch (error) {
 			logger.error('Failed to toggle recurring paid status', error);
 			return message(
