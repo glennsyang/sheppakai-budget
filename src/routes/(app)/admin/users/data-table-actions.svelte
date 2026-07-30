@@ -47,19 +47,19 @@
 		form: setRoleForm,
 		errors: setRoleErrors,
 		enhance: setRoleEnhance,
-		message: setRoleMessage,
 		submitting: setRoleSubmitting
 	} = superForm(setUserRoleForm, {
 		// svelte-ignore state_referenced_locally
 		id: `setUserRole-${user.id}`,
 		resetForm: true,
 		onUpdate: ({ form }) => {
-			if (form.valid) {
+			// Read form.message, not $message: superforms clears the store on submit and only
+			// repopulates it after onUpdate has run, so the store is always undefined here.
+			if (form.message?.type === 'success') {
 				openSetRoleDialog = false;
-				toast.success('User role updated successfully');
-			}
-			if ($setRoleMessage?.type === 'error') {
-				toast.error(`Error: ${$setRoleMessage.text}`);
+				toast.success(form.message.text);
+			} else if (form.message?.type === 'error') {
+				toast.error(form.message.text);
 			}
 		},
 		onError: ({ result }) => {
@@ -71,19 +71,17 @@
 		form: setPasswordForm,
 		errors: setPasswordErrors,
 		enhance: setPasswordEnhance,
-		message: setPasswordMessage,
 		submitting: setPasswordSubmitting
 	} = superForm(setPasswordFormData, {
 		// svelte-ignore state_referenced_locally
 		id: `setPassword-${user.id}`,
 		resetForm: true,
 		onUpdate: ({ form }) => {
-			if (form.valid) {
+			if (form.message?.type === 'success') {
 				openSetPasswordDialog = false;
-				toast.success('Password updated successfully');
-			}
-			if ($setPasswordMessage?.type === 'error') {
-				toast.error(`Error: ${$setPasswordMessage.text}`);
+				toast.success(form.message.text);
+			} else if (form.message?.type === 'error') {
+				toast.error(form.message.text);
 			}
 		},
 		onError: ({ result }) => {
@@ -95,19 +93,17 @@
 		form: banUserForm,
 		errors: banUserErrors,
 		enhance: banUserEnhance,
-		message: banUserMessage,
 		submitting: banUserSubmitting
 	} = superForm(banUserFormData, {
 		// svelte-ignore state_referenced_locally
 		id: `banUser-${user.id}`,
 		resetForm: true,
 		onUpdate: ({ form }) => {
-			if (form.valid) {
+			if (form.message?.type === 'success') {
 				openBanDialog = false;
-				toast.success('User banned successfully');
-			}
-			if ($banUserMessage?.type === 'error') {
-				toast.error(`Error: ${$banUserMessage.text}`);
+				toast.success(form.message.text);
+			} else if (form.message?.type === 'error') {
+				toast.error(form.message.text);
 			}
 		},
 		onError: ({ result }) => {

@@ -15,36 +15,10 @@
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
 	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
-	import { toast } from 'svelte-sonner';
-	import { get } from 'svelte/store';
-	import { superForm } from 'sveltekit-superforms';
 
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-
-	// Initialize superform
-	const formInstance = $derived(
-		superForm(data.form, {
-			resetForm: false,
-			onUpdate: ({ form }) => {
-				if (form.valid) {
-					toast.success('Budget saved successfully!');
-					// Reset editing states
-					editingCustomAmount = false;
-				}
-				const currentMessage = get(messageStore);
-				if (currentMessage?.type === 'error') {
-					toast.error(`Error saving budget: ${currentMessage.text}`);
-				}
-			},
-			onError: ({ result }) => {
-				toast.error(`Failed to save budget: ${result.error.message}`);
-			}
-		})
-	);
-
-	const { message: messageStore } = $derived(formInstance);
 
 	let selectedCategoryId = $state<string | null>(null);
 	let editAmount = $state<string>('');
@@ -432,6 +406,7 @@
 						onSelect={() => selectPresetAmount('custom', 0)}
 						onEdit={startEditingCustomAmount}
 						onCancel={cancelEditing}
+						onSaved={cancelEditing}
 					/>
 				</div>
 

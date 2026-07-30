@@ -6,7 +6,6 @@ import { budget, transaction } from '$lib/server/db/schema';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
 import { getMonthYearFromUrl, padMonth } from '$lib/utils/dates';
-import { fail } from '@sveltejs/kit';
 import { and, eq, sql } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -94,15 +93,12 @@ export const load: PageServerLoad = async ({ url }) => {
 		.groupBy(transaction.categoryId, sql`substr(${transaction.date}, 1, 7)`)
 		.all();
 
-	const form = await superValidate(zod4(budgetSchema));
-
 	return {
 		budget: await budgetQueries.findByMonthYear(month, year),
 		historicalBudgets,
 		historicalTransactions,
 		last6Months: last12Months,
-		recurring: await recurringQueries.findAll(),
-		form
+		recurring: await recurringQueries.findAll()
 	};
 };
 
@@ -145,7 +141,7 @@ export const actions = {
 			);
 		}
 
-		return { success: true, create: true, form };
+		return message(form, { type: 'success', text: 'Budget saved successfully' });
 	}),
 
 	update: requireAuth(async ({ request }, user) => {
@@ -192,27 +188,6 @@ export const actions = {
 			);
 		}
 
-		return { success: true, update: true, form };
-	}),
-
-	delete: requireAuth(async ({ request }, user) => {
-		const data = await request.formData();
-		const rawId = data.get('id');
-		const budgetId = typeof rawId === 'string' ? rawId : undefined;
-
-		if (!budgetId) {
-			return fail(400, { error: 'Budget ID is required', type: 'error' });
-		}
-
-		try {
-			await getDb().delete(budget).where(eq(budget.id, budgetId));
-
-			logger.info('budget deleted successfully by:', user.id);
-		} catch (error) {
-			logger.error('Failed to delete budget', error);
-			return fail(500, { error: 'Failed to delete budget entry.', type: 'error' });
-		}
-
-		return { success: true, delete: true };
+		return message(form, { type: 'success', text: 'Budget saved successfully' });
 	})
 } satisfies Actions;

@@ -1,9 +1,14 @@
-import { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
+import {
+	banUserSchema,
+	setPasswordSchema,
+	setUserRoleSchema,
+	userIdSchema
+} from '$lib/formSchemas';
 import { adminAuthFailure } from '$lib/server/actions/admin-guard';
+import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import type { UserWithSessions } from '$lib/types';
-import { fail } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -78,14 +83,16 @@ export const load: PageServerLoad = async ({ request }) => {
 
 export const actions: Actions = {
 	setRole: async ({ request, locals }) => {
-		const authFailure = adminAuthFailure(locals);
+		// superValidate runs before the guard so the guard has a form to attach its message to.
+		const form = await superValidate(request, zod4(setUserRoleSchema));
+
+		const authFailure = adminAuthFailure(locals, form);
 		if (authFailure) {
 			return authFailure;
 		}
 
-		const form = await superValidate(request, zod4(setUserRoleSchema));
 		if (!form.valid) {
-			return fail(400, { form });
+			return invalidAuthForm(form);
 		}
 
 		try {
@@ -98,7 +105,7 @@ export const actions: Actions = {
 			});
 
 			logger.info(`Set role updated successfully`, { userId: form.data.userId });
-			return { success: true, form };
+			return message(form, { type: 'success', text: 'User role updated successfully' });
 		} catch (error) {
 			logger.error('Failed to set role:', error);
 			return message(
@@ -113,14 +120,15 @@ export const actions: Actions = {
 	},
 
 	setPassword: async ({ request, locals }) => {
-		const authFailure = adminAuthFailure(locals);
+		const form = await superValidate(request, zod4(setPasswordSchema));
+
+		const authFailure = adminAuthFailure(locals, form);
 		if (authFailure) {
 			return authFailure;
 		}
 
-		const form = await superValidate(request, zod4(setPasswordSchema));
 		if (!form.valid) {
-			return fail(400, { form });
+			return invalidAuthForm(form);
 		}
 
 		try {
@@ -133,7 +141,7 @@ export const actions: Actions = {
 			});
 
 			logger.info(`Set password successfully`, { userId: form.data.userId });
-			return { success: true, form };
+			return message(form, { type: 'success', text: 'Password updated successfully' });
 		} catch (error) {
 			logger.error('Failed to set password:', error);
 			return message(
@@ -148,14 +156,15 @@ export const actions: Actions = {
 	},
 
 	banUser: async ({ request, locals }) => {
-		const authFailure = adminAuthFailure(locals);
+		const form = await superValidate(request, zod4(banUserSchema));
+
+		const authFailure = adminAuthFailure(locals, form);
 		if (authFailure) {
 			return authFailure;
 		}
 
-		const form = await superValidate(request, zod4(banUserSchema));
 		if (!form.valid) {
-			return fail(400, { form });
+			return invalidAuthForm(form);
 		}
 
 		try {
@@ -168,7 +177,7 @@ export const actions: Actions = {
 			});
 
 			logger.info(`User banned successfully`, { userId: form.data.userId });
-			return { success: true, form };
+			return message(form, { type: 'success', text: 'User banned successfully' });
 		} catch (error) {
 			logger.error('Failed to ban user:', error);
 			return message(
@@ -183,93 +192,87 @@ export const actions: Actions = {
 	},
 
 	unbanUser: async ({ request, locals }) => {
-		const authFailure = adminAuthFailure(locals);
+		const form = await superValidate(request, zod4(userIdSchema));
+
+		const authFailure = adminAuthFailure(locals, form);
 		if (authFailure) {
 			return authFailure;
 		}
 
-		const data = await request.formData();
-		const rawId = data.get('id');
-		const userId = typeof rawId === 'string' ? rawId : undefined;
-
-		if (!userId) {
-			return fail(400, { error: 'User ID is required' });
+		if (!form.valid) {
+			return invalidAuthForm(form, 'User ID is required');
 		}
 
 		try {
 			await auth.api.unbanUser({
 				body: {
-					userId
+					userId: form.data.id
 				},
 				headers: request.headers
 			});
 
-			logger.info(`User unbanned successfully`, { userId });
-			return { success: true };
+			logger.info(`User unbanned successfully`, { userId: form.data.id });
+			return message(form, { type: 'success', text: 'User unbanned successfully' });
 		} catch (error) {
 			logger.error('Failed to unban user:', error);
-			return fail(500, { error: 'Failed to unban user' });
+			return message(form, { type: 'error', text: 'Failed to unban user' }, { status: 500 });
 		}
 	},
 
 	revokeSession: async ({ request, locals }) => {
-		const authFailure = adminAuthFailure(locals);
+		const form = await superValidate(request, zod4(userIdSchema));
+
+		const authFailure = adminAuthFailure(locals, form);
 		if (authFailure) {
 			return authFailure;
 		}
 
-		const data = await request.formData();
-		const rawId = data.get('id');
-		const userId = typeof rawId === 'string' ? rawId : undefined;
-
-		if (!userId) {
-			return fail(400, { error: 'User ID is required' });
+		if (!form.valid) {
+			return invalidAuthForm(form, 'User ID is required');
 		}
 
 		try {
 			// Revoke all sessions for the user
 			await auth.api.revokeUserSessions({
 				body: {
-					userId
+					userId: form.data.id
 				},
 				headers: request.headers
 			});
 
-			logger.info(`User sessions revoked successfully`, { userId });
-			return { success: true };
+			logger.info(`User sessions revoked successfully`, { userId: form.data.id });
+			return message(form, { type: 'success', text: 'Sessions revoked successfully' });
 		} catch (error) {
 			logger.error('Failed to revoke sessions:', error);
-			return fail(500, { error: 'Failed to revoke sessions' });
+			return message(form, { type: 'error', text: 'Failed to revoke sessions' }, { status: 500 });
 		}
 	},
 
 	deleteUser: async ({ request, locals }) => {
-		const authFailure = adminAuthFailure(locals);
+		const form = await superValidate(request, zod4(userIdSchema));
+
+		const authFailure = adminAuthFailure(locals, form);
 		if (authFailure) {
 			return authFailure;
 		}
 
-		const data = await request.formData();
-		const rawId = data.get('id');
-		const userId = typeof rawId === 'string' ? rawId : undefined;
-
-		if (!userId) {
-			return fail(400, { error: 'User ID is required' });
+		if (!form.valid) {
+			return invalidAuthForm(form, 'User ID is required');
 		}
 
 		try {
 			await auth.api.removeUser({
 				body: {
-					userId
+					userId: form.data.id
 				},
 				headers: request.headers
 			});
 
-			logger.info('User deleted successfully', { userId });
-			return { success: true };
+			logger.info('User deleted successfully', { userId: form.data.id });
+			return message(form, { type: 'success', text: 'User deleted successfully' });
 		} catch (error) {
 			logger.error('Failed to delete user:', error);
-			return fail(500, { error: 'Failed to delete user' });
+			return message(form, { type: 'error', text: 'Failed to delete user' }, { status: 500 });
 		}
 	}
 } satisfies Actions;

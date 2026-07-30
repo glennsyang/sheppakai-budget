@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { actionMessage } from '$lib/utils/actionMessage';
 	import { toast } from 'svelte-sonner';
 
 	interface Props {
@@ -31,13 +32,12 @@
 				open = false;
 
 				return async ({ result, update }) => {
-					if (result.type === 'success') {
-						toast.success(`${title} successful!`);
-					} else if (result.type === 'failure' && result.data?.error) {
-						toast.error((result.data.error as string) || `${title} failed!`);
-					} else {
-						toast.error(`${title} failed!`);
-					}
+					const { type, text } = actionMessage(result, {
+						success: `${title} successful!`,
+						error: `${title} failed!`
+					});
+
+					toast[type](text);
 
 					await update();
 				};
