@@ -2,11 +2,14 @@
 	import { enhance as enhanceAction } from '$app/forms';
 	import { Input } from '$lib/components/ui/input';
 	import { formatCurrency } from '$lib/utils';
+	import { actionMessage } from '$lib/utils/actionMessage';
 	import { padMonth } from '$lib/utils/dates';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import PencilIcon from '@lucide/svelte/icons/pencil';
 	import XIcon from '@lucide/svelte/icons/x';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		title: string;
@@ -23,6 +26,7 @@
 		onSelect: () => void;
 		onEdit?: () => void;
 		onCancel?: () => void;
+		onSaved?: () => void;
 	}
 
 	let {
@@ -39,8 +43,29 @@
 		categoryId,
 		onSelect,
 		onEdit,
-		onCancel
+		onCancel,
+		onSaved
 	}: Props = $props();
+
+	// These cards render no form fields of their own (everything is hidden inputs), so they submit
+	// with plain enhance and read the server's banner out of the result rather than holding a
+	// superForm instance. Shapes come from docs/ERROR_HANDLING_POLICY.md.
+	const enhanceBudget: SubmitFunction =
+		() =>
+		async ({ result, update }) => {
+			const { type, text } = actionMessage(result, {
+				success: 'Budget saved successfully',
+				error: 'Failed to save budget.'
+			});
+
+			if (type === 'success') {
+				onSaved?.();
+			}
+
+			toast[type](text);
+
+			await update();
+		};
 </script>
 
 {#if isCustom}
@@ -71,7 +96,7 @@
 				<form
 					method="POST"
 					action={budgetId ? '?/update' : '?/create'}
-					use:enhanceAction
+					use:enhanceAction={enhanceBudget}
 					class="flex flex-col items-center gap-2"
 				>
 					{#if budgetId}
@@ -128,7 +153,7 @@
 	<form
 		method="POST"
 		action={budgetId ? '?/update' : '?/create'}
-		use:enhanceAction
+		use:enhanceAction={enhanceBudget}
 		class="relative"
 	>
 		{#if budgetId}

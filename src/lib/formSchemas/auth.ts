@@ -49,3 +49,10 @@ export const banUserSchema = z.object({
 	userId: z.string().min(1, 'User ID is required'),
 	banReason: z.string().max(500, 'Ban reason must be at most 500 characters')
 });
+
+// The admin actions driven by ConfirmModal (unban, revoke sessions, delete) post a single
+// `id` field. They validate against this so their failures can carry a message, per
+// docs/ERROR_HANDLING_POLICY.md.
+export const userIdSchema = z.object({
+	id: z.string().min(1, 'User ID is required')
+});

@@ -5,7 +5,8 @@ export {
 	setPasswordSchema,
 	setUserRoleSchema,
 	signInSchema,
-	updateProfileSchema
+	updateProfileSchema,
+	userIdSchema
 } from './auth';
 export { budgetSchema } from './budget';
 export { categorySchema } from './categories';

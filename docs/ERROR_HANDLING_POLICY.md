@@ -123,19 +123,51 @@ return handleAuthFormAction(
 `errorType: 'success'` where a failure must stay indistinguishable from a success (see
 `src/routes/auth/forgot-password/+page.server.ts`, which hides whether an account exists).
 
+### Reading the response on the client
+
+Pages hold a `superForm` instance and read `$message` / `$errors`. Inside the `onUpdate` callback,
+read `form.message` off the callback argument — **not** the `$message` store. `clearOnSubmit` defaults
+to `'message'`, so superforms blanks the store at submit time and only repopulates it after `onUpdate`
+has run; a `$message` read inside `onUpdate` is always `undefined`. See
+`src/routes/(app)/profile/+page.svelte` for the correct pattern.
+
+Note also that `message(form, ..., { status >= 400 })` sets `form.valid = false`, so `form.valid` is a
+usable success check — but prefer `form.message?.type === 'success'`, which is explicit.
+
+Two components submit with plain `use:enhance` from `$app/forms` rather than a `superForm` instance,
+because they render no fields of their own: `ConfirmModal` and `PresetBudgetCard`. They read the
+banner out of the raw `ActionResult` via `actionMessage()` in `src/lib/utils/actionMessage.ts`, which
+is the only place that unwraps a result by hand.
+
 ### Migration status
 
-All `/auth` actions follow this contract. CRUD actions built on `createCrudActions`
-(`src/lib/server/actions/crud-helpers.ts`) are consistent within themselves but not yet aligned to
-the table above — `src/routes/(app)/admin/users/+page.server.ts` and
-`src/routes/(app)/finances/budget/+page.server.ts` still return `{ success: true }`. Adopt this
-contract when touching them.
+All `/auth` actions follow this contract, as do
+`src/routes/(app)/admin/users/+page.server.ts` and `src/routes/(app)/finances/budget/+page.server.ts`.
+
+Still to migrate:
+
+- `src/lib/server/actions/crud-helpers.ts` (`createCrudActions`) — consistent within itself, but
+  returns `{ success: true, create/update/delete: true }` and bare `fail(...)`. Fans out to 8 routes.
+- `src/routes/(app)/admin/archived-goals/+page.server.ts`
+- `src/routes/(app)/admin/deleted-customers/+page.server.ts`
+- `src/routes/(app)/window-cleaning/+page.server.ts` (`deleteCustomer`)
+- `src/lib/server/actions/window-cleaning-jobs.ts` (`deleteJob`)
+
+Adopt this contract when touching them. `actionMessage()` keeps a fallback for the legacy
+`fail(status, { error })` shape so these routes still surface a message in the meantime; that fallback
+can go once they are migrated.
 
 ## Exceptions
 
 - **Auth redirects**: `throw redirect(...)` is intentional control flow, not an error case
 - **Validation failures**: Already handled by superforms/zod validation
 - **Intentional error throws**: When using `error(404, 'Not found')` is appropriate
+- **`requireAuth`'s 401**: `src/lib/server/actions/auth-guard.ts` returns `fail(401, { error })`
+  because it runs before any `superValidate` and so has no form to carry a message. It is
+  defence-in-depth — `src/routes/(app)/+layout.server.ts` already redirects unauthenticated users, so
+  this path is not normally reachable. Contrast `adminAuthFailure`
+  (`src/lib/server/actions/admin-guard.ts`), which takes an optional `form` and returns
+  `message(form, ...)` when given one.
 
 ## Frontend Integration
 

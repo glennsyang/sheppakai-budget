@@ -14,6 +14,7 @@ import {
 	signInSchema,
 	transactionSchema,
 	unArchiveSchema,
+	userIdSchema,
 	windowCleaningCustomerSchema,
 	windowCleaningJobSchema
 } from './index';
@@ -182,6 +183,12 @@ describe('form schemas', () => {
 
 		expect(banUserSchema.safeParse({ userId: 'user-1', banReason: 'spam' }).success).toBe(true);
 		expect(banUserSchema.safeParse({ userId: '', banReason: 'spam' }).success).toBe(false);
+	});
+
+	it('validates userIdSchema requires a non-empty id', () => {
+		expect(userIdSchema.safeParse({ id: 'user-1' }).success).toBe(true);
+		expect(userIdSchema.safeParse({ id: '' }).success).toBe(false);
+		expect(userIdSchema.safeParse({}).success).toBe(false);
 	});
 
 	it('validates windowCleaningCustomerSchema required fields and lengths', () => {
