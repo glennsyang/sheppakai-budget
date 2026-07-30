@@ -1,4 +1,4 @@
-import { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
+import { idSchema, windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { createAction, updateAction } from '$lib/server/actions/crud-helpers';
 import { deleteJob, updateJob } from '$lib/server/actions/window-cleaning-jobs';
@@ -9,9 +9,8 @@ import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
 import type { WindowCleaningJob } from '$lib/types';
 import { formatDateForStorage, getCurrentUTCTimestamp } from '$lib/utils/dates';
-import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
-import { superValidate } from 'sveltekit-superforms';
+import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
@@ -109,14 +108,15 @@ export const actions = {
 		})
 	}),
 
-	// Soft-delete: set deletedAt/deletedBy instead of hard delete
+	// Soft-delete: set deletedAt/deletedBy instead of hard delete, so this cannot use deleteAction
 	deleteCustomer: requireAuth(async (event, user) => {
-		const data = await event.request.formData();
-		const id = data.get('id') as string | null;
+		const form = await superValidate(event.request, zod4(idSchema));
 
-		if (!id) {
-			return fail(400, { error: 'Customer ID is required' });
+		if (!form.valid) {
+			return message(form, { type: 'error', text: 'Customer ID is required' }, { status: 400 });
 		}
+
+		const id = form.data.id;
 
 		try {
 			await getDb()
@@ -133,10 +133,14 @@ export const actions = {
 				.where(eq(windowCleaningCustomer.id, id));
 
 			logger.info(`Customer soft-deleted: ${id} by ${user.id}`);
-			return { success: true, delete: true };
+			return message(form, { type: 'success', text: 'Customer deleted successfully' });
 		} catch (error) {
 			logger.error('Failed to delete customer', error);
-			return fail(500, { error: 'Failed to delete customer' });
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to delete customer. A database error occurred.' },
+				{ status: 500 }
+			);
 		}
 	}),
 

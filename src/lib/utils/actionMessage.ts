@@ -19,9 +19,9 @@ function isMessage(value: unknown): value is App.Superforms.Message {
  * (`ConfirmModal` and `PresetBudgetCard` submit via plain `use:enhance` from `$app/forms`) see the
  * raw ActionResult instead, so this is the single place that knows how to unwrap one.
  *
- * The response shapes come from `docs/ERROR_HANDLING_POLICY.md`. The `data.error` branch covers
- * actions that have not yet been migrated to that contract, plus the `requireAuth` 401 wall, which
- * runs before `superValidate` and so has no form to carry a message.
+ * The response shapes come from `docs/ERROR_HANDLING_POLICY.md`. Every action now returns a form,
+ * so the `data.error` branch is down to its last caller: the `requireAuth` 401 wall, which runs
+ * before `superValidate` and so has no form to carry a message.
  */
 export function actionMessage(
 	result: ActionResult,

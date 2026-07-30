@@ -141,21 +141,19 @@ is the only place that unwraps a result by hand.
 
 ### Migration status
 
-All `/auth` actions follow this contract, as do
-`src/routes/(app)/admin/users/+page.server.ts` and `src/routes/(app)/finances/budget/+page.server.ts`.
+Every action in the app follows this contract. `requireAuth`'s 401 is the sole exception (see below),
+and `actionMessage()` keeps its `data.error` fallback for that one case alone.
 
-Still to migrate:
+Success messages for CRUD actions come from `getCrudMessage()` in
+`src/lib/server/actions/messages.ts`, so the server owns the wording and pages render
+`form.message.text` verbatim rather than duplicating it.
 
-- `src/lib/server/actions/crud-helpers.ts` (`createCrudActions`) — consistent within itself, but
-  returns `{ success: true, create/update/delete: true }` and bare `fail(...)`. Fans out to 8 routes.
-- `src/routes/(app)/admin/archived-goals/+page.server.ts`
-- `src/routes/(app)/admin/deleted-customers/+page.server.ts`
-- `src/routes/(app)/window-cleaning/+page.server.ts` (`deleteCustomer`)
-- `src/lib/server/actions/window-cleaning-jobs.ts` (`deleteJob`)
-
-Adopt this contract when touching them. `actionMessage()` keeps a fallback for the legacy
-`fail(status, { error })` shape so these routes still surface a message in the meantime; that fallback
-can go once they are migrated.
+`createDeleteAction` in `src/lib/server/actions/crud-helpers.ts` validates against `idSchema`
+(`src/lib/formSchemas/common.ts`) rather than taking a per-caller schema. Every delete in the app
+takes an id and nothing else, so one code path covers them all — and a validated form is what lets a
+delete answer with a renderable message instead of a bare `fail(...)`. `deleteCustomer` in
+`src/routes/(app)/window-cleaning/+page.server.ts` follows the same shape by hand, because it
+soft-deletes and so cannot use `deleteAction`.
 
 ## Exceptions
 

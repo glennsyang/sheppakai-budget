@@ -25,18 +25,13 @@
 		superForm(recurringForm, {
 			resetForm: true,
 			onUpdate: ({ form }) => {
-				if (form.valid) {
+				// Read form.message, not $message: superforms clears the store on submit and only
+				// repopulates it after onUpdate has run, so the store is always undefined here.
+				if (form.message?.type === 'success') {
 					open = false;
-					toast.success(
-						isEditing
-							? 'Recurring expense updated successfully!'
-							: 'Recurring expense created successfully!'
-					);
-				}
-				if ($message?.type === 'error') {
-					toast.error(
-						`Error ${isEditing ? 'updating' : 'creating'} recurring expense. Reason: ${$message.text}`
-					);
+					toast.success(form.message.text);
+				} else if (form.message?.type === 'error') {
+					toast.error(form.message.text);
 				}
 			},
 			onError: ({ result }) => {
@@ -48,7 +43,7 @@
 		})
 	);
 
-	const { form, errors, enhance, message, submitting } = $derived(formInstance);
+	const { form, errors, enhance, submitting } = $derived(formInstance);
 
 	// Reset form when modal opens
 	$effect(() => {

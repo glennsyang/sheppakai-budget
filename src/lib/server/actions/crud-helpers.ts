@@ -1,11 +1,11 @@
+import { idSchema } from '$lib/formSchemas';
 import { getDb } from '$lib/server/db';
 import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
 import type { RequestEvent } from '@sveltejs/kit';
-import { fail } from '@sveltejs/kit';
 import { eq, getTableColumns } from 'drizzle-orm';
 import type { SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core';
-import { message, superValidate } from 'sveltekit-superforms';
+import { message, type SuperValidated, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import type { z, ZodType } from 'zod';
 
@@ -83,6 +83,18 @@ interface CrudConfig<
 }
 
 /**
+ * The single validation-failure response, per `docs/ERROR_HANDLING_POLICY.md`. Superforms turns a
+ * `message(...)` with a 4xx status into `fail(status, { form })`, so the page gets field errors
+ * *and* a banner from one call — no bare `fail(...)` and nothing for a page to branch on.
+ */
+function invalidForm<TForm extends Record<string, unknown>>(
+	form: SuperValidated<TForm>,
+	text = 'Please correct the errors in the form.'
+) {
+	return message(form, { type: 'error', text }, { status: 400 });
+}
+
+/**
  * Create a generic create action handler
  */
 function createCreateAction<
@@ -94,7 +106,7 @@ function createCreateAction<
 		const form = await superValidate(event.request, zod4(config.schema));
 
 		if (!form.valid) {
-			return fail(400, { form });
+			return invalidForm(form);
 		}
 
 		const userId = user.id;
@@ -149,7 +161,10 @@ function createCreateAction<
 			);
 		}
 
-		return { success: true, create: true, form };
+		return message(form, {
+			type: 'success',
+			text: getCrudMessage('createSuccess', config.entityName, config.messages)
+		});
 	});
 }
 
@@ -165,12 +180,12 @@ function createUpdateAction<
 		const form = await superValidate(event.request, zod4(config.schema));
 
 		if (!form.valid) {
-			return fail(400, { form });
+			return invalidForm(form);
 		}
 
 		const recordId = (form.data as Record<string, unknown> & { id?: string }).id;
 		if (!recordId) {
-			return fail(400, { error: 'ID is required for update' });
+			return invalidForm(form, 'ID is required for update');
 		}
 
 		const userId = user.id;
@@ -225,76 +240,32 @@ function createUpdateAction<
 			);
 		}
 
-		return { success: true, update: true, form };
+		return message(form, {
+			type: 'success',
+			text: getCrudMessage('updateSuccess', config.entityName, config.messages)
+		});
 	});
 }
 
 /**
- * Create a generic delete action handler
+ * Create a generic delete action handler.
+ *
+ * Every delete in the app takes an id and nothing else, so this validates against `idSchema`
+ * rather than a per-caller schema. That keeps it on one code path, and so on the response
+ * contract in `docs/ERROR_HANDLING_POLICY.md` — the raw-FormData variant it replaced could only
+ * answer with a bare `fail(...)`, which no page could render.
  */
 function createDeleteAction<TTable extends AnySQLiteTable>(
-	config: Omit<CrudConfig<AnyZodSchema, TTable, unknown>, 'schema'> & {
-		deleteSchema?: AnyZodSchema;
-	}
+	config: Omit<CrudConfig<AnyZodSchema, TTable, unknown>, 'schema'>
 ) {
-	// If a deleteSchema is provided, use superforms validation
-	if (config.deleteSchema) {
-		const deleteSchema = config.deleteSchema; // Type guard
-		return requireAuth(async (event: RequestEvent, user) => {
-			const form = await superValidate(event.request, zod4(deleteSchema));
-
-			if (!form.valid) {
-				return fail(400, { form });
-			}
-
-			const recordId = (form.data as Record<string, unknown> & { id: string }).id;
-			const userId = user.id;
-
-			try {
-				// Run beforeDelete hook if provided
-				if (config.beforeDelete) {
-					const result = await config.beforeDelete(recordId, userId);
-					if (result && 'error' in result) {
-						return message(form, { type: 'error', text: result.error }, { status: 400 });
-					}
-				}
-
-				// Delete from database
-				const columns = getTableColumns(config.table);
-				await getDb().delete(config.table).where(eq(columns.id, recordId));
-
-				logger.info(`${config.entityName} deleted successfully by:`, userId);
-
-				// Run afterDelete hook if provided
-				if (config.afterDelete) {
-					await config.afterDelete(recordId);
-				}
-			} catch (error) {
-				logger.error(`Failed to delete ${config.entityName.toLowerCase()}`, error);
-				return message(
-					form,
-					{
-						type: 'error',
-						text: getCrudMessage('deleteError', config.entityName, config.messages)
-					},
-					{ status: 500 }
-				);
-			}
-
-			return { success: true, delete: true, form };
-		});
-	}
-
-	// Otherwise use FormData
 	return requireAuth(async (event: RequestEvent, user) => {
-		const data = await event.request.formData();
-		const hasId = data.has('id');
+		const form = await superValidate(event.request, zod4(idSchema));
 
-		if (!hasId) {
-			return fail(400, { hasId });
+		if (!form.valid) {
+			return invalidForm(form);
 		}
 
-		const recordId = data.get('id') as string;
+		const recordId = (form.data as Record<string, unknown> & { id: string }).id;
 		const userId = user.id;
 
 		try {
@@ -302,7 +273,7 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
 			if (config.beforeDelete) {
 				const result = await config.beforeDelete(recordId, userId);
 				if (result && 'error' in result) {
-					return fail(400, { error: result.error });
+					return message(form, { type: 'error', text: result.error }, { status: 400 });
 				}
 			}
 
@@ -318,12 +289,20 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
 			}
 		} catch (error) {
 			logger.error(`Failed to delete ${config.entityName.toLowerCase()}`, error);
-			return fail(500, {
-				error: getCrudMessage('deleteError', config.entityName, config.messages)
-			});
+			return message(
+				form,
+				{
+					type: 'error',
+					text: getCrudMessage('deleteError', config.entityName, config.messages)
+				},
+				{ status: 500 }
+			);
 		}
 
-		return { success: true, delete: true };
+		return message(form, {
+			type: 'success',
+			text: getCrudMessage('deleteSuccess', config.entityName, config.messages)
+		});
 	});
 }
 
@@ -384,9 +363,7 @@ export function updateAction<
 }
 
 export function deleteAction<TTable extends AnySQLiteTable>(
-	config: Omit<CrudConfig<AnyZodSchema, TTable, unknown>, 'schema'> & {
-		deleteSchema?: AnyZodSchema;
-	}
+	config: Omit<CrudConfig<AnyZodSchema, TTable, unknown>, 'schema'>
 ) {
 	return createDeleteAction(config);
 }

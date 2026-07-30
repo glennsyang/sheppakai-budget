@@ -1,10 +1,10 @@
 import { unArchiveSchema } from '$lib/formSchemas';
 import { adminAuthFailure } from '$lib/server/actions/admin-guard';
+import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { getDb } from '$lib/server/db';
 import { savingsGoal } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
-import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -41,17 +41,18 @@ export const load: PageServerLoad = async () => {
 
 export const actions: Actions = {
 	unarchive: async ({ request, locals }) => {
-		const authFailure = adminAuthFailure(locals);
-		if (authFailure) {
-			return authFailure;
-		}
-		if (!locals.user) {
-			return fail(401, { error: 'Unauthorized' });
+		// superValidate runs before the guard so the guard has a form to attach its message to.
+		const form = await superValidate(request, zod4(unArchiveSchema));
+
+		// The `!locals.user` arm is unreachable — adminAuthFailure already rejects anonymous
+		// callers — but it narrows the type for the audit fields below.
+		const authFailure = adminAuthFailure(locals, form);
+		if (authFailure || !locals.user) {
+			return authFailure ?? message(form, { type: 'error', text: 'Unauthorized' }, { status: 401 });
 		}
 
-		const form = await superValidate(request, zod4(unArchiveSchema));
 		if (!form.valid) {
-			return fail(400, { form });
+			return invalidAuthForm(form);
 		}
 
 		const db = getDb();
@@ -71,7 +72,7 @@ export const actions: Actions = {
 				.where(eq(savingsGoal.id, form.data.goalId));
 
 			logger.info(`Goal with ID ${form.data.goalId} updated successfully`);
-			return { success: true, form };
+			return message(form, { type: 'success', text: 'Goal unarchived successfully' });
 		} catch (error) {
 			logger.error('Failed to unarchive goal:', error);
 			return message(

@@ -42,7 +42,9 @@
 		superForm(contributionForm, {
 			resetForm: true,
 			onUpdate: ({ form }) => {
-				if (form.valid) {
+				// Read form.message, not $message: superforms clears the store on submit and only
+				// repopulates it after onUpdate has run, so the store is always undefined here.
+				if (form.message?.type === 'success') {
 					const successPayload: ContributionSuccessPayload = {
 						goalId: form.data.goalId,
 						amount: form.data.amount
@@ -55,14 +57,9 @@
 
 					onSuccess?.(successPayload);
 					open = false;
-					toast.success(
-						isEditing ? 'Contribution updated successfully!' : 'Contribution added successfully!'
-					);
-				}
-				if ($message?.type === 'error') {
-					toast.error(
-						`Error ${isEditing ? 'updating' : 'adding'} contribution. Reason: ${$message.text}`
-					);
+					toast.success(form.message.text);
+				} else if (form.message?.type === 'error') {
+					toast.error(form.message.text);
 				}
 			},
 			onError: ({ result }) => {
@@ -73,7 +70,7 @@
 		})
 	);
 
-	const { form, errors, enhance, message, submitting } = $derived(formInstance);
+	const { form, errors, enhance, submitting } = $derived(formInstance);
 
 	$effect(() => {
 		if (open) {
