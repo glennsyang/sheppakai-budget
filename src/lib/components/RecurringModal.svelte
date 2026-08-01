@@ -80,7 +80,7 @@
 		<form
 			class="space-y-4"
 			method="POST"
-			action={isEditing ? '/setup/recurring?/update' : '/setup/recurring?/create'}
+			action={isEditing ? '/recurring?/update' : '/recurring?/create'}
 			use:enhance
 		>
 			<input type="hidden" name="id" bind:value={$form.id} />

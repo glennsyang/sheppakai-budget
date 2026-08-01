@@ -8,6 +8,6 @@
 <RowActions
 	{id}
 	{transactionData}
-	actionUrl="/finances/transactions?/delete"
+	actionUrl="/transactions?/delete"
 	deleteMessage="Are you sure you want to delete this transaction?"
 />

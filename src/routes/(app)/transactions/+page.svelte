@@ -70,14 +70,14 @@
 		debounceTimer = setTimeout(() => {
 			const trimmed = value.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
 			const url = trimmed
-				? `/finances/transactions?search=${encodeURIComponent(trimmed)}`
-				: `/finances/transactions?month=${selectedMonth}&year=${selectedYear}`;
+				? `/transactions?search=${encodeURIComponent(trimmed)}`
+				: `/transactions?month=${selectedMonth}&year=${selectedYear}`;
 			goto(url, { keepFocus: true, replaceState: true });
 		}, 500);
 	}
 
 	function clearSearch() {
-		goto(`/finances/transactions?month=${selectedMonth}&year=${selectedYear}`, {
+		goto(`/transactions?month=${selectedMonth}&year=${selectedYear}`, {
 			keepFocus: true,
 			replaceState: true
 		});
@@ -89,7 +89,7 @@
 	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
 
 	function onMonthYearChange(month: number, year: number) {
-		goto(`${'/finances/transactions'}?month=${month}&year=${year}`, {
+		goto(`${'/transactions'}?month=${month}&year=${year}`, {
 			keepFocus: true,
 			replaceState: true
 		});
@@ -97,7 +97,7 @@
 
 	function onMonthJump(month: string | undefined) {
 		if (month) {
-			goto(`${'/finances/transactions'}?month=${month}&year=${selectedYear}`, {
+			goto(`${'/transactions'}?month=${month}&year=${selectedYear}`, {
 				keepFocus: true,
 				replaceState: true
 			});

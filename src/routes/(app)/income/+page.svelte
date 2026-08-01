@@ -50,7 +50,7 @@
 	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
 
 	function onMonthYearChange(month: number, year: number) {
-		goto(`${'/finances/income'}?month=${month}&year=${year}`, {
+		goto(`${'/income'}?month=${month}&year=${year}`, {
 			keepFocus: true,
 			replaceState: true
 		});
@@ -58,7 +58,7 @@
 
 	function onMonthJump(month: string | undefined) {
 		if (month) {
-			goto(`${'/finances/income'}?month=${month}&year=${selectedYear}`, {
+			goto(`${'/income'}?month=${month}&year=${selectedYear}`, {
 				keepFocus: true,
 				replaceState: true
 			});

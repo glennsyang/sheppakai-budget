@@ -22,22 +22,22 @@ export const sidebarData: SidebarData = {
 		},
 		{
 			title: 'Transactions',
-			url: '/finances/transactions',
+			url: '/transactions',
 			icon: ReceiptIcon
 		},
 		{
 			title: 'Budget',
-			url: '/finances/budget',
+			url: '/budget',
 			icon: PiggyBankIcon
 		},
 		{
 			title: 'Income',
-			url: '/finances/income',
+			url: '/income',
 			icon: DollarSignIcon
 		},
 		{
 			title: 'Recurring',
-			url: '/setup/recurring',
+			url: '/recurring',
 			icon: RepeatIcon
 		}
 	],
@@ -80,7 +80,7 @@ export const sidebarData: SidebarData = {
 	navSetup: [
 		{
 			title: 'Categories',
-			url: '/setup/categories',
+			url: '/categories',
 			icon: FolderTreeIcon
 		},
 		{
