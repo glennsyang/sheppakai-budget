@@ -12,6 +12,8 @@ type PeriodProgressKind = 'month' | 'year';
 type PeriodProgressStatus = 'past' | 'current' | 'future';
 type PeriodProgressUnit = 'day' | 'month';
 
+const PACIFIC_TIMEZONE = 'America/Los_Angeles';
+
 export interface PeriodProgress {
 	kind: PeriodProgressKind;
 	elapsedUnits: number;
@@ -165,21 +167,60 @@ export function padMonth(month: number | string): string {
 }
 
 /**
+ * Get year/month/day parts of a date as observed in the Pacific timezone
+ * (America/Los_Angeles, which auto-adjusts for PST/PDT), regardless of the
+ * server or browser's own local timezone.
+ */
+function getPacificDateParts(date: Date = new Date()): {
+	year: number;
+	month: number;
+	day: number;
+} {
+	const formatter = new Intl.DateTimeFormat('en-US', {
+		timeZone: PACIFIC_TIMEZONE,
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit'
+	});
+	const parts = formatter.formatToParts(date);
+	const partMap = new Map(parts.map((part) => [part.type, part.value]));
+
+	return {
+		year: Number(partMap.get('year')),
+		month: Number(partMap.get('month')),
+		day: Number(partMap.get('day'))
+	};
+}
+
+/**
+ * Get the current month/year as observed in the Pacific timezone, so the
+ * month rolls over at midnight Pacific rather than midnight UTC or the
+ * server/browser's own local timezone.
+ */
+export function getCurrentPacificMonthYear(date: Date = new Date()): {
+	month: number;
+	year: number;
+} {
+	const { month, year } = getPacificDateParts(date);
+	return { month, year };
+}
+
+/**
  * Extract month and year from URL search params with fallback to current date
  * @param url - URL object containing searchParams
  * @returns Object with month (1-12) and year
  *
  * Example: URL with ?month=3&year=2025 → { month: 3, year: 2025 }
- * Example: URL with no params → { month: 1, year: 2026 } (current date)
+ * Example: URL with no params → { month: 1, year: 2026 } (current date, Pacific time)
  */
 export function getMonthYearFromUrl(url: URL): { month: number; year: number } {
-	const currentDate = new Date();
 	const monthParam = url.searchParams.get('month');
 	const yearParam = url.searchParams.get('year');
+	const current = getCurrentPacificMonthYear();
 
 	return {
-		month: monthParam ? Number.parseInt(monthParam) : currentDate.getMonth() + 1,
-		year: yearParam ? Number.parseInt(yearParam) : currentDate.getFullYear()
+		month: monthParam ? Number.parseInt(monthParam) : current.month,
+		year: yearParam ? Number.parseInt(yearParam) : current.year
 	};
 }
 
@@ -208,9 +249,8 @@ export function getMonthRangeFromUrl(url: URL) {
  *   → Returns data for Aug 2025, Sep 2025, Oct 2025, Nov 2025, Dec 2025, Jan 2026
  */
 export function getPreviousMonthsRange(count: number) {
-	const currentDate = new Date();
-	const currentMonth = currentDate.getMonth() + 1;
-	const currentYear = currentDate.getFullYear();
+	const { year: currentYear, month: currentMonth, day: currentDay } = getPacificDateParts();
+	const currentDate = new Date(currentYear, currentMonth - 1, currentDay);
 	const ranges = [];
 
 	for (let i = count - 1; i >= 0; i--) {
@@ -240,7 +280,8 @@ export function getPreviousMonthsRange(count: number) {
  *   → Returns all 12 months of 2025
  */
 export function getCalendarYearMonthsRange(year: number) {
-	const currentDate = new Date();
+	const { year: currentYear, month: currentMonth, day: currentDay } = getPacificDateParts();
+	const currentDate = new Date(currentYear, currentMonth - 1, currentDay);
 	const ranges = [];
 
 	for (let month = 1; month <= 12; month++) {

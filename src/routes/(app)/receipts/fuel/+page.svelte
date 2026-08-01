@@ -8,6 +8,7 @@
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import { formatCurrency } from '$lib/utils';
+	import { getCurrentPacificMonthYear } from '$lib/utils/dates';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import type { PageProps } from './$types';
@@ -57,9 +58,7 @@
 		return yearlyTotalAmount / completedMonthsSinceJanuary;
 	});
 
-	const currentDate = new Date();
-	const defaultMonth = currentDate.getMonth() + 1;
-	const defaultYear = currentDate.getFullYear();
+	const { month: defaultMonth, year: defaultYear } = getCurrentPacificMonthYear();
 
 	let selectedMonth = $derived(Number(page.url.searchParams.get('month')) || defaultMonth);
 	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);

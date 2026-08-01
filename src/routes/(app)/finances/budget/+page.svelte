@@ -10,7 +10,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
 	import { months } from '$lib/utils';
-	import { padMonth } from '$lib/utils/dates';
+	import { getCurrentPacificMonthYear, padMonth } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
@@ -31,9 +31,7 @@
 	// Calculate total recurring expenses
 	let totalRecurring = $derived((data.recurring || []).reduce((sum, item) => sum + item.amount, 0));
 
-	const currentDate = new Date();
-	const defaultMonth = currentDate.getMonth() + 1;
-	const defaultYear = currentDate.getFullYear();
+	const { month: defaultMonth, year: defaultYear } = getCurrentPacificMonthYear();
 
 	let selectedMonth = $derived(Number(page.url.searchParams.get('month')) || defaultMonth);
 	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);

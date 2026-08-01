@@ -254,6 +254,13 @@ describe('Date Utilities - Local Timezone Storage', () => {
 			const result = getMonthYearFromUrl(url);
 			expect(result).toEqual({ month: 7, year: 2025 });
 		});
+
+		it('should stay in the previous month across the UTC day boundary (Pacific 9pm July 31 = UTC Aug 1)', () => {
+			vi.setSystemTime(new Date('2026-08-01T04:00:00Z')); // 9:00pm PDT on July 31
+			const url = new URL('http://localhost/');
+			const result = getMonthYearFromUrl(url);
+			expect(result).toEqual({ month: 7, year: 2026 });
+		});
 	});
 
 	describe('getMonthRangeFromUrl', () => {
@@ -362,6 +369,15 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				{ month: 1, year: 2026, startDate: '2026-01-01', endDate: '2026-01-31' }
 			]);
 		});
+
+		it('does not include the next month across the UTC day boundary (Pacific 9pm July 31 = UTC Aug 1)', () => {
+			vi.setSystemTime(new Date('2026-08-01T04:00:00Z')); // 9:00pm PDT on July 31
+			const result = getPreviousMonthsRange(2);
+			expect(result).toEqual([
+				{ month: 6, year: 2026, startDate: '2026-06-01', endDate: '2026-06-30' },
+				{ month: 7, year: 2026, startDate: '2026-07-01', endDate: '2026-07-31' }
+			]);
+		});
 	});
 
 	describe('getCalendarYearMonthsRange', () => {
@@ -397,6 +413,18 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				year: 2025,
 				startDate: '2025-12-01',
 				endDate: '2025-12-31'
+			});
+		});
+
+		it('excludes August across the UTC day boundary (Pacific 9pm July 31 = UTC Aug 1)', () => {
+			vi.setSystemTime(new Date('2026-08-01T04:00:00Z')); // 9:00pm PDT on July 31
+			const result = getCalendarYearMonthsRange(2026);
+			expect(result).toHaveLength(7);
+			expect(result[6]).toEqual({
+				month: 7,
+				year: 2026,
+				startDate: '2026-07-01',
+				endDate: '2026-07-31'
 			});
 		});
 	});
