@@ -11,6 +11,7 @@
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
 	import { formatCurrency } from '$lib/utils';
+	import { getCurrentPacificMonthYear } from '$lib/utils/dates';
 	import { calculateTransactionSummary } from '$lib/utils/transaction-summary';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -82,9 +83,7 @@
 		});
 	}
 
-	const currentDate = new Date();
-	const defaultMonth = currentDate.getMonth() + 1;
-	const defaultYear = currentDate.getFullYear();
+	const { month: defaultMonth, year: defaultYear } = getCurrentPacificMonthYear();
 
 	let selectedMonth = $derived(Number(page.url.searchParams.get('month')) || defaultMonth);
 	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);

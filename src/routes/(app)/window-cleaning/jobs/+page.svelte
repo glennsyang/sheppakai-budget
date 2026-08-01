@@ -8,6 +8,7 @@
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import YearSwitcher from '$lib/components/YearSwitcher.svelte';
 	import type { windowCleaningJobSchema } from '$lib/formSchemas';
+	import { getCurrentPacificMonthYear } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { setContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
@@ -32,8 +33,7 @@
 	// svelte-ignore state_referenced_locally
 	setContext('jobForm', data.jobForm);
 
-	const currentDate = new Date();
-	const defaultYear = currentDate.getFullYear();
+	const { year: defaultYear } = getCurrentPacificMonthYear();
 
 	function parseSelectedYear(searchParam: string | null, fallbackYear: number): number {
 		if (searchParam === null) {
