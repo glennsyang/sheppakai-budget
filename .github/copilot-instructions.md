@@ -24,7 +24,7 @@ SvelteKit budget tracking app using Svelte 5, Tailwind CSS, SQLite (better-sqlit
 - Month/year passed via URL params: `?month=12&year=2025`
 - Calculate date range: `startDate = YYYY-MM-01`, `endDate = last day of month`
 - Filter with: `` sql`date(${transaction.date}) >= date(${startDate})` ``
-- See `dashboard/+page.server.ts` and `finances/transactions/+page.server.ts` for examples
+- See `dashboard/+page.server.ts` and `transactions/+page.server.ts` for examples
 
 ### Form Actions (SvelteKit Pattern)
 

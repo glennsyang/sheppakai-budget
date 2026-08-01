@@ -73,7 +73,7 @@
 		<form
 			class="space-y-4"
 			method="POST"
-			action={isEditing ? '/setup/categories?/update' : '/setup/categories?/create'}
+			action={isEditing ? '/categories?/update' : '/categories?/create'}
 			use:enhance
 		>
 			<input type="hidden" name="id" bind:value={$form.id} />
