@@ -45,6 +45,23 @@
 
 	const { form, errors, enhance, submitting } = $derived(formInstance);
 
+	const months = [
+		{ value: '1', label: 'January' },
+		{ value: '2', label: 'February' },
+		{ value: '3', label: 'March' },
+		{ value: '4', label: 'April' },
+		{ value: '5', label: 'May' },
+		{ value: '6', label: 'June' },
+		{ value: '7', label: 'July' },
+		{ value: '8', label: 'August' },
+		{ value: '9', label: 'September' },
+		{ value: '10', label: 'October' },
+		{ value: '11', label: 'November' },
+		{ value: '12', label: 'December' }
+	];
+
+	const dueMonthLabel = $derived(months.find((m) => m.value === String($form.dueMonth))?.label);
+
 	// Reset form when modal opens
 	$effect(() => {
 		if (open) {
@@ -54,12 +71,16 @@
 				$form.description = initialData.description || '';
 				$form.cadence = initialData.cadence || 'Monthly';
 				$form.amount = initialData?.amount || 0;
+				$form.dueDay = initialData.dueDay ?? null;
+				$form.dueMonth = initialData.dueMonth ?? null;
 			} else {
 				$form.id = '';
 				$form.merchant = '';
 				$form.description = '';
 				$form.cadence = 'Monthly';
 				$form.amount = 0;
+				$form.dueDay = null;
+				$form.dueMonth = null;
 			}
 		}
 	});
@@ -130,6 +151,50 @@
 				</Select.Root>
 				{#if $errors.cadence}
 					<p class="text-sm text-red-500">{$errors.cadence}</p>
+				{/if}
+			</div>
+
+			<div class="flex gap-4">
+				<div class="space-y-2 {$form.cadence === 'Yearly' ? 'w-1/2' : 'w-full'}">
+					<label for="recurring-due-day" class="text-sm font-medium">Due day</label>
+					<Input
+						id="recurring-due-day"
+						name="dueDay"
+						type="number"
+						min="1"
+						max="31"
+						bind:value={$form.dueDay}
+						placeholder="e.g. 15"
+						class={$errors.dueDay ? 'border-red-400' : ''}
+					/>
+					{#if $errors.dueDay}
+						<p class="text-sm text-red-500">{$errors.dueDay}</p>
+					{/if}
+				</div>
+
+				{#if $form.cadence === 'Yearly'}
+					<div class="w-1/2 space-y-2">
+						<label for="recurring-due-month" class="text-sm font-medium">Due month</label>
+						<Select.Root
+							type="single"
+							name="dueMonth"
+							value={String($form.dueMonth ?? '')}
+							onValueChange={(value) => ($form.dueMonth = value ? Number(value) : null)}
+						>
+							<Select.Trigger class="w-full {$errors.dueMonth ? 'border-red-400' : ''}">
+								{dueMonthLabel ? dueMonthLabel : 'Select a month'}
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Label class="px-2 py-1 text-sm font-medium">Due month</Select.Label>
+								{#each months as month (month.value)}
+									<Select.Item value={month.value}>{month.label}</Select.Item>
+								{/each}
+							</Select.Content>
+						</Select.Root>
+						{#if $errors.dueMonth}
+							<p class="text-sm text-red-500">{$errors.dueMonth}</p>
+						{/if}
+					</div>
 				{/if}
 			</div>
 

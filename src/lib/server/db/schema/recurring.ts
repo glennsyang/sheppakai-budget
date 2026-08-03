@@ -11,6 +11,8 @@ const recurring = sqliteTable('recurring', {
 	cadence: text('cadence').notNull(),
 	amount: real('amount').notNull(),
 	paid: integer('paid', { mode: 'boolean' }).notNull().default(false),
+	dueDay: integer('due_day'),
+	dueMonth: integer('due_month'),
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id),
