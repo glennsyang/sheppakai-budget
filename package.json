@@ -63,7 +63,7 @@
 		"fallow": "^3.9.1",
 		"globals": "^17.8.0",
 		"knip": "^6.11.0",
-		"layerchart": "^2.0.0-next.63",
+		"layerchart": "^2.0.4",
 		"lefthook": "^2.0.16",
 		"lint-staged": "^17.2.0",
 		"oxfmt": "^0.61.0",
