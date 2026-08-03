@@ -6,6 +6,36 @@ import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
+const MONTH_ABBREVIATIONS = [
+	'Jan',
+	'Feb',
+	'Mar',
+	'Apr',
+	'May',
+	'Jun',
+	'Jul',
+	'Aug',
+	'Sep',
+	'Oct',
+	'Nov',
+	'Dec'
+];
+
+function formatDueDate(recurring: Recurring): string {
+	if (!recurring.dueDay) return '—';
+	if (recurring.cadence === 'Yearly' && recurring.dueMonth) {
+		return `${MONTH_ABBREVIATIONS[recurring.dueMonth - 1]} ${recurring.dueDay}`;
+	}
+	return `${recurring.dueDay}${ordinalSuffix(recurring.dueDay)}`;
+}
+
+function ordinalSuffix(day: number): string {
+	if (day % 10 === 1 && day !== 11) return 'st';
+	if (day % 10 === 2 && day !== 12) return 'nd';
+	if (day % 10 === 3 && day !== 13) return 'rd';
+	return 'th';
+}
+
 export const columns: ColumnDef<Recurring>[] = [
 	{
 		accessorKey: 'merchant',
@@ -26,6 +56,20 @@ export const columns: ColumnDef<Recurring>[] = [
 	{
 		accessorKey: 'cadence',
 		header: 'Cadence'
+	},
+	{
+		id: 'dueDate',
+		header: 'Due',
+		cell: ({ row }) => {
+			const dueDateSnippet = createRawSnippet<[string]>((getDue) => {
+				const due = getDue();
+				return {
+					render: () => `<div>${due}</div>`
+				};
+			});
+
+			return renderSnippet(dueDateSnippet, formatDueDate(row.original));
+		}
 	},
 	{
 		accessorKey: 'amount',

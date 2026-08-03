@@ -81,6 +81,8 @@ export type Recurring = {
 	cadence: 'Monthly' | 'Yearly';
 	amount: number;
 	paid: boolean;
+	dueDay: number | null;
+	dueMonth: number | null;
 	user: User;
 };
 

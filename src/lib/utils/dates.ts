@@ -361,3 +361,42 @@ export function getYearProgress(year: number, referenceDate: Date = new Date()):
 
 	return buildPeriodProgress('year', referenceDate.getMonth(), totalUnits, 'current', 'month');
 }
+
+function getLastDayOfMonth(year: number, month: number): number {
+	return new Date(year, month, 0).getDate();
+}
+
+/**
+ * Get the due date within the current cadence period for a recurring item.
+ * Monthly items are due on `dueDay` of the current month; Yearly items are due
+ * on `dueDay` of `dueMonth` in the current year. `dueDay` is clamped to the
+ * last day of the target month (e.g. dueDay=31 in February → Feb 28/29).
+ */
+export function getCurrentPeriodDueDate(
+	dueDay: number,
+	dueMonth: number | null,
+	cadence: string,
+	referenceDate: Date = new Date()
+): Date {
+	const year = referenceDate.getFullYear();
+	const month = cadence === 'Yearly' && dueMonth ? dueMonth : referenceDate.getMonth() + 1;
+	const day = Math.min(dueDay, getLastDayOfMonth(year, month));
+
+	return new Date(year, month - 1, day);
+}
+
+/**
+ * Get the signed number of days between a due date and the reference date.
+ * Negative values mean the due date has passed (overdue).
+ */
+export function getDaysUntilDue(dueDate: Date, referenceDate: Date = new Date()): number {
+	const startOfDue = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+	const startOfReference = new Date(
+		referenceDate.getFullYear(),
+		referenceDate.getMonth(),
+		referenceDate.getDate()
+	);
+	const msPerDay = 24 * 60 * 60 * 1000;
+
+	return Math.round((startOfDue.getTime() - startOfReference.getTime()) / msPerDay);
+}

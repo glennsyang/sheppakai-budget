@@ -23,6 +23,7 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import UpcomingBillsCard from '$lib/components/UpcomingBillsCard.svelte';
 	import WindowCleaningSummaryCard from '$lib/components/WindowCleaningSummaryCard.svelte';
 	import { getCategoriesContext } from '$lib/contexts';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
@@ -574,6 +575,11 @@
 				chartTitle="Income vs Spending"
 				chartDescription="6-month trend"
 			/>
+		</div>
+
+		<!-- Upcoming bills -->
+		<div class="mb-6">
+			<UpcomingBillsCard recurring={data.recurringExpenses || []} />
 		</div>
 
 		<!-- Recurring expenses card -->

@@ -34,13 +34,17 @@ export const actions = {
 			description: data.description,
 			merchant: data.merchant,
 			cadence: data.cadence,
+			dueDay: data.dueDay ?? null,
+			dueMonth: data.dueMonth ?? null,
 			userId
 		}),
 		transformUpdate: (data) => ({
 			amount: data.amount,
 			description: data.description,
 			merchant: data.merchant,
-			cadence: data.cadence
+			cadence: data.cadence,
+			dueDay: data.dueDay ?? null,
+			dueMonth: data.dueMonth ?? null
 		})
 	}),
 	togglePaid: requireAuth(async ({ request }, user) => {

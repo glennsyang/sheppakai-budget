@@ -28,19 +28,34 @@ export const incomeSchema = z.object({
 	amount: z.number().positive('Amount must be positive')
 });
 
-export const recurringSchema = z.object({
-	id: z.string().optional(),
-	amount: z.number().positive('Amount must be positive'),
-	description: z
-		.string()
-		.min(1, 'Description is required')
-		.max(500, 'Description must be at most 500 characters'),
-	merchant: z
-		.string()
-		.min(1, 'Merchant is required')
-		.max(100, 'Merchant must be at most 100 characters'),
-	cadence: z.string().min(1, 'Cadence is required').max(50, 'Cadence must be at most 50 characters')
-});
+export const recurringSchema = z
+	.object({
+		id: z.string().optional(),
+		amount: z.number().positive('Amount must be positive'),
+		description: z
+			.string()
+			.min(1, 'Description is required')
+			.max(500, 'Description must be at most 500 characters'),
+		merchant: z
+			.string()
+			.min(1, 'Merchant is required')
+			.max(100, 'Merchant must be at most 100 characters'),
+		cadence: z
+			.string()
+			.min(1, 'Cadence is required')
+			.max(50, 'Cadence must be at most 50 characters'),
+		dueDay: z.number().int().min(1).max(31).nullable().optional(),
+		dueMonth: z.number().int().min(1).max(12).nullable().optional()
+	})
+	.superRefine((data, ctx) => {
+		if (data.cadence === 'Yearly' && data.dueDay && !data.dueMonth) {
+			ctx.addIssue({
+				code: 'custom',
+				message: 'Due month is required for yearly cadence',
+				path: ['dueMonth']
+			});
+		}
+	});
 
 export const togglePaidSchema = z.object({
 	id: z.string().min(1, 'Recurring ID is required'),

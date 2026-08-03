@@ -6,7 +6,9 @@ import {
 	formatLocalTimestamp,
 	formatTime12h,
 	getCalendarYearMonthsRange,
+	getCurrentPeriodDueDate,
 	getCurrentUTCTimestamp,
+	getDaysUntilDue,
 	getMonthDateRange,
 	getMonthProgress,
 	getMonthRangeFromUrl,
@@ -593,6 +595,55 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				unit: 'month'
 			});
 			expect(progress.percentage).toBeCloseTo((2 / 12) * 100, 6);
+		});
+	});
+
+	describe('getCurrentPeriodDueDate', () => {
+		it('returns the due day in the current month for Monthly cadence', () => {
+			const dueDate = getCurrentPeriodDueDate(15, null, 'Monthly', new Date('2026-03-06T12:00:00'));
+			expect(dueDate).toEqual(new Date(2026, 2, 15));
+		});
+
+		it('clamps the due day to the last day of a short month', () => {
+			const dueDate = getCurrentPeriodDueDate(31, null, 'Monthly', new Date('2026-02-06T12:00:00'));
+			expect(dueDate).toEqual(new Date(2026, 1, 28));
+		});
+
+		it('clamps to Feb 29 in a leap year', () => {
+			const dueDate = getCurrentPeriodDueDate(31, null, 'Monthly', new Date('2024-02-06T12:00:00'));
+			expect(dueDate).toEqual(new Date(2024, 1, 29));
+		});
+
+		it('uses dueMonth for Yearly cadence', () => {
+			const dueDate = getCurrentPeriodDueDate(15, 3, 'Yearly', new Date('2026-01-06T12:00:00'));
+			expect(dueDate).toEqual(new Date(2026, 2, 15));
+		});
+
+		it('falls back to the current month for Yearly cadence when dueMonth is missing', () => {
+			const dueDate = getCurrentPeriodDueDate(15, null, 'Yearly', new Date('2026-01-06T12:00:00'));
+			expect(dueDate).toEqual(new Date(2026, 0, 15));
+		});
+	});
+
+	describe('getDaysUntilDue', () => {
+		it('returns 0 when the due date is today', () => {
+			const referenceDate = new Date('2026-03-06T18:00:00');
+			expect(getDaysUntilDue(new Date(2026, 2, 6), referenceDate)).toBe(0);
+		});
+
+		it('returns a positive count for a future due date', () => {
+			const referenceDate = new Date('2026-03-06T12:00:00');
+			expect(getDaysUntilDue(new Date(2026, 2, 15), referenceDate)).toBe(9);
+		});
+
+		it('returns a negative count for a past due date (overdue)', () => {
+			const referenceDate = new Date('2026-03-15T12:00:00');
+			expect(getDaysUntilDue(new Date(2026, 2, 6), referenceDate)).toBe(-9);
+		});
+
+		it('ignores the time-of-day component', () => {
+			const referenceDate = new Date('2026-03-06T23:59:00');
+			expect(getDaysUntilDue(new Date(2026, 2, 7, 0, 1), referenceDate)).toBe(1);
 		});
 	});
 });
