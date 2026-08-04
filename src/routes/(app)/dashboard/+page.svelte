@@ -32,7 +32,7 @@
 	import { dashboardSectionsForMode } from '$lib/dashboardSections';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
 	import { computeCashFlowProjection } from '$lib/utils/cashFlowProjection';
-	import { getYearProgress } from '$lib/utils/dates';
+	import { getMonthProgress, getYearProgress } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { ChevronDownIcon } from '@lucide/svelte';
 	import { LandmarkIcon, PiggyBankIcon, PlusIcon, WalletIcon } from '@lucide/svelte/icons';
@@ -299,10 +299,16 @@
 	let headerGreeting = $derived(firstName ? `Hi, ${firstName}` : 'Dashboard');
 	let headerSubtitle = $derived.by(() => {
 		if (selectedMode === 'monthly') {
+			const monthName = monthNames[Number(selectedMonth) - 1];
+			const monthProgress = getMonthProgress(Number(selectedMonth), Number(selectedYear));
+			if (monthProgress.status === 'past') return `${monthName} is complete`;
+			if (monthProgress.status === 'future') return `${monthName} hasn't started yet`;
 			const days = projection.daysRemainingInclusive;
-			return `${days} day${days === 1 ? '' : 's'} left in ${monthNames[Number(selectedMonth) - 1]}`;
+			return `${days} day${days === 1 ? '' : 's'} left in ${monthName}`;
 		}
 		const yearProgress = getYearProgress(Number(selectedYear));
+		if (yearProgress.status === 'past') return `${selectedYear} is complete`;
+		if (yearProgress.status === 'future') return `${selectedYear} hasn't started yet`;
 		const monthsLeft = Math.max(yearProgress.totalUnits - yearProgress.elapsedUnits, 0);
 		return `${monthsLeft} month${monthsLeft === 1 ? '' : 's'} left in ${selectedYear}`;
 	});
@@ -525,6 +531,8 @@
 					dailyDiscretionary={projection.dailyDiscretionary}
 					{netBalance}
 					daysRemainingInclusive={projection.daysRemainingInclusive}
+					month={Number(selectedMonth)}
+					year={Number(selectedYear)}
 				/>
 			</div>
 		{/if}
