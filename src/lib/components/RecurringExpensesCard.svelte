@@ -10,9 +10,10 @@
 	interface Props {
 		recurring: Recurring[];
 		monthlyTotal: number;
+		isCurrentMonth: boolean;
 	}
 
-	let { recurring, monthlyTotal }: Props = $props();
+	let { recurring, monthlyTotal, isCurrentMonth }: Props = $props();
 
 	let open = $state(true);
 
@@ -59,13 +60,15 @@
 									</div>
 								</div>
 								<div class="flex items-center gap-2">
-									{#if item.paid}
-										<Badge class="bg-green-500 text-xs text-white hover:bg-green-500">Paid</Badge>
-									{:else}
-										<Badge
-											class="bg-muted-foreground/30 hover:bg-muted-foreground/30 text-xs text-white"
-											>Not Yet Paid</Badge
-										>
+									{#if isCurrentMonth}
+										{#if item.paid}
+											<Badge class="bg-green-500 text-xs text-white hover:bg-green-500">Paid</Badge>
+										{:else}
+											<Badge
+												class="bg-muted-foreground/30 hover:bg-muted-foreground/30 text-xs text-white"
+												>Not Yet Paid</Badge
+											>
+										{/if}
 									{/if}
 									<Badge variant="outline" class="text-xs">
 										{item.cadence}

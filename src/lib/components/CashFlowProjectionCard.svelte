@@ -122,59 +122,65 @@
 
 			<!-- Right: projection -->
 			<div class="flex flex-col justify-center gap-4">
-				<div>
-					<div class="mb-1.5 flex items-center justify-between">
-						<div class="flex items-center gap-1">
-							<span class="text-muted-foreground text-xs">Projected month-end spend</span>
-							<InfoTooltip
-								size="sm"
-								text="Based on your daily burn rate so far this month ({formatCurrency(
-									dailyBurnRate
-								)}/day). Current spend ÷ days elapsed × days remaining, added to current spend."
-							/>
+				{#if monthStatus === 'current'}
+					<div>
+						<div class="mb-1.5 flex items-center justify-between">
+							<div class="flex items-center gap-1">
+								<span class="text-muted-foreground text-xs">Projected month-end spend</span>
+								<InfoTooltip
+									size="sm"
+									text="Based on your daily burn rate so far this month ({formatCurrency(
+										dailyBurnRate
+									)}/day). Current spend ÷ days elapsed × days remaining, added to current spend."
+								/>
+							</div>
+							<span class="text-sm font-bold tabular-nums {projectionColor}">
+								{formatCurrency(projectedEnd)}
+							</span>
 						</div>
-						<span class="text-sm font-bold tabular-nums {projectionColor}">
-							{formatCurrency(projectedEnd)}
-						</span>
+						<Progress value={projectionPercent} class="h-2.5 {progressClass}" />
+						<p class="text-muted-foreground mt-1 text-right text-xs">
+							of {formatCurrency(totalIncome)}
+						</p>
 					</div>
-					<Progress value={projectionPercent} class="h-2.5 {progressClass}" />
-					<p class="text-muted-foreground mt-1 text-right text-xs">
-						of {formatCurrency(totalIncome)}
-					</p>
-				</div>
 
-				<div class="grid grid-cols-2 gap-2">
-					<div class="bg-muted/50 rounded-lg px-3 py-3">
-						<div class="flex items-center gap-1">
-							<p class="text-muted-foreground text-xs">Daily budget</p>
-							<InfoTooltip
-								size="sm"
-								text="Your planned budget remaining (planned total − spent so far) divided by days left in the month. This is what your budget plan says you can spend per day."
-							/>
+					<div class="grid grid-cols-2 gap-2">
+						<div class="bg-muted/50 rounded-lg px-3 py-3">
+							<div class="flex items-center gap-1">
+								<p class="text-muted-foreground text-xs">Daily budget</p>
+								<InfoTooltip
+									size="sm"
+									text="Your planned budget remaining (planned total − spent so far) divided by days left in the month. This is what your budget plan says you can spend per day."
+								/>
+							</div>
+							<p
+								class="mt-0.5 text-lg font-bold tabular-nums {dailyBudgetRemaining <= 0
+									? 'text-destructive'
+									: 'text-foreground'}"
+							>
+								{formatCurrency(dailyBudgetRemaining)}
+								<span class="text-muted-foreground text-xs font-normal">/day</span>
+							</p>
 						</div>
-						<p
-							class="mt-0.5 text-lg font-bold tabular-nums {dailyBudgetRemaining <= 0
-								? 'text-destructive'
-								: 'text-foreground'}"
-						>
-							{formatCurrency(dailyBudgetRemaining)}
-							<span class="text-muted-foreground text-xs font-normal">/day</span>
-						</p>
-					</div>
-					<div class="bg-muted/50 rounded-lg px-3 py-3">
-						<div class="flex items-center gap-1">
-							<p class="text-muted-foreground text-xs">Daily spend</p>
-							<InfoTooltip
-								size="sm"
-								text="Discretionary left (income − spent − recurring) divided by days remaining. This is what your actual cash position allows you to spend per day."
-							/>
+						<div class="bg-muted/50 rounded-lg px-3 py-3">
+							<div class="flex items-center gap-1">
+								<p class="text-muted-foreground text-xs">Daily spend</p>
+								<InfoTooltip
+									size="sm"
+									text="Discretionary left (income − spent − recurring) divided by days remaining. This is what your actual cash position allows you to spend per day."
+								/>
+							</div>
+							<p class="mt-0.5 text-lg font-bold tabular-nums {projectionColor}">
+								{formatCurrency(dailyDiscretionary)}
+								<span class="text-muted-foreground text-xs font-normal">/day</span>
+							</p>
 						</div>
-						<p class="mt-0.5 text-lg font-bold tabular-nums {projectionColor}">
-							{formatCurrency(dailyDiscretionary)}
-							<span class="text-muted-foreground text-xs font-normal">/day</span>
-						</p>
 					</div>
-				</div>
+				{:else}
+					<p class="text-muted-foreground py-8 text-center text-sm">
+						{monthStatus === 'past' ? 'Month complete' : 'Not started yet'}
+					</p>
+				{/if}
 			</div>
 		</div>
 	</Card.Content>

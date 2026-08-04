@@ -294,15 +294,19 @@
 		})
 	);
 
+	// Shared "is the selected month the real current month" status — gates widgets
+	// that only make sense for the month actually in progress (safe-to-spend,
+	// cash flow projection daily figures, upcoming bills, recurring paid status).
+	let monthStatus = $derived(getMonthProgress(Number(selectedMonth), Number(selectedYear)).status);
+
 	// Personalized header greeting + relative-time subtitle
 	let firstName = $derived(data.user?.name?.split(' ')[0] || '');
 	let headerGreeting = $derived(firstName ? `Hi, ${firstName}` : 'Dashboard');
 	let headerSubtitle = $derived.by(() => {
 		if (selectedMode === 'monthly') {
 			const monthName = monthNames[Number(selectedMonth) - 1];
-			const monthProgress = getMonthProgress(Number(selectedMonth), Number(selectedYear));
-			if (monthProgress.status === 'past') return `${monthName} is complete`;
-			if (monthProgress.status === 'future') return `${monthName} hasn't started yet`;
+			if (monthStatus === 'past') return `${monthName} is complete`;
+			if (monthStatus === 'future') return `${monthName} hasn't started yet`;
 			const days = projection.daysRemainingInclusive;
 			return `${days} day${days === 1 ? '' : 's'} left in ${monthName}`;
 		}
@@ -689,8 +693,8 @@
 			</div>
 		{/if}
 
-		<!-- Upcoming bills -->
-		{#if isSectionVisible('upcomingBills')}
+		<!-- Upcoming bills (only meaningful for the current month) -->
+		{#if isSectionVisible('upcomingBills') && monthStatus === 'current'}
 			<div class="mb-6">
 				<UpcomingBillsCard recurring={data.recurringExpenses || []} />
 			</div>
@@ -702,6 +706,7 @@
 				<RecurringExpensesCard
 					recurring={data.recurringExpenses || []}
 					monthlyTotal={recurringMonthlyTotal}
+					isCurrentMonth={monthStatus === 'current'}
 				/>
 			</div>
 		{/if}
