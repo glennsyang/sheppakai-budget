@@ -37,10 +37,16 @@
 						text="Discretionary left (income − spent − recurring) divided by days remaining in the month. What your actual cash position allows you to spend per day."
 					/>
 				</div>
-				<p class="text-3xl font-bold tabular-nums">
-					{formatCurrency(dailyDiscretionary)}
-					<span class="text-muted-foreground text-sm font-normal">/day</span>
-				</p>
+				{#if monthStatus === 'current'}
+					<p class="text-3xl font-bold tabular-nums">
+						{formatCurrency(dailyDiscretionary)}
+						<span class="text-muted-foreground text-sm font-normal">/day</span>
+					</p>
+				{:else}
+					<p class="text-muted-foreground text-lg font-medium">
+						{monthStatus === 'past' ? 'Month complete' : 'Not started yet'}
+					</p>
+				{/if}
 			</div>
 		</div>
 		<div class="text-left sm:text-right">
