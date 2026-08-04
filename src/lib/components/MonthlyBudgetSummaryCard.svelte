@@ -1,7 +1,10 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Progress } from '$lib/components/ui/progress';
+	import type { ExcludedSpendCategory } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
+
+	import ExcludedSpendList from './ExcludedSpendList.svelte';
 
 	interface Props {
 		actualSpent: number;
@@ -9,6 +12,7 @@
 		totalIncome: number;
 		recurringTotal?: number;
 		excludedSpendTotal?: number;
+		excludedSpendBreakdown?: ExcludedSpendCategory[];
 		loading?: boolean;
 	}
 
@@ -18,6 +22,7 @@
 		totalIncome,
 		recurringTotal = 0,
 		excludedSpendTotal = 0,
+		excludedSpendBreakdown = [],
 		loading = false
 	}: Props = $props();
 
@@ -74,12 +79,7 @@
 				<div
 					class="mb-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs dark:border-amber-900/50 dark:bg-amber-950/40"
 				>
-					<p class="font-medium text-amber-900 dark:text-amber-200">
-						Excluded from budget: {formatCurrency(excludedSpendTotal)}
-					</p>
-					<p class="mt-0.5 text-amber-700 dark:text-amber-300">
-						Tracked separately and not counted in budget usage.
-					</p>
+					<ExcludedSpendList total={excludedSpendTotal} breakdown={excludedSpendBreakdown} />
 				</div>
 			{/if}
 

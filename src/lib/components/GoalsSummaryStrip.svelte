@@ -3,13 +3,24 @@
 	import type { SavingsGoalWithProgress } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
-	import { ExternalLinkIcon, TargetIcon } from '@lucide/svelte/icons';
+	import { CheckIcon, ExternalLinkIcon, PauseIcon, TargetIcon } from '@lucide/svelte/icons';
 
 	interface Props {
 		goals: SavingsGoalWithProgress[];
 	}
 
 	let { goals }: Props = $props();
+
+	const statusOrder: Record<SavingsGoalWithProgress['status'], number> = {
+		active: 0,
+		paused: 1,
+		completed: 2,
+		archived: 3
+	};
+
+	let sortedGoals = $derived(
+		[...goals].sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
+	);
 
 	function ringOffset(percentage: number) {
 		const r = 20;
@@ -19,6 +30,7 @@
 
 	function progressColor(goal: SavingsGoalWithProgress) {
 		if (goal.status === 'completed') return 'text-green-500';
+		if (goal.status === 'paused') return 'text-muted-foreground';
 		if (goal.percentage >= 75) return 'text-blue-500';
 		if (goal.percentage >= 40) return 'text-amber-500';
 		return 'text-orange-500';
@@ -26,7 +38,12 @@
 
 	function borderColor(goal: SavingsGoalWithProgress) {
 		if (goal.status === 'completed') return 'border-green-500/50';
+		if (goal.status === 'paused') return 'border-muted-foreground/30 border-dashed';
 		return 'border-blue-500/30';
+	}
+
+	function cardBg(goal: SavingsGoalWithProgress) {
+		return goal.status === 'completed' ? 'bg-green-500/5' : '';
 	}
 </script>
 
@@ -46,21 +63,29 @@
 		</div>
 	</Card.Header>
 	<Card.Content class="pt-0">
-		{#if goals.length === 0}
+		{#if sortedGoals.length === 0}
 			<div class="flex flex-col items-center gap-2 py-6 text-center">
 				<TargetIcon class="text-muted-foreground/40 size-8" />
-				<p class="text-muted-foreground text-sm">No active savings goals</p>
+				<p class="text-muted-foreground text-sm">No savings goals yet</p>
 				<a href="/savings/goals" class="text-primary text-xs hover:underline">Create a goal →</a>
 			</div>
 		{:else}
 			<div class="flex gap-3 overflow-x-auto pb-1">
-				{#each goals as goal (goal.id)}
+				{#each sortedGoals as goal (goal.id)}
 					<a
 						href="/savings/goals"
-						class="hover:bg-muted/40 flex min-w-32.5 flex-col items-center gap-2 rounded-xl border-2 p-3 transition-colors {borderColor(
+						class="hover:bg-muted/40 relative flex min-w-32.5 flex-col items-center gap-2 rounded-xl border-2 p-3 transition-colors {borderColor(
 							goal
-						)}"
+						)} {cardBg(goal)}"
 					>
+						{#if goal.status === 'paused'}
+							<span
+								class="bg-muted text-muted-foreground absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+							>
+								<PauseIcon class="size-2.5" />
+								Paused
+							</span>
+						{/if}
 						<div class="relative flex h-14 w-14 items-center justify-center">
 							<svg class="h-full w-full -rotate-90">
 								<circle
@@ -86,7 +111,11 @@
 								/>
 							</svg>
 							<div class="absolute text-xs font-bold {progressColor(goal)}">
-								{Math.round(goal.percentage)}%
+								{#if goal.status === 'completed'}
+									<CheckIcon class="size-5" />
+								{:else}
+									{Math.round(goal.percentage)}%
+								{/if}
 							</div>
 						</div>
 						<div class="w-full text-center">

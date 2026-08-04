@@ -160,8 +160,15 @@ export type TimeRangeInOutData = {
 
 export type SpendingBreakdownData = {
 	category: string;
+	categoryId: string | null;
 	amount: number;
 	color: string;
+};
+
+export type ExcludedSpendCategory = {
+	categoryId: string | null;
+	categoryName: string;
+	amount: number;
 };
 
 export type MonthlyNetflowData = {

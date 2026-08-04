@@ -8,9 +8,10 @@
 	interface Props {
 		chartData: SpendingBreakdownData[];
 		totalSpent: number;
+		onSliceClick?: (categoryId: string) => void;
 	}
 
-	let { chartData, totalSpent }: Props = $props();
+	let { chartData, totalSpent, onSliceClick }: Props = $props();
 
 	let chartConfig = $derived(
 		Object.fromEntries(chartData.map((d) => [d.category, { label: d.category, color: d.color }]))
@@ -80,7 +81,12 @@
 							{/snippet}
 							{#snippet arc({ props, visibleData, index })}
 								{@const category = visibleData[index].category}
-								<Arc {...props}>
+								{@const categoryId = visibleData[index].categoryId}
+								<Arc
+									{...props}
+									onclick={categoryId ? () => onSliceClick?.(categoryId) : undefined}
+									class={categoryId ? 'cursor-pointer' : ''}
+								>
 									{#snippet children({ centroid })}
 										{@const displayCategory = abbreviateCategoryName(category)}
 										<Text

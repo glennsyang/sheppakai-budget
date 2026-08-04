@@ -8,6 +8,7 @@ export type {
 	Category,
 	ChartData,
 	Contribution,
+	ExcludedSpendCategory,
 	Income,
 	MonthlyNetflowData,
 	MonthlySpentChartData,
