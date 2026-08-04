@@ -5,6 +5,7 @@
 	import * as Separator from '$lib/components/ui/separator/index.js';
 	import { formatCurrency } from '$lib/utils';
 	import { computeCashFlowProjection } from '$lib/utils/cashFlowProjection';
+	import { getMonthProgress } from '$lib/utils/dates';
 	import { CalendarIcon } from '@lucide/svelte/icons';
 
 	interface Props {
@@ -44,6 +45,7 @@
 	let discretionaryRemaining = $derived(projection.discretionaryRemaining);
 	let dailyDiscretionary = $derived(projection.dailyDiscretionary);
 	let dailyBudgetRemaining = $derived(projection.dailyBudgetRemaining);
+	let monthStatus = $derived(getMonthProgress(month, year).status);
 
 	let projectionColor = $derived(
 		projectedEnd > totalIncome
@@ -71,9 +73,15 @@
 				maxWidth="max-w-72"
 				text="Shows where your money stands this month. The left side breaks down income, what you've spent on transactions, and recurring commitments to calculate your discretionary budget remaining. The right side projects your total spend by month-end based on your daily burn rate, and shows how much you can safely spend per day."
 			/>
-			<span class="text-muted-foreground ml-auto text-xs"
-				>{daysRemainingInclusive} day{daysRemainingInclusive === 1 ? '' : 's'} remaining</span
-			>
+			<span class="text-muted-foreground ml-auto text-xs">
+				{#if monthStatus === 'past'}
+					Month complete
+				{:else if monthStatus === 'future'}
+					Not started yet
+				{:else}
+					{daysRemainingInclusive} day{daysRemainingInclusive === 1 ? '' : 's'} remaining
+				{/if}
+			</span>
 		</div>
 	</Card.Header>
 	<Card.Content class="pt-0">

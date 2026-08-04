@@ -2,19 +2,23 @@
 	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { formatCurrency } from '$lib/utils';
+	import { getMonthProgress } from '$lib/utils/dates';
 	import { WalletIcon } from '@lucide/svelte/icons';
 
 	interface Props {
 		dailyDiscretionary: number;
 		netBalance: number;
 		daysRemainingInclusive: number;
+		month: number;
+		year: number;
 	}
 
-	let { dailyDiscretionary, netBalance, daysRemainingInclusive }: Props = $props();
+	let { dailyDiscretionary, netBalance, daysRemainingInclusive, month, year }: Props = $props();
 
 	let netBalanceColor = $derived(
 		netBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'
 	);
+	let monthStatus = $derived(getMonthProgress(month, year).status);
 </script>
 
 <Card.Root class="from-primary/5 to-card dark:bg-card bg-linear-to-t shadow-xs">
@@ -45,7 +49,13 @@
 				{netBalance < 0 ? '-' : ''}{formatCurrency(Math.abs(netBalance))}
 			</p>
 			<p class="text-muted-foreground text-xs">
-				{daysRemainingInclusive} day{daysRemainingInclusive === 1 ? '' : 's'} left
+				{#if monthStatus === 'past'}
+					Month complete
+				{:else if monthStatus === 'future'}
+					Not started yet
+				{:else}
+					{daysRemainingInclusive} day{daysRemainingInclusive === 1 ? '' : 's'} left
+				{/if}
 			</p>
 		</div>
 	</Card.Content>
