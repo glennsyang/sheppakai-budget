@@ -1,12 +1,17 @@
-import type { SavingsGoalWithProgress, TimeRangeInOutData } from '$lib';
+import type {
+	ExcludedSpendCategory,
+	SavingsGoalWithProgress,
+	TimeRangeInOutData,
+	Transaction
+} from '$lib';
 import { getDb } from '$lib/server/db';
 import {
 	budgetQueries,
 	incomeQueries,
 	recurringQueries,
 	savingsGoalQueries,
-	transactionQueries,
-	windowCleaningJobQueries
+	savingsQueries,
+	transactionQueries
 } from '$lib/server/db/queries';
 import { contribution } from '$lib/server/db/schema';
 import { monthNames } from '$lib/utils';
@@ -39,23 +44,41 @@ function calcYearlyRecurringTotal(items: RecurringItem[], elapsedMonths: number)
 	}, 0);
 }
 
+function groupExcludedByCategory(excludedExpenses: Transaction[]): ExcludedSpendCategory[] {
+	const totals = new Map<string, ExcludedSpendCategory>();
+
+	for (const expense of excludedExpenses) {
+		const categoryId = expense.category?.id ?? null;
+		const categoryName = expense.category?.name ?? 'Uncategorized';
+		const key = categoryId ?? '__uncategorized__';
+		const existing = totals.get(key);
+		if (existing) {
+			existing.amount += expense.amount;
+		} else {
+			totals.set(key, { categoryId, categoryName, amount: expense.amount });
+		}
+	}
+
+	return [...totals.values()].sort((a, b) => b.amount - a.amount);
+}
+
 async function getGoalsWithProgress(): Promise<SavingsGoalWithProgress[]> {
 	const goals = await savingsGoalQueries.findAll();
-	const activeGoals = goals.filter((g) => g.status === 'active');
+	const includedGoals = goals.filter((g) => g.status !== 'archived');
 
-	if (activeGoals.length === 0) return [];
+	if (includedGoals.length === 0) return [];
 
-	const activeGoalIds = activeGoals.map((g) => g.id);
+	const includedGoalIds = includedGoals.map((g) => g.id);
 
 	const totalsRows = await getDb()
 		.select({ goalId: contribution.goalId, total: sum(contribution.amount) })
 		.from(contribution)
-		.where(inArray(contribution.goalId, activeGoalIds))
+		.where(inArray(contribution.goalId, includedGoalIds))
 		.groupBy(contribution.goalId);
 
 	const totalsMap = new Map(totalsRows.map((r) => [r.goalId, Number(r.total ?? 0)]));
 
-	return activeGoals.map((goal) => {
+	return includedGoals.map((goal) => {
 		const total = totalsMap.get(goal.id) ?? 0;
 		const percentage = goal.targetAmount > 0 ? (total / goal.targetAmount) * 100 : 0;
 		return { ...goal, currentAmount: total, percentage: Math.min(percentage, 100) };
@@ -71,18 +94,21 @@ async function loadMonthlyDashboard(url: URL) {
 		plannedExpenses,
 		recurringExpenses,
 		incomeRecords,
-		goalsWithProgress
+		goalsWithProgress,
+		totalSavings
 	] = await Promise.all([
 		transactionQueries.findByDateRangeIncludedInBudget(startDate, endDate),
 		transactionQueries.findByDateRangeExcludedFromBudget(startDate, endDate),
 		budgetQueries.findByMonthYear(month, year),
 		recurringQueries.findAll(),
 		incomeQueries.findByDateRange(startDate, endDate),
-		getGoalsWithProgress()
+		getGoalsWithProgress(),
+		savingsQueries.getTotal()
 	]);
 
 	const recurringMonthlyTotal = calcMonthlyRecurringTotal(recurringExpenses);
 	const excludedExpensesTotal = excludedExpenses.reduce((acc, e) => acc + e.amount, 0);
+	const excludedExpensesBreakdown = groupExcludedByCategory(excludedExpenses);
 	const actualExpensesTotal =
 		actualExpenses.reduce((acc, e) => acc + e.amount, 0) + recurringMonthlyTotal;
 	const plannedExpensesTotal =
@@ -138,10 +164,6 @@ async function loadMonthlyDashboard(url: URL) {
 	const netflowSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.in - d.out }));
 	const spendingSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.out }));
 
-	const wcJobs = await windowCleaningJobQueries.findByMonth(month, year);
-	const windowCleaningRevenue = wcJobs.reduce((s, j) => s + j.amountCharged + j.tip, 0);
-	const windowCleaningJobCount = wcJobs.length;
-
 	return {
 		mode: 'monthly',
 		month,
@@ -151,6 +173,7 @@ async function loadMonthlyDashboard(url: URL) {
 		recurringExpenses,
 		actualExpensesTotal,
 		excludedExpensesTotal,
+		excludedExpensesBreakdown,
 		plannedExpensesTotal,
 		totalIncome,
 		remainingBalance,
@@ -158,8 +181,7 @@ async function loadMonthlyDashboard(url: URL) {
 		netflowSparkline,
 		spendingSparkline,
 		goalsWithProgress,
-		windowCleaningRevenue,
-		windowCleaningJobCount
+		totalSavings
 	};
 }
 
@@ -176,14 +198,16 @@ async function loadYearlyDashboard(url: URL) {
 		incomeRecords,
 		recurringExpenses,
 		allYearBudgets,
-		goalsWithProgress
+		goalsWithProgress,
+		totalSavings
 	] = await Promise.all([
 		transactionQueries.findByDateRangeIncludedInBudget(startDate, endDate),
 		transactionQueries.findByDateRangeExcludedFromBudget(startDate, endDate),
 		incomeQueries.findByDateRange(startDate, endDate),
 		recurringQueries.findAll(),
 		budgetQueries.findByYear(year),
-		getGoalsWithProgress()
+		getGoalsWithProgress(),
+		savingsQueries.getTotal()
 	]);
 
 	const yearlyBudgets: Array<{ categoryId: string; amount: number }> = [];
@@ -199,6 +223,7 @@ async function loadYearlyDashboard(url: URL) {
 	const elapsedMonths = year === currentYear ? new Date().getMonth() + 1 : 12;
 	const recurringYearlyTotal = calcYearlyRecurringTotal(recurringExpenses, elapsedMonths);
 	const excludedExpensesTotal = excludedExpenses.reduce((acc, e) => acc + e.amount, 0);
+	const excludedExpensesBreakdown = groupExcludedByCategory(excludedExpenses);
 	const actualExpensesTotal =
 		actualExpenses.reduce((acc, e) => acc + e.amount, 0) + recurringYearlyTotal;
 	const plannedExpensesTotal =
@@ -250,11 +275,13 @@ async function loadYearlyDashboard(url: URL) {
 		allYearBudgets,
 		actualExpensesTotal,
 		excludedExpensesTotal,
+		excludedExpensesBreakdown,
 		plannedExpensesTotal,
 		totalIncome,
 		remainingBalance,
 		timeRangeData,
-		goalsWithProgress
+		goalsWithProgress,
+		totalSavings
 	};
 }
 

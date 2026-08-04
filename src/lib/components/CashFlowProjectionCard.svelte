@@ -4,6 +4,7 @@
 	import { Progress } from '$lib/components/ui/progress/index.js';
 	import * as Separator from '$lib/components/ui/separator/index.js';
 	import { formatCurrency } from '$lib/utils';
+	import { computeCashFlowProjection } from '$lib/utils/cashFlowProjection';
 	import { CalendarIcon } from '@lucide/svelte/icons';
 
 	interface Props {
@@ -24,29 +25,25 @@
 		year
 	}: Props = $props();
 
-	let today = $derived(new Date());
-	let daysInMonth = $derived(new Date(year, month, 0).getDate());
-	let currentDay = $derived(
-		today.getFullYear() === year && today.getMonth() + 1 === month ? today.getDate() : daysInMonth
-	);
-	let daysElapsed = $derived(Math.max(currentDay, 1));
-	// Days strictly after today; used for projecting spend on top of actualSpent (which already covers today).
-	let daysRemaining = $derived(Math.max(daysInMonth - currentDay, 0));
-	// Days from today through month-end, inclusive; used for "how much can I still spend" metrics.
-	let daysRemainingInclusive = $derived(Math.max(daysInMonth - currentDay + 1, 1));
-
-	let dailyBurnRate = $derived(actualSpent / daysElapsed);
-	let projectedEnd = $derived(actualSpent + dailyBurnRate * daysRemaining);
-	let projectionPercent = $derived(
-		totalIncome > 0 ? Math.min((projectedEnd / totalIncome) * 100, 100) : 0
+	let projection = $derived(
+		computeCashFlowProjection({
+			totalIncome,
+			actualSpent,
+			recurringMonthlyTotal,
+			plannedExpensesTotal,
+			month,
+			year
+		})
 	);
 
-	let nonRecurringSpent = $derived(Math.max(0, actualSpent - recurringMonthlyTotal));
-	let discretionaryRemaining = $derived(totalIncome - nonRecurringSpent - recurringMonthlyTotal);
-	let dailyDiscretionary = $derived(Math.max(discretionaryRemaining, 0) / daysRemainingInclusive);
-
-	let budgetRemaining = $derived(Math.max(0, plannedExpensesTotal - actualSpent));
-	let dailyBudgetRemaining = $derived(budgetRemaining / daysRemainingInclusive);
+	let daysRemainingInclusive = $derived(projection.daysRemainingInclusive);
+	let dailyBurnRate = $derived(projection.dailyBurnRate);
+	let projectedEnd = $derived(projection.projectedEnd);
+	let projectionPercent = $derived(projection.projectionPercent);
+	let nonRecurringSpent = $derived(projection.nonRecurringSpent);
+	let discretionaryRemaining = $derived(projection.discretionaryRemaining);
+	let dailyDiscretionary = $derived(projection.dailyDiscretionary);
+	let dailyBudgetRemaining = $derived(projection.dailyBudgetRemaining);
 
 	let projectionColor = $derived(
 		projectedEnd > totalIncome

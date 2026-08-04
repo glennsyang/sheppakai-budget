@@ -9,6 +9,7 @@
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
 	import CashFlowProjectionCard from '$lib/components/CashFlowProjectionCard.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
+	import ExcludedSpendList from '$lib/components/ExcludedSpendList.svelte';
 	import GoalsSummaryStrip from '$lib/components/GoalsSummaryStrip.svelte';
 	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import KpiSparklineCard from '$lib/components/KpiSparklineCard.svelte';
@@ -17,18 +18,19 @@
 	import MonthlyNetflowChart from '$lib/components/MonthlyNetflowChart.svelte';
 	import MonthlyNetSavingsCard from '$lib/components/MonthlyNetSavingsCard.svelte';
 	import RecurringExpensesCard from '$lib/components/RecurringExpensesCard.svelte';
+	import SafeToSpendHeroBand from '$lib/components/SafeToSpendHeroBand.svelte';
 	import SpendingBreakdownChart from '$lib/components/SpendingBreakdownChart.svelte';
-	import SpendingTrendLineChart from '$lib/components/SpendingTrendLineChart.svelte';
-	import TimeRangeInOut from '$lib/components/TimeRangeInOut.svelte';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import UpcomingBillsCard from '$lib/components/UpcomingBillsCard.svelte';
-	import WindowCleaningSummaryCard from '$lib/components/WindowCleaningSummaryCard.svelte';
 	import { getCategoriesContext } from '$lib/contexts';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
+	import { computeCashFlowProjection } from '$lib/utils/cashFlowProjection';
+	import { getYearProgress } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { ChevronDownIcon } from '@lucide/svelte';
+	import { LandmarkIcon, PiggyBankIcon, WalletIcon } from '@lucide/svelte/icons';
 	import { SvelteMap } from 'svelte/reactivity';
 
 	import type { PageProps } from './$types';
@@ -182,14 +184,19 @@
 	// Spending breakdown donut chart data (monthly)
 	let spendingBreakdownData: SpendingBreakdownData[] = $derived.by(() => {
 		if (!data.actualExpenses) return [];
-		const totals = new Map<string, { category: string; amount: number }>();
+		const totals = new Map<
+			string,
+			{ category: string; categoryId: string | null; amount: number }
+		>();
 		for (const expense of data.actualExpenses) {
+			const categoryId = expense.category?.id ?? null;
 			const category = expense.category?.name ?? 'Uncategorized';
-			const existing = totals.get(category);
+			const key = categoryId ?? '__uncategorized__';
+			const existing = totals.get(key);
 			if (existing) {
 				existing.amount += expense.amount;
 			} else {
-				totals.set(category, { category, amount: expense.amount });
+				totals.set(key, { category, categoryId, amount: expense.amount });
 			}
 		}
 		return [...totals.values()]
@@ -197,6 +204,35 @@
 			.sort((a, b) => b.amount - a.amount)
 			.map((d, i) => ({ ...d, color: chartColors[i % chartColors.length] }));
 	});
+
+	// Month-over-month delta framing for KPI cards (monthly mode only).
+	// Year-over-year deltas (yearly mode) are deferred to a later phase — no prior-year data is fetched today.
+	type Trend = { direction: 'up' | 'down' | 'flat'; label: string };
+	const TREND_EPSILON = 0.5;
+
+	function currencyDeltaTrend(series: { value: number }[]): Trend | undefined {
+		if (series.length < 2) return undefined;
+		const diff = series[series.length - 1].value - series[series.length - 2].value;
+		if (Math.abs(diff) < TREND_EPSILON) return { direction: 'flat', label: 'flat vs last month' };
+		const direction = diff > 0 ? 'up' : 'down';
+		return {
+			direction,
+			label: `${diff > 0 ? '+' : '-'}${formatCurrency(Math.abs(diff))} vs last month`
+		};
+	}
+
+	function spendPercentTrend(series: { value: number }[]): Trend | undefined {
+		if (series.length < 2) return undefined;
+		const previous = series[series.length - 2].value;
+		const current = series[series.length - 1].value;
+		if (previous <= 0) return undefined;
+		const pctChange = ((current - previous) / previous) * 100;
+		if (Math.abs(pctChange) < TREND_EPSILON)
+			return { direction: 'flat', label: 'flat vs last month' };
+		const direction = pctChange > 0 ? 'up' : 'down';
+		const verb = direction === 'up' ? 'more spent' : 'less spent';
+		return { direction, label: `${Math.abs(pctChange).toFixed(0)}% ${verb} vs last month` };
+	}
 
 	// Over-budget categories for alert row (monthly)
 	let overBudgetCategories = $derived.by(() => {
@@ -238,9 +274,36 @@
 		}, 0)
 	);
 
+	// Shared cash-flow projection (monthly only) — feeds the header subtitle, hero band, and waterfall.
+	let projection = $derived(
+		computeCashFlowProjection({
+			totalIncome: data.totalIncome || 0,
+			actualSpent: data.actualExpensesTotal || 0,
+			recurringMonthlyTotal,
+			plannedExpensesTotal: data.plannedExpensesTotal || 0,
+			month: Number(selectedMonth),
+			year: Number(selectedYear)
+		})
+	);
+
+	// Personalized header greeting + relative-time subtitle
+	let firstName = $derived(data.user?.name?.split(' ')[0] || '');
+	let headerGreeting = $derived(firstName ? `Hi, ${firstName}` : 'Dashboard');
+	let headerSubtitle = $derived.by(() => {
+		if (selectedMode === 'monthly') {
+			const days = projection.daysRemainingInclusive;
+			return `${days} day${days === 1 ? '' : 's'} left in ${monthNames[Number(selectedMonth) - 1]}`;
+		}
+		const yearProgress = getYearProgress(Number(selectedYear));
+		const monthsLeft = Math.max(yearProgress.totalUnits - yearProgress.elapsedUnits, 0);
+		return `${monthsLeft} month${monthsLeft === 1 ? '' : 's'} left in ${selectedYear}`;
+	});
+
 	// KPI sparkline data
 	let netflowSparkline = $derived(data.netflowSparkline || []);
 	let spendingSparkline = $derived(data.spendingSparkline || []);
+	let netBalanceTrend = $derived(currencyDeltaTrend(netflowSparkline));
+	let spendTrend = $derived(spendPercentTrend(spendingSparkline));
 
 	// Net balance and budget pct for KPI cards
 	let netBalance = $derived((data.totalIncome || 0) - (data.actualExpensesTotal || 0));
@@ -323,10 +386,6 @@
 		{ label: '2026', value: '2026' }
 	];
 
-	let yearlyViewLabel = $derived(yearlyView === 'current' ? 'Last 6 Months' : 'Full Year');
-	let timeRangeDescription = $derived(
-		yearlyView === 'current' ? `Last 6 Months of ${selectedYear}` : `Full Year ${selectedYear}`
-	);
 	let categoryChartDescription = $derived.by(() => {
 		if (yearlyView !== 'current') return selectedYear;
 		const months = data.timeRangeData ?? [];
@@ -344,8 +403,8 @@
 	<div class="mb-8">
 		<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
 			<div class="lg:pt-1">
-				<h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
-				<p class="text-muted-foreground mt-2">Overview of your budget and expenses</p>
+				<h1 class="text-3xl font-bold tracking-tight">{headerGreeting}</h1>
+				<p class="text-muted-foreground mt-2">{headerSubtitle}</p>
 			</div>
 			<div class="w-full lg:ml-auto lg:w-136">
 				<div class="grid gap-3">
@@ -430,22 +489,30 @@
 			label="Loading dashboard charts"
 		/>
 	{:else if selectedMode === 'monthly'}
+		<!-- Safe-to-spend hero band -->
+		<div class="mb-6">
+			<SafeToSpendHeroBand
+				dailyDiscretionary={projection.dailyDiscretionary}
+				{netBalance}
+				daysRemainingInclusive={projection.daysRemainingInclusive}
+			/>
+		</div>
+
 		<!-- KPI Sparkline Row -->
-		<div
-			class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 {data.windowCleaningJobCount
-				? 'lg:grid-cols-5'
-				: 'lg:grid-cols-4'}"
-		>
+		<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
 			<KpiSparklineCard
 				label="Net Balance"
 				value={formatCurrency(netBalance)}
 				subtext="income minus spending"
 				colorScheme={netBalance >= 0 ? 'green' : 'red'}
 				sparklineData={netflowSparkline}
+				trendDirection={netBalanceTrend?.direction}
+				trendLabel={netBalanceTrend?.label}
 				tooltip="Your income minus all spending this month. Positive means you're ahead; negative means you've spent more than you earned. The chart shows the trend over the last 6 months."
 			/>
 			<KpiSparklineCard
-				label="Budget Used"
+				label="Discretionary Budget Used"
+				icon={WalletIcon}
 				value={`${nonRecurringBudgetPct.toFixed(0)}%`}
 				subtext="of planned budget"
 				colorScheme={nonRecurringBudgetPct > 100
@@ -454,14 +521,19 @@
 						? 'amber'
 						: 'green'}
 				sparklineData={spendingSparkline}
+				trendDirection={spendTrend?.direction}
+				trendLabel={spendTrend?.label}
 				tooltip="Your discretionary spending vs. planned budget, excluding recurring expenses. More sensitive than the all-in % — can read higher because the recurring amount isn't cushioning either side."
 			/>
 			<KpiSparklineCard
-				label="Budget Used"
+				label="Total Budget Used"
+				icon={LandmarkIcon}
 				value={`${budgetPct.toFixed(0)}%`}
 				subtext="of planned budget (incl. recurring)"
 				colorScheme={budgetPct > 100 ? 'red' : budgetPct > 85 ? 'amber' : 'green'}
 				sparklineData={spendingSparkline}
+				trendDirection={spendTrend?.direction}
+				trendLabel={spendTrend?.label}
 				tooltip="Your total spending vs. total planned budget, including recurring expenses. Can read lower than the excl. recurring % when you're over on discretionary spend, since the recurring amount dilutes both sides equally."
 			/>
 			<KpiSparklineCard
@@ -475,24 +547,27 @@
 						: 'neutral'}
 				tooltip="The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending."
 			/>
-			{#if data.windowCleaningJobCount}
-				<WindowCleaningSummaryCard
-					revenue={data.windowCleaningRevenue || 0}
-					jobCount={data.windowCleaningJobCount}
-				/>
-			{/if}
+			<KpiSparklineCard
+				label="Total Savings"
+				icon={PiggyBankIcon}
+				value={formatCurrency(data.totalSavings || 0)}
+				subtext="across all savings accounts"
+				colorScheme="green"
+				tooltip="The sum of all your savings accounts, same total shown on the Savings page."
+			/>
 		</div>
 
 		<!-- Monthly budget summary + spending breakdown -->
 		<div class="mb-6 flex flex-col gap-4 lg:grid lg:grid-cols-12">
 			<div class="lg:col-span-5">
-				<CardBeam color="#3b82f6">
+				<CardBeam color="rgb(239, 68, 68)" active={nonRecurringBudgetPct > 100}>
 					<MonthlyBudgetSummaryCard
 						actualSpent={data.actualExpensesTotal || 0}
 						plannedBudget={data.plannedExpensesTotal || 0}
 						totalIncome={data.totalIncome || 0}
 						recurringTotal={recurringMonthlyTotal}
 						excludedSpendTotal={excludedExpensesTotal}
+						excludedSpendBreakdown={data.excludedExpensesBreakdown || []}
 					/>
 				</CardBeam>
 			</div>
@@ -500,6 +575,7 @@
 				<SpendingBreakdownChart
 					chartData={spendingBreakdownData}
 					totalSpent={data.actualExpensesTotal || 0}
+					onSliceClick={openCategoryDetails}
 				/>
 			</div>
 		</div>
@@ -535,7 +611,7 @@
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each topRiskCategories as category (category.id)}
 						{@const categoryOverBudget = isCategoryOverBudget(category.id)}
-						<CardBeam color={getCategoryBeamColor(category.id)}>
+						<CardBeam color={getCategoryBeamColor(category.id)} active={categoryOverBudget}>
 							<button
 								type="button"
 								onclick={() => openCategoryDetails(category.id)}
@@ -555,27 +631,11 @@
 		{/if}
 
 		<!-- Savings goals strip -->
-		{@const activeGoals = (data.goalsWithProgress || []).filter((g) => g.status !== 'archived')}
-		{#if activeGoals.length > 0}
+		{#if (data.goalsWithProgress || []).length > 0}
 			<div class="mb-6">
-				<GoalsSummaryStrip goals={activeGoals} />
+				<GoalsSummaryStrip goals={data.goalsWithProgress || []} />
 			</div>
 		{/if}
-
-		<!-- Trend charts row -->
-		<div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-			<MonthlyNetflowChart
-				chartData={(data.monthlyInOutData || []).map((d) => ({
-					month: d.month,
-					net: d.in - d.out
-				}))}
-			/>
-			<SpendingTrendLineChart
-				chartData={data.monthlyInOutData || []}
-				chartTitle="Income vs Spending"
-				chartDescription="6-month trend"
-			/>
-		</div>
 
 		<!-- Upcoming bills -->
 		<div class="mb-6">
@@ -605,18 +665,20 @@
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each sortedCategories as category (category.id)}
 						{@const categoryOverBudget = isCategoryOverBudget(category.id)}
-						<button
-							type="button"
-							onclick={() => openCategoryDetails(category.id)}
-							class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-destructive/40 ring-1' : ''}`}
-						>
-							<BudgetProgressCard
-								title={category.name}
-								planned={getPlannedAmount(category.id)}
-								actual={getActualAmount(category.id)}
-								label1="Spent"
-							/>
-						</button>
+						<CardBeam color={getCategoryBeamColor(category.id)} active={categoryOverBudget}>
+							<button
+								type="button"
+								onclick={() => openCategoryDetails(category.id)}
+								class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-destructive/40 ring-1' : ''}`}
+							>
+								<BudgetProgressCard
+									title={category.name}
+									planned={getPlannedAmount(category.id)}
+									actual={getActualAmount(category.id)}
+									label1="Spent"
+								/>
+							</button>
+						</CardBeam>
 					{/each}
 				</div>
 			</Collapsible.Content>
@@ -642,13 +704,20 @@
 					{ytdNet >= 0 ? '+' : ''}{formatCurrency(ytdNet)}
 				</p>
 			</div>
+			<div class="bg-card rounded-xl border p-4 shadow-xs">
+				<p class="text-muted-foreground text-sm">Total Savings</p>
+				<p class="mt-1 text-2xl font-bold text-green-600 tabular-nums dark:text-green-400">
+					{formatCurrency(data.totalSavings || 0)}
+				</p>
+				<p class="text-muted-foreground mt-1 text-xs">Across all savings accounts</p>
+			</div>
 			{#if excludedExpensesTotal > 0}
-				<div class="bg-card rounded-xl border p-4 shadow-xs">
-					<p class="text-muted-foreground text-sm">YTD Excluded Spend</p>
-					<p class="mt-1 text-2xl font-bold text-amber-700 tabular-nums dark:text-amber-300">
-						{formatCurrency(excludedExpensesTotal)}
-					</p>
-					<p class="text-muted-foreground mt-1 text-xs">Not counted in budget totals</p>
+				<div class="bg-card rounded-xl border p-4 text-sm shadow-xs">
+					<p class="text-muted-foreground mb-1 text-sm">YTD Excluded Spend</p>
+					<ExcludedSpendList
+						total={excludedExpensesTotal}
+						breakdown={data.excludedExpensesBreakdown || []}
+					/>
 				</div>
 			{/if}
 		</div>
@@ -658,31 +727,15 @@
 			<MonthlyNetSavingsCard chartData={data.timeRangeData || []} />
 		</div>
 
-		<!-- Trend charts row (yearly) -->
-		<div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-			<MonthlyNetflowChart chartData={monthlyNetflowData} />
-			<SpendingTrendLineChart
-				chartData={data.timeRangeData || []}
-				chartTitle={yearlyViewLabel + ' Income vs Spending'}
-				chartDescription={'Overview of ' + timeRangeDescription.toLowerCase()}
-			/>
-		</div>
-
+		<!-- Monthly netflow trend (yearly) -->
 		<div class="mb-6">
-			<TimeRangeInOut
-				chartTitle={yearlyViewLabel + ' In & Out'}
-				chartDescription={'Overview of ' + timeRangeDescription.toLowerCase()}
-				chartData={data.timeRangeData}
-			/>
+			<MonthlyNetflowChart chartData={monthlyNetflowData} />
 		</div>
 
 		<!-- Savings goals strip (yearly) -->
-		{@const activeGoalsYearly = (data.goalsWithProgress || []).filter(
-			(g) => g.status !== 'archived'
-		)}
-		{#if activeGoalsYearly.length > 0}
+		{#if (data.goalsWithProgress || []).length > 0}
 			<div class="mb-6">
-				<GoalsSummaryStrip goals={activeGoalsYearly} />
+				<GoalsSummaryStrip goals={data.goalsWithProgress || []} />
 			</div>
 		{/if}
 
