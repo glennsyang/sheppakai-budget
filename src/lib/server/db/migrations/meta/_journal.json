@@ -64,6 +64,13 @@
 			"when": 1785715908228,
 			"tag": "0008_bored_vulcan",
 			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "6",
+			"when": 1785861978287,
+			"tag": "0009_icy_king_cobra",
+			"breakpoints": true
 		}
 	]
 }

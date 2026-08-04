@@ -171,6 +171,14 @@ export type ExcludedSpendCategory = {
 	amount: number;
 };
 
+export type CategoryAnomaly = {
+	categoryId: string;
+	categoryName: string;
+	currentAmount: number;
+	trailingAverage: number;
+	percentOver: number;
+};
+
 export type MonthlyNetflowData = {
 	month: string;
 	net: number;

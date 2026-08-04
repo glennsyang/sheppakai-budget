@@ -2,6 +2,10 @@ export { default as account, accountRelations } from './account';
 export { default as budget, budgetRelations } from './budget';
 export { default as category } from './category';
 export { default as contribution, contributionRelations } from './contribution';
+export {
+	default as dashboardSectionPreference,
+	dashboardSectionPreferenceRelations
+} from './dashboardSectionPreference';
 export { default as income } from './income';
 export { default as recurring, recurringRelations } from './recurring';
 export { default as savings, savingsRelations } from './savings';

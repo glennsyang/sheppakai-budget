@@ -1,12 +1,17 @@
 import type {
+	CategoryAnomaly,
 	ExcludedSpendCategory,
 	SavingsGoalWithProgress,
 	TimeRangeInOutData,
 	Transaction
 } from '$lib';
+import { dashboardVisibilitySchema, transactionSchema } from '$lib/formSchemas';
+import { requireAuth } from '$lib/server/actions/auth-guard';
+import { requireUser } from '$lib/server/auth-guard-load';
 import { getDb } from '$lib/server/db';
 import {
 	budgetQueries,
+	dashboardPreferenceQueries,
 	incomeQueries,
 	recurringQueries,
 	savingsGoalQueries,
@@ -14,6 +19,8 @@ import {
 	transactionQueries
 } from '$lib/server/db/queries';
 import { contribution } from '$lib/server/db/schema';
+import { computeCategoryAnomalies } from '$lib/server/insights/category-anomalies';
+import { logger } from '$lib/server/logger';
 import { monthNames } from '$lib/utils';
 import {
 	getCalendarYearMonthsRange,
@@ -23,8 +30,10 @@ import {
 	getYearDateRange
 } from '$lib/utils/dates';
 import { inArray, sum } from 'drizzle-orm';
+import { message, superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 
 type RecurringItem = { cadence: string; amount: number };
 
@@ -136,6 +145,7 @@ async function loadMonthlyDashboard(url: URL) {
 	}
 
 	const monthlyInOutData: TimeRangeInOutData[] = [];
+	let categoryAnomalies: CategoryAnomaly[] = [];
 
 	if (historicalMonths.length > 0) {
 		const chartStart = historicalMonths[0].monthStart;
@@ -159,6 +169,8 @@ async function loadMonthlyDashboard(url: URL) {
 				out: monthTx.reduce((acc, t) => acc + t.amount, 0) + recurringMonthlyTotal
 			});
 		}
+
+		categoryAnomalies = computeCategoryAnomalies(allChartTx, historicalMonths);
 	}
 
 	const netflowSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.in - d.out }));
@@ -180,6 +192,7 @@ async function loadMonthlyDashboard(url: URL) {
 		monthlyInOutData,
 		netflowSparkline,
 		spendingSparkline,
+		categoryAnomalies,
 		goalsWithProgress,
 		totalSavings
 	};
@@ -285,8 +298,46 @@ async function loadYearlyDashboard(url: URL) {
 	};
 }
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, locals }) => {
+	const user = requireUser(locals);
 	const mode = url.searchParams.get('mode') === 'yearly' ? 'yearly' : 'monthly';
-	if (mode === 'monthly') return loadMonthlyDashboard(url);
-	return loadYearlyDashboard(url);
+
+	const [dashboardData, hiddenSections, transactionForm] = await Promise.all([
+		mode === 'monthly' ? loadMonthlyDashboard(url) : loadYearlyDashboard(url),
+		dashboardPreferenceQueries.findHiddenKeysByUserId(user.id),
+		superValidate(zod4(transactionSchema))
+	]);
+
+	const dashboardVisibilityForm = await superValidate(
+		{ hiddenSections },
+		zod4(dashboardVisibilitySchema)
+	);
+
+	return { ...dashboardData, hiddenSections, dashboardVisibilityForm, transactionForm };
 };
+
+export const actions = {
+	updateVisibility: requireAuth(async ({ request }, user) => {
+		const form = await superValidate(request, zod4(dashboardVisibilitySchema));
+
+		if (!form.valid) {
+			return message(
+				form,
+				{ type: 'error', text: 'Please correct the errors in the form.' },
+				{ status: 400 }
+			);
+		}
+
+		try {
+			await dashboardPreferenceQueries.setHiddenKeys(user.id, form.data.hiddenSections);
+			return message(form, { type: 'success', text: 'Dashboard preferences updated.' });
+		} catch (error) {
+			logger.error('Failed to update dashboard section preferences', error);
+			return message(
+				form,
+				{ type: 'error', text: 'Failed to update dashboard preferences. Please try again.' },
+				{ status: 500 }
+			);
+		}
+	})
+} satisfies Actions;
