@@ -1,5 +1,6 @@
 export { budgetQueries } from './budgets';
 export { categoryQueries } from './categories';
+export { dashboardPreferenceQueries } from './dashboardPreferences';
 export { incomeQueries } from './income';
 export { recurringQueries } from './recurring';
 export { savingsQueries } from './savings';

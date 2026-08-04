@@ -6,6 +6,7 @@ export type {
 	Budget,
 	CardType,
 	Category,
+	CategoryAnomaly,
 	ChartData,
 	Contribution,
 	ExcludedSpendCategory,

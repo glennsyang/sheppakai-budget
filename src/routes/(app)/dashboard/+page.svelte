@@ -8,7 +8,9 @@
 	import CardBeam from '$lib/components/CardBeam.svelte';
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
 	import CashFlowProjectionCard from '$lib/components/CashFlowProjectionCard.svelte';
+	import CategoryAnomalyAlert from '$lib/components/CategoryAnomalyAlert.svelte';
 	import CategoryTransactionSheet from '$lib/components/CategoryTransactionSheet.svelte';
+	import DashboardCustomizePopover from '$lib/components/DashboardCustomizePopover.svelte';
 	import ExcludedSpendList from '$lib/components/ExcludedSpendList.svelte';
 	import GoalsSummaryStrip from '$lib/components/GoalsSummaryStrip.svelte';
 	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
@@ -20,17 +22,20 @@
 	import RecurringExpensesCard from '$lib/components/RecurringExpensesCard.svelte';
 	import SafeToSpendHeroBand from '$lib/components/SafeToSpendHeroBand.svelte';
 	import SpendingBreakdownChart from '$lib/components/SpendingBreakdownChart.svelte';
+	import TransactionModal from '$lib/components/TransactionModal.svelte';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import UpcomingBillsCard from '$lib/components/UpcomingBillsCard.svelte';
 	import { getCategoriesContext } from '$lib/contexts';
+	import { dashboardSectionsForMode } from '$lib/dashboardSections';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
 	import { computeCashFlowProjection } from '$lib/utils/cashFlowProjection';
 	import { getYearProgress } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { ChevronDownIcon } from '@lucide/svelte';
-	import { LandmarkIcon, PiggyBankIcon, WalletIcon } from '@lucide/svelte/icons';
+	import { LandmarkIcon, PiggyBankIcon, PlusIcon, WalletIcon } from '@lucide/svelte/icons';
 	import { SvelteMap } from 'svelte/reactivity';
 
 	import type { PageProps } from './$types';
@@ -79,6 +84,9 @@
 	// Transaction drawer
 	let openTransactionSheet = $state(false);
 	let selectedCategoryId = $state<string | null>(null);
+
+	// Quick action: log a new expense without navigating away
+	let openLogExpenseModal = $state(false);
 
 	const categories = getCategoriesContext();
 	const dashboardPath = resolve('/dashboard');
@@ -302,6 +310,16 @@
 	// KPI sparkline data
 	let netflowSparkline = $derived(data.netflowSparkline || []);
 	let spendingSparkline = $derived(data.spendingSparkline || []);
+	let categoryAnomalies = $derived(data.categoryAnomalies || []);
+
+	// Dashboard section show/hide preferences
+	let visibleSections = $derived(
+		dashboardSectionsForMode(selectedMode === 'yearly' ? 'yearly' : 'monthly')
+	);
+	let hiddenSectionKeys = $derived(new Set(data.hiddenSections || []));
+	function isSectionVisible(key: string): boolean {
+		return !hiddenSectionKeys.has(key);
+	}
 	let netBalanceTrend = $derived(currencyDeltaTrend(netflowSparkline));
 	let spendTrend = $derived(spendPercentTrend(spendingSparkline));
 
@@ -409,6 +427,17 @@
 			<div class="w-full lg:ml-auto lg:w-136">
 				<div class="grid gap-3">
 					<div class="flex justify-end gap-3">
+						<Button size="sm" class="gap-2" onclick={() => (openLogExpenseModal = true)}>
+							<PlusIcon class="size-4" />
+							Log Expense
+						</Button>
+						<DashboardCustomizePopover
+							sections={visibleSections}
+							dashboardVisibilityForm={data.dashboardVisibilityForm}
+						/>
+					</div>
+
+					<div class="flex justify-end gap-3">
 						{#if selectedMode === 'monthly'}
 							<div class="w-44">
 								<Select.Root type="single" value={selectedMonth} onValueChange={onMonthChange}>
@@ -490,107 +519,115 @@
 		/>
 	{:else if selectedMode === 'monthly'}
 		<!-- Safe-to-spend hero band -->
-		<div class="mb-6">
-			<SafeToSpendHeroBand
-				dailyDiscretionary={projection.dailyDiscretionary}
-				{netBalance}
-				daysRemainingInclusive={projection.daysRemainingInclusive}
-			/>
-		</div>
-
-		<!-- KPI Sparkline Row -->
-		<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-			<KpiSparklineCard
-				label="Net Balance"
-				value={formatCurrency(netBalance)}
-				subtext="income minus spending"
-				colorScheme={netBalance >= 0 ? 'green' : 'red'}
-				sparklineData={netflowSparkline}
-				trendDirection={netBalanceTrend?.direction}
-				trendLabel={netBalanceTrend?.label}
-				tooltip="Your income minus all spending this month. Positive means you're ahead; negative means you've spent more than you earned. The chart shows the trend over the last 6 months."
-			/>
-			<KpiSparklineCard
-				label="Discretionary Budget Used"
-				icon={WalletIcon}
-				value={`${nonRecurringBudgetPct.toFixed(0)}%`}
-				subtext="of planned budget"
-				colorScheme={nonRecurringBudgetPct > 100
-					? 'red'
-					: nonRecurringBudgetPct > 85
-						? 'amber'
-						: 'green'}
-				sparklineData={spendingSparkline}
-				trendDirection={spendTrend?.direction}
-				trendLabel={spendTrend?.label}
-				tooltip="Your discretionary spending vs. planned budget, excluding recurring expenses. More sensitive than the all-in % — can read higher because the recurring amount isn't cushioning either side."
-			/>
-			<KpiSparklineCard
-				label="Total Budget Used"
-				icon={LandmarkIcon}
-				value={`${budgetPct.toFixed(0)}%`}
-				subtext="of planned budget (incl. recurring)"
-				colorScheme={budgetPct > 100 ? 'red' : budgetPct > 85 ? 'amber' : 'green'}
-				sparklineData={spendingSparkline}
-				trendDirection={spendTrend?.direction}
-				trendLabel={spendTrend?.label}
-				tooltip="Your total spending vs. total planned budget, including recurring expenses. Can read lower than the excl. recurring % when you're over on discretionary spend, since the recurring amount dilutes both sides equally."
-			/>
-			<KpiSparklineCard
-				label="Recurring Burden"
-				value={`${recurringBurdenPct.toFixed(0)}%`}
-				subtext="of income committed"
-				colorScheme={recurringBurdenPct > 50
-					? 'red'
-					: recurringBurdenPct > 35
-						? 'amber'
-						: 'neutral'}
-				tooltip="The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending."
-			/>
-			<KpiSparklineCard
-				label="Total Savings"
-				icon={PiggyBankIcon}
-				value={formatCurrency(data.totalSavings || 0)}
-				subtext="across all savings accounts"
-				colorScheme="green"
-				tooltip="The sum of all your savings accounts, same total shown on the Savings page."
-			/>
-		</div>
-
-		<!-- Monthly budget summary + spending breakdown -->
-		<div class="mb-6 flex flex-col gap-4 lg:grid lg:grid-cols-12">
-			<div class="lg:col-span-5">
-				<CardBeam color="rgb(239, 68, 68)" active={nonRecurringBudgetPct > 100}>
-					<MonthlyBudgetSummaryCard
-						actualSpent={data.actualExpensesTotal || 0}
-						plannedBudget={data.plannedExpensesTotal || 0}
-						totalIncome={data.totalIncome || 0}
-						recurringTotal={recurringMonthlyTotal}
-						excludedSpendTotal={excludedExpensesTotal}
-						excludedSpendBreakdown={data.excludedExpensesBreakdown || []}
-					/>
-				</CardBeam>
-			</div>
-			<div class="lg:col-span-7">
-				<SpendingBreakdownChart
-					chartData={spendingBreakdownData}
-					totalSpent={data.actualExpensesTotal || 0}
-					onSliceClick={openCategoryDetails}
+		{#if isSectionVisible('safeToSpendHero')}
+			<div class="mb-6">
+				<SafeToSpendHeroBand
+					dailyDiscretionary={projection.dailyDiscretionary}
+					{netBalance}
+					daysRemainingInclusive={projection.daysRemainingInclusive}
 				/>
 			</div>
-		</div>
+		{/if}
+
+		<!-- KPI Sparkline Row -->
+		{#if isSectionVisible('kpiRow')}
+			<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+				<KpiSparklineCard
+					label="Net Balance"
+					value={formatCurrency(netBalance)}
+					subtext="income minus spending"
+					colorScheme={netBalance >= 0 ? 'green' : 'red'}
+					sparklineData={netflowSparkline}
+					trendDirection={netBalanceTrend?.direction}
+					trendLabel={netBalanceTrend?.label}
+					tooltip="Your income minus all spending this month. Positive means you're ahead; negative means you've spent more than you earned. The chart shows the trend over the last 6 months."
+				/>
+				<KpiSparklineCard
+					label="Discretionary Budget Used"
+					icon={WalletIcon}
+					value={`${nonRecurringBudgetPct.toFixed(0)}%`}
+					subtext="of planned budget"
+					colorScheme={nonRecurringBudgetPct > 100
+						? 'red'
+						: nonRecurringBudgetPct > 85
+							? 'amber'
+							: 'green'}
+					sparklineData={spendingSparkline}
+					trendDirection={spendTrend?.direction}
+					trendLabel={spendTrend?.label}
+					tooltip="Your discretionary spending vs. planned budget, excluding recurring expenses. More sensitive than the all-in % — can read higher because the recurring amount isn't cushioning either side."
+				/>
+				<KpiSparklineCard
+					label="Total Budget Used"
+					icon={LandmarkIcon}
+					value={`${budgetPct.toFixed(0)}%`}
+					subtext="of planned budget (incl. recurring)"
+					colorScheme={budgetPct > 100 ? 'red' : budgetPct > 85 ? 'amber' : 'green'}
+					sparklineData={spendingSparkline}
+					trendDirection={spendTrend?.direction}
+					trendLabel={spendTrend?.label}
+					tooltip="Your total spending vs. total planned budget, including recurring expenses. Can read lower than the excl. recurring % when you're over on discretionary spend, since the recurring amount dilutes both sides equally."
+				/>
+				<KpiSparklineCard
+					label="Recurring Burden"
+					value={`${recurringBurdenPct.toFixed(0)}%`}
+					subtext="of income committed"
+					colorScheme={recurringBurdenPct > 50
+						? 'red'
+						: recurringBurdenPct > 35
+							? 'amber'
+							: 'neutral'}
+					tooltip="The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending."
+				/>
+				<KpiSparklineCard
+					label="Total Savings"
+					icon={PiggyBankIcon}
+					value={formatCurrency(data.totalSavings || 0)}
+					subtext="across all savings accounts"
+					colorScheme="green"
+					tooltip="The sum of all your savings accounts, same total shown on the Savings page."
+				/>
+			</div>
+		{/if}
+
+		<!-- Monthly budget summary + spending breakdown -->
+		{#if isSectionVisible('monthlyOverview')}
+			<div class="mb-6 flex flex-col gap-4 lg:grid lg:grid-cols-12">
+				<div class="lg:col-span-5">
+					<CardBeam color="rgb(239, 68, 68)" active={nonRecurringBudgetPct > 100}>
+						<MonthlyBudgetSummaryCard
+							actualSpent={data.actualExpensesTotal || 0}
+							plannedBudget={data.plannedExpensesTotal || 0}
+							totalIncome={data.totalIncome || 0}
+							recurringTotal={recurringMonthlyTotal}
+							excludedSpendTotal={excludedExpensesTotal}
+							excludedSpendBreakdown={data.excludedExpensesBreakdown || []}
+						/>
+					</CardBeam>
+				</div>
+				<div class="lg:col-span-7">
+					<SpendingBreakdownChart
+						chartData={spendingBreakdownData}
+						totalSpent={data.actualExpensesTotal || 0}
+						onSliceClick={openCategoryDetails}
+					/>
+				</div>
+			</div>
+		{/if}
 
 		<!-- Cash flow projection (monthly only) -->
-		<div class="mb-6">
-			<CashFlowProjectionCard
-				totalIncome={data.totalIncome || 0}
-				actualSpent={data.actualExpensesTotal || 0}
-				{recurringMonthlyTotal}
-				plannedExpensesTotal={data.plannedExpensesTotal || 0}
-				month={Number(selectedMonth)}
-				year={Number(selectedYear)}
-			/>
-		</div>
+		{#if isSectionVisible('cashFlowProjection')}
+			<div class="mb-6">
+				<CashFlowProjectionCard
+					totalIncome={data.totalIncome || 0}
+					actualSpent={data.actualExpensesTotal || 0}
+					{recurringMonthlyTotal}
+					plannedExpensesTotal={data.plannedExpensesTotal || 0}
+					month={Number(selectedMonth)}
+					year={Number(selectedYear)}
+				/>
+			</div>
+		{/if}
 
 		<!-- Budget alert row (only when over budget) -->
 		{#if overBudgetCategories.length > 0}
@@ -599,8 +636,15 @@
 			</div>
 		{/if}
 
+		<!-- Category anomaly insights (unusual spend vs trailing 6-month average) -->
+		{#if categoryAnomalies.length > 0}
+			<div class="mb-6">
+				<CategoryAnomalyAlert anomalies={categoryAnomalies} onViewCategory={openCategoryDetails} />
+			</div>
+		{/if}
+
 		<!-- Top 6 at-risk categories (always visible) -->
-		{#if topRiskCategories.length > 0}
+		{#if isSectionVisible('categoryOverview') && topRiskCategories.length > 0}
 			<div class="mb-6">
 				<div class="mb-3 flex items-center gap-1.5">
 					<h2 class="text-lg font-semibold">Category Overview</h2>
@@ -631,137 +675,153 @@
 		{/if}
 
 		<!-- Savings goals strip -->
-		{#if (data.goalsWithProgress || []).length > 0}
+		{#if isSectionVisible('goalsStrip') && (data.goalsWithProgress || []).length > 0}
 			<div class="mb-6">
 				<GoalsSummaryStrip goals={data.goalsWithProgress || []} />
 			</div>
 		{/if}
 
 		<!-- Upcoming bills -->
-		<div class="mb-6">
-			<UpcomingBillsCard recurring={data.recurringExpenses || []} />
-		</div>
+		{#if isSectionVisible('upcomingBills')}
+			<div class="mb-6">
+				<UpcomingBillsCard recurring={data.recurringExpenses || []} />
+			</div>
+		{/if}
 
 		<!-- Recurring expenses card -->
-		<div class="mb-6">
-			<RecurringExpensesCard
-				recurring={data.recurringExpenses || []}
-				monthlyTotal={recurringMonthlyTotal}
-			/>
-		</div>
+		{#if isSectionVisible('recurringExpenses')}
+			<div class="mb-6">
+				<RecurringExpensesCard
+					recurring={data.recurringExpenses || []}
+					monthlyTotal={recurringMonthlyTotal}
+				/>
+			</div>
+		{/if}
 
 		<!-- All categories (collapsible, closed by default) -->
-		<Collapsible.Root bind:open={categoriesOpen} class="mt-2">
-			<Collapsible.Trigger class="group mb-4 flex cursor-pointer items-center gap-2">
-				<ChevronDownIcon
-					class="text-muted-foreground h-5 w-5 transition-transform duration-200 {categoriesOpen
-						? ''
-						: '-rotate-90'}"
-				/>
-				<h2 class="text-xl font-semibold">All Categories</h2>
-				<span class="text-muted-foreground text-sm">({sortedCategories.length})</span>
-			</Collapsible.Trigger>
-			<Collapsible.Content>
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{#each sortedCategories as category (category.id)}
-						{@const categoryOverBudget = isCategoryOverBudget(category.id)}
-						<CardBeam color={getCategoryBeamColor(category.id)} active={categoryOverBudget}>
-							<button
-								type="button"
-								onclick={() => openCategoryDetails(category.id)}
-								class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-destructive/40 ring-1' : ''}`}
-							>
-								<BudgetProgressCard
-									title={category.name}
-									planned={getPlannedAmount(category.id)}
-									actual={getActualAmount(category.id)}
-									label1="Spent"
-								/>
-							</button>
-						</CardBeam>
-					{/each}
-				</div>
-			</Collapsible.Content>
-		</Collapsible.Root>
+		{#if isSectionVisible('allCategories')}
+			<Collapsible.Root bind:open={categoriesOpen} class="mt-2">
+				<Collapsible.Trigger class="group mb-4 flex cursor-pointer items-center gap-2">
+					<ChevronDownIcon
+						class="text-muted-foreground h-5 w-5 transition-transform duration-200 {categoriesOpen
+							? ''
+							: '-rotate-90'}"
+					/>
+					<h2 class="text-xl font-semibold">All Categories</h2>
+					<span class="text-muted-foreground text-sm">({sortedCategories.length})</span>
+				</Collapsible.Trigger>
+				<Collapsible.Content>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{#each sortedCategories as category (category.id)}
+							{@const categoryOverBudget = isCategoryOverBudget(category.id)}
+							<CardBeam color={getCategoryBeamColor(category.id)} active={categoryOverBudget}>
+								<button
+									type="button"
+									onclick={() => openCategoryDetails(category.id)}
+									class={`w-full cursor-pointer rounded-xl text-left transition-shadow hover:shadow-md ${categoryOverBudget ? 'ring-destructive/40 ring-1' : ''}`}
+								>
+									<BudgetProgressCard
+										title={category.name}
+										planned={getPlannedAmount(category.id)}
+										actual={getActualAmount(category.id)}
+										label1="Spent"
+									/>
+								</button>
+							</CardBeam>
+						{/each}
+					</div>
+				</Collapsible.Content>
+			</Collapsible.Root>
+		{/if}
 	{:else}
 		<!-- Yearly YTD KPI row -->
-		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-			<div class="bg-card rounded-xl border p-4 shadow-xs">
-				<p class="text-muted-foreground text-sm">YTD Income</p>
-				<p class="mt-1 text-2xl font-bold tabular-nums">{formatCurrency(data.totalIncome || 0)}</p>
-			</div>
-			<div class="bg-card rounded-xl border p-4 shadow-xs">
-				<p class="text-muted-foreground text-sm">YTD Spent</p>
-				<p class="mt-1 text-2xl font-bold tabular-nums">
-					{formatCurrency(data.actualExpensesTotal || 0)}
-				</p>
-			</div>
-			<div class="bg-card rounded-xl border p-4 shadow-xs">
-				<p class="text-muted-foreground text-sm">YTD Net</p>
-				<p
-					class={`mt-1 text-2xl font-bold tabular-nums ${ytdNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
-				>
-					{ytdNet >= 0 ? '+' : ''}{formatCurrency(ytdNet)}
-				</p>
-			</div>
-			<div class="bg-card rounded-xl border p-4 shadow-xs">
-				<p class="text-muted-foreground text-sm">Total Savings</p>
-				<p class="mt-1 text-2xl font-bold text-green-600 tabular-nums dark:text-green-400">
-					{formatCurrency(data.totalSavings || 0)}
-				</p>
-				<p class="text-muted-foreground mt-1 text-xs">Across all savings accounts</p>
-			</div>
-			{#if excludedExpensesTotal > 0}
-				<div class="bg-card rounded-xl border p-4 text-sm shadow-xs">
-					<p class="text-muted-foreground mb-1 text-sm">YTD Excluded Spend</p>
-					<ExcludedSpendList
-						total={excludedExpensesTotal}
-						breakdown={data.excludedExpensesBreakdown || []}
-					/>
+		{#if isSectionVisible('ytdStats')}
+			<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+				<div class="bg-card rounded-xl border p-4 shadow-xs">
+					<p class="text-muted-foreground text-sm">YTD Income</p>
+					<p class="mt-1 text-2xl font-bold tabular-nums">
+						{formatCurrency(data.totalIncome || 0)}
+					</p>
 				</div>
-			{/if}
-		</div>
+				<div class="bg-card rounded-xl border p-4 shadow-xs">
+					<p class="text-muted-foreground text-sm">YTD Spent</p>
+					<p class="mt-1 text-2xl font-bold tabular-nums">
+						{formatCurrency(data.actualExpensesTotal || 0)}
+					</p>
+				</div>
+				<div class="bg-card rounded-xl border p-4 shadow-xs">
+					<p class="text-muted-foreground text-sm">YTD Net</p>
+					<p
+						class={`mt-1 text-2xl font-bold tabular-nums ${ytdNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
+					>
+						{ytdNet >= 0 ? '+' : ''}{formatCurrency(ytdNet)}
+					</p>
+				</div>
+				<div class="bg-card rounded-xl border p-4 shadow-xs">
+					<p class="text-muted-foreground text-sm">Total Savings</p>
+					<p class="mt-1 text-2xl font-bold text-green-600 tabular-nums dark:text-green-400">
+						{formatCurrency(data.totalSavings || 0)}
+					</p>
+					<p class="text-muted-foreground mt-1 text-xs">Across all savings accounts</p>
+				</div>
+				{#if excludedExpensesTotal > 0}
+					<div class="bg-card rounded-xl border p-4 text-sm shadow-xs">
+						<p class="text-muted-foreground mb-1 text-sm">YTD Excluded Spend</p>
+						<ExcludedSpendList
+							total={excludedExpensesTotal}
+							breakdown={data.excludedExpensesBreakdown || []}
+						/>
+					</div>
+				{/if}
+			</div>
+		{/if}
 
 		<!-- Net Savings table (yearly) -->
-		<div class="mb-6">
-			<MonthlyNetSavingsCard chartData={data.timeRangeData || []} />
-		</div>
+		{#if isSectionVisible('netSavingsTable')}
+			<div class="mb-6">
+				<MonthlyNetSavingsCard chartData={data.timeRangeData || []} />
+			</div>
+		{/if}
 
 		<!-- Monthly netflow trend (yearly) -->
-		<div class="mb-6">
-			<MonthlyNetflowChart chartData={monthlyNetflowData} />
-		</div>
+		{#if isSectionVisible('trendCharts')}
+			<div class="mb-6">
+				<MonthlyNetflowChart chartData={monthlyNetflowData} />
+			</div>
+		{/if}
 
 		<!-- Savings goals strip (yearly) -->
-		{#if (data.goalsWithProgress || []).length > 0}
+		{#if isSectionVisible('goalsStrip') && (data.goalsWithProgress || []).length > 0}
 			<div class="mb-6">
 				<GoalsSummaryStrip goals={data.goalsWithProgress || []} />
 			</div>
 		{/if}
 
 		<!-- All category charts (yearly) -->
-		<Collapsible.Root bind:open={spentByCategoryOpen} class="mt-2">
-			<Collapsible.Trigger class="group mb-4 flex cursor-pointer items-center gap-2">
-				<ChevronDownIcon
-					class="text-muted-foreground h-5 w-5 transition-transform duration-200 {spentByCategoryOpen
-						? ''
-						: '-rotate-90'}"
-				/>
-				<h2 class="text-xl font-semibold">Spent by Category</h2>
-			</Collapsible.Trigger>
-			<Collapsible.Content>
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{#each sortedCategories as category (category.id)}
-						{@const categoryMonthlyData = getCategoryMonthlyData(category.id)}
-						<MonthlyCategoryChart
-							chartTitle={category?.name}
-							chartData={categoryMonthlyData}
-							chartDescription={categoryChartDescription}
-						/>
-					{/each}
-				</div>
-			</Collapsible.Content>
-		</Collapsible.Root>
+		{#if isSectionVisible('spentByCategory')}
+			<Collapsible.Root bind:open={spentByCategoryOpen} class="mt-2">
+				<Collapsible.Trigger class="group mb-4 flex cursor-pointer items-center gap-2">
+					<ChevronDownIcon
+						class="text-muted-foreground h-5 w-5 transition-transform duration-200 {spentByCategoryOpen
+							? ''
+							: '-rotate-90'}"
+					/>
+					<h2 class="text-xl font-semibold">Spent by Category</h2>
+				</Collapsible.Trigger>
+				<Collapsible.Content>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{#each sortedCategories as category (category.id)}
+							{@const categoryMonthlyData = getCategoryMonthlyData(category.id)}
+							<MonthlyCategoryChart
+								chartTitle={category?.name}
+								chartData={categoryMonthlyData}
+								chartDescription={categoryChartDescription}
+							/>
+						{/each}
+					</div>
+				</Collapsible.Content>
+			</Collapsible.Root>
+		{/if}
 	{/if}
 </div>
 
@@ -774,3 +834,9 @@
 		year={parseInt(selectedYear)}
 	/>
 {/if}
+
+<TransactionModal
+	bind:open={openLogExpenseModal}
+	categories={categories()}
+	transactionForm={data.transactionForm}
+/>

@@ -1,11 +1,16 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Separator from '$lib/components/ui/separator/index.js';
 	import type { Recurring } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
+	import { actionMessage } from '$lib/utils/actionMessage';
 	import { getCurrentPeriodDueDate, getDaysUntilDue } from '$lib/utils/dates';
 	import { CalendarClockIcon } from '@lucide/svelte/icons';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		recurring: Recurring[];
@@ -32,6 +37,8 @@
 			.filter(({ daysUntilDue }) => daysUntilDue <= UPCOMING_WINDOW_DAYS)
 			.sort((a, b) => a.daysUntilDue - b.daysUntilDue);
 	});
+
+	let togglingId = $state<string | null>(null);
 
 	function dueLabel(daysUntilDue: number): string {
 		if (daysUntilDue < 0) {
@@ -66,11 +73,43 @@
 					{#if i > 0}
 						<Separator.Root class="my-0" />
 					{/if}
-					<div class="flex items-center justify-between py-2.5">
+					<div class="flex flex-wrap items-center justify-between gap-2 py-2.5">
 						<p class="text-sm font-medium">{item.merchant}</p>
 						<div class="flex items-center gap-2">
 							<Badge class="text-xs {badgeClass(daysUntilDue)}">{dueLabel(daysUntilDue)}</Badge>
 							<span class="text-sm font-semibold tabular-nums">{formatCurrency(item.amount)}</span>
+							<form
+								method="POST"
+								action="/recurring?/togglePaid"
+								use:enhance={() => {
+									togglingId = item.id;
+									return async ({ result, update }) => {
+										if (result.type === 'success') {
+											await invalidateAll();
+										} else {
+											const { text } = actionMessage(result, {
+												success: 'Marked as paid',
+												error: 'Failed to mark as paid'
+											});
+											toast.error(text);
+										}
+										await update();
+										togglingId = null;
+									};
+								}}
+							>
+								<input type="hidden" name="id" value={item.id} />
+								<input type="hidden" name="paid" value="true" />
+								<Button
+									type="submit"
+									size="sm"
+									variant="outline"
+									class="h-7 px-2 text-xs"
+									disabled={togglingId === item.id}
+								>
+									{togglingId === item.id ? 'Saving...' : 'Mark Paid'}
+								</Button>
+							</form>
 						</div>
 					</div>
 				{/each}
