@@ -170,7 +170,7 @@ async function loadMonthlyDashboard(url: URL) {
 			});
 		}
 
-		categoryAnomalies = computeCategoryAnomalies(allChartTx, historicalMonths);
+		categoryAnomalies = computeCategoryAnomalies(allChartTx, historicalMonths, plannedExpenses);
 	}
 
 	const netflowSparkline = monthlyInOutData.map((d) => ({ month: d.month, value: d.in - d.out }));

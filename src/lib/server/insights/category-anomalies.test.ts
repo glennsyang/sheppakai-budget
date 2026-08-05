@@ -1,4 +1,4 @@
-import type { Transaction, User } from '$lib/types';
+import type { Budget, Transaction, User } from '$lib/types';
 import { describe, expect, it } from 'vitest';
 
 import { computeCategoryAnomalies, type HistoricalMonthRange } from './category-anomalies';
@@ -51,6 +51,17 @@ function buildPriorMonthsSpend(
 	return priorMonthStarts.map((monthStart) =>
 		buildTx(categoryId, categoryName, amount, monthStart)
 	);
+}
+
+function buildBudget(categoryId: string, categoryName: string, amount: number): Budget {
+	return {
+		id: `budget-${categoryId}`,
+		amount,
+		month: '6',
+		year: '2026',
+		category: { id: categoryId, name: categoryName, description: '', createdAt: '', updatedAt: '' },
+		user: fixtureUser
+	};
 }
 
 describe('computeCategoryAnomalies', () => {
@@ -136,5 +147,54 @@ describe('computeCategoryAnomalies', () => {
 			'cat-4'
 		]);
 		expect(anomalies).toEqual([...anomalies].sort((a, b) => b.percentOver - a.percentOver));
+	});
+
+	it('does not flag a category spending at or under its budget for the current month', () => {
+		const transactions = [
+			...buildPriorMonthsSpend('groceries', 'Groceries', 100),
+			buildTx('groceries', 'Groceries', 140, '2026-06-15')
+		];
+		const budgets = [buildBudget('groceries', 'Groceries', 140)];
+
+		expect(computeCategoryAnomalies(transactions, sixMonthRange, budgets)).toEqual([]);
+	});
+
+	it('still flags a category that spends over both its trailing average and its budget', () => {
+		const transactions = [
+			...buildPriorMonthsSpend('groceries', 'Groceries', 100),
+			buildTx('groceries', 'Groceries', 140, '2026-06-15')
+		];
+		const budgets = [buildBudget('groceries', 'Groceries', 120)];
+
+		const anomalies = computeCategoryAnomalies(transactions, sixMonthRange, budgets);
+
+		expect(anomalies).toEqual([
+			{
+				categoryId: 'groceries',
+				categoryName: 'Groceries',
+				currentAmount: 140,
+				trailingAverage: 100,
+				percentOver: 40
+			}
+		]);
+	});
+
+	it('falls back to average-only detection when no budget is set for the category', () => {
+		const transactions = [
+			...buildPriorMonthsSpend('groceries', 'Groceries', 100),
+			buildTx('groceries', 'Groceries', 140, '2026-06-15')
+		];
+
+		const anomalies = computeCategoryAnomalies(transactions, sixMonthRange, []);
+
+		expect(anomalies).toEqual([
+			{
+				categoryId: 'groceries',
+				categoryName: 'Groceries',
+				currentAmount: 140,
+				trailingAverage: 100,
+				percentOver: 40
+			}
+		]);
 	});
 });

@@ -1,4 +1,4 @@
-import type { CategoryAnomaly, Transaction } from '$lib/types';
+import type { Budget, CategoryAnomaly, Transaction } from '$lib/types';
 
 // Require at least this many prior months of history before flagging anything, so a
 // category with only 1-2 months on record doesn't produce a noisy "anomaly" on day one.
@@ -16,11 +16,18 @@ export type HistoricalMonthRange = {
 
 export function computeCategoryAnomalies(
 	transactions: Transaction[],
-	historicalMonths: HistoricalMonthRange[]
+	historicalMonths: HistoricalMonthRange[],
+	currentBudgets: Budget[] = []
 ): CategoryAnomaly[] {
 	if (historicalMonths.length < MIN_PRIOR_MONTHS + 1) {
 		return [];
 	}
+
+	const budgetByCategory = new Map(
+		currentBudgets
+			.filter((b): b is Budget & { category: NonNullable<Budget['category']> } => !!b.category)
+			.map((b) => [b.category.id, b.amount])
+	);
 
 	const currentRange = historicalMonths[historicalMonths.length - 1];
 	const priorRanges = historicalMonths.slice(0, -1);
@@ -60,6 +67,11 @@ export function computeCategoryAnomalies(
 
 		if (trailingAverage < MIN_BASELINE_AMOUNT) continue;
 		if (current <= trailingAverage * ANOMALY_RATIO) continue;
+
+		// Spending within (or exactly at) a budget the user set for this category isn't a
+		// surprise, even if it's a big jump over the historical average.
+		const budgetedAmount = budgetByCategory.get(categoryId) ?? 0;
+		if (budgetedAmount > 0 && current <= budgetedAmount) continue;
 
 		anomalies.push({
 			categoryId,
