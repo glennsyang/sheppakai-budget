@@ -43,11 +43,11 @@ export function computeCashFlowProjection({
 	const daysRemaining = Math.max(daysInMonth - currentDay, 0);
 	const daysRemainingInclusive = Math.max(daysInMonth - currentDay + 1, 1);
 
-	const dailyBurnRate = actualSpent / daysElapsed;
+	const nonRecurringSpent = Math.max(0, actualSpent - recurringMonthlyTotal);
+	const dailyBurnRate = nonRecurringSpent / daysElapsed;
 	const projectedEnd = actualSpent + dailyBurnRate * daysRemaining;
 	const projectionPercent = totalIncome > 0 ? Math.min((projectedEnd / totalIncome) * 100, 100) : 0;
 
-	const nonRecurringSpent = Math.max(0, actualSpent - recurringMonthlyTotal);
 	const discretionaryRemaining = totalIncome - nonRecurringSpent - recurringMonthlyTotal;
 	const dailyDiscretionary = Math.max(discretionaryRemaining, 0) / daysRemainingInclusive;
 

@@ -129,9 +129,9 @@
 								<span class="text-muted-foreground text-xs">Projected month-end spend</span>
 								<InfoTooltip
 									size="sm"
-									text="Based on your daily burn rate so far this month ({formatCurrency(
+									text="Based on your non-recurring daily spend rate so far this month ({formatCurrency(
 										dailyBurnRate
-									)}/day). Current spend ÷ days elapsed × days remaining, added to current spend."
+									)}/day). Recurring commitments are counted in full; this rate projects only your remaining discretionary spend."
 								/>
 							</div>
 							<span class="text-sm font-bold tabular-nums {projectionColor}">
