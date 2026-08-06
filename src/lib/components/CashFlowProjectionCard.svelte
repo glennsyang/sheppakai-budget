@@ -71,7 +71,11 @@
 			<Card.Title class="text-base">Cash Flow Projection</Card.Title>
 			<InfoTooltip
 				maxWidth="max-w-72"
-				text="Shows where your money stands this month. The left side breaks down income, what you've spent on transactions, and recurring commitments to calculate your discretionary budget remaining. The right side projects your total spend by month-end based on your daily burn rate, and shows how much you can safely spend per day."
+				text={monthStatus === 'past'
+					? 'Shows where your money stood this month. The left side breaks down income, what you spent on transactions, and recurring commitments to show how much discretionary budget you had left.'
+					: monthStatus === 'future'
+						? 'Shows where your money is projected to stand this month. The left side will break down projected income, spending, and recurring commitments to show your projected discretionary budget.'
+						: "Shows where your money stands this month. The left side breaks down income, what you've spent on transactions, and recurring commitments to calculate your discretionary budget remaining. The right side projects your total spend by month-end based on your daily burn rate, and shows how much you can safely spend per day."}
 			/>
 			<span class="text-muted-foreground ml-auto text-xs">
 				{#if monthStatus === 'past'}
@@ -94,20 +98,38 @@
 				</div>
 				<Separator.Root />
 				<div class="flex justify-between py-2.5">
-					<span class="text-muted-foreground text-sm">Spent so far</span>
+					<span class="text-muted-foreground text-sm"
+						>{monthStatus === 'past'
+							? 'Total spent'
+							: monthStatus === 'future'
+								? 'Spent'
+								: 'Spent so far'}</span
+					>
 					<span class="text-sm font-semibold tabular-nums">{formatCurrency(nonRecurringSpent)}</span
 					>
 				</div>
 				<Separator.Root />
 				<div class="flex justify-between py-2.5">
-					<span class="text-muted-foreground text-sm">Recurring committed</span>
+					<span class="text-muted-foreground text-sm"
+						>{monthStatus === 'past'
+							? 'Recurring paid'
+							: monthStatus === 'future'
+								? 'Recurring due'
+								: 'Recurring committed'}</span
+					>
 					<span class="text-sm font-semibold tabular-nums"
 						>{formatCurrency(recurringMonthlyTotal)}</span
 					>
 				</div>
 				<Separator.Root />
 				<div class="flex justify-between py-2.5">
-					<span class="text-sm font-medium">Discretionary left</span>
+					<span class="text-sm font-medium"
+						>{monthStatus === 'past'
+							? 'Discretionary left over'
+							: monthStatus === 'future'
+								? 'Projected discretionary'
+								: 'Discretionary left'}</span
+					>
 					<span
 						class="text-sm font-bold tabular-nums {discretionaryRemaining >= 0
 							? 'text-green-600 dark:text-green-400'

@@ -31,7 +31,9 @@
 			</div>
 			<div>
 				<div class="flex items-center gap-1">
-					<p class="text-muted-foreground text-sm">Safe to Spend Today</p>
+					<p class="text-muted-foreground text-sm">
+						{monthStatus === 'current' ? 'Safe to Spend Today' : 'Safe to Spend Per Day'}
+					</p>
 					<InfoTooltip
 						size="sm"
 						text="Discretionary left (income − spent − recurring) divided by days remaining in the month. What your actual cash position allows you to spend per day."

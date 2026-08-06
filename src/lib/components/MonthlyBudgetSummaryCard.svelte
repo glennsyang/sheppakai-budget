@@ -3,6 +3,7 @@
 	import { Progress } from '$lib/components/ui/progress';
 	import type { ExcludedSpendCategory } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
+	import { getMonthProgress } from '$lib/utils/dates';
 
 	import ExcludedSpendList from './ExcludedSpendList.svelte';
 
@@ -14,6 +15,8 @@
 		excludedSpendTotal?: number;
 		excludedSpendBreakdown?: ExcludedSpendCategory[];
 		loading?: boolean;
+		month: number;
+		year: number;
 	}
 
 	let {
@@ -23,8 +26,12 @@
 		recurringTotal = 0,
 		excludedSpendTotal = 0,
 		excludedSpendBreakdown = [],
-		loading = false
+		loading = false,
+		month,
+		year
 	}: Props = $props();
+
+	let monthStatus = $derived(getMonthProgress(month, year).status);
 
 	let nonRecurringSpent = $derived(Math.max(0, actualSpent - recurringTotal));
 	let nonRecurringBudget = $derived(Math.max(0, plannedBudget - recurringTotal));
@@ -65,7 +72,17 @@
 					<p
 						class={`mt-1 text-xs font-medium ${isOverspent ? 'text-destructive' : 'text-green-600 dark:text-green-400'}`}
 					>
-						{isOverspent ? 'Overspent this month' : 'On track this month'}
+						{monthStatus === 'past'
+							? isOverspent
+								? 'Overspent'
+								: 'Stayed on track'
+							: monthStatus === 'future'
+								? isOverspent
+									? 'Projected to overspend'
+									: 'Projected to stay on track'
+								: isOverspent
+									? 'Overspent this month'
+									: 'On track this month'}
 					</p>
 				</div>
 				<div
@@ -123,7 +140,12 @@
 							</p>
 						{:else if nonRecurringBudget > 0}
 							<p class="text-xs font-medium text-green-600 dark:text-green-400">
-								{formatCurrency(nonRecurringBudget - nonRecurringSpent)} left
+								{formatCurrency(nonRecurringBudget - nonRecurringSpent)}
+								{monthStatus === 'past'
+									? 'unused'
+									: monthStatus === 'future'
+										? 'projected leftover'
+										: 'left'}
 							</p>
 						{/if}
 					</div>
@@ -165,7 +187,12 @@
 							</p>
 						{:else if totalIncome > 0}
 							<p class="text-xs font-medium text-green-600 dark:text-green-400">
-								{formatCurrency(totalIncome - actualSpent)} remaining
+								{formatCurrency(totalIncome - actualSpent)}
+								{monthStatus === 'past'
+									? 'saved'
+									: monthStatus === 'future'
+										? 'projected remaining'
+										: 'remaining'}
 							</p>
 						{/if}
 					</div>
