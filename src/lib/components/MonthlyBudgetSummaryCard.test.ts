@@ -3,13 +3,17 @@ import { describe, expect, it } from 'vitest';
 
 import MonthlyBudgetSummaryCard from './MonthlyBudgetSummaryCard.svelte';
 
+const now = new Date();
+const currentMonth = { month: now.getMonth() + 1, year: now.getFullYear() };
+
 describe('MonthlyBudgetSummaryCard', () => {
 	it('renders net balance in the on-track (positive) state', () => {
 		const html = render(MonthlyBudgetSummaryCard, {
 			props: {
 				actualSpent: 800,
 				plannedBudget: 1200,
-				totalIncome: 3000
+				totalIncome: 3000,
+				...currentMonth
 			}
 		}).body;
 
@@ -24,7 +28,8 @@ describe('MonthlyBudgetSummaryCard', () => {
 			props: {
 				actualSpent: 3500,
 				plannedBudget: 4000,
-				totalIncome: 3000
+				totalIncome: 3000,
+				...currentMonth
 			}
 		}).body;
 
@@ -40,7 +45,8 @@ describe('MonthlyBudgetSummaryCard', () => {
 				actualSpent: 500,
 				plannedBudget: 1000,
 				totalIncome: 2000,
-				loading: true
+				loading: true,
+				...currentMonth
 			}
 		}).body;
 
@@ -55,7 +61,8 @@ describe('MonthlyBudgetSummaryCard', () => {
 			props: {
 				actualSpent: 2000,
 				plannedBudget: 2500,
-				totalIncome: 2000
+				totalIncome: 2000,
+				...currentMonth
 			}
 		}).body;
 

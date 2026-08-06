@@ -552,7 +552,11 @@
 					sparklineData={netflowSparkline}
 					trendDirection={netBalanceTrend?.direction}
 					trendLabel={netBalanceTrend?.label}
-					tooltip="Your income minus all spending this month. Positive means you're ahead; negative means you've spent more than you earned. The chart shows the trend over the last 6 months."
+					tooltip={monthStatus === 'past'
+						? 'Your income minus all spending this month. Positive means you ended up ahead; negative means you spent more than you earned. The chart shows the trend over the last 6 months.'
+						: monthStatus === 'future'
+							? "Your projected income minus projected spending this month. Positive means you're projected to end up ahead; negative means you're projected to spend more than you earn. The chart shows the trend over the last 6 months."
+							: "Your income minus all spending this month. Positive means you're ahead; negative means you've spent more than you earned. The chart shows the trend over the last 6 months."}
 				/>
 				<KpiSparklineCard
 					label="Discretionary Budget Used"
@@ -567,7 +571,11 @@
 					sparklineData={spendingSparkline}
 					trendDirection={spendTrend?.direction}
 					trendLabel={spendTrend?.label}
-					tooltip="Your discretionary spending vs. planned budget, excluding recurring expenses. More sensitive than the all-in % — can read higher because the recurring amount isn't cushioning either side."
+					tooltip={monthStatus === 'past'
+						? "Your discretionary spending vs. planned budget, excluding recurring expenses. More sensitive than the all-in % — could read higher because the recurring amount wasn't cushioning either side."
+						: monthStatus === 'future'
+							? "Your projected discretionary spending vs. planned budget, excluding recurring expenses. More sensitive than the all-in % — can read higher because the recurring amount won't cushion either side."
+							: "Your discretionary spending vs. planned budget, excluding recurring expenses. More sensitive than the all-in % — can read higher because the recurring amount isn't cushioning either side."}
 				/>
 				<KpiSparklineCard
 					label="Total Budget Used"
@@ -578,7 +586,11 @@
 					sparklineData={spendingSparkline}
 					trendDirection={spendTrend?.direction}
 					trendLabel={spendTrend?.label}
-					tooltip="Your total spending vs. total planned budget, including recurring expenses. Can read lower than the excl. recurring % when you're over on discretionary spend, since the recurring amount dilutes both sides equally."
+					tooltip={monthStatus === 'past'
+						? 'Your total spending vs. total planned budget, including recurring expenses. Could read lower than the excl. recurring % when you were over on discretionary spend, since the recurring amount diluted both sides equally.'
+						: monthStatus === 'future'
+							? "Your projected total spending vs. total planned budget, including recurring expenses. Can read lower than the excl. recurring % when you're projected to be over on discretionary spend, since the recurring amount dilutes both sides equally."
+							: "Your total spending vs. total planned budget, including recurring expenses. Can read lower than the excl. recurring % when you're over on discretionary spend, since the recurring amount dilutes both sides equally."}
 				/>
 				<KpiSparklineCard
 					label="Recurring Burden"
@@ -589,7 +601,11 @@
 						: recurringBurdenPct > 35
 							? 'amber'
 							: 'neutral'}
-					tooltip="The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending."
+					tooltip={monthStatus === 'past'
+						? 'The percentage of your income that was committed to recurring expenses (subscriptions, bills, etc.). High values left less room for discretionary spending.'
+						: monthStatus === 'future'
+							? 'The percentage of your income projected to be committed to recurring expenses (subscriptions, bills, etc.). High values will leave less room for discretionary spending.'
+							: 'The percentage of your income already committed to recurring expenses (subscriptions, bills, etc.). High values leave less room for discretionary spending.'}
 				/>
 				<KpiSparklineCard
 					label="Total Savings"
@@ -614,6 +630,8 @@
 							recurringTotal={recurringMonthlyTotal}
 							excludedSpendTotal={excludedExpensesTotal}
 							excludedSpendBreakdown={data.excludedExpensesBreakdown || []}
+							month={Number(selectedMonth)}
+							year={Number(selectedYear)}
 						/>
 					</CardBeam>
 				</div>
@@ -661,7 +679,11 @@
 				<div class="mb-3 flex items-center gap-1.5">
 					<h2 class="text-lg font-semibold">Category Overview</h2>
 					<InfoTooltip
-						text="Your top 6 budget categories ranked by risk — over-budget categories appear first, followed by those with the highest percentage of their budget used. Click any card to see the individual transactions."
+						text={monthStatus === 'past'
+							? 'Your top 6 budget categories ranked by how they finished — over-budget categories appear first, followed by those with the highest percentage of their budget used. Click any card to see the individual transactions.'
+							: monthStatus === 'future'
+								? 'Your top 6 budget categories ranked by projected risk — over-budget categories appear first, followed by those with the highest percentage of their budget used. Click any card to see the individual transactions.'
+								: 'Your top 6 budget categories ranked by risk — over-budget categories appear first, followed by those with the highest percentage of their budget used. Click any card to see the individual transactions.'}
 					/>
 				</div>
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
