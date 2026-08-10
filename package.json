@@ -62,7 +62,7 @@
 		"drizzle-kit": "^0.31.9",
 		"fallow": "^3.13.0",
 		"globals": "^17.9.0",
-		"knip": "^6.31.0",
+		"knip": "^6.32.0",
 		"layerchart": "^2.0.4",
 		"lefthook": "^2.0.16",
 		"lint-staged": "^17.3.0",
