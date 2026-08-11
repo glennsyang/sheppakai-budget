@@ -35,7 +35,13 @@
 	import { getMonthProgress, getYearProgress } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { ChevronDownIcon } from '@lucide/svelte';
-	import { LandmarkIcon, PiggyBankIcon, PlusIcon, WalletIcon } from '@lucide/svelte/icons';
+	import {
+		LandmarkIcon,
+		PiggyBankIcon,
+		PlusIcon,
+		TargetIcon,
+		WalletIcon
+	} from '@lucide/svelte/icons';
 	import { SvelteMap } from 'svelte/reactivity';
 
 	import type { PageProps } from './$types';
@@ -356,6 +362,12 @@
 			? Math.min((recurringMonthlyTotal / data.totalIncome) * 100, 100)
 			: 0
 	);
+	let totalGoalsSaved = $derived(
+		(data.goalsWithProgress || []).reduce((acc, g) => acc + g.currentAmount, 0)
+	);
+	let totalGoalsTarget = $derived(
+		(data.goalsWithProgress || []).reduce((acc, g) => acc + g.targetAmount, 0)
+	);
 	let excludedExpensesTotal = $derived(data.excludedExpensesTotal || 0);
 
 	// Pre-built lookup map for allYearBudgets: key is `${categoryId}-${monthValue}-${year}`
@@ -615,6 +627,16 @@
 					colorScheme="green"
 					tooltip="The sum of all your savings accounts, same total shown on the Savings page."
 				/>
+				{#if (data.goalsWithProgress || []).length > 0}
+					<KpiSparklineCard
+						label="Savings Goals"
+						icon={TargetIcon}
+						value={formatCurrency(totalGoalsSaved)}
+						subtext={`of ${formatCurrency(totalGoalsTarget)} target across ${data.goalsWithProgress.length} goal${data.goalsWithProgress.length === 1 ? '' : 's'}`}
+						colorScheme="green"
+						tooltip="The combined amount saved across all your active savings goals, compared to their combined target amount."
+					/>
+				{/if}
 			</div>
 		{/if}
 
@@ -799,6 +821,18 @@
 					</p>
 					<p class="text-muted-foreground mt-1 text-xs">Across all savings accounts</p>
 				</div>
+				{#if (data.goalsWithProgress || []).length > 0}
+					<div class="bg-card rounded-xl border p-4 shadow-xs">
+						<p class="text-muted-foreground text-sm">Savings Goals</p>
+						<p class="mt-1 text-2xl font-bold text-green-600 tabular-nums dark:text-green-400">
+							{formatCurrency(totalGoalsSaved)}
+						</p>
+						<p class="text-muted-foreground mt-1 text-xs">
+							of {formatCurrency(totalGoalsTarget)} target across {data.goalsWithProgress.length}
+							goal{data.goalsWithProgress.length === 1 ? '' : 's'}
+						</p>
+					</div>
+				{/if}
 				{#if excludedExpensesTotal > 0}
 					<div class="bg-card rounded-xl border p-4 text-sm shadow-xs">
 						<p class="text-muted-foreground mb-1 text-sm">YTD Excluded Spend</p>
