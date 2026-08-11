@@ -1,5 +1,9 @@
 import type { WindowCleaningCustomer } from '$lib';
-import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import {
+	type Features,
+	renderComponent,
+	renderSnippet
+} from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
@@ -8,7 +12,7 @@ import DataTableActions from './data-table-actions.svelte';
 
 type DeletedCustomer = WindowCleaningCustomer & { user: { name: string; email: string } };
 
-export const columns: ColumnDef<DeletedCustomer>[] = [
+export const columns: ColumnDef<Features, DeletedCustomer>[] = [
 	{
 		accessorKey: 'name',
 		header: 'Customer Name'

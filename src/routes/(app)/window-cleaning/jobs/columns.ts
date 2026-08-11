@@ -1,6 +1,10 @@
 import type { WindowCleaningJob } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import {
+	type Features,
+	renderComponent,
+	renderSnippet
+} from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
@@ -21,7 +25,7 @@ function moneyCell(value: number, rightAlign = true) {
 	return renderSnippet(snippet, currencyFormatter.format(value));
 }
 
-export const columns: ColumnDef<WindowCleaningJob>[] = [
+export const columns: ColumnDef<Features, WindowCleaningJob>[] = [
 	{
 		accessorKey: 'jobDate',
 		header: ({ column }) =>

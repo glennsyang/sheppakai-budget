@@ -1,13 +1,17 @@
 import type { Income } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import {
+	type Features,
+	renderComponent,
+	renderSnippet
+} from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
-export const columns: ColumnDef<Income>[] = [
+export const columns: ColumnDef<Features, Income>[] = [
 	{
 		accessorKey: 'name',
 		header: ({ column }) =>

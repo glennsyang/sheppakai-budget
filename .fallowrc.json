@@ -16,6 +16,7 @@
 		"@internationalized/date",
 		"@tailwindcss/typography",
 		"@tailwindcss/vite",
+		"@tanstack/svelte-table",
 		"bits-ui",
 		"globals",
 		"tailwind-variants"

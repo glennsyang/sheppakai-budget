@@ -1,4 +1,4 @@
-<script lang="ts" generics="TData, TValue">
+<script lang="ts" generics="TData extends RowData, TValue">
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import ChevronsLeftIcon from '@lucide/svelte/icons/chevrons-left';
@@ -6,17 +6,15 @@
 	import CirclePlusIcon from '@lucide/svelte/icons/circle-plus';
 	import Settings_2 from '@lucide/svelte/icons/settings-2';
 	import {
+		createTable,
 		type ColumnDef,
-		getCoreRowModel,
-		getFilteredRowModel,
-		getPaginationRowModel,
-		getSortedRowModel,
+		type ColumnVisibilityState,
 		type PaginationState,
-		type SortingState,
-		type VisibilityState
-	} from '@tanstack/table-core';
+		type RowData,
+		type SortingState
+	} from '@tanstack/svelte-table';
 
-	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';
+	import { features, FlexRender, type Features } from '$lib/components/ui/data-table/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
@@ -25,8 +23,8 @@
 
 	import { Button } from '../button';
 
-	type DataTableProps<TData, TValue> = {
-		columns: ColumnDef<TData, TValue>[];
+	type DataTableProps<TData extends RowData, TValue> = {
+		columns: ColumnDef<Features, TData, TValue>[];
 		data: TData[];
 		defaultPageSize?: number;
 		defaultSorting?: SortingState;
@@ -48,19 +46,16 @@
 	// svelte-ignore state_referenced_locally
 	let sorting = $state<SortingState>(defaultSorting);
 	let globalFilter = $state<string>('');
-	let columnVisibility = $state<VisibilityState>({});
+	let columnVisibility = $state<ColumnVisibilityState>({});
 
-	const table = createSvelteTable({
+	const table = createTable({
+		features,
 		get data() {
 			return data;
 		},
 		get columns() {
-			return columns;
+			return columns as ColumnDef<Features, TData>[];
 		},
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
 		onPaginationChange: (updater) => {
 			if (typeof updater === 'function') {
 				pagination = updater(pagination);
@@ -112,7 +107,7 @@
 		<div class="flex flex-1 items-center space-x-2">
 			<Input
 				placeholder="Search..."
-				value={table.getState().globalFilter ?? ''}
+				value={globalFilter}
 				onchange={(e) => table.setGlobalFilter(e.currentTarget.value)}
 				oninput={(e) => table.setGlobalFilter(e.currentTarget.value)}
 				class="max-w-sm"
@@ -171,10 +166,7 @@
 						{#each headerGroup.headers as header (header.id)}
 							<Table.Head colspan={header.colSpan}>
 								{#if !header.isPlaceholder}
-									<FlexRender
-										content={header.column.columnDef.header}
-										context={header.getContext()}
-									/>
+									<FlexRender {header} />
 								{/if}
 							</Table.Head>
 						{/each}
@@ -183,10 +175,10 @@
 			</Table.Header>
 			<Table.Body>
 				{#each table.getRowModel().rows as row (row.id)}
-					<Table.Row data-state={row.getIsSelected() && 'selected'} class={rowClassName?.(row.original)}>
+					<Table.Row class={rowClassName?.(row.original)}>
 						{#each row.getVisibleCells() as cell (cell.id)}
 							<Table.Cell>
-								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
+								<FlexRender {cell} />
 							</Table.Cell>
 						{/each}
 					</Table.Row>
@@ -204,11 +196,11 @@
 			<Select.Root
 				type="single"
 				bind:value={
-					() => `${table.getState().pagination.pageSize}`, (v) => table.setPageSize(Number(v))
+					() => `${pagination.pageSize}`, (v) => table.setPageSize(Number(v))
 				}
 			>
 				<Select.Trigger size="sm" class="w-20" id="rows-per-page">
-					{table.getState().pagination.pageSize}
+					{pagination.pageSize}
 				</Select.Trigger>
 				<Select.Content side="top">
 					{#each [10, 20, 30, 40, 50] as pageSize (pageSize)}
@@ -220,7 +212,7 @@
 			</Select.Root>
 		</div>
 		<div class="flex w-fit items-center justify-center text-sm font-medium">
-			Page {table.getState().pagination.pageIndex + 1} of
+			Page {pagination.pageIndex + 1} of
 			{table.getPageCount()}
 		</div>
 		<div class="ms-auto flex items-center gap-2 lg:ms-0">

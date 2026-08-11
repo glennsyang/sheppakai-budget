@@ -1,7 +1,11 @@
 import type { Transaction } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
 import RowActions from '$lib/components/RowActions.svelte';
-import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import {
+	type Features,
+	renderComponent,
+	renderSnippet
+} from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
@@ -22,7 +26,7 @@ function makeCurrencyCell(value: number) {
 export function createReceiptColumns(
 	actionUrl: string,
 	deleteMessage: string
-): ColumnDef<Transaction>[] {
+): ColumnDef<Features, Transaction>[] {
 	return [
 		{
 			accessorKey: 'date',

@@ -1,6 +1,10 @@
 import type { WindowCleaningCustomerWithStats } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import {
+	type Features,
+	renderComponent,
+	renderSnippet
+} from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
@@ -12,7 +16,7 @@ const currencyFormatter = new Intl.NumberFormat('en-CA', {
 	currency: 'CAD'
 });
 
-export const columns: ColumnDef<WindowCleaningCustomerWithStats>[] = [
+export const columns: ColumnDef<Features, WindowCleaningCustomerWithStats>[] = [
 	{
 		accessorKey: 'name',
 		header: ({ column }) =>

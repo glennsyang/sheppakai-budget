@@ -1,11 +1,15 @@
 import type { SavingsGoal } from '$lib';
-import { renderComponent, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import {
+	type Features,
+	renderComponent,
+	renderSnippet
+} from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
-export const columns: ColumnDef<SavingsGoal>[] = [
+export const columns: ColumnDef<Features, SavingsGoal>[] = [
 	{
 		accessorKey: 'name',
 		header: 'Goal Name'
