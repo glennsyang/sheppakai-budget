@@ -52,7 +52,8 @@
 
 	// Profile editing state
 	let isEditingProfile = $state(false);
-	let isEditingPassword = $state(false);
+	// svelte-ignore state_referenced_locally
+	let isEditingPassword = $state(data.passwordExpired);
 
 	// Derived values from data
 	const userEmail = $derived(data.user?.email || '');
@@ -84,6 +85,17 @@
 	</div>
 
 	<div class="space-y-6">
+		{#if data.passwordExpired}
+			<div
+				class="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-800"
+			>
+				<AlertCircleIcon class="h-4 w-4 shrink-0" />
+				<span class="text-sm">
+					Your password has expired and must be changed before you can continue using the app.
+				</span>
+			</div>
+		{/if}
+
 		<!-- Profile Information Section -->
 		<div class="overflow-hidden rounded-lg border shadow">
 			<div class="p-6">
