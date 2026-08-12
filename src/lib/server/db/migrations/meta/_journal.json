@@ -71,6 +71,13 @@
 			"when": 1785861978287,
 			"tag": "0009_icy_king_cobra",
 			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "6",
+			"when": 1786578887116,
+			"tag": "0010_complex_shinobi_shaw",
+			"breakpoints": true
 		}
 	]
 }

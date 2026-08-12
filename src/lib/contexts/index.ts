@@ -3,6 +3,7 @@ export { getCategoriesContext, setCategoriesContext } from './categories';
 export {
 	banUserFormContext,
 	incomeFormContext,
+	revokeApiKeyFormContext,
 	savingsFormContext,
 	setPasswordFormContext,
 	setUserRoleFormContext,

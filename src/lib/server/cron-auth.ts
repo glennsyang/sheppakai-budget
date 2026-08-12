@@ -1,14 +1,14 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 
+import { parseBearerToken, type BearerTokenFailureReason } from './http/bearer-token';
+
 const MIN_CRON_SECRET_LENGTH = 32;
 
 type CronAuthFailureReason =
 	| 'missing_secret'
 	| 'blank_secret'
 	| 'weak_secret'
-	| 'missing_header'
-	| 'invalid_scheme'
-	| 'malformed_header'
+	| BearerTokenFailureReason
 	| 'token_mismatch';
 
 type CronAuthResult = { authorized: true } | { authorized: false; reason: CronAuthFailureReason };
@@ -29,31 +29,6 @@ function validateCronSecret(
 	}
 
 	return { authorized: true, secret };
-}
-
-function parseBearerToken(header: string | null): {
-	token?: string;
-	reason?: CronAuthFailureReason;
-} {
-	if (header === null) {
-		return { reason: 'missing_header' };
-	}
-
-	const parts = header.split(' ');
-	if (parts.length !== 2) {
-		return { reason: 'malformed_header' };
-	}
-
-	if (parts[0] !== 'Bearer') {
-		return { reason: 'invalid_scheme' };
-	}
-
-	const token = parts[1];
-	if (token.length === 0) {
-		return { reason: 'malformed_header' };
-	}
-
-	return { token };
 }
 
 function constantTimeTokenMatch(providedToken: string, expectedToken: string): boolean {

@@ -184,6 +184,14 @@ Components should check for `loadError` and display it prominently:
 {/if}
 ```
 
+## JSON API routes
+
+`/api/v1/*` routes (`src/routes/api/v1/`) have no superform to attach a `message()` to, so
+they follow the same policy restated as a plain JSON envelope instead: `{ data }` on success,
+`{ error: { code, message } }` on failure, always with an explicit HTTP status — no third
+shape. See `src/lib/server/api/response.ts` (`apiSuccess`/`apiError`) and
+[API.md](./API.md) for the full contract.
+
 ## References
 
 - Example load implementation: `src/routes/(app)/admin/users/+page.server.ts`

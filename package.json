@@ -31,8 +31,9 @@
 		"db:studio": "drizzle-kit studio"
 	},
 	"dependencies": {
+		"@better-auth/api-key": "^1.6.27",
 		"@sentry/sveltekit": "^10.70.0",
-		"better-auth": "^1.6.26",
+		"better-auth": "^1.6.27",
 		"better-sqlite3": "^12.6.2",
 		"canvas-confetti": "^1.9.4",
 		"d3-scale": "^4.0.2",

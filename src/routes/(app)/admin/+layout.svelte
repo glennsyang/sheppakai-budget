@@ -37,6 +37,14 @@
 				Deleted Customers
 			</Button>
 		</a>
+		<a href="/admin/api-keys">
+			<Button
+				variant={currentPath === '/admin/api-keys' ? 'default' : 'ghost'}
+				class="rounded-b-none"
+			>
+				API Keys
+			</Button>
+		</a>
 	</div>
 
 	{@render children()}
