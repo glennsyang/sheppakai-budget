@@ -96,13 +96,28 @@
 					This is the only time this key will be shown. Store it somewhere safe.
 				</p>
 				<div class="flex gap-2">
-					<Input readonly value={revealedKey} class="font-mono text-sm" />
-					<Button type="button" variant="outline" onclick={copyRevealedKey}>
+					<Input
+						readonly
+						value={revealedKey}
+						class="border-amber-300 bg-white font-mono text-sm text-amber-950 dark:bg-white"
+					/>
+					<Button
+						type="button"
+						variant="outline"
+						class="border-amber-300 bg-white text-amber-900 hover:bg-amber-100 hover:text-amber-900 dark:bg-white dark:hover:bg-amber-100"
+						onclick={copyRevealedKey}
+					>
 						<CopyIcon class="size-4" />
 						Copy
 					</Button>
 				</div>
-				<Button type="button" variant="ghost" size="sm" onclick={() => (revealedKey = null)}>
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					class="text-amber-900 hover:bg-amber-100 hover:text-amber-900"
+					onclick={() => (revealedKey = null)}
+				>
 					Done
 				</Button>
 			</CardContent>
