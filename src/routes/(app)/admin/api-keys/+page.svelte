@@ -80,9 +80,7 @@
 	<div>
 		<h2 class="text-2xl font-bold">API Keys</h2>
 		<p class="text-muted-foreground">
-			Manage keys for external tools (e.g. a personal AI assistant) to call the external API under <code
-				>/api/v1</code
-			>.
+			Manage keys for external tools (e.g. service accounts, assistants)
 		</p>
 	</div>
 
@@ -136,7 +134,7 @@
 						id="key-name"
 						name="name"
 						bind:value={$form.name}
-						placeholder="e.g. Dash assistant"
+						placeholder="e.g. Service account, assistant, etc."
 						class={$errors.name ? 'border-red-400' : ''}
 					/>
 					{#if $errors.name}
