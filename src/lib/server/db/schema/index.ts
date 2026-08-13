@@ -1,4 +1,6 @@
 export { default as account, accountRelations } from './account';
+export { default as apiAuditLog, apiAuditLogRelations } from './apiAuditLog';
+export { default as apiKey, apiKeyRelations } from './apiKey';
 export { default as budget, budgetRelations } from './budget';
 export { default as category } from './category';
 export { default as contribution, contributionRelations } from './contribution';

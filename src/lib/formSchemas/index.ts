@@ -8,6 +8,7 @@ export {
 	updateProfileSchema,
 	userIdSchema
 } from './auth';
+export { createApiKeySchema } from './apiKeys';
 export { budgetSchema } from './budget';
 export { categorySchema } from './categories';
 export { idSchema } from './common';

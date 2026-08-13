@@ -14,7 +14,8 @@ Sheppakai Budget is a full-stack personal finance and small business management 
 - **Receipts** — Separate tracking for fuel and business receipts
 - **Window Cleaning** — Customer management and job tracking for a window cleaning business
 - **Weekly Email Summaries** — Automated weekly financial summary emails
-- **Admin Dashboard** — User management, archived goals, deleted customer recovery
+- **Admin Dashboard** — User management, archived goals, deleted customer recovery, API key management
+- **External API** — Scoped, revocable API keys for driving the app from external tools (see [API.md](./docs/API.md))
 - **Dark Mode** — Full light/dark theme support
 - **PWA** — Installable as a standalone app with offline support
 - **Error Monitoring** — Sentry integration
@@ -88,5 +89,6 @@ npm run test          # Run unit tests
 
 ## Additional Documentation
 
+- [API.md](./docs/API.md) for the external `/api/v1` JSON API
 - [BACKUP_RESTORE.md](./docs/BACKUP_RESTORE.md) for operational backup and recovery procedures
 - [BACKUP_QUICK_REFERENCE.md](./docs/BACKUP_QUICK_REFERENCE.md) for fast backup commands

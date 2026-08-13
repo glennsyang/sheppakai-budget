@@ -51,3 +51,4 @@ export const setUserRoleFormContext = createFormContext('setUserRoleForm');
 export const setPasswordFormContext = createFormContext('setPasswordForm');
 export const banUserFormContext = createFormContext('banUserForm');
 export const unArchiveFormContext = createFormContext('unArchiveForm');
+export const revokeApiKeyFormContext = createFormContext('revokeApiKeyForm');
