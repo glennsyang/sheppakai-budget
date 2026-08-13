@@ -1,4 +1,9 @@
-import { type Features, renderSnippet } from '$lib/components/ui/data-table/index.js';
+import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
+import {
+	type Features,
+	renderComponent,
+	renderSnippet
+} from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
 import { createRawSnippet } from 'svelte';
 
@@ -24,12 +29,20 @@ function formatAuditTimestamp(createdAt: string): string {
 export const columns: ColumnDef<Features, AdminApiLogEntry>[] = [
 	{
 		accessorKey: 'createdAt',
-		header: 'Created',
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'Created',
+				onclick: column.getToggleSortingHandler()
+			}),
 		cell: ({ row }) => formatAuditTimestamp(row.original.createdAt)
 	},
 	{
 		accessorKey: 'user',
-		header: 'User',
+		header: ({ column }) =>
+			renderComponent(DataTableSortButton, {
+				columnName: 'User',
+				onclick: column.getToggleSortingHandler()
+			}),
 		accessorFn: (row) => row.user.email,
 		cell: ({ row }) => row.original.user.name || row.original.user.email
 	},
