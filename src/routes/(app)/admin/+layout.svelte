@@ -45,6 +45,14 @@
 				API Keys
 			</Button>
 		</a>
+		<a href="/admin/api-logs">
+			<Button
+				variant={currentPath === '/admin/api-logs' ? 'default' : 'ghost'}
+				class="rounded-b-none"
+			>
+				API Logs
+			</Button>
+		</a>
 	</div>
 
 	{@render children()}
