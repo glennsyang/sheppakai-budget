@@ -31,7 +31,7 @@
 		"db:studio": "drizzle-kit studio"
 	},
 	"dependencies": {
-		"@better-auth/api-key": "^1.6.27",
+		"@better-auth/api-key": "^1.6.28",
 		"@sentry/sveltekit": "^10.70.0",
 		"better-auth": "^1.6.27",
 		"better-sqlite3": "^12.6.2",
@@ -40,7 +40,7 @@
 		"d3-shape": "^3.2.0",
 		"drizzle-orm": "^0.45.1",
 		"mode-watcher": "^1.1.0",
-		"resend": "^6.19.0"
+		"resend": "^6.20.0"
 	},
 	"devDependencies": {
 		"@flydotio/dockerfile": "^0.7.10",
@@ -62,7 +62,7 @@
 		"bits-ui": "^2.18.1",
 		"clsx": "^2.1.1",
 		"drizzle-kit": "^0.31.9",
-		"fallow": "^3.15.0",
+		"fallow": "^3.16.0",
 		"globals": "^17.11.0",
 		"knip": "^6.32.2",
 		"layerchart": "^2.2.0",
@@ -72,7 +72,7 @@
 		"oxlint": "^1.78.0",
 		"oxlint-tsgolint": "^7.0.2001",
 		"svelte": "^5.56.9",
-		"svelte-check": "^4.7.5",
+		"svelte-check": "^4.7.6",
 		"svelte-sonner": "^1.0.7",
 		"sveltekit-superforms": "^2.29.1",
 		"tailwind-merge": "^3.4.0",
@@ -83,5 +83,8 @@
 		"vite": "^8.2.1",
 		"vitest": "^4.1.6",
 		"zod": "^4.4.3"
+	},
+	"overrides": {
+		"nanoid": "^3.3.18"
 	}
 }
