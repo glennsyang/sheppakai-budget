@@ -98,7 +98,8 @@
 				return columnVisibility;
 			}
 		},
-		globalFilterFn: 'includesString'
+		globalFilterFn: 'includesString',
+		autoResetPageIndex: false
 	});
 </script>
 
