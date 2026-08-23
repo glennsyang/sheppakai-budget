@@ -166,8 +166,8 @@
 <Sheet.Root bind:open={openSheet}>
 	<Sheet.Content side="right" class="flex w-full flex-col sm:max-w-2xl">
 		<Sheet.Header>
-			<Sheet.Title>{selectedCustomer?.name ?? 'Customer'}</Sheet.Title>
-			<Sheet.Description>
+			<Sheet.Title class="text-xl">{selectedCustomer?.name ?? 'Customer'}</Sheet.Title>
+			<Sheet.Description class="text-base">
 				{#if selectedCustomer}
 					{selectedCustomer.address}{selectedCustomer.unitNumber
 						? `, Unit ${selectedCustomer.unitNumber}`
@@ -179,7 +179,7 @@
 		{#if selectedCustomer}
 			<div class="flex-1 overflow-y-auto px-4 py-3">
 				<!-- Customer Info -->
-				<div class="mb-4 space-y-1 text-sm">
+				<div class="mb-4 space-y-1 text-base">
 					{#if selectedCustomer.buzzerNumber}
 						<p class="text-muted-foreground">Buzzer: {selectedCustomer.buzzerNumber}</p>
 					{/if}
