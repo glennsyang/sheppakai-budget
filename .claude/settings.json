@@ -7,5 +7,16 @@
       "Bash(python3 -c \"import json,sys,base64; data=json.load\\(sys.stdin\\); print\\(base64.b64decode\\(data['content']\\).decode\\(\\)\\)\")",
       "Bash(echo \"exit: $?\")"
     ]
+  },
+  "extraKnownMarketplaces": {
+    "sveltekit-toolkit-marketplace": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/glennsheppard/Development/Personal/claude-sveltekit-toolkit"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "sveltekit-toolkit@sveltekit-toolkit-marketplace": true
   }
 }
