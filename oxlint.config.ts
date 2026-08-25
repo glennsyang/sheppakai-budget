@@ -54,6 +54,7 @@ export default defineConfig({
 				varsIgnorePattern: '^_'
 			}
 		],
-		'typescript/no-non-null-assertion': 'error'
+		'typescript/no-non-null-assertion': 'error',
+		'typescript/no-explicit-any': 'error'
 	}
 });
