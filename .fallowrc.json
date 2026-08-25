@@ -14,12 +14,22 @@
 	"ignoreDependencies": [
 		"@flydotio/dockerfile",
 		"@internationalized/date",
+		"@lucide/svelte",
+		"@sveltejs/kit",
 		"@tailwindcss/typography",
 		"@tailwindcss/vite",
 		"@tanstack/svelte-table",
 		"bits-ui",
+		"clsx",
 		"globals",
-		"tailwind-variants"
+		"layerchart",
+		"svelte",
+		"svelte-sonner",
+		"sveltekit-superforms",
+		"tailwind-merge",
+		"tailwind-variants",
+		"tailwindcss",
+		"zod"
 	],
 	"ignoreExports": [
 		{ "file": "src/lib/utils.ts", "exports": ["WithoutChildrenOrChild", "WithElementRef"] }
