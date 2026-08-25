@@ -14,9 +14,8 @@
 		"fmt:check": "oxfmt --check --no-error-on-unmatched-pattern",
 		"lint": "oxlint && npm run lint:static",
 		"lint:fix": "oxlint --fix",
-		"lint:static": "npm run check:dead-exports && npm run check:redirect-throws && npm run check:no-explicit-any && npm run check:dead-code",
+		"lint:static": "npm run check:redirect-throws && npm run check:no-explicit-any && npm run check:dead-code",
 		"lint:github": "oxlint --format=github",
-		"check:dead-exports": "node scripts/check-dead-exports.mjs",
 		"check:redirect-throws": "node scripts/check-redirect-throws.mjs",
 		"check:no-explicit-any": "node scripts/check-no-explicit-any.mjs",
 		"check:dead-code": "fallow dead-code --format human",
@@ -40,7 +39,7 @@
 		"d3-shape": "^3.2.0",
 		"drizzle-orm": "^0.45.1",
 		"mode-watcher": "^1.1.0",
-		"resend": "^6.22.0"
+		"resend": "^6.22.1"
 	},
 	"devDependencies": {
 		"@flydotio/dockerfile": "^0.7.10",
@@ -62,7 +61,7 @@
 		"bits-ui": "^2.19.0",
 		"clsx": "^2.1.1",
 		"drizzle-kit": "^0.31.9",
-		"fallow": "^3.17.0",
+		"fallow": "^3.18.0",
 		"globals": "^17.11.0",
 		"knip": "^6.32.2",
 		"layerchart": "^2.3.0",

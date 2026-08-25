@@ -35,7 +35,7 @@ This repo is on a SvelteKit version where `building`/`dev` come from **`$app/env
 
 ### Static checks beyond oxlint (`npm run lint:static`)
 
-- `check:dead-exports`, `check:redirect-throws`, `check:no-explicit-any` — custom scripts in `scripts/`
+- `check:redirect-throws`, `check:no-explicit-any` — custom scripts in `scripts/`
 - `check:dead-code` — via `fallow dead-code`
 - Run `npm run check:all` (fmt + lint + test) before considering a change done.
 
