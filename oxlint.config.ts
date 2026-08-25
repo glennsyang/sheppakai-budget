@@ -32,6 +32,17 @@ export default defineConfig({
 			rules: {
 				'typescript/no-non-null-assertion': 'off'
 			}
+		},
+		{
+			// logger.ts is copied byte-for-byte from claude-sveltekit-toolkit's shared/server/logger.ts
+			// and kept identical across sibling repos (meal-planner, synapse) via /propagate-shared —
+			// don't add inline lint-disable comments here, suppress via config instead. The flagged
+			// String(error) fallback only runs when JSON.stringify(error) itself throws, which is an
+			// intentional last-resort stringification, not a real defaultToString() bug.
+			files: ['src/lib/server/logger.ts'],
+			rules: {
+				'typescript/no-base-to-string': 'off'
+			}
 		}
 	],
 	plugins: ['eslint', 'typescript', 'oxc', 'vitest', 'unicorn'],
