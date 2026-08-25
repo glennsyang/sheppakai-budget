@@ -80,3 +80,11 @@ npm run db:generate     # drizzle-kit generate (new migration)
 npm run db:migrate
 npm run db:studio
 ```
+
+---
+
+## Shared toolkit
+
+This repo shares skills/agents/commands with `meal-planner` and `synapse` via the `sveltekit-toolkit` Claude Code plugin (see `../claude-sveltekit-toolkit`), enabled in `.claude/settings.json`. It provides `svelte-code-writer`, `svelte5-best-practices`, `better-auth-best-practices`, `shadcn-svelte-components`, `frontend-design`, `tailwind-patterns`, `web-design-reviewer`, a `/propagate` command for replicating a shared-dependency fix across the sibling repos, and a `/scaffold-form` command for scaffolding a new form/CRUD feature — this repo's flavor is the CRUD-list pattern above, so point it at an existing route like `transactions/+page.server.ts` as the exemplar.
+
+The `code-structure-reviewer` and `security-reviewer` agents (also from the shared plugin) are available on demand — invoke them when you want a structural or security pass on a change, not automatically on every PR.
