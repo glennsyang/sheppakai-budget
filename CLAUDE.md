@@ -33,10 +33,11 @@ A personal finance tracker: transactions, category budgets, recurring transactio
 
 This repo is on a SvelteKit version where `building`/`dev` come from **`$app/env`** (see `src/hooks.server.ts`), and private runtime env vars come from **`$app/env/private`** (see `src/lib/server/auth.ts` — `BETTER_AUTH_SECRET`, `ADMIN_USER_IDS`, etc.), not the older `$app/environment` / `$env/dynamic/private` pattern most SvelteKit docs/examples still show. Don't "fix" imports to the old modules.
 
-### Static checks beyond oxlint (`npm run lint:static`)
+### Static checks beyond oxlint
 
-- `check:redirect-throws`, `check:no-explicit-any` — custom scripts in `scripts/`
-- `check:dead-code` — via `fallow dead-code`
+- `no-explicit-any` is enforced by oxlint itself (`typescript/no-explicit-any` rule), not a custom script.
+- `check:redirect-throws` — custom script in `scripts/`, runs full-repo via `npm run check:redirect-throws` and separately at commit time scoped to staged SvelteKit server files via `lint-staged.config.ts`.
+- `check:dead-code` — via `fallow dead-code`, part of `npm run lint`.
 - Run `npm run check:all` (fmt + lint + test) before considering a change done.
 
 ---
