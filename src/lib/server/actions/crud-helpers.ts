@@ -281,7 +281,7 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
 			const columns = getTableColumns(config.table);
 			await getDb().delete(config.table).where(eq(columns.id, recordId));
 
-			logger.info(`${config.entityName} deleted successfully by:`, userId);
+			logger.info(`${config.entityName} deleted successfully by:`, { userId });
 
 			// Run afterDelete hook if provided
 			if (config.afterDelete) {

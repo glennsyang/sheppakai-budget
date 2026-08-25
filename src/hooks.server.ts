@@ -1,7 +1,8 @@
 import { building, dev } from '$app/env';
 import { auth } from '$lib/server/auth';
+import { logger } from '$lib/server/logger';
 import * as Sentry from '@sentry/sveltekit';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 
@@ -16,6 +17,19 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 		return new Response(undefined, { status: 404 });
 	}
 
+	const requestId = crypto.randomUUID();
+	let requestLogger = logger.child({
+		requestId,
+		method: event.request.method,
+		url: event.url.pathname
+	});
+
+	const startTime = Date.now();
+
+	requestLogger.info('Incoming request', {
+		userAgent: event.request.headers.get('user-agent')
+	});
+
 	// Fetch current session from Better Auth
 	const session = await auth.api.getSession({
 		headers: event.request.headers
@@ -25,15 +39,25 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 	if (session) {
 		event.locals.session = session.session;
 		event.locals.user = session.user;
+
+		requestLogger = requestLogger.child({ userId: session.user.id });
 	}
 
+	event.locals.requestId = requestId;
+
 	const response = await svelteKitHandler({ event, resolve, auth, building });
+
+	requestLogger.info('Request completed', {
+		status: response.status,
+		duration: `${Date.now() - startTime}ms`
+	});
 
 	// Security headers
 	response.headers.set('X-Frame-Options', 'DENY');
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
+	response.headers.set('X-Request-ID', requestId);
 
 	// HSTS only in production
 	if (!dev) {
@@ -51,4 +75,26 @@ export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, re
 
 	return response;
 });
-export const handleError = Sentry.handleErrorWithSentry();
+
+// Note: logger.error() already forwards to Sentry (captureException) internally in
+// production, so this is intentionally NOT wrapped in Sentry.handleErrorWithSentry() —
+// doing so would double-report every unhandled error.
+export const handleError: HandleServerError = ({ error, event, status, message }) => {
+	const requestId = event.locals.requestId ?? 'unknown';
+	const userId = event.locals.user?.id ?? 'anonymous';
+
+	logger.error('Unhandled server error', error, {
+		requestId,
+		userId,
+		url: event.url.pathname,
+		method: event.request.method,
+		status,
+		message,
+		userAgent: event.request.headers.get('user-agent')
+	});
+
+	return {
+		message: dev ? message : 'An unexpected error occurred',
+		requestId
+	};
+};
