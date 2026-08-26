@@ -28,8 +28,17 @@
 
 <DropdownMenu.Root>
 	<DropdownMenu.Trigger>
-		{#snippet child({ props })}
-			<Button {...props} variant="ghost" size="icon" class="relative size-8 p-0">
+		{#snippet child({ props }: { props: Record<string, unknown> })}
+			<Button
+				{...props}
+				variant="ghost"
+				size="icon"
+				class="relative size-8 p-0"
+				onclick={(e: MouseEvent) => {
+					e.stopPropagation();
+					(props.onclick as ((event: MouseEvent) => void) | undefined)?.(e);
+				}}
+			>
 				<span class="sr-only">Open menu</span>
 				<EllipsisIcon />
 			</Button>

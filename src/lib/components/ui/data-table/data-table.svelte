@@ -30,6 +30,7 @@
 		defaultSorting?: SortingState;
 		showCategoryFilter?: boolean;
 		rowClassName?: (row: TData) => string;
+		onRowClick?: (row: TData) => void;
 	};
 
 	let {
@@ -38,7 +39,8 @@
 		defaultPageSize = 10,
 		defaultSorting = [],
 		showCategoryFilter = false,
-		rowClassName
+		rowClassName,
+		onRowClick
 	}: DataTableProps<TData, TValue> = $props();
 
 	// svelte-ignore state_referenced_locally
@@ -176,7 +178,10 @@
 			</Table.Header>
 			<Table.Body>
 				{#each table.getRowModel().rows as row (row.id)}
-					<Table.Row class={rowClassName?.(row.original)}>
+					<Table.Row
+						class={[rowClassName?.(row.original), onRowClick && 'cursor-pointer']}
+						onclick={() => onRowClick?.(row.original)}
+					>
 						{#each row.getVisibleCells() as cell (cell.id)}
 							<Table.Cell>
 								<FlexRender {cell} />

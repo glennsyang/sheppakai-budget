@@ -38,10 +38,11 @@
 	setContext('customerForm', data.customerForm);
 	// svelte-ignore state_referenced_locally
 	setContext('jobForm', data.jobForm);
-	setContext('openCustomerSheet', (customer: WindowCleaningCustomerWithStats) => {
+	function openCustomerSheet(customer: WindowCleaningCustomerWithStats) {
 		selectedCustomer = customer;
 		openSheet = true;
-	});
+	}
+	setContext('openCustomerSheet', openCustomerSheet);
 
 	let openAddCustomerModal = $state(false);
 	let openEditCustomerModal = $state(false);
@@ -147,7 +148,12 @@
 
 	<!-- Customers Table -->
 	{#if data.customers.length > 0}
-		<DataTable {columns} data={data.customers} defaultSorting={[{ id: 'name', desc: false }]} />
+		<DataTable
+			{columns}
+			data={data.customers}
+			defaultSorting={[{ id: 'name', desc: false }]}
+			onRowClick={openCustomerSheet}
+		/>
 	{:else}
 		<Card>
 			<CardContent class="py-12 text-center">
