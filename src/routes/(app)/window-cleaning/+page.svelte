@@ -11,7 +11,7 @@
 	import type { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp, formatTime12h } from '$lib/utils/dates';
 	import { buildGoogleMapsUrl } from '$lib/utils/maps';
-	import { Pencil, Trash2 } from '@lucide/svelte';
+	import { Pencil, Trash2, MapPin } from '@lucide/svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { setContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
@@ -178,8 +178,9 @@
 						)}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="text-primary hover:underline"
+						class="text-primary inline-flex items-center gap-1 hover:underline"
 					>
+						<MapPin class="size-6 shrink-0 sm:size-4" />
 						{selectedCustomer.address}{selectedCustomer.unitNumber
 							? `, Unit ${selectedCustomer.unitNumber}`
 							: ''} — {selectedCustomer.city}
