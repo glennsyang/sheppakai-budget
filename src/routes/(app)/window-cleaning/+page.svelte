@@ -10,6 +10,7 @@
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
 	import type { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp, formatTime12h } from '$lib/utils/dates';
+	import { buildGoogleMapsUrl } from '$lib/utils/maps';
 	import { Pencil, Trash2 } from '@lucide/svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { setContext } from 'svelte';
@@ -169,9 +170,20 @@
 			<Sheet.Title class="text-4xl sm:text-xl">{selectedCustomer?.name ?? 'Customer'}</Sheet.Title>
 			<Sheet.Description class="text-3xl sm:text-base">
 				{#if selectedCustomer}
-					{selectedCustomer.address}{selectedCustomer.unitNumber
-						? `, Unit ${selectedCustomer.unitNumber}`
-						: ''} — {selectedCustomer.city}
+					<a
+						href={buildGoogleMapsUrl(
+							selectedCustomer.address,
+							selectedCustomer.city,
+							selectedCustomer.unitNumber
+						)}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="text-primary hover:underline"
+					>
+						{selectedCustomer.address}{selectedCustomer.unitNumber
+							? `, Unit ${selectedCustomer.unitNumber}`
+							: ''} — {selectedCustomer.city}
+					</a>
 				{/if}
 			</Sheet.Description>
 		</Sheet.Header>
