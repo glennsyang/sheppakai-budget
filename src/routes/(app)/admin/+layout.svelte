@@ -15,13 +15,13 @@
 		</div>
 	</div>
 
-	<div class="flex gap-2 border-b">
-		<a href="/admin/users">
+	<div class="flex gap-2 overflow-x-auto border-b">
+		<a href="/admin/users" class="shrink-0">
 			<Button variant={currentPath === '/admin/users' ? 'default' : 'ghost'} class="rounded-b-none">
 				Users
 			</Button>
 		</a>
-		<a href="/admin/archived-goals">
+		<a href="/admin/archived-goals" class="shrink-0">
 			<Button
 				variant={currentPath === '/admin/archived-goals' ? 'default' : 'ghost'}
 				class="rounded-b-none"
@@ -29,7 +29,7 @@
 				Archived Goals
 			</Button>
 		</a>
-		<a href="/admin/deleted-customers">
+		<a href="/admin/deleted-customers" class="shrink-0">
 			<Button
 				variant={currentPath === '/admin/deleted-customers' ? 'default' : 'ghost'}
 				class="rounded-b-none"
@@ -37,7 +37,7 @@
 				Deleted Customers
 			</Button>
 		</a>
-		<a href="/admin/api-keys">
+		<a href="/admin/api-keys" class="shrink-0">
 			<Button
 				variant={currentPath === '/admin/api-keys' ? 'default' : 'ghost'}
 				class="rounded-b-none"
@@ -45,7 +45,7 @@
 				API Keys
 			</Button>
 		</a>
-		<a href="/admin/api-logs">
+		<a href="/admin/api-logs" class="shrink-0">
 			<Button
 				variant={currentPath === '/admin/api-logs' ? 'default' : 'ghost'}
 				class="rounded-b-none"
