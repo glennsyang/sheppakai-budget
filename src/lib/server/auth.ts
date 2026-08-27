@@ -134,9 +134,10 @@ export const auth = betterAuth({
 			}
 			// Audit logging
 			if (ctx.path.includes('/sign-in')) {
-				logger.debug(
-					`✅ Sign-in successful: ${ctx.context.session?.user.email} from IP: ${ctx.request?.headers.get('x-forwarded-for')}`
-				);
+				logger.debug('✅ Sign-in successful', {
+					email: ctx.context.session?.user.email,
+					ip: ctx.request?.headers.get('x-forwarded-for')
+				});
 			}
 			if (ctx.path.includes('/reset-password')) {
 				logger.info('🔑 Password reset requested');
