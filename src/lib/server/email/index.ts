@@ -7,6 +7,18 @@ import { logger } from '../logger';
 // Initialize Resend email client
 const resend = new Resend(RESEND_API_KEY);
 
+const HTML_ESCAPES: Record<string, string> = {
+	'&': '&amp;',
+	'<': '&lt;',
+	'>': '&gt;',
+	'"': '&quot;',
+	"'": '&#39;'
+};
+
+function escapeHtml(value: string): string {
+	return value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
+}
+
 export type WeeklySummaryCategory = {
 	categoryName: string;
 	budgetAmount: number;
@@ -57,7 +69,7 @@ function renderWeeklyRows(
 					.map(
 						(row) => `
 							<tr>
-								<td style="padding: 10px 8px; border-bottom: 1px solid #f3f4f6;">${row.categoryName}</td>
+								<td style="padding: 10px 8px; border-bottom: 1px solid #f3f4f6;">${escapeHtml(row.categoryName)}</td>
 								<td style="padding: 10px 8px; text-align: right; border-bottom: 1px solid #f3f4f6;">${formatCurrency(row.budgetAmount)}</td>
 								<td style="padding: 10px 8px; text-align: right; border-bottom: 1px solid #f3f4f6;">${formatCurrency(row.spentAmount)}</td>
 								<td style="padding: 10px 8px; text-align: right; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: ${type === 'over-budget' ? '#dc2626' : '#065f46'};">${formatCurrency(type === 'over-budget' ? (row.overByAmount ?? 0) : (row.remainingAmount ?? 0))}</td>
@@ -92,7 +104,7 @@ export async function sendWeeklySummaryEmail(payload: WeeklySummaryEmailPayload)
 						<p style="color: #e5e7eb; margin: 8px 0 0; font-size: 14px;">${payload.monthLabel} (month-to-date)</p>
 					</div>
 					<div style="background: #f9fafb; padding: 24px; border-radius: 0 0 10px 10px;">
-						<p style="font-size: 16px; margin: 0 0 18px;">Hi ${payload.name},</p>
+						<p style="font-size: 16px; margin: 0 0 18px;">Hi ${escapeHtml(payload.name)},</p>
 						<p style="font-size: 15px; margin: 0 0 24px; color: #374151;">Here’s your shared budget summary for this month so far.</p>
 
 						<section style="margin-bottom: 28px; background: #ffffff; border: 1px solid #fee2e2; border-radius: 8px; padding: 16px;">
@@ -139,7 +151,7 @@ export async function sendVerificationEmail(to: string, name: string, verificati
 						<h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Sheppakai Budget</h1>
 					</div>
 					<div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-						<p style="font-size: 16px; margin-bottom: 20px;">Hi ${name},</p>
+						<p style="font-size: 16px; margin-bottom: 20px;">Hi ${escapeHtml(name)},</p>
 						<p style="font-size: 16px; margin-bottom: 20px;">
 							Thanks for signing up! Please verify your email address to get started with Sheppakai Budget.
 						</p>
@@ -191,7 +203,7 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
 						<h1 style="color: white; margin: 0; font-size: 28px;">Password Reset</h1>
 					</div>
 					<div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-						<p style="font-size: 16px; margin-bottom: 20px;">Hi ${name},</p>
+						<p style="font-size: 16px; margin-bottom: 20px;">Hi ${escapeHtml(name)},</p>
 						<p style="font-size: 16px; margin-bottom: 20px;">
 							We received a request to reset your password. Click the button below to create a new password.
 						</p>
@@ -226,9 +238,9 @@ export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayl
 	logger.debug('📧 Sending Password Changed Email to:', { to: payload.to });
 
 	const changedAtText = payload.changedAt.toLocaleString();
-	const ipAddress = payload.ipAddress || 'Unavailable';
-	const userAgent = payload.userAgent || 'Unavailable';
-	const source = payload.source || 'Account settings';
+	const ipAddress = escapeHtml(payload.ipAddress || 'Unavailable');
+	const userAgent = escapeHtml(payload.userAgent || 'Unavailable');
+	const source = escapeHtml(payload.source || 'Account settings');
 
 	try {
 		await resend.emails.send({
@@ -248,7 +260,7 @@ export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayl
 						<h1 style="color: white; margin: 0; font-size: 28px;">Password Updated</h1>
 					</div>
 					<div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-						<p style="font-size: 16px; margin-bottom: 20px;">Hi ${payload.name},</p>
+						<p style="font-size: 16px; margin-bottom: 20px;">Hi ${escapeHtml(payload.name)},</p>
 						<p style="font-size: 16px; margin-bottom: 20px;">
 							Your password was successfully changed.
 						</p>
@@ -285,7 +297,7 @@ export async function sendNewUserEmail(to: string, name: string, email: string) 
 			from: RESEND_FROM_ADDRESS,
 			to,
 			subject: '[Sheppakai Budget] New User was registered!',
-			html: `Hi ${name || email}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
+			html: `Hi ${escapeHtml(name || email)}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
 		});
 		return null;
 	} catch (error) {
