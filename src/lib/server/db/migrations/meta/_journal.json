@@ -78,6 +78,13 @@
 			"when": 1786578887116,
 			"tag": "0010_complex_shinobi_shaw",
 			"breakpoints": true
+		},
+		{
+			"idx": 11,
+			"version": "6",
+			"when": 1787800821052,
+			"tag": "0011_abnormal_greymalkin",
+			"breakpoints": true
 		}
 	]
 }
