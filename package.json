@@ -61,7 +61,7 @@
 		"drizzle-kit": "^0.31.9",
 		"fallow": "^3.18.0",
 		"globals": "^17.11.0",
-		"layerchart": "^2.3.0",
+		"layerchart": "^2.3.1",
 		"lefthook": "^2.1.12",
 		"lint-staged": "^17.3.0",
 		"oxfmt": "^0.65.0",
