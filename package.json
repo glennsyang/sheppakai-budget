@@ -59,7 +59,7 @@
 		"bits-ui": "^2.19.0",
 		"clsx": "^2.1.1",
 		"drizzle-kit": "^0.31.9",
-		"fallow": "^3.18.0",
+		"fallow": "^3.22.0",
 		"globals": "^17.11.0",
 		"layerchart": "^2.3.0",
 		"lefthook": "^2.1.12",
