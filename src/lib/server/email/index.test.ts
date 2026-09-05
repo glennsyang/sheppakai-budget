@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
-	send: vi.fn<(payload: { html: string }) => Promise<unknown>>(),
+	send: vi.fn<(payload: { htmlContent: string }) => Promise<unknown>>(),
 	loggerError: vi.fn<() => void>(),
 	loggerDebug: vi.fn<() => void>()
 }));
 
 vi.mock('$app/env/private', () => ({
-	RESEND_API_KEY: 'test-api-key',
-	RESEND_FROM_ADDRESS: 'from@example.com',
-	RESEND_NEW_USER_ADDRESS: 'watcher@example.com'
+	BREVO_API_KEY: 'test-api-key',
+	BREVO_FROM_ADDRESS: 'from@example.com',
+	BREVO_NEW_USER_ADDRESS: 'watcher@example.com'
 }));
 
 vi.mock('../logger', () => ({
@@ -20,23 +20,23 @@ vi.mock('../logger', () => ({
 	}
 }));
 
-vi.mock('resend', () => ({
-	Resend: class {
-		emails = { send: mockState.send };
+vi.mock('@getbrevo/brevo', () => ({
+	BrevoClient: class {
+		transactionalEmails = { sendTransacEmail: mockState.send };
 	}
 }));
 
 import { sendNewUserEmail, sendPasswordChangedEmail, sendWeeklySummaryEmail } from './index';
 
 function sentHtml(): string {
-	const [{ html }] = mockState.send.mock.calls[0];
-	return html;
+	const [{ htmlContent }] = mockState.send.mock.calls[0];
+	return htmlContent;
 }
 
 describe('sendWeeklySummaryEmail', () => {
 	beforeEach(() => {
 		mockState.send.mockReset();
-		mockState.send.mockResolvedValue({ data: { id: 'email-id' } });
+		mockState.send.mockResolvedValue({ messageId: 'email-id' });
 	});
 
 	afterEach(() => {
@@ -82,7 +82,7 @@ describe('sendWeeklySummaryEmail', () => {
 describe('sendPasswordChangedEmail', () => {
 	beforeEach(() => {
 		mockState.send.mockReset();
-		mockState.send.mockResolvedValue({ data: { id: 'email-id' } });
+		mockState.send.mockResolvedValue({ messageId: 'email-id' });
 	});
 
 	it('escapes HTML in userAgent and ipAddress headers', async () => {
@@ -116,7 +116,7 @@ describe('sendPasswordChangedEmail', () => {
 describe('sendNewUserEmail', () => {
 	beforeEach(() => {
 		mockState.send.mockReset();
-		mockState.send.mockResolvedValue({ data: { id: 'email-id' } });
+		mockState.send.mockResolvedValue({ messageId: 'email-id' });
 	});
 
 	it('escapes HTML in a malicious display name', async () => {
