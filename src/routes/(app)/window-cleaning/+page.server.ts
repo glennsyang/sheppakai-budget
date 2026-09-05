@@ -88,6 +88,7 @@ export const actions = {
 			unitNumber: data.unitNumber || null,
 			buzzerNumber: data.buzzerNumber || null,
 			phoneNumber: data.phoneNumber || null,
+			email: data.email || null,
 			notes: data.notes || null,
 			userId
 		})
@@ -104,6 +105,7 @@ export const actions = {
 			unitNumber: data.unitNumber || null,
 			buzzerNumber: data.buzzerNumber || null,
 			phoneNumber: data.phoneNumber || null,
+			email: data.email || null,
 			notes: data.notes || null
 		})
 	}),

@@ -11,6 +11,7 @@ export const windowCleaningCustomerSchema = z.object({
 	unitNumber: z.string().max(20, 'Unit number must be at most 20 characters').optional(),
 	buzzerNumber: z.string().max(20, 'Buzzer number must be at most 20 characters').optional(),
 	phoneNumber: z.string().max(20, 'Phone number must be at most 20 characters').optional(),
+	email: z.string().email('Invalid email address').max(255).optional().or(z.literal('')),
 	notes: z.string().max(500, 'Notes must be at most 500 characters').optional()
 });
 

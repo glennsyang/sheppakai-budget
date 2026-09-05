@@ -55,6 +55,7 @@
 				$form.unitNumber = initialData.unitNumber || '';
 				$form.buzzerNumber = initialData.buzzerNumber || '';
 				$form.phoneNumber = initialData.phoneNumber || '';
+				$form.email = initialData.email || '';
 				$form.notes = initialData.notes || '';
 			} else {
 				$form.id = '';
@@ -64,6 +65,7 @@
 				$form.unitNumber = '';
 				$form.buzzerNumber = '';
 				$form.phoneNumber = '';
+				$form.email = '';
 				$form.notes = '';
 			}
 		}
@@ -180,6 +182,22 @@
 						placeholder="604-555-1234"
 					/>
 				</div>
+			</div>
+
+			<div class="space-y-2">
+				<label for="customer-email" class="text-sm font-medium"
+					>Email <span class="text-muted-foreground text-xs">(optional)</span></label
+				>
+				<Input
+					id="customer-email"
+					name="email"
+					type="email"
+					bind:value={$form.email}
+					placeholder="jane@example.com"
+				/>
+				{#if $errors.email}
+					<p class="text-destructive text-sm">{$errors.email}</p>
+				{/if}
 			</div>
 
 			<div class="space-y-2">
