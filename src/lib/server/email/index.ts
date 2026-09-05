@@ -1,11 +1,10 @@
-import { RESEND_API_KEY, RESEND_FROM_ADDRESS, RESEND_NEW_USER_ADDRESS } from '$app/env/private';
+import { BREVO_API_KEY, BREVO_FROM_ADDRESS, BREVO_NEW_USER_ADDRESS } from '$app/env/private';
 import { formatCurrency } from '$lib/utils';
-import { Resend } from 'resend';
+import { BrevoClient } from '@getbrevo/brevo';
 
 import { logger } from '../logger';
 
-// Initialize Resend email client
-const resend = new Resend(RESEND_API_KEY);
+const brevo = new BrevoClient({ apiKey: BREVO_API_KEY });
 
 const HTML_ESCAPES: Record<string, string> = {
 	'&': '&amp;',
@@ -85,12 +84,13 @@ function renderWeeklyRows(
 export async function sendWeeklySummaryEmail(payload: WeeklySummaryEmailPayload) {
 	logger.debug('📧 Sending weekly summary email to:', { to: payload.to });
 
+	let result;
 	try {
-		await resend.emails.send({
-			from: RESEND_FROM_ADDRESS,
-			to: payload.to,
+		result = await brevo.transactionalEmails.sendTransacEmail({
+			sender: { name: 'Sheppakai Budget', email: BREVO_FROM_ADDRESS },
+			to: [{ email: payload.to, name: payload.name }],
 			subject: `[Sheppakai Budget] Weekly Budget Summary - ${payload.monthLabel}`,
-			html: `
+			htmlContent: `
 				<!DOCTYPE html>
 				<html>
 				<head>
@@ -128,17 +128,19 @@ export async function sendWeeklySummaryEmail(payload: WeeklySummaryEmailPayload)
 		logger.error('❌ Failed to send weekly summary email:', error);
 		throw error;
 	}
+	logger.debug('✅ Weekly summary email sent successfully:', { to: payload.to, result });
 }
 
 export async function sendVerificationEmail(to: string, name: string, verificationUrl: string) {
 	logger.debug('📧 Sending Verification Email to:', { to });
 
+	let result;
 	try {
-		await resend.emails.send({
-			from: RESEND_FROM_ADDRESS,
-			to,
+		result = await brevo.transactionalEmails.sendTransacEmail({
+			sender: { name: 'Sheppakai Budget', email: BREVO_FROM_ADDRESS },
+			to: [{ email: to, name }],
 			subject: '[Sheppakai Budget] Verify your email address',
-			html: `
+			htmlContent: `
 				<!DOCTYPE html>
 				<html>
 				<head>
@@ -175,22 +177,23 @@ export async function sendVerificationEmail(to: string, name: string, verificati
 				</html>
 			`
 		});
-		return null;
 	} catch (error) {
 		logger.error('❌ Failed to send verification email:', error);
 		return error;
 	}
+	logger.debug('✅ Verification email sent successfully:', { to, result });
 }
 
 export async function sendPasswordResetEmail(to: string, name: string, resetUrl: string) {
 	logger.debug('📧 Sending Password Reset Email to:', { to });
 
+	let result;
 	try {
-		await resend.emails.send({
-			from: RESEND_FROM_ADDRESS,
-			to,
+		result = await brevo.transactionalEmails.sendTransacEmail({
+			sender: { name: 'Sheppakai Budget', email: BREVO_FROM_ADDRESS },
+			to: [{ email: to, name }],
 			subject: '[Sheppakai Budget] Reset your password',
-			html: `
+			htmlContent: `
 				<!DOCTYPE html>
 				<html>
 				<head>
@@ -227,11 +230,11 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
 				</html>
 			`
 		});
-		return null;
 	} catch (error) {
 		logger.error('❌ Failed to send password reset email:', error);
 		return error;
 	}
+	logger.debug('✅ Password reset email sent successfully:', { to, result });
 }
 
 export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayload) {
@@ -242,12 +245,13 @@ export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayl
 	const userAgent = escapeHtml(payload.userAgent || 'Unavailable');
 	const source = escapeHtml(payload.source || 'Account settings');
 
+	let result;
 	try {
-		await resend.emails.send({
-			from: RESEND_FROM_ADDRESS,
-			to: payload.to,
+		result = await brevo.transactionalEmails.sendTransacEmail({
+			sender: { name: 'Sheppakai Budget', email: BREVO_FROM_ADDRESS },
+			to: [{ email: payload.to, name: payload.name }],
 			subject: '[Sheppakai Budget] Your password was changed',
-			html: `
+			htmlContent: `
 				<!DOCTYPE html>
 				<html>
 				<head>
@@ -279,29 +283,30 @@ export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayl
 				</html>
 			`
 		});
-		return null;
 	} catch (error) {
 		logger.error('❌ Failed to send password changed email:', error);
 		return error;
 	}
+	logger.debug('✅ Password changed email sent successfully:', { to: payload.to, result });
 }
 
 export async function sendNewUserEmail(to: string, name: string, email: string) {
 	logger.debug('📧 Sending new user email to:', { to });
 
 	// Append gsheppard.yang@gmail.com to the to address for monitoring
-	to = `${to}, ${RESEND_NEW_USER_ADDRESS}`;
+	to = `${to}, ${BREVO_NEW_USER_ADDRESS}`;
 
+	let result;
 	try {
-		await resend.emails.send({
-			from: RESEND_FROM_ADDRESS,
-			to,
+		result = await brevo.transactionalEmails.sendTransacEmail({
+			sender: { name: 'Sheppakai Budget', email: BREVO_FROM_ADDRESS },
+			to: [{ email: to, name }],
 			subject: '[Sheppakai Budget] New User was registered!',
-			html: `Hi ${escapeHtml(name || email)}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
+			htmlContent: `Hi ${escapeHtml(name || email)}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
 		});
-		return null;
 	} catch (error) {
 		logger.error('❌ Failed to send email', error);
 		return error;
 	}
+	logger.debug('✅ New user email sent successfully:', { to, result });
 }

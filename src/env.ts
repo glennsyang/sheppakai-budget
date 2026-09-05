@@ -37,17 +37,19 @@ export const variables = defineEnvVars({
 		description: 'Base URL for Better Auth callbacks and password reset redirects',
 		schema: z.url().default('http://localhost:5173')
 	},
-	RESEND_API_KEY: {
-		description: 'Resend API key for sending transactional emails',
-		schema: z.string().default('dummy_key_for_build')
+	BREVO_API_KEY: {
+		description: 'Brevo API key for sending transactional emails',
+		schema: building ? z.string().catch('build_time_dummy_key') : z.string().min(1)
 	},
-	RESEND_FROM_ADDRESS: {
-		description: 'From address for outgoing transactional emails',
-		schema: z.email().default('noreply@example.com')
+	BREVO_FROM_ADDRESS: {
+		description:
+			'From address for outgoing transactional emails (must be a confirmed Brevo sender)',
+		schema: building ? z.string().catch('noreply@example.com') : z.email()
 	},
-	RESEND_NEW_USER_ADDRESS: {
-		description: 'Address to CC on new user registration confirmation emails',
-		schema: z.email().default('admin@example.com')
+	BREVO_NEW_USER_ADDRESS: {
+		description:
+			'Email address to receive notifications when a new user signs up (must be a confirmed Brevo sender)',
+		schema: building ? z.string().catch('admin@example.com') : z.email()
 	},
 	ADMIN_USER_IDS: {
 		description: 'Comma-separated list of hardcoded admin user IDs',
@@ -55,11 +57,7 @@ export const variables = defineEnvVars({
 	},
 	PASSWORD_ROTATION_DAYS: {
 		description: 'Number of days before a password is considered expired and rotation is enforced',
-		schema: z
-			.string()
-			.default('120')
-			.transform((v) => Number(v))
-			.pipe(z.number().int().positive())
+		schema: z.string().default('120').transform(Number).pipe(z.number().int().positive())
 	},
 	AUTH_ALERTS_URL: {
 		description: 'Ntfy.sh URL for authentication and security alert push notifications',
