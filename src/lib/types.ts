@@ -192,6 +192,7 @@ export type WindowCleaningCustomer = {
 	unitNumber: string | null;
 	buzzerNumber: string | null;
 	phoneNumber: string | null;
+	email: string | null;
 	notes: string | null;
 	deletedAt: string | null;
 	deletedBy: string | null;

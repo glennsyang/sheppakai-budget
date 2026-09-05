@@ -12,6 +12,7 @@ const windowCleaningCustomer = sqliteTable('window_cleaning_customers', {
 	unitNumber: text('unit_number'),
 	buzzerNumber: text('buzzer_number'),
 	phoneNumber: text('phone_number'),
+	email: text('email'),
 	notes: text('notes'),
 	deletedAt: text('deleted_at'),
 	deletedBy: text('deleted_by').references(() => user.id),

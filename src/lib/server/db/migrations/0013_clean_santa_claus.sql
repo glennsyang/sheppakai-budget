@@ -1,0 +1,1 @@
+ALTER TABLE `window_cleaning_customers` ADD `email` text;

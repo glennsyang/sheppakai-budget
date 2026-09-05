@@ -209,6 +209,13 @@
 							</a>
 						</p>
 					{/if}
+					{#if selectedCustomer.email}
+						<p>
+							<a href="mailto:{selectedCustomer.email}" class="text-primary hover:underline">
+								✉️ {selectedCustomer.email}
+							</a>
+						</p>
+					{/if}
 					{#if selectedCustomer.notes}
 						<p class="bg-muted rounded-md px-3 py-2 text-sm italic">
 							{selectedCustomer.notes}

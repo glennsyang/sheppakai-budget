@@ -92,6 +92,13 @@
 			"when": 1787980528243,
 			"tag": "0012_backfill_existing_users_email_verified",
 			"breakpoints": true
+		},
+		{
+			"idx": 13,
+			"version": "6",
+			"when": 1788587717461,
+			"tag": "0013_clean_santa_claus",
+			"breakpoints": true
 		}
 	]
 }
