@@ -30,7 +30,7 @@ Sheppakai Budget is a full-stack personal finance and small business management 
 | Forms          | Superforms + Zod        |
 | Database       | SQLite via Drizzle ORM  |
 | Authentication | Better Auth             |
-| Email          | Resend                  |
+| Email          | Brevo                   |
 | Charts         | Layerchart (D3-based)   |
 | Monitoring     | Sentry                  |
 | Testing        | Vitest + Playwright     |

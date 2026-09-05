@@ -44,7 +44,7 @@ This is a SvelteKit web application for tracking monthly budgets, managing expen
 - Main config file: `src/env.ts`
 - Reads from `.env` file (if present):
   - `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_BASE_URL`, `CRON_SECRET`
-  - `RESEND_API_KEY`, `RESEND_FROM_ADDRESS`, `RESEND_NEW_USER_ADDRESS`
+  - `BREVO_API_KEY`, `BREVO_FROM_ADDRESS`, `BREVO_NEW_USER_ADDRESS`
   - `ADMIN_USER_IDS`, `AUTH_ALERTS_URL`, `BUDGET_ALERTS_URL`, `NODE_ENV`
 - `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `CRON_SECRET` are required in production; the app exits on startup if they are missing or still set to dummy values.
 - In development, fallback values are provided automatically.
