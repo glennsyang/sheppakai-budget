@@ -92,3 +92,4 @@ npm run test          # Run unit tests
 - [API.md](./docs/API.md) for the external `/api/v1` JSON API
 - [BACKUP_RESTORE.md](./docs/BACKUP_RESTORE.md) for operational backup and recovery procedures
 - [BACKUP_QUICK_REFERENCE.md](./docs/BACKUP_QUICK_REFERENCE.md) for fast backup commands
+- [ENVIRONMENT.md](./docs/ENVIRONMENT.md) for every environment variable the app and its CI/infra pipeline use

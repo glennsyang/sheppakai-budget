@@ -1,4 +1,5 @@
 import { building, dev } from '$app/env';
+import { SENTRY_DSN } from '$app/env/public';
 import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import * as Sentry from '@sentry/sveltekit';
@@ -7,7 +8,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 
 Sentry.init({
-	dsn: 'https://fc093590cdb84cd23c74c0af71692560@o4510809399492608.ingest.us.sentry.io/4510809402638336',
+	dsn: SENTRY_DSN,
 	tracesSampleRate: 1.0,
 	enableLogs: true
 });

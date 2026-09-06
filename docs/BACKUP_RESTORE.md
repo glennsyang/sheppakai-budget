@@ -14,6 +14,18 @@ The backup system uses a GitHub Actions workflow that can be triggered on demand
 - **Naming**: `db-backup-YYYY-MM-DD-HHMMSS` (e.g., `db-backup-2026-01-17-060000`)
 - **Workflow**: `.github/workflows/backup-database.yml`
 
+### Required Secrets
+
+Both are **GitHub Actions repo secrets** (not Fly.io app secrets, and not app runtime env vars — see `docs/ENVIRONMENT.md`):
+
+- `FLY_API_TOKEN` — used by `flyctl` to pull the database dump off the production machine.
+- `BACKUP_ENCRYPTION_PASSPHRASE` — symmetric passphrase used to GPG-encrypt the dump before it's uploaded as a GitHub Artifact (the dump contains password hashes, live session tokens, and all budget data, so it must never be stored unencrypted). The workflow fails closed if this isn't set. Generate one with `openssl rand -base64 32` and add it via `gh secret set BACKUP_ENCRYPTION_PASSPHRASE`. To decrypt a downloaded backup:
+  ```bash
+  gpg --batch --yes --pinentry-mode loopback \
+    --passphrase "$BACKUP_ENCRYPTION_PASSPHRASE" \
+    --decrypt --output backup.sql.gz backup.sql.gz.gpg
+  ```
+
 ### Monitoring
 
 The workflow automatically:

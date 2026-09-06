@@ -3,6 +3,10 @@ import * as Sentry from '@sentry/sveltekit';
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 const LEVEL_RANK: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3 };
+// NODE_ENV/LOG_LEVEL are read raw from process.env rather than via src/env.ts
+// ($app/env/private) so logger.test.ts can override them per-test with
+// vi.stubEnv()/vi.resetModules() — the generated SvelteKit env module doesn't support
+// that kind of dynamic re-read.
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const MIN_LEVEL: LogLevel =
 	(process.env.LOG_LEVEL as LogLevel | undefined) ?? (IS_DEV ? 'debug' : 'info');

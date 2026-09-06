@@ -27,8 +27,11 @@ RUN npm install -g npm@11 && npm ci --include=dev
 # Copy application code
 COPY . .
 
-# Build application
-RUN npm run build
+# Build application. SENTRY_AUTH_TOKEN is supplied as a BuildKit secret (via
+# `flyctl deploy --build-secret`, see fly-deploy.yml) so it reaches only this RUN step
+# and never gets baked into an image layer.
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
+	SENTRY_AUTH_TOKEN="$(cat /run/secrets/SENTRY_AUTH_TOKEN 2>/dev/null || true)" npm run build
 
 # Remove development dependencies
 RUN npm prune --omit=dev
