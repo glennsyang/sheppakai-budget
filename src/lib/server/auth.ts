@@ -85,12 +85,6 @@ export const auth = betterAuth({
 	},
 	emailVerification: {
 		sendOnSignUp: true,
-		// Without this, better-auth only sends the verification email once, on
-		// sign-up. A user who never received that first email (or let the 10-min
-		// link expire) then hits a dead end: signing in throws EMAIL_NOT_VERIFIED
-		// and the /auth/verify-email page claims "we sent you a link" without
-		// anything actually being sent. sendOnSignIn re-sends a fresh link on every
-		// unverified sign-in attempt, which is the flow that page assumes.
 		sendOnSignIn: true,
 		autoSignInAfterVerification: true,
 		sendVerificationEmail: async ({ user, url, token }) => {
@@ -158,9 +152,6 @@ export const auth = betterAuth({
 		ipAddress: {
 			// Enable IP address and user agent tracking
 			disableIpTracking: false,
-			// Fly.io's edge sets this on every request and strips any client-supplied
-			// value for it, unlike X-Forwarded-For/X-Real-IP/X-Client-IP, which are
-			// trusted outright by better-auth's resolver without a trustedProxies config.
 			ipAddressHeaders: ['fly-client-ip', 'x-forwarded-for', 'x-real-ip', 'x-client-ip']
 		},
 		database: {
