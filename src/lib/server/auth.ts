@@ -85,6 +85,7 @@ export const auth = betterAuth({
 	},
 	emailVerification: {
 		sendOnSignUp: true,
+		sendOnSignIn: true,
 		autoSignInAfterVerification: true,
 		sendVerificationEmail: async ({ user, url, token }) => {
 			logger.debug('✉️ Email verification sent');
@@ -151,8 +152,7 @@ export const auth = betterAuth({
 		ipAddress: {
 			// Enable IP address and user agent tracking
 			disableIpTracking: false,
-			// Optionally specify custom headers for IP detection (useful behind proxies)
-			ipAddressHeaders: ['x-forwarded-for', 'x-real-ip', 'x-client-ip']
+			ipAddressHeaders: ['fly-client-ip', 'x-forwarded-for', 'x-real-ip', 'x-client-ip']
 		},
 		database: {
 			generateId: () => crypto.randomUUID()
