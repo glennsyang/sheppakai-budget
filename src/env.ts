@@ -70,5 +70,14 @@ export const variables = defineEnvVars({
 	NODE_ENV: {
 		description: 'Application runtime environment',
 		schema: z.enum(['development', 'production', 'test']).default('development')
+	},
+	SENTRY_DSN: {
+		description: 'Sentry DSN for client and server error monitoring',
+		public: true,
+		schema: z
+			.url()
+			.default(
+				'https://fc093590cdb84cd23c74c0af71692560@o4510809399492608.ingest.us.sentry.io/4510809402638336'
+			)
 	}
 });
