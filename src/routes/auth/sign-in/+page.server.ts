@@ -3,6 +3,7 @@ import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-
 import { formMessageFromUrl } from '$lib/server/actions/form-message';
 import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
+import { APIError } from 'better-auth/api';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -35,13 +36,24 @@ export const actions: Actions = {
 		return handleAuthFormAction(
 			form,
 			async () => {
-				await auth.api.signInEmail({
-					body: {
-						email: form.data.email,
-						password: form.data.password
-					},
-					headers: request.headers
-				});
+				try {
+					await auth.api.signInEmail({
+						body: {
+							email: form.data.email,
+							password: form.data.password
+						},
+						headers: request.headers
+					});
+				} catch (error) {
+					// An unverified account can't sign in, but better-auth
+					// (emailVerification.sendOnSignIn) has just re-sent a fresh
+					// verification link. Send the user to the page that explains that,
+					// instead of surfacing a dead-end "email not verified" form error.
+					if (error instanceof APIError && error.body?.code === 'EMAIL_NOT_VERIFIED') {
+						throw redirect(302, `/auth/verify-email?email=${encodeURIComponent(form.data.email)}`);
+					}
+					throw error;
+				}
 
 				throw redirect(302, '/dashboard');
 			},

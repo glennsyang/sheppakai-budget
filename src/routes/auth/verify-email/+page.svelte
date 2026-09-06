@@ -1,10 +1,15 @@
 <script lang="ts">
+	import AuthFormMessage from '$lib/components/AuthFormMessage.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { MailIcon } from '@lucide/svelte/icons';
+	import { superForm } from 'sveltekit-superforms';
 
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+
+	// svelte-ignore state_referenced_locally
+	const { form, errors, enhance, message, submitting } = superForm(data.verificationForm);
 </script>
 
 <svelte:head>
@@ -25,6 +30,8 @@
 				{data.email}
 			</p>
 		</div>
+
+		<AuthFormMessage message={$message} />
 
 		<div class="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
 			<div class="space-y-4">
@@ -54,6 +61,22 @@
 				</div>
 			</div>
 		</div>
+
+		<form method="POST" action="?/resend" use:enhance class="space-y-2">
+			<input type="hidden" name="email" bind:value={$form.email} />
+			<Button
+				type="submit"
+				variant="outline"
+				class="w-full"
+				disabled={$submitting}
+				aria-busy={$submitting}
+			>
+				{$submitting ? 'Sending verification email…' : 'Resend verification email'}
+			</Button>
+			{#if $errors.email}
+				<p class="text-sm text-red-600 dark:text-red-400">{$errors.email}</p>
+			{/if}
+		</form>
 
 		<div class="text-center">
 			<p class="text-muted-foreground text-sm">
