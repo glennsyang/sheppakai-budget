@@ -7,7 +7,7 @@ export default defineConfig({
 	plugins: [
 		sentrySvelteKit({
 			org: 'sheppakai',
-			project: 'sheppaka-budget',
+			project: 'sheppakai-budget',
 			authToken: process.env.SENTRY_AUTH_TOKEN
 		}),
 		tailwindcss(),
