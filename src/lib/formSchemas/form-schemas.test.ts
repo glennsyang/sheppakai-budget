@@ -9,6 +9,7 @@ import {
 	incomeSchema,
 	recurringSchema,
 	registerSchema,
+	resendVerificationSchema,
 	savingsGoalSchema,
 	savingsSchema,
 	signInSchema,
@@ -30,6 +31,12 @@ describe('form schemas', () => {
 		expect(signInSchema.safeParse({ email: 'user@example.com', password: 'short' }).success).toBe(
 			false
 		);
+	});
+
+	it('validates resend-verification schema', () => {
+		expect(resendVerificationSchema.safeParse({ email: 'user@example.com' }).success).toBe(true);
+		expect(resendVerificationSchema.safeParse({ email: 'not-an-email' }).success).toBe(false);
+		expect(resendVerificationSchema.safeParse({}).success).toBe(false);
 	});
 
 	it('validates register password confirmation', () => {

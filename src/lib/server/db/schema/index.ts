@@ -9,6 +9,7 @@ export {
 	dashboardSectionPreferenceRelations
 } from './dashboardSectionPreference';
 export { default as income } from './income';
+export { default as rateLimit } from './rateLimit';
 export { default as recurring, recurringRelations } from './recurring';
 export { default as savings, savingsRelations } from './savings';
 export { default as savingsGoal, savingsGoalRelations } from './savingsGoal';
