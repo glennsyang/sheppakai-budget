@@ -1,7 +1,7 @@
 import { restoreCustomerSchema } from '$lib/formSchemas';
 import { adminAuthFailure } from '$lib/server/actions/admin-guard';
 import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
-import { requireAdmin } from '$lib/server/auth';
+import { assertAdmin } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { windowCleaningCustomer } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
@@ -13,7 +13,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	requireAdmin(locals);
+	assertAdmin(locals);
 
 	const form = await superValidate(zod4(restoreCustomerSchema));
 

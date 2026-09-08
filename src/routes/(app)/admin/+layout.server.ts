@@ -1,16 +1,11 @@
-import { requireAdmin } from '$lib/server/auth';
-import { logger } from '$lib/server/logger';
-import { redirect } from '@sveltejs/kit';
+import { assertAdmin } from '$lib/server/auth';
 
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
-	try {
-		requireAdmin(locals);
-	} catch (error) {
-		logger.error('🚫 Non-admin user attempted to access admin layout', error);
-		throw redirect(302, '/');
-	}
+	// Throws error(401) when unauthenticated, error(403) when not an admin — same guard
+	// shape as synapse / sheppakai-mealplanner (sheppakai-budget#437).
+	assertAdmin(locals);
 
 	return {
 		user: locals.user

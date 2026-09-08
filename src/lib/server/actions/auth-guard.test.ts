@@ -13,7 +13,7 @@ vi.mock('@sveltejs/kit', () => ({
 	fail: mockFail
 }));
 
-import { requireAuth } from './auth-guard';
+import { requireAdmin, requireAuth } from './auth-guard';
 
 describe('requireAuth', () => {
 	it('returns 401 failure when user is missing', async () => {
@@ -34,6 +34,50 @@ describe('requireAuth', () => {
 		const handler = vi.fn<() => Promise<{ ok: boolean }>>(async () => ({ ok: true }));
 		const wrapped = requireAuth(handler);
 		const user = { id: 'user-123' };
+		const event = {
+			locals: { user }
+		} as unknown as Parameters<typeof wrapped>[0];
+
+		const result = await wrapped(event);
+
+		expect(handler).toHaveBeenCalledWith(event, user);
+		expect(result).toEqual({ ok: true });
+	});
+});
+
+describe('requireAdmin', () => {
+	it('returns 401 failure when user is missing', async () => {
+		const handler = vi.fn<() => Promise<unknown>>();
+		const wrapped = requireAdmin(handler);
+		const event = {
+			locals: { user: null }
+		} as unknown as Parameters<typeof wrapped>[0];
+
+		const result = await wrapped(event);
+
+		expect(mockFail).toHaveBeenCalledWith(401, { error: 'Unauthorized' });
+		expect(result).toEqual({ status: 401, data: { error: 'Unauthorized' }, __failure: true });
+		expect(handler).not.toHaveBeenCalled();
+	});
+
+	it('returns 403 failure when the user is not an admin', async () => {
+		const handler = vi.fn<() => Promise<unknown>>();
+		const wrapped = requireAdmin(handler);
+		const event = {
+			locals: { user: { id: 'user-123', role: 'user' } }
+		} as unknown as Parameters<typeof wrapped>[0];
+
+		const result = await wrapped(event);
+
+		expect(mockFail).toHaveBeenCalledWith(403, { error: 'Forbidden' });
+		expect(result).toEqual({ status: 403, data: { error: 'Forbidden' }, __failure: true });
+		expect(handler).not.toHaveBeenCalled();
+	});
+
+	it('calls handler with the authenticated admin user', async () => {
+		const handler = vi.fn<() => Promise<{ ok: boolean }>>(async () => ({ ok: true }));
+		const wrapped = requireAdmin(handler);
+		const user = { id: 'user-123', role: 'admin' };
 		const event = {
 			locals: { user }
 		} as unknown as Parameters<typeof wrapped>[0];
