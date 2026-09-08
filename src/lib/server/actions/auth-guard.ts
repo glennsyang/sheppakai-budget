@@ -32,3 +32,38 @@ export function requireAuth<T>(
 		return handler(event, event.locals.user);
 	};
 }
+
+/**
+ * Authorization wrapper for SvelteKit actions.
+ * Ensures the user is authenticated and has the 'admin' role before executing
+ * the action handler. Returns `fail(401)` when unauthenticated, `fail(403)` when
+ * authenticated but not an admin.
+ *
+ * This is the canonical cross-repo admin guard (identical shape in synapse and
+ * sheppakai-mealplanner — sheppakai-budget#437). It checks the DB `role` only.
+ * For the superforms-aware variant that also honours the `ADMIN_USER_IDS`
+ * bootstrap, use `adminAuthFailure` from `./admin-guard`.
+ *
+ * @example
+ * export const actions = {
+ *   restore: requireAdmin(async (event, user) => {
+ *     // user is guaranteed to be an authenticated admin here
+ *   })
+ * };
+ */
+export function requireAdmin<
+	T,
+	Params extends Partial<Record<string, string>> = Partial<Record<string, string>>
+>(
+	handler: (event: RequestEvent<Params>, user: AuthenticatedUser) => Promise<T>
+): (event: RequestEvent<Params>) => Promise<T | ReturnType<typeof fail>> {
+	return async (event: RequestEvent<Params>) => {
+		if (!event.locals.user) {
+			return fail(401, { error: 'Unauthorized' });
+		}
+		if (event.locals.user.role !== 'admin') {
+			return fail(403, { error: 'Forbidden' });
+		}
+		return handler(event, event.locals.user);
+	};
+}

@@ -1,7 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import { message, type SuperValidated } from 'sveltekit-superforms';
 
-import { requireAdmin } from '../auth';
+import { assertAdmin } from '../auth';
 
 /**
  * Returns null when the caller is an admin, otherwise the failure response to return from the action.
@@ -15,7 +15,7 @@ export function adminAuthFailure<T extends Record<string, unknown>>(
 	form?: SuperValidated<T>
 ) {
 	try {
-		requireAdmin(locals);
+		assertAdmin(locals);
 		return null;
 	} catch {
 		const status = locals.user ? 403 : 401;

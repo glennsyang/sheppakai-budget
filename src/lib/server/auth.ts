@@ -7,6 +7,7 @@ import {
 import { getRequestEvent } from '$app/server';
 import { logger } from '$lib/server/logger';
 import { apiKey } from '@better-auth/api-key';
+import { error } from '@sveltejs/kit';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
@@ -182,7 +183,10 @@ export const auth = betterAuth({
 	},
 	plugins: [
 		admin({
-			adminUserIds: ADMIN_USER_IDS.split(',')
+			adminUserIds: ADMIN_USER_IDS.split(','),
+			// Plugin defaults, spelled out for parity with the sibling repos (sheppakai-budget#437).
+			defaultRole: 'user',
+			adminRoles: ['admin']
 		}),
 		apiKey({
 			references: 'user',
@@ -206,22 +210,27 @@ export const auth = betterAuth({
 });
 
 /**
- * Require admin access - checks both hardcoded admin user IDs and role field
+ * Assert the current user is an admin, throwing a SvelteKit `error(401|403)` otherwise.
+ *
+ * This is sheppakai-budget's superforms-aware extension of the canonical admin guard: it
+ * additionally honours the `ADMIN_USER_IDS` env bootstrap (grant admin by id without a DB
+ * write), on top of the `role === 'admin'` check that `requireAdmin` in
+ * `./actions/auth-guard` performs in every repo (sheppakai-budget#437). Use it directly in
+ * `+layout.server.ts` / `+page.server.ts` load functions; for actions that need to attach the
+ * failure to a superforms message, use `adminAuthFailure` from `./actions/admin-guard`.
+ *
  * @param locals - SvelteKit locals object containing user data
- * @throws {Error} If user is not authenticated or not an admin
+ * @throws {HttpError} 401 when unauthenticated, 403 when authenticated but not an admin
  */
-export function requireAdmin(locals: App.Locals): void {
+export function assertAdmin(locals: App.Locals): void {
 	if (!locals.user) {
-		throw new Error('Unauthorized - not authenticated');
+		throw error(401, 'Unauthorized');
 	}
 
-	// Check hardcoded admin IDs
 	const isHardcodedAdmin = ADMIN_USER_IDS.split(',').includes(locals.user.id);
-
-	// Check role field
 	const isRoleAdmin = locals.user.role === 'admin';
 
 	if (!isHardcodedAdmin && !isRoleAdmin) {
-		throw new Error('Forbidden - admin access required');
+		throw error(403, 'Forbidden');
 	}
 }
