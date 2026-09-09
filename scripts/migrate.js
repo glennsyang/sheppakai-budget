@@ -32,7 +32,30 @@ console.log(`Applying migrations to ${dbPath} from ${migrationsFolder}`);
 
 const connection = new Database(dbPath);
 try {
+	// Disable FK enforcement for the duration of the migration batch.
+	//
+	// drizzle-orm's migrator wraps the whole batch in a single BEGIN/COMMIT, and
+	// SQLite treats `PRAGMA foreign_keys` as a no-op inside a transaction. So the
+	// `PRAGMA foreign_keys=OFF` that drizzle-kit emits at the top of a table-rebuild
+	// migration (e.g. 0015_strange_alice) never takes effect here. Combined with
+	// better-sqlite3 v12 defaulting foreign_keys=ON, `DROP TABLE` in a rebuild would
+	// then either fail the FK check or fire ON DELETE CASCADE and wipe child rows
+	// (sessions, accounts, ...). Setting it on the connection *before* migrate()
+	// opens its transaction is the only place the pragma actually applies, and it
+	// mirrors what `drizzle-kit migrate` itself does.
+	connection.pragma('foreign_keys = OFF');
 	migrate(drizzle(connection), { migrationsFolder });
+	connection.pragma('foreign_keys = ON');
+
+	// Surface any referential integrity the rebuilds left broken instead of failing
+	// silently later at runtime.
+	const fkViolations = connection.pragma('foreign_key_check');
+	if (fkViolations.length > 0) {
+		console.error('foreign_key_check found violations after migration:', fkViolations);
+		throw new Error(
+			`Post-migration foreign_key_check failed with ${fkViolations.length} violation(s)`
+		);
+	}
 } finally {
 	connection.close();
 }
