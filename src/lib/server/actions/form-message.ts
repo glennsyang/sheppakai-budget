@@ -1,6 +1,6 @@
 /**
  * Reads a superforms banner message handed over through the query string, e.g.
- * `/auth/sign-in?message=Password%20reset%20successful&messageType=success`.
+ * `/sign-in?message=Password%20reset%20successful&messageType=success`.
  *
  * The type is carried explicitly rather than inferred from the text, so callers
  * cannot accidentally style a success as a failure. Anything without an explicit

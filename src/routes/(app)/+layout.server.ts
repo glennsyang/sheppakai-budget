@@ -7,14 +7,8 @@ import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
-	// Don't redirect auth routes
-	if (url.pathname.startsWith('/auth')) {
-		return {
-			user: locals.user || null
-		};
-	}
-
-	// Redirect to sign-in if not authenticated for other routes
+	// Redirect to sign-in if not authenticated. Auth pages live in the sibling
+	// `(auth)` route group, so they never reach this guard.
 	if (!locals.user) {
 		throw redirect(302, SIGN_IN_ROUTE);
 	}

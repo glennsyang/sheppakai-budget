@@ -1,3 +1,4 @@
+import { POST_LOGIN_ROUTE, RESET_PASSWORD_ROUTE } from '$lib/auth-routes';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { formMessageFromUrl } from '$lib/server/actions/form-message';
 import { auth } from '$lib/server/auth';
@@ -15,7 +16,7 @@ const forgotSchema = z.object({
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Redirect if already signed in
 	if (locals.user) {
-		throw redirect(302, '/dashboard');
+		throw redirect(302, POST_LOGIN_ROUTE);
 	}
 
 	const form = await superValidate(zod4(forgotSchema));
@@ -53,7 +54,7 @@ export const actions: Actions = {
 					new Request(new URL('/api/auth/request-password-reset', request.url), {
 						method: 'POST',
 						headers,
-						body: JSON.stringify({ email: form.data.email, redirectTo: '/auth/reset-password' })
+						body: JSON.stringify({ email: form.data.email, redirectTo: RESET_PASSWORD_ROUTE })
 					})
 				);
 				if (!response.ok) {

@@ -1,3 +1,4 @@
+import { POST_LOGIN_ROUTE, VERIFY_EMAIL_ROUTE } from '$lib/auth-routes';
 import { registerSchema } from '$lib/formSchemas';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { formMessageFromUrl } from '$lib/server/actions/form-message';
@@ -11,7 +12,7 @@ import type { Actions, PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Redirect if already signed in
 	if (locals.user) {
-		throw redirect(302, '/dashboard');
+		throw redirect(302, POST_LOGIN_ROUTE);
 	}
 	const form = await superValidate(zod4(registerSchema));
 
@@ -44,7 +45,7 @@ export const actions: Actions = {
 				});
 
 				// Redirect to verify-email page with user's email
-				throw redirect(302, `/auth/verify-email?email=${encodeURIComponent(form.data.email)}`);
+				throw redirect(302, `${VERIFY_EMAIL_ROUTE}?email=${encodeURIComponent(form.data.email)}`);
 			},
 			{
 				loggerContext: 'Registration failed',

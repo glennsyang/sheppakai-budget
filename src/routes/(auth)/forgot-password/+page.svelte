@@ -52,8 +52,7 @@
 						{/if}
 					</Button>
 					<FieldDescription class="text-center">
-						Remember your password? <a href="/auth/sign-in" class="font-medium underline"
-							>Sign in here</a
+						Remember your password? <a href="/sign-in" class="font-medium underline">Sign in here</a
 						>
 					</FieldDescription>
 				</Field>
