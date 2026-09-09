@@ -35,7 +35,7 @@ export const columns: ColumnDef<Features, DeletedCustomer>[] = [
 				const { email, name } = getUser();
 				return {
 					render: () =>
-						`<div><div class="font-medium">${name || email}</div><div class="text-sm text-muted-foreground">${email}</div></div>`
+						`<div><div class="font-medium">${name}</div><div class="text-sm text-muted-foreground">${email}</div></div>`
 				};
 			});
 			return renderSnippet(ownerSnippet, {

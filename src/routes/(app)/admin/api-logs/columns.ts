@@ -44,7 +44,7 @@ export const columns: ColumnDef<Features, AdminApiLogEntry>[] = [
 				onclick: column.getToggleSortingHandler()
 			}),
 		accessorFn: (row) => row.user.email,
-		cell: ({ row }) => row.original.user.name || row.original.user.email
+		cell: ({ row }) => row.original.user.name
 	},
 	{
 		accessorKey: 'apiKeyId',

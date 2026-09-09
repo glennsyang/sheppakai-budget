@@ -58,8 +58,8 @@
 		<Dialog.Header>
 			<Dialog.Title>Restore Customer</Dialog.Title>
 			<Dialog.Description>
-				Are you sure you want to restore "{customer.name}" ({customer.user.name ||
-					customer.user.email})? They will reappear in the active customers list.
+				Are you sure you want to restore "{customer.name}" ({customer.user.name})? They will
+				reappear in the active customers list.
 			</Dialog.Description>
 		</Dialog.Header>
 		<form method="POST" action="/admin/deleted-customers?/restore" use:enhance>
