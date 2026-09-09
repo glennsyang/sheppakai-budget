@@ -8,7 +8,7 @@ SvelteKit budget tracking app using Svelte 5, Tailwind CSS, SQLite (better-sqlit
 
 - Session stored in cookies (`event.cookies.get('session')`) with JSON-serialized user data
 - `hooks.server.ts` populates `event.locals.user` on every request
-- Route protection in `(app)/+layout.server.ts` redirects unauthenticated users to `/auth/sign-in`
+- Route protection in `(app)/+layout.server.ts` redirects unauthenticated users to `/sign-in` (`SIGN_IN_ROUTE` in `$lib/auth-routes`)
 - Auth helpers in `$lib/server/auth.ts`: `authenticate()`, `register()` (bcrypt for passwords)
 
 ### Database Patterns

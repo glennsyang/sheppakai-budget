@@ -1,3 +1,4 @@
+import { SIGN_IN_ROUTE } from '$lib/auth-routes';
 import { redirect } from '@sveltejs/kit';
 
 /**
@@ -6,9 +7,10 @@ import { redirect } from '@sveltejs/kit';
 type AuthenticatedUser = NonNullable<App.Locals['user']>;
 
 /**
- * Where unauthenticated visitors are sent.
+ * Where unauthenticated visitors are sent. Re-exported from `$lib/auth-routes`
+ * (the single source of truth) so existing `load`-guard importers keep working.
  */
-export const SIGN_IN_ROUTE = '/auth/sign-in';
+export { SIGN_IN_ROUTE };
 
 /**
  * Returns the authenticated user, or redirects to sign-in.

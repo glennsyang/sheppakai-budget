@@ -121,7 +121,7 @@ return handleAuthFormAction(
 
 `handleAuthFormAction` defaults to status 400; pass `status` only to override it. Pass
 `errorType: 'success'` where a failure must stay indistinguishable from a success (see
-`src/routes/auth/forgot-password/+page.server.ts`, which hides whether an account exists).
+`src/routes/(auth)/forgot-password/+page.server.ts`, which hides whether an account exists).
 
 ### Reading the response on the client
 
@@ -195,5 +195,5 @@ shape. See `src/lib/server/api/response.ts` (`apiSuccess`/`apiError`) and
 ## References
 
 - Example load implementation: `src/routes/(app)/admin/users/+page.server.ts`
-- Example action implementation: `src/routes/auth/sign-in/+page.server.ts`
+- Example action implementation: `src/routes/(auth)/sign-in/+page.server.ts`
 - Structure review: `docs/structure-review/2026-07-27-review.md` (Error Handling → Findings 1 and 2)

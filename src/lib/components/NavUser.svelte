@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import { SIGN_OUT_ROUTE } from '$lib/auth-routes';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -72,7 +73,7 @@
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 				<DropdownMenu.Separator />
-				<form method="POST" action="/auth/sign-out" use:enhance id="logout-form"></form>
+				<form method="POST" action={SIGN_OUT_ROUTE} use:enhance id="logout-form"></form>
 				<DropdownMenu.Item
 					onclick={() => {
 						const form = document.getElementById('logout-form') as HTMLFormElement;

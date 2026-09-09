@@ -102,7 +102,7 @@
 						{/if}
 					</Button>
 					<FieldDescription class="text-center">
-						Already have an account? <a href="/auth/sign-in" class="font-medium underline"
+						Already have an account? <a href="/sign-in" class="font-medium underline"
 							>Sign in here</a
 						>
 					</FieldDescription>

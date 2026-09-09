@@ -21,7 +21,7 @@ import { actions } from './+page.server';
 const GENERIC = 'If an account exists with that email, you will receive a password reset link.';
 
 function forgotRequest(email: string) {
-	return new Request('https://budget.example.com/auth/forgot-password', {
+	return new Request('https://budget.example.com/forgot-password', {
 		method: 'POST',
 		body: new URLSearchParams({ email })
 	});
@@ -44,7 +44,7 @@ describe('forgot-password default action', () => {
 		expect(request.headers.get('content-type')).toBe('application/json');
 		expect(await request.json()).toEqual({
 			email: 'user@example.com',
-			redirectTo: '/auth/reset-password'
+			redirectTo: '/reset-password'
 		});
 		expect(result).toMatchObject({
 			form: { message: { type: 'success', text: GENERIC } }

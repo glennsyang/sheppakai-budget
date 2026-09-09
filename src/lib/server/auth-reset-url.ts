@@ -23,7 +23,7 @@ export function buildResetUrl(callbackURL: string, token: string): string {
 	try {
 		// Resolve against the app's own base URL: the forgot-password action sends a
 		// root-relative `redirectTo` (so Better Auth's origin check passes when routed
-		// through auth.handler), which arrives here as a path like "/auth/reset-password".
+		// through auth.handler), which arrives here as a path like "/reset-password".
 		// An absolute callbackURL keeps its own origin and is still checked against the
 		// allowlist below.
 		parsed = new URL(callbackURL, BETTER_AUTH_BASE_URL);

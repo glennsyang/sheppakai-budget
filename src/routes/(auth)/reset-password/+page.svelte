@@ -2,7 +2,7 @@
 	import AuthFormMessage from '$lib/components/AuthFormMessage.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { Field, FieldDescription, FieldGroup, FieldLabel } from '$lib/components/ui/field';
+	import { Field, FieldGroup, FieldLabel } from '$lib/components/ui/field';
 	import { Input } from '$lib/components/ui/input';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import { superForm } from 'sveltekit-superforms';
@@ -17,46 +17,26 @@
 
 <Card.Root class="mx-auto w-full max-w-sm">
 	<Card.Header class="text-center">
-		<Card.Title class="text-2xl">Sign In</Card.Title>
-		<Card.Description>Enter your credentials to access your account</Card.Description>
+		<Card.Title class="text-2xl">Reset Password</Card.Title>
+		<Card.Description>Enter your new password</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		<form method="POST" use:enhance>
 			<FieldGroup>
 				<AuthFormMessage message={$message} />
 
-				<Field>
-					<FieldLabel for="email">Email</FieldLabel>
-					<Input
-						id="email"
-						name="email"
-						type="email"
-						placeholder="Enter your email"
-						bind:value={$form.email}
-						class={$errors.email ? 'border-red-500' : ''}
-						autocomplete="email"
-						required
-					/>
-					{#if $errors.email}
-						<p class="text-sm text-red-600 dark:text-red-400">{$errors.email}</p>
-					{/if}
-				</Field>
+				<input type="hidden" name="token" bind:value={data.token} />
 
 				<Field>
-					<div class="flex items-center">
-						<FieldLabel for="password">Password</FieldLabel>
-						<a href="/auth/forgot-password" class="ms-auto text-sm font-medium underline">
-							Forgot password?
-						</a>
-					</div>
+					<FieldLabel for="password">New Password</FieldLabel>
 					<Input
 						id="password"
 						name="password"
 						type="password"
-						placeholder="Enter your password"
+						placeholder="Enter new password (min 8 characters)"
 						bind:value={$form.password}
 						class={$errors.password ? 'border-red-500' : ''}
-						autocomplete="current-password"
+						autocomplete="new-password"
 						required
 					/>
 					{#if $errors.password}
@@ -65,19 +45,35 @@
 				</Field>
 
 				<Field>
+					<FieldLabel for="confirmPassword">Confirm Password</FieldLabel>
+					<Input
+						id="confirmPassword"
+						name="confirmPassword"
+						type="password"
+						placeholder="Confirm new password"
+						bind:value={$form.confirmPassword}
+						class={$errors.confirmPassword ? 'border-red-500' : ''}
+						autocomplete="new-password"
+						required
+					/>
+					{#if $errors.confirmPassword}
+						<p class="text-sm text-red-600 dark:text-red-400">{$errors.confirmPassword}</p>
+					{/if}
+				</Field>
+
+				<Field>
 					<Button type="submit" class="w-full" disabled={$submitting} aria-busy={$submitting}>
 						{#if $submitting}
 							<Spinner class="mr-2" aria-hidden="true" />
-							Signing In...
+							Resetting...
 						{:else}
-							Sign In
+							Reset Password
 						{/if}
 					</Button>
-					<FieldDescription class="text-center">
-						Don't have an account? <a href="/auth/register" class="font-medium underline"
-							>Register here</a
-						>
-					</FieldDescription>
+				</Field>
+
+				<Field>
+					<a href="/sign-in" class="text-center text-sm font-medium underline"> Back to sign in </a>
 				</Field>
 			</FieldGroup>
 		</form>

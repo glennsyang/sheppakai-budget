@@ -1,3 +1,4 @@
+import { FORGOT_PASSWORD_ROUTE, POST_LOGIN_ROUTE, SIGN_IN_ROUTE } from '$lib/auth-routes';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
@@ -32,12 +33,12 @@ const resetPasswordSchema = z
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// Redirect if already signed in
 	if (locals.user) {
-		throw redirect(302, '/dashboard');
+		throw redirect(302, POST_LOGIN_ROUTE);
 	}
 	const token = url.searchParams.get('token');
 
 	if (!token) {
-		throw redirect(302, '/auth/forgot-password');
+		throw redirect(302, FORGOT_PASSWORD_ROUTE);
 	}
 
 	const form = await superValidate(zod4(resetPasswordSchema));
@@ -68,7 +69,7 @@ export const actions: Actions = {
 
 				throw redirect(
 					302,
-					'/auth/sign-in?message=Password reset successful! Please sign in.&messageType=success'
+					`${SIGN_IN_ROUTE}?message=Password reset successful! Please sign in.&messageType=success`
 				);
 			},
 			{

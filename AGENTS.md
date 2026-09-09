@@ -146,7 +146,7 @@ $effect(() => {
 
 ## Authentication & Security
 
-- Routes and server endpoints for user authentication: register, sign-in, sign-out, as well as route-protected pages (see `/src/routes/auth/`, `/src/lib/server/auth.ts`).
+- Routes and server endpoints for user authentication: register, sign-in, sign-out, as well as route-protected pages (see `/src/routes/(auth)/`, `/src/lib/server/auth.ts`). Auth route paths are centralised in `/src/lib/auth-routes.ts` (`SIGN_IN_ROUTE`, etc.) — no inline route literals.
 
 ## Product Data-Sharing Model (Critical Requirement)
 
