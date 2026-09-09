@@ -9,7 +9,7 @@ const user = sqliteTable('users', {
 	id: text('id').primaryKey().$defaultFn(generateId),
 	email: text('email').notNull().unique(),
 	emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false),
-	name: text('name'),
+	name: text('name').notNull(),
 	image: text('image'),
 	role: text('role').notNull().default('user'),
 	banned: integer('banned', { mode: 'boolean' }).notNull().default(false),

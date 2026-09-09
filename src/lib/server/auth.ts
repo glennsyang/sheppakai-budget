@@ -47,7 +47,9 @@ export const auth = betterAuth({
 		additionalFields: {
 			name: {
 				type: 'string',
-				required: false
+				// The `users.name` column is NOT NULL (matches synapse/mealplanner — see #436).
+				// Registration already enforces a name via registerSchema before signUpEmail.
+				required: true
 			}
 		}
 	},
@@ -67,7 +69,7 @@ export const auth = betterAuth({
 				throw new Error('Missing callbackURL parameter');
 			}
 			const resetUrl = buildResetUrl(callbackURL, token);
-			void sendPasswordResetEmail(user.email, user.name || user.email, resetUrl);
+			void sendPasswordResetEmail(user.email, user.name, resetUrl);
 		},
 		onPasswordReset: async ({ user }) => {
 			logger.info('Security event: password reset completed and sessions revoked', {
@@ -77,12 +79,12 @@ export const auth = betterAuth({
 			});
 			void sendPasswordChangedEmail({
 				to: user.email,
-				name: user.name || user.email,
+				name: user.name,
 				changedAt: new Date(),
 				source: 'Password reset flow'
 			});
 			void sendAuthAlerts(
-				`⚠️ Password reset for ${user.name || user.email} ${user.email} at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}. All sessions revoked.`,
+				`⚠️ Password reset for ${user.name} ${user.email} at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}. All sessions revoked.`,
 				'Sheppakai-Budget - Security Alert',
 				4
 			);
@@ -95,7 +97,7 @@ export const auth = betterAuth({
 		sendVerificationEmail: async ({ user, url, token }) => {
 			logger.debug('✉️ Email verification sent');
 			const verifyUrl = `${url}?token=${token}`;
-			void sendVerificationEmail(user.email, user.name || user.email, verifyUrl);
+			void sendVerificationEmail(user.email, user.name, verifyUrl);
 		}
 	},
 	hooks: {
@@ -132,11 +134,7 @@ export const auth = betterAuth({
 				const newSession = ctx.context.newSession;
 				if (newSession) {
 					logger.debug('✉️  New user email sent');
-					void sendNewUserEmail(
-						newSession.user.email,
-						newSession.user.name || newSession.user.email,
-						newSession.user.email
-					);
+					void sendNewUserEmail(newSession.user.email, newSession.user.name, newSession.user.email);
 				}
 			}
 			// Audit logging

@@ -103,7 +103,7 @@ export const actions = {
 
 			sendPasswordChangedEmail({
 				to: currentUser.email,
-				name: currentUser.name || currentUser.email,
+				name: currentUser.name,
 				changedAt: new Date(),
 				ipAddress,
 				userAgent,

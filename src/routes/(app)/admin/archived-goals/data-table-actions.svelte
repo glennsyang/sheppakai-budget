@@ -58,8 +58,8 @@
 		<Dialog.Header>
 			<Dialog.Title>Unarchive Savings Goal</Dialog.Title>
 			<Dialog.Description>
-				Are you sure you want to unarchive "{goal.name}" for {goal.user.name || goal.user.email}?
-				The goal will be set to active status.
+				Are you sure you want to unarchive "{goal.name}" for {goal.user.name}? The goal will be set
+				to active status.
 			</Dialog.Description>
 		</Dialog.Header>
 		<form method="POST" action="/admin/archived-goals?/unarchive" use:enhance>

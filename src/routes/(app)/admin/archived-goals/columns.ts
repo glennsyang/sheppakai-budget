@@ -45,11 +45,11 @@ export const columns: ColumnDef<Features, SavingsGoal>[] = [
 		header: 'Owner',
 		accessorFn: (row) => row.user.email,
 		cell: ({ row }) => {
-			const userSnippet = createRawSnippet<[{ email: string; name: string | null }]>((getUser) => {
+			const userSnippet = createRawSnippet<[{ email: string; name: string }]>((getUser) => {
 				const { email, name } = getUser();
 				return {
 					render: () =>
-						`<div><div class="font-medium">${name || email}</div><div class="text-sm text-muted-foreground">${email}</div></div>`
+						`<div><div class="font-medium">${name}</div><div class="text-sm text-muted-foreground">${email}</div></div>`
 				};
 			});
 
