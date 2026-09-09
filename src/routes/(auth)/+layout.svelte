@@ -25,5 +25,7 @@
 			</div>
 		</div>
 	</header>
-	{@render children()}
+	<main class="flex flex-1 items-center justify-center p-4">
+		{@render children()}
+	</main>
 </div>
