@@ -57,37 +57,43 @@ properties via `style="…"` attributes that cannot be hashed ahead of time. So:
 - `style-src-elem`: `'self' 'unsafe-inline'`
 - `style-src-attr`: `'unsafe-inline'`
 
-`budget` splits these two directives out explicitly; `synapse`/`mealplanner` may use a
-single `style-src 'self' 'unsafe-inline'` — equivalent for our purposes.
+`budget` splits these two directives out explicitly; `synapse`/`mealplanner` use a single
+`style-src 'self' 'unsafe-inline'` (plus `https://fonts.googleapis.com` — see below) —
+equivalent for our purposes.
 
-## Known limitation — `mode-watcher` FOUC script
+## Known limitation — pre-paint theme scripts
 
-`<ModeWatcher>` (from `mode-watcher`) injects an inline `<script>` into `<svelte:head>`
-via `{@html}` to set the theme class before first paint. SvelteKit's nonce mode only
-nonces the inline `<script>`/`<style>` **it** generates, not `{@html}` output, so this one
-script is blocked by `script-src 'self' 'nonce-…'` (a `Refused to execute inline script`
-console entry on every page load). `<ModeWatcher>`'s `onMount` still applies the correct
-theme after hydration — the only visible effect is a possible brief flash of the wrong
-theme on a cold load. This is identical across `budget` and `synapse` (both ship
-`<ModeWatcher />` unchanged) and is accepted for #440. If the flash becomes a problem,
-fix it in all repos at once — pass `mode-watcher`'s `nonce` prop (needs the request nonce
-threaded through) or `disableHeadScriptInjection`.
+Each app runs a tiny inline `<script>` in `<head>` to set the theme/dark class before
+first paint, and SvelteKit's nonce mode only nonces the inline `<script>`/`<style>` **it**
+generates — not these — so each is blocked by `script-src 'self' 'nonce-…'` (a
+`Refused to execute inline script` console entry on cold load):
+
+- **`budget` / `synapse`** — `<ModeWatcher>` (from `mode-watcher`) injects its FOUC script
+  into `<svelte:head>` via `{@html}`.
+- **`mealplanner`** — a hand-written `localStorage`/`prefers-color-scheme` snippet inline
+  in `src/app.html`.
+
+In every case the real theme is (re)applied after hydration (`<ModeWatcher>`'s `onMount`;
+the Skeleton theme classes), so the only visible effect is a possible brief flash of the
+wrong theme on a cold load. Accepted for #440. If the flash matters, fix it in all repos
+at once — a `'sha256-…'` of the static snippet in `script-src`, `mode-watcher`'s `nonce`
+prop (needs the request nonce threaded through), or `disableHeadScriptInjection`.
 
 ## Canonical directive set
 
-| directive                                                   | baseline (all three)                                                    | `synapse` adds                                                      | why                                                                             |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `default-src`                                               | `'self'`                                                                | —                                                                   |                                                                                 |
-| `script-src`                                                | `'self'`                                                                | —                                                                   | nonce added automatically by `kit.csp`                                          |
-| `style-src-elem` / `style-src`                              | `'self' 'unsafe-inline'`                                                | `https://fonts.googleapis.com`                                      | runtime `<style>` injection; synapse loads Google Fonts CSS                     |
-| `style-src-attr`                                            | `'unsafe-inline'`                                                       | —                                                                   | runtime-computed CSS custom properties                                          |
-| `img-src`                                                   | `'self' data: https:`                                                   | —                                                                   |                                                                                 |
-| `font-src`                                                  | `'self'`                                                                | `https://fonts.gstatic.com`                                         | synapse loads Google Fonts                                                      |
-| `connect-src`                                               | `'self'`, `https://*.ingest.us.sentry.io`, `https://*.ingest.sentry.io` | `https://nominatim.openstreetmap.org`, `https://api.open-meteo.com` | Sentry client transport; synapse geocoding + weather                            |
-| `frame-ancestors`                                           | `'none'`                                                                | —                                                                   |                                                                                 |
-| `object-src`                                                | `'none'`                                                                | —                                                                   |                                                                                 |
-| `base-uri`                                                  | `'self'`                                                                | —                                                                   |                                                                                 |
-| `manifest-src` / `worker-src` / `frame-src` / `form-action` | _(budget/mealplanner: not set — inherit `default-src`)_                 | `'self'` / `'self'` / `'none'` / `'self'`                           | synapse sets them explicitly; budget/mealplanner may adopt later — non-blocking |
+| directive                                                   | baseline (all three)                                                    | extra (per app)                                                     | why                                                                               |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `default-src`                                               | `'self'`                                                                | —                                                                   |                                                                                   |
+| `script-src`                                                | `'self'`                                                                | —                                                                   | nonce added automatically by `kit.csp`                                            |
+| `style-src-elem` / `style-src`                              | `'self' 'unsafe-inline'`                                                | `+ https://fonts.googleapis.com` (synapse, mealplanner)             | runtime `<style>` injection; synapse + mealplanner load a Google Fonts stylesheet |
+| `style-src-attr`                                            | `'unsafe-inline'`                                                       | —                                                                   | runtime-computed CSS custom properties                                            |
+| `img-src`                                                   | `'self' data: https:`                                                   | —                                                                   |                                                                                   |
+| `font-src`                                                  | `'self'`                                                                | `+ https://fonts.gstatic.com` (synapse, mealplanner)                | Google Fonts font files (synapse + mealplanner)                                   |
+| `connect-src`                                               | `'self'`, `https://*.ingest.us.sentry.io`, `https://*.ingest.sentry.io` | `https://nominatim.openstreetmap.org`, `https://api.open-meteo.com` | Sentry client transport; synapse geocoding + weather                              |
+| `frame-ancestors`                                           | `'none'`                                                                | —                                                                   |                                                                                   |
+| `object-src`                                                | `'none'`                                                                | —                                                                   |                                                                                   |
+| `base-uri`                                                  | `'self'`                                                                | —                                                                   |                                                                                   |
+| `manifest-src` / `worker-src` / `frame-src` / `form-action` | _(budget/mealplanner: not set — inherit `default-src`)_                 | `'self'` / `'self'` / `'none'` / `'self'`                           | synapse sets them explicitly; budget/mealplanner may adopt later — non-blocking   |
 
 ### Per-app `connect-src`
 
