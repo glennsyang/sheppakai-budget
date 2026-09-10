@@ -1,7 +1,6 @@
 import { changePasswordSchema, updateProfileSchema } from '$lib/formSchemas';
-import { requireAuth } from '$lib/server/actions/auth-guard';
+import { getUser, requireAuth } from '$lib/server/actions/auth-guard';
 import { auth } from '$lib/server/auth';
-import { requireUser } from '$lib/server/auth-guard-load';
 import { getDb } from '$lib/server/db';
 import { accountQueries, userQueries } from '$lib/server/db/queries';
 import { user } from '$lib/server/db/schema';
@@ -14,7 +13,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	const currentUser = requireUser(locals);
+	const currentUser = getUser(locals);
 
 	// Get the full user data including updatedAt
 	const fullUserData = await userQueries.findById(currentUser.id);

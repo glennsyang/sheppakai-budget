@@ -1,4 +1,4 @@
-import { SIGN_IN_ROUTE } from '$lib/server/auth-guard-load';
+import { SIGN_IN_ROUTE } from '$lib/auth-routes';
 import { accountQueries, categoryQueries } from '$lib/server/db/queries';
 import { logger } from '$lib/server/logger';
 import { isPasswordExpired } from '$lib/server/password-policy';

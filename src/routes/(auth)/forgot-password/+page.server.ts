@@ -1,8 +1,7 @@
-import { POST_LOGIN_ROUTE, RESET_PASSWORD_ROUTE } from '$lib/auth-routes';
+import { RESET_PASSWORD_ROUTE } from '$lib/auth-routes';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
-import { formMessageFromUrl } from '$lib/server/actions/form-message';
 import { auth } from '$lib/server/auth';
-import { redirect } from '@sveltejs/kit';
+import { createAuthLoadForm, redirectIfAuthenticated } from '$lib/server/auth/form-helpers';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
@@ -14,19 +13,10 @@ const forgotSchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	// Redirect if already signed in
-	if (locals.user) {
-		throw redirect(302, POST_LOGIN_ROUTE);
-	}
+	redirectIfAuthenticated(locals.user);
+	const form = await createAuthLoadForm(forgotSchema, url);
 
-	const form = await superValidate(zod4(forgotSchema));
-
-	// Check for a message handed over by a redirect
-	form.message = formMessageFromUrl(url);
-
-	return {
-		form
-	};
+	return { form };
 };
 
 export const actions: Actions = {

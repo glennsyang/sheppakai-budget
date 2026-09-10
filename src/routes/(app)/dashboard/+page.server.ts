@@ -1,6 +1,5 @@
 import { dashboardVisibilitySchema, transactionSchema } from '$lib/formSchemas';
-import { requireAuth } from '$lib/server/actions/auth-guard';
-import { requireUser } from '$lib/server/auth-guard-load';
+import { getUser, requireAuth } from '$lib/server/actions/auth-guard';
 import { loadMonthlyDashboard, loadYearlyDashboard } from '$lib/server/dashboard/summary';
 import { dashboardPreferenceQueries } from '$lib/server/db/queries';
 import { logger } from '$lib/server/logger';
@@ -10,7 +9,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, locals }) => {
-	const user = requireUser(locals);
+	const user = getUser(locals);
 	const mode = url.searchParams.get('mode') === 'yearly' ? 'yearly' : 'monthly';
 
 	const [dashboardData, hiddenSections, transactionForm] = await Promise.all([

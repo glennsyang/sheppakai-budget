@@ -23,6 +23,15 @@
 	<Card.Content>
 		<form method="POST" use:enhance>
 			<FieldGroup>
+				{#if data.resetComplete}
+					<div
+						class="rounded-lg bg-green-50 p-4 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400"
+						role="status"
+					>
+						Password reset successfully! You can now sign in with your new password.
+					</div>
+				{/if}
+
 				<AuthFormMessage message={$message} />
 
 				<Field>

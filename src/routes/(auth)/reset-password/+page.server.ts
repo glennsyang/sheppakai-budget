@@ -1,6 +1,7 @@
-import { FORGOT_PASSWORD_ROUTE, POST_LOGIN_ROUTE, SIGN_IN_ROUTE } from '$lib/auth-routes';
+import { FORGOT_PASSWORD_ROUTE, SIGN_IN_ROUTE } from '$lib/auth-routes';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
+import { redirectIfAuthenticated } from '$lib/server/auth/form-helpers';
 import { redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -31,10 +32,7 @@ const resetPasswordSchema = z
 	});
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	// Redirect if already signed in
-	if (locals.user) {
-		throw redirect(302, POST_LOGIN_ROUTE);
-	}
+	redirectIfAuthenticated(locals.user);
 	const token = url.searchParams.get('token');
 
 	if (!token) {
@@ -67,10 +65,9 @@ export const actions: Actions = {
 					}
 				});
 
-				throw redirect(
-					302,
-					`${SIGN_IN_ROUTE}?message=Password reset successful! Please sign in.&messageType=success`
-				);
+				// Whitelisted flag only — the sign-in page renders a fixed confirmation
+				// banner for ?reset=success; no message text is reflected through the URL.
+				throw redirect(302, `${SIGN_IN_ROUTE}?reset=success`);
 			},
 			{
 				loggerContext: 'Password reset failed',
