@@ -1,8 +1,8 @@
-import { POST_LOGIN_ROUTE, VERIFY_EMAIL_ROUTE } from '$lib/auth-routes';
+import { VERIFY_EMAIL_ROUTE } from '$lib/auth-routes';
 import { registerSchema } from '$lib/formSchemas';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
-import { formMessageFromUrl } from '$lib/server/actions/form-message';
 import { auth } from '$lib/server/auth';
+import { createAuthLoadForm, redirectIfAuthenticated } from '$lib/server/auth/form-helpers';
 import { redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -10,18 +10,10 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	// Redirect if already signed in
-	if (locals.user) {
-		throw redirect(302, POST_LOGIN_ROUTE);
-	}
-	const form = await superValidate(zod4(registerSchema));
+	redirectIfAuthenticated(locals.user);
+	const form = await createAuthLoadForm(registerSchema, url);
 
-	// Check for a message handed over by a redirect
-	form.message = formMessageFromUrl(url);
-
-	return {
-		form
-	};
+	return { form };
 };
 
 export const actions: Actions = {

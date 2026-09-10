@@ -9,11 +9,18 @@ const mockFail = vi.hoisted(() =>
 	>((status, data) => ({ status, data, __failure: true }))
 );
 
+const mockRedirect = vi.hoisted(() =>
+	vi.fn<(status: number, location: string) => never>((status, location) => {
+		throw new Error(`redirect ${status} ${location}`);
+	})
+);
+
 vi.mock('@sveltejs/kit', () => ({
-	fail: mockFail
+	fail: mockFail,
+	redirect: mockRedirect
 }));
 
-import { requireAdmin, requireAuth } from './auth-guard';
+import { getUser, requireAdmin, requireAuth } from './auth-guard';
 
 describe('requireAuth', () => {
 	it('returns 401 failure when user is missing', async () => {
@@ -42,6 +49,25 @@ describe('requireAuth', () => {
 
 		expect(handler).toHaveBeenCalledWith(event, user);
 		expect(result).toEqual({ ok: true });
+	});
+});
+
+describe('getUser', () => {
+	it('redirects to sign-in when the user is missing', () => {
+		mockRedirect.mockClear();
+		const locals = { user: undefined } as App.Locals;
+
+		expect(() => getUser(locals)).toThrow('redirect 302 /sign-in');
+		expect(mockRedirect).toHaveBeenCalledWith(302, '/sign-in');
+	});
+
+	it('returns the authenticated user when present', () => {
+		mockRedirect.mockClear();
+		const user = { id: 'user-123' };
+		const locals = { user } as unknown as App.Locals;
+
+		expect(getUser(locals)).toBe(user);
+		expect(mockRedirect).not.toHaveBeenCalled();
 	});
 });
 

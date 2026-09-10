@@ -1,8 +1,8 @@
 import { POST_LOGIN_ROUTE, VERIFY_EMAIL_ROUTE } from '$lib/auth-routes';
 import { signInSchema } from '$lib/formSchemas';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
-import { formMessageFromUrl } from '$lib/server/actions/form-message';
 import { auth } from '$lib/server/auth';
+import { createAuthLoadForm, redirectIfAuthenticated } from '$lib/server/auth/form-helpers';
 import { redirect } from '@sveltejs/kit';
 import { APIError } from 'better-auth/api';
 import { superValidate } from 'sveltekit-superforms';
@@ -11,19 +11,14 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	// Redirect if already signed in
-	if (locals.user) {
-		throw redirect(302, POST_LOGIN_ROUTE);
-	}
+	redirectIfAuthenticated(locals.user);
 
-	const form = await superValidate(zod4(signInSchema));
+	const form = await createAuthLoadForm(signInSchema, url);
+	// Whitelisted flag only — the reset-password action redirects here with
+	// ?reset=success so we can confirm the change. No query text is reflected.
+	const resetComplete = url.searchParams.get('reset') === 'success';
 
-	// Check for a message handed over by a redirect
-	form.message = formMessageFromUrl(url);
-
-	return {
-		form
-	};
+	return { form, resetComplete };
 };
 
 export const actions: Actions = {

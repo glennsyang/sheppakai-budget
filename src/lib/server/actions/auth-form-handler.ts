@@ -1,3 +1,10 @@
+// Shared auth-action wrapper. Canonical cross-repo module surface (auth-audit.md §2N,
+// glennsyang/sheppakai-budget#438) — kept byte-identical with synapse and
+// sheppakai-mealplanner apart from the `getBetterAuthErrorMessage` import specifier
+// (this repo: `$lib/utils`; synapse: `$lib/utils/auth`; mealplanner:
+// `$lib/server/auth/errors`). Consolidating that module's location is tracked by
+// glennsyang/sheppakai-budget#439.
+
 import { logger } from '$lib/server/logger';
 import { getBetterAuthErrorMessage } from '$lib/utils';
 import { isRedirect } from '@sveltejs/kit';
