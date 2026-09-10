@@ -60,6 +60,19 @@ properties via `style="…"` attributes that cannot be hashed ahead of time. So:
 `budget` splits these two directives out explicitly; `synapse`/`mealplanner` may use a
 single `style-src 'self' 'unsafe-inline'` — equivalent for our purposes.
 
+## Known limitation — `mode-watcher` FOUC script
+
+`<ModeWatcher>` (from `mode-watcher`) injects an inline `<script>` into `<svelte:head>`
+via `{@html}` to set the theme class before first paint. SvelteKit's nonce mode only
+nonces the inline `<script>`/`<style>` **it** generates, not `{@html}` output, so this one
+script is blocked by `script-src 'self' 'nonce-…'` (a `Refused to execute inline script`
+console entry on every page load). `<ModeWatcher>`'s `onMount` still applies the correct
+theme after hydration — the only visible effect is a possible brief flash of the wrong
+theme on a cold load. This is identical across `budget` and `synapse` (both ship
+`<ModeWatcher />` unchanged) and is accepted for #440. If the flash becomes a problem,
+fix it in all repos at once — pass `mode-watcher`'s `nonce` prop (needs the request nonce
+threaded through) or `disableHeadScriptInjection`.
+
 ## Canonical directive set
 
 | directive                                                   | baseline (all three)                                                    | `synapse` adds                                                      | why                                                                             |
