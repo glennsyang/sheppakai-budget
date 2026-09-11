@@ -66,7 +66,7 @@ This repo already has a shared helper for the repeated "list page + form + serve
 
 - **`window-cleaning`** and **`receipts` (fuel + business)** are real side-business bookkeeping features, not demo data — treat them as first-class, not throwaway.
 - **Sentry** is wired in `hooks.server.ts` with a hardcoded DSN and `handleErrorWithSentry()` — don't strip this thinking it's leftover boilerplate.
-- CSP is nonce-based (`svelte.config.js`, `kit.csp.mode: 'nonce'`) with specific `unsafe-inline` carve-outs for `layerchart`/bits-ui runtime style injection — read the comments there before touching CSP, the directives are deliberate, not defaults.
+- CSP is nonce-based (`svelte.config.js`, `kit.csp.mode: 'nonce'`) with specific `unsafe-inline` carve-outs for `layerchart`/bits-ui runtime style injection — read `docs/CSP.md` (the cross-repo single source of truth) and the comments in `svelte.config.js` before touching CSP, the directives are deliberate, not defaults.
 
 ---
 
