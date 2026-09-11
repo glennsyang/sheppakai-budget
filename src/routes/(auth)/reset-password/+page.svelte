@@ -33,7 +33,7 @@
 						id="password"
 						name="password"
 						type="password"
-						placeholder="Enter new password (min 8 characters)"
+						placeholder="12+ characters, incl. upper/lower/number/symbol"
 						bind:value={$form.password}
 						class={$errors.password ? 'border-red-500' : ''}
 						autocomplete="new-password"

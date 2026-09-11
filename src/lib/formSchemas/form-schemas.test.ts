@@ -28,9 +28,11 @@ describe('form schemas', () => {
 		expect(
 			signInSchema.safeParse({ email: 'not-an-email', password: 'longpassword12' }).success
 		).toBe(false);
+		// Login only requires a non-empty password (#444) — short/legacy passwords must still work.
 		expect(signInSchema.safeParse({ email: 'user@example.com', password: 'short' }).success).toBe(
-			false
+			true
 		);
+		expect(signInSchema.safeParse({ email: 'user@example.com', password: '' }).success).toBe(false);
 	});
 
 	it('validates resend-verification schema', () => {
@@ -44,18 +46,29 @@ describe('form schemas', () => {
 			registerSchema.safeParse({
 				email: 'user@example.com',
 				name: 'Valid User',
-				password: 'strongpassword12',
-				confirmPassword: 'strongpassword12'
+				password: 'StrongPassword12!',
+				confirmPassword: 'StrongPassword12!'
 			}).success
 		).toBe(true);
 
 		const mismatch = registerSchema.safeParse({
 			email: 'user@example.com',
 			name: 'Valid User',
-			password: 'strongpassword12',
-			confirmPassword: 'differentpassword12'
+			password: 'StrongPassword12!',
+			confirmPassword: 'DifferentPassword12!'
 		});
 		expect(mismatch.success).toBe(false);
+	});
+
+	it('rejects a register password missing complexity requirements', () => {
+		expect(
+			registerSchema.safeParse({
+				email: 'user@example.com',
+				name: 'Valid User',
+				password: 'alllowercase12!',
+				confirmPassword: 'alllowercase12!'
+			}).success
+		).toBe(false);
 	});
 
 	it('validates budget month and year ranges', () => {

@@ -1,8 +1,22 @@
 import { z } from 'zod';
 
+// Canonical password rule for register/reset (sheppakai-budget#444): mirrors the complexity
+// already enforced server-side in hooks.before (src/lib/server/auth.ts), promoted to the Zod
+// layer so it's also enforced for reset-password and gives instant client-side feedback.
+export const passwordSchema = z
+	.string()
+	.min(12, 'Password must be at least 12 characters')
+	.regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+	.regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+	.regex(/\d/, 'Password must contain at least one number')
+	.regex(
+		/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
+		'Password must contain at least one special character'
+	);
+
 export const signInSchema = z.object({
 	email: z.email('Please enter a valid email address'),
-	password: z.string().min(12, 'Password must be at least 12 characters')
+	password: z.string().min(1, 'Password is required')
 });
 
 export const resendVerificationSchema = z.object({
@@ -16,8 +30,8 @@ export const registerSchema = z
 			.string()
 			.min(2, 'Name must be at least 2 characters')
 			.max(100, 'Name must be at most 100 characters'),
-		password: z.string().min(12, 'Password must be at least 12 characters'),
-		confirmPassword: z.string().min(12, 'Password must be at least 12 characters')
+		password: passwordSchema,
+		confirmPassword: passwordSchema
 	})
 	.refine((data) => data.password === data.confirmPassword, {
 		message: "Passwords don't match",
