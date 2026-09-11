@@ -1,4 +1,5 @@
 import { FORGOT_PASSWORD_ROUTE, SIGN_IN_ROUTE } from '$lib/auth-routes';
+import { passwordSchema } from '$lib/formSchemas';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
 import { redirectIfAuthenticated } from '$lib/server/auth/form-helpers';
@@ -11,8 +12,8 @@ import type { Actions, PageServerLoad } from './$types';
 
 const resetPasswordSchema = z
 	.object({
-		password: z.string().min(12, 'Password must be at least 12 characters'),
-		confirmPassword: z.string().min(12, 'Password must be at least 12 characters'),
+		password: passwordSchema,
+		confirmPassword: passwordSchema,
 		// Hidden field for token
 		token: z.string().optional()
 	})
