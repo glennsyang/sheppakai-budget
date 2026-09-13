@@ -47,7 +47,7 @@ export const auth = betterAuth({
 		additionalFields: {
 			name: {
 				type: 'string',
-				// The `users.name` column is NOT NULL (matches synapse/mealplanner — see #436).
+				// The `users.name` column is NOT NULL (matches synapse/mealplanner).
 				// Registration already enforces a name via registerSchema before signUpEmail.
 				required: true
 			}
@@ -182,7 +182,7 @@ export const auth = betterAuth({
 	plugins: [
 		admin({
 			adminUserIds: ADMIN_USER_IDS.split(','),
-			// Plugin defaults, spelled out for parity with the sibling repos (sheppakai-budget#437).
+			// Plugin defaults, spelled out for parity with the sibling repos.
 			defaultRole: 'user',
 			adminRoles: ['admin']
 		}),
@@ -213,7 +213,7 @@ export const auth = betterAuth({
  * This is sheppakai-budget's superforms-aware extension of the canonical admin guard: it
  * additionally honours the `ADMIN_USER_IDS` env bootstrap (grant admin by id without a DB
  * write), on top of the `role === 'admin'` check that `requireAdmin` in
- * `./actions/auth-guard` performs in every repo (sheppakai-budget#437). Use it directly in
+ * `./actions/auth-guard` performs in every repo. Use it directly in
  * `+layout.server.ts` / `+page.server.ts` load functions; for actions that need to attach the
  * failure to a superforms message, use `adminAuthFailure` from `./actions/admin-guard`.
  *

@@ -28,7 +28,7 @@ describe('form schemas', () => {
 		expect(
 			signInSchema.safeParse({ email: 'not-an-email', password: 'longpassword12' }).success
 		).toBe(false);
-		// Login only requires a non-empty password (#444) — short/legacy passwords must still work.
+		// Login only requires a non-empty password — short/legacy passwords must still work.
 		expect(signInSchema.safeParse({ email: 'user@example.com', password: 'short' }).success).toBe(
 			true
 		);

@@ -124,7 +124,7 @@ describe('handleAuthFormAction', () => {
 	});
 
 	it('produces a payload the auth banner can actually render', async () => {
-		// Regression guard for #295: register and reset-password sent an object while
+		// Regression guard: register and reset-password sent an object while
 		// the pages called `.includes()` on it, throwing "includes is not a function".
 		const form = await superValidate(zod4(testSchema));
 		const result = (await handleAuthFormAction(

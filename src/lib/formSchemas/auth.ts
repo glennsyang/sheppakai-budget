@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Canonical password rule for register/reset (sheppakai-budget#444): mirrors the complexity
+// Canonical password rule for register/reset: mirrors the complexity
 // already enforced server-side in hooks.before (src/lib/server/auth.ts), promoted to the Zod
 // layer so it's also enforced for reset-password and gives instant client-side feedback.
 export const passwordSchema = z
