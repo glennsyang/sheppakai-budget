@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { computeCashFlowProjection } from './cashFlowProjection';
 
 describe('computeCashFlowProjection', () => {
-	it('does not smear a fixed recurring cost across the daily burn rate (issue #335)', () => {
+	it('does not smear a fixed recurring cost across the daily burn rate', () => {
 		// Aug 5, 2026: 5 days elapsed, 26 days remaining, 31 days in month.
 		// $150 of real (non-recurring) spend so far, $1,800/mo recurring committed.
 		const result = computeCashFlowProjection({
