@@ -8,8 +8,7 @@ const mockState = vi.hoisted(() => ({
 
 vi.mock('$app/env/private', () => ({
 	BREVO_API_KEY: 'test-api-key',
-	BREVO_FROM_ADDRESS: 'from@example.com',
-	BREVO_NEW_USER_ADDRESS: 'watcher@example.com'
+	BREVO_FROM_ADDRESS: 'from@example.com'
 }));
 
 vi.mock('../logger', () => ({
@@ -120,7 +119,7 @@ describe('sendNewUserEmail', () => {
 	});
 
 	it('escapes HTML in a malicious display name', async () => {
-		await sendNewUserEmail('user@example.com', '<script>alert(1)</script>', 'user@example.com');
+		await sendNewUserEmail('user@example.com', '<script>alert(1)</script>');
 
 		const html = sentHtml();
 		expect(html).not.toContain('<script>alert(1)</script>');
