@@ -32,13 +32,20 @@ vi.mock('$lib/utils/dates', () => ({
 
 import './window-cleaning-jobs';
 
+// Capture the config objects synchronously, right after the import above
+// registers them — Vitest's `clearMocks` (on by default) wipes call history
+// before each `it` runs, so reading `mock.calls` from inside a test would
+// always see an empty array.
+const [updateConfig] = mockState.updateAction.mock.calls[0] ?? [];
+const [deleteConfig] = mockState.deleteAction.mock.calls[0] ?? [];
+
 // ---------------------------------------------------------------------------
 // updateJob
 // ---------------------------------------------------------------------------
 
 describe('updateJob', () => {
 	it('calls updateAction with the correct entityName and schema', () => {
-		expect(mockState.updateAction).toHaveBeenCalledWith(
+		expect(updateConfig).toEqual(
 			expect.objectContaining({
 				entityName: 'Job',
 				schema: { _tag: 'mock-schema' },
@@ -48,7 +55,7 @@ describe('updateJob', () => {
 	});
 
 	it('transformUpdate maps all fields correctly', () => {
-		const config = mockState.updateAction.mock.calls[0][0] as {
+		const config = updateConfig as {
 			transformUpdate: (data: Record<string, unknown>) => Record<string, unknown>;
 		};
 
@@ -74,7 +81,7 @@ describe('updateJob', () => {
 	});
 
 	it('transformUpdate coerces falsy optional fields to null', () => {
-		const config = mockState.updateAction.mock.calls[0][0] as {
+		const config = updateConfig as {
 			transformUpdate: (data: Record<string, unknown>) => Record<string, unknown>;
 		};
 
@@ -108,7 +115,7 @@ describe('deleteJob', () => {
 	// deleteJob is now nothing but a deleteAction, so all this file owes is the wiring —
 	// validation, the delete itself, and the response contract are covered in crud-helpers.test.ts.
 	it('delegates to deleteAction with the correct table and entityName', () => {
-		expect(mockState.deleteAction).toHaveBeenCalledWith({
+		expect(deleteConfig).toEqual({
 			entityName: 'Job',
 			table: expect.objectContaining({ _tag: 'mock-table' })
 		});
