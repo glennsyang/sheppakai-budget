@@ -46,11 +46,6 @@ export const variables = defineEnvVars({
 			'From address for outgoing transactional emails (must be a confirmed Brevo sender)',
 		schema: building ? z.string().catch('noreply@example.com') : z.email()
 	},
-	BREVO_NEW_USER_ADDRESS: {
-		description:
-			'Email address to receive notifications when a new user signs up (must be a confirmed Brevo sender)',
-		schema: building ? z.string().catch('admin@example.com') : z.email()
-	},
 	ADMIN_USER_IDS: {
 		description: 'Comma-separated list of hardcoded admin user IDs',
 		schema: z.string().default('dummy_admin_id')

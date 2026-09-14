@@ -1,4 +1,4 @@
-import { BREVO_API_KEY, BREVO_FROM_ADDRESS, BREVO_NEW_USER_ADDRESS } from '$app/env/private';
+import { BREVO_API_KEY, BREVO_FROM_ADDRESS } from '$app/env/private';
 import { formatCurrency } from '$lib/utils';
 import { BrevoClient } from '@getbrevo/brevo';
 
@@ -290,11 +290,8 @@ export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayl
 	logger.debug('✅ Password changed email sent successfully:', { to: payload.to, result });
 }
 
-export async function sendNewUserEmail(to: string, name: string, email: string) {
+export async function sendNewUserEmail(to: string, name: string) {
 	logger.debug('📧 Sending new user email to:', { to });
-
-	// Append gsheppard.yang@gmail.com to the to address for monitoring
-	to = `${to}, ${BREVO_NEW_USER_ADDRESS}`;
 
 	let result;
 	try {
@@ -302,7 +299,7 @@ export async function sendNewUserEmail(to: string, name: string, email: string) 
 			sender: { name: 'Sheppakai Budget', email: BREVO_FROM_ADDRESS },
 			to: [{ email: to, name }],
 			subject: '[Sheppakai Budget] New User was registered!',
-			htmlContent: `Hi ${escapeHtml(name || email)}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
+			htmlContent: `Hi ${escapeHtml(name || to)}!<br><br>Welcome to Sheppakai Budget! We're excited to have you on board.<br><br>Thank you,<br>Sheppakai Budget Team`
 		});
 	} catch (error) {
 		logger.error('❌ Failed to send email', error);

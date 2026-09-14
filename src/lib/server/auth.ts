@@ -14,15 +14,11 @@ import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { admin } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 
+import { createAuthAfterHooks, logPasswordResetAudit } from './auth-audit-hooks';
 import { buildResetUrl } from './auth-reset-url';
 import { getDb } from './db';
 import * as schema from './db/schema';
-import {
-	sendNewUserEmail,
-	sendPasswordChangedEmail,
-	sendPasswordResetEmail,
-	sendVerificationEmail
-} from './email';
+import { sendPasswordChangedEmail, sendPasswordResetEmail, sendVerificationEmail } from './email';
 import { sendAuthAlerts } from './notifications';
 
 export const auth = betterAuth({
@@ -72,22 +68,13 @@ export const auth = betterAuth({
 			void sendPasswordResetEmail(user.email, user.name, resetUrl);
 		},
 		onPasswordReset: async ({ user }) => {
-			logger.info('Security event: password reset completed and sessions revoked', {
-				userId: user.id,
-				email: user.email,
-				timestamp: new Date().toISOString()
-			});
+			logPasswordResetAudit(user, 'Sheppakai Budget');
 			void sendPasswordChangedEmail({
 				to: user.email,
 				name: user.name,
 				changedAt: new Date(),
 				source: 'Password reset flow'
 			});
-			void sendAuthAlerts(
-				`⚠️ Password reset for ${user.name} ${user.email} at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}. All sessions revoked.`,
-				'Sheppakai-Budget - Security Alert',
-				4
-			);
 		}
 	},
 	emailVerification: {
@@ -102,7 +89,10 @@ export const auth = betterAuth({
 	},
 	hooks: {
 		before: createAuthMiddleware(async (ctx) => {
-			if (!ctx.path.includes('/register') && !ctx.path.includes('/sign-in')) {
+			// Real endpoint paths are `/sign-up/email` and `/sign-in/email` — the
+			// app's own `/register`/`/sign-in` SvelteKit routes never appear here
+			// (see createAuthAfterHooks in ./auth-audit-hooks.ts for the same note).
+			if (!ctx.path.includes('/sign-up/email') && !ctx.path.includes('/sign-in/email')) {
 				return;
 			}
 			if (!ctx.body?.email.includes('sheppard')) {
@@ -116,7 +106,7 @@ export const auth = betterAuth({
 				});
 			}
 			// Password strength validation on registration
-			if (ctx.path.includes('/register') && ctx.body?.password) {
+			if (ctx.path.includes('/sign-up/email') && ctx.body?.password) {
 				const password = ctx.body.password;
 				const hasUpperCase = /[A-Z]/.test(password);
 				const hasLowerCase = /[a-z]/.test(password);
@@ -129,25 +119,7 @@ export const auth = betterAuth({
 				}
 			}
 		}),
-		after: createAuthMiddleware(async (ctx) => {
-			if (ctx.path.includes('/register')) {
-				const newSession = ctx.context.newSession;
-				if (newSession) {
-					logger.debug('✉️  New user email sent');
-					void sendNewUserEmail(newSession.user.email, newSession.user.name, newSession.user.email);
-				}
-			}
-			// Audit logging
-			if (ctx.path.includes('/sign-in')) {
-				logger.debug('✅ Sign-in successful', {
-					email: ctx.context.session?.user.email,
-					ip: ctx.request?.headers.get('x-forwarded-for')
-				});
-			}
-			if (ctx.path.includes('/reset-password')) {
-				logger.info('🔑 Password reset requested');
-			}
-		})
+		after: createAuthAfterHooks('Sheppakai Budget')
 	},
 	advanced: {
 		cookiePrefix: 'sheppakai_budget',
