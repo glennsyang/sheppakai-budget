@@ -39,16 +39,6 @@ export const auth = betterAuth({
 			rateLimit: schema.rateLimit
 		}
 	}),
-	user: {
-		additionalFields: {
-			name: {
-				type: 'string',
-				// The `users.name` column is NOT NULL (matches synapse/mealplanner).
-				// Registration already enforces a name via registerSchema before signUpEmail.
-				required: true
-			}
-		}
-	},
 	emailAndPassword: {
 		enabled: true,
 		autoSignIn: false,
