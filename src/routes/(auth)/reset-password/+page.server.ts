@@ -1,7 +1,8 @@
-import { FORGOT_PASSWORD_ROUTE, SIGN_IN_ROUTE } from '$lib/auth-routes';
+import { SIGN_IN_ROUTE } from '$lib/auth-routes';
 import { passwordSchema } from '$lib/formSchemas';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
+import { isResetTokenValid } from '$lib/server/auth-reset-url';
 import { redirectIfAuthenticated } from '$lib/server/auth/form-helpers';
 import { redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
@@ -35,15 +36,13 @@ const resetPasswordSchema = z
 export const load: PageServerLoad = async ({ locals, url }) => {
 	redirectIfAuthenticated(locals.user);
 	const token = url.searchParams.get('token');
-
-	if (!token) {
-		throw redirect(302, FORGOT_PASSWORD_ROUTE);
-	}
+	const invalid = !token || !(await isResetTokenValid(token));
 
 	const form = await superValidate(zod4(resetPasswordSchema));
 
 	return {
 		token,
+		invalid,
 		form
 	};
 };
