@@ -12,7 +12,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 	const currentUser = getUser(locals);
 
 	// Get the full user data including updatedAt
@@ -32,8 +32,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		user: fullUserData || currentUser,
 		profileForm,
 		passwordForm,
-		passwordUpdatedAt: accountData?.updatedAt || null,
-		passwordExpired: url.searchParams.get('passwordExpired') === 'true'
+		passwordUpdatedAt: accountData?.updatedAt || null
 	};
 };
 

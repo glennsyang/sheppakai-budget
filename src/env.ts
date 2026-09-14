@@ -50,10 +50,6 @@ export const variables = defineEnvVars({
 		description: 'Comma-separated list of hardcoded admin user IDs',
 		schema: z.string().default('dummy_admin_id')
 	},
-	PASSWORD_ROTATION_DAYS: {
-		description: 'Number of days before a password is considered expired and rotation is enforced',
-		schema: z.string().default('120').transform(Number).pipe(z.number().int().positive())
-	},
 	AUTH_ALERTS_URL: {
 		description: 'Ntfy.sh URL for authentication and security alert push notifications',
 		schema: z.url().default('https://notification-service.com/dummy-auth-alerts')
