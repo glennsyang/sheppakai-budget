@@ -1,18 +1,8 @@
 import { z } from 'zod';
 
-// Canonical password rule for register/reset: mirrors the complexity
-// already enforced server-side in hooks.before (src/lib/server/auth.ts), promoted to the Zod
-// layer so it's also enforced for reset-password and gives instant client-side feedback.
-export const passwordSchema = z
-	.string()
-	.min(12, 'Password must be at least 12 characters')
-	.regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-	.regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-	.regex(/\d/, 'Password must contain at least one number')
-	.regex(
-		/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
-		'Password must contain at least one special character'
-	);
+// Canonical password rule for register/reset: length-only, per NIST SP 800-63B §5.1.1.2
+// (composition rules deliberately omitted). Matches minPasswordLength in src/lib/server/auth.ts.
+export const passwordSchema = z.string().min(12, 'Password must be at least 12 characters');
 
 export const signInSchema = z.object({
 	email: z.email('Please enter a valid email address'),

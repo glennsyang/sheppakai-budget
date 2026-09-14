@@ -60,13 +60,24 @@ describe('form schemas', () => {
 		expect(mismatch.success).toBe(false);
 	});
 
-	it('rejects a register password missing complexity requirements', () => {
+	it('accepts a register password with no complexity, only length', () => {
 		expect(
 			registerSchema.safeParse({
 				email: 'user@example.com',
 				name: 'Valid User',
-				password: 'alllowercase12!',
-				confirmPassword: 'alllowercase12!'
+				password: 'alllowercase12345',
+				confirmPassword: 'alllowercase12345'
+			}).success
+		).toBe(true);
+	});
+
+	it('rejects a register password shorter than 12 characters', () => {
+		expect(
+			registerSchema.safeParse({
+				email: 'user@example.com',
+				name: 'Valid User',
+				password: 'short1!',
+				confirmPassword: 'short1!'
 			}).success
 		).toBe(false);
 	});
