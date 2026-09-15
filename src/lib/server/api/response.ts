@@ -14,6 +14,7 @@ export type ApiErrorCode =
 	| 'rate_limited'
 	| 'validation_failed'
 	| 'invalid_json'
+	| 'not_found'
 	| 'internal_error';
 
 export function apiSuccess<T>(data: T, status = 200): Response {

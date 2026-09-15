@@ -23,13 +23,22 @@ Authorization: Bearer <key>
 
 ## Scopes
 
-| Scope                | Grants                      |
-| -------------------- | --------------------------- |
-| `transactions:read`  | `GET /api/v1/transactions`  |
-| `transactions:write` | `POST /api/v1/transactions` |
-| `budgets:read`       | `GET /api/v1/budgets`       |
-| `categories:read`    | `GET /api/v1/categories`    |
-| `dashboard:read`     | `GET /api/v1/dashboard`     |
+| Scope                           | Grants                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------- |
+| `transactions:read`             | `GET /api/v1/transactions`                                                              |
+| `transactions:write`            | `POST /api/v1/transactions`                                                             |
+| `budgets:read`                  | `GET /api/v1/budgets`                                                                   |
+| `categories:read`               | `GET /api/v1/categories`                                                                |
+| `dashboard:read`                | `GET /api/v1/dashboard`                                                                 |
+| `income:read`                   | `GET /api/v1/income`                                                                    |
+| `income:write`                  | `POST /api/v1/income`                                                                   |
+| `recurring:read`                | `GET /api/v1/recurring`                                                                 |
+| `recurring:markPaid`            | `PATCH /api/v1/recurring/:id`                                                           |
+| `windowCleaningCustomers:read`  | `GET /api/v1/window-cleaning/customers`                                                 |
+| `windowCleaningCustomers:write` | `POST /api/v1/window-cleaning/customers`, `PATCH /api/v1/window-cleaning/customers/:id` |
+| `windowCleaningJobs:read`       | `GET /api/v1/window-cleaning/jobs`                                                      |
+| `windowCleaningJobs:write`      | `POST /api/v1/window-cleaning/jobs`                                                     |
+| `contributions:write`           | `POST /api/v1/savings/goals/:id/contributions`                                          |
 
 A key only needs the scopes for the endpoints it's meant to call — pick the narrowest set
 that covers the intended use.
@@ -53,6 +62,7 @@ Every response is one of exactly two shapes:
 | 429         | `rate_limited`                                           | This key's rate limit or request quota was exceeded — wait and retry                                                                                                                 |
 | 400         | `validation_failed`                                      | Request body or query parameters failed validation                                                                                                                                   |
 | 400         | `invalid_json`                                           | Request body wasn't valid JSON                                                                                                                                                       |
+| 404         | `not_found`                                              | The resource named by the URL (e.g. a recurring expense, customer, or savings goal id) doesn't exist                                                                                 |
 | 500         | `internal_error`                                         | Something went wrong server-side; check the server logs                                                                                                                              |
 
 ## CORS
@@ -130,6 +140,141 @@ budget progress, spending trends, savings goals). Query parameters:
 curl -H "Authorization: Bearer sk_live_xxx" \
   "https://budget.example.com/api/v1/dashboard?mode=monthly&month=8&year=2026"
 ```
+
+### `GET /api/v1/income`
+
+Requires `income:read`. Query parameters (all optional):
+
+- `startDate` / `endDate` — `YYYY-MM-DD`, must be given together
+- `month` / `year` — `year` is required when `month` is given
+- `limit` — only applies when no date range or month/year is given; 1-200, default 50
+
+```bash
+curl -H "Authorization: Bearer sk_live_xxx" \
+  "https://budget.example.com/api/v1/income?month=8&year=2026"
+```
+
+### `POST /api/v1/income`
+
+Requires `income:write`. Body:
+
+```bash
+curl -X POST -H "Authorization: Bearer sk_live_xxx" -H "Content-Type: application/json" \
+  -d '{
+    "name": "Freelance payment",
+    "description": "Invoice #42",
+    "date": "2026-08-12",
+    "amount": 500
+  }' \
+  "https://budget.example.com/api/v1/income"
+```
+
+### `GET /api/v1/recurring`
+
+Requires `recurring:read`. No parameters — returns every recurring expense.
+
+```bash
+curl -H "Authorization: Bearer sk_live_xxx" "https://budget.example.com/api/v1/recurring"
+```
+
+### `PATCH /api/v1/recurring/:id`
+
+Requires `recurring:markPaid` — a narrower scope than a general write, so a key can be
+issued that only toggles paid status. Body:
+
+```bash
+curl -X PATCH -H "Authorization: Bearer sk_live_xxx" -H "Content-Type: application/json" \
+  -d '{ "paid": true }' \
+  "https://budget.example.com/api/v1/recurring/rec_123"
+```
+
+Returns `404` (`not_found`) if the id doesn't exist.
+
+### `GET /api/v1/window-cleaning/customers`
+
+Requires `windowCleaningCustomers:read`. No parameters — returns every active (non-deleted)
+customer.
+
+```bash
+curl -H "Authorization: Bearer sk_live_xxx" \
+  "https://budget.example.com/api/v1/window-cleaning/customers"
+```
+
+### `POST /api/v1/window-cleaning/customers`
+
+Requires `windowCleaningCustomers:write`. Body:
+
+```bash
+curl -X POST -H "Authorization: Bearer sk_live_xxx" -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Doe",
+    "address": "123 Main St",
+    "city": "Vancouver"
+  }' \
+  "https://budget.example.com/api/v1/window-cleaning/customers"
+```
+
+### `PATCH /api/v1/window-cleaning/customers/:id`
+
+Requires `windowCleaningCustomers:write`. A full replace of the editable fields (matches
+the UI's update behavior), not a partial patch. Returns `404` (`not_found`) if the id
+doesn't exist.
+
+```bash
+curl -X PATCH -H "Authorization: Bearer sk_live_xxx" -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Doe",
+    "address": "456 Elm St",
+    "city": "Vancouver"
+  }' \
+  "https://budget.example.com/api/v1/window-cleaning/customers/cust_123"
+```
+
+### `GET /api/v1/window-cleaning/jobs`
+
+Requires `windowCleaningJobs:read`. Query parameters (all optional, applied in this
+priority order):
+
+- `customerId` — jobs for one customer
+- `month` / `year` — `year` is required when `month` is given
+- `year` — a whole year's jobs
+- (none) — every job
+
+```bash
+curl -H "Authorization: Bearer sk_live_xxx" \
+  "https://budget.example.com/api/v1/window-cleaning/jobs?customerId=cust_123"
+```
+
+### `POST /api/v1/window-cleaning/jobs`
+
+Requires `windowCleaningJobs:write`. Body:
+
+```bash
+curl -X POST -H "Authorization: Bearer sk_live_xxx" -H "Content-Type: application/json" \
+  -d '{
+    "customerId": "cust_123",
+    "jobDate": "2026-08-12",
+    "amountCharged": 120,
+    "tip": 20
+  }' \
+  "https://budget.example.com/api/v1/window-cleaning/jobs"
+```
+
+### `POST /api/v1/savings/goals/:id/contributions`
+
+Requires `contributions:write`. Body:
+
+```bash
+curl -X POST -H "Authorization: Bearer sk_live_xxx" -H "Content-Type: application/json" \
+  -d '{
+    "amount": 100,
+    "date": "2026-08-12",
+    "description": "Monthly deposit"
+  }' \
+  "https://budget.example.com/api/v1/savings/goals/goal_123/contributions"
+```
+
+Returns `404` (`not_found`) if the goal id doesn't exist.
 
 ## Out of scope
 
