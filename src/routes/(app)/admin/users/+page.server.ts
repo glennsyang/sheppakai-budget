@@ -9,6 +9,7 @@ import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import type { UserWithSessions } from '$lib/types';
+import { getBetterAuthErrorMessage } from '$lib/utils';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -148,7 +149,7 @@ export const actions: Actions = {
 				form,
 				{
 					type: 'error',
-					text: 'Failed to set user password'
+					text: getBetterAuthErrorMessage(error, 'Failed to set user password')
 				},
 				{ status: 500 }
 			);

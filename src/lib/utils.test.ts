@@ -81,6 +81,13 @@ describe('getBetterAuthErrorMessage', () => {
 			'Your session has expired. Please sign in again.'
 		);
 	});
+
+	it('maps PASSWORD_COMPROMISED correctly', () => {
+		const error = { body: { code: 'PASSWORD_COMPROMISED' } };
+		expect(getBetterAuthErrorMessage(error)).toBe(
+			'This password has appeared in a data breach. Please choose a different password.'
+		);
+	});
 });
 
 describe('abbreviateCategoryName', () => {
