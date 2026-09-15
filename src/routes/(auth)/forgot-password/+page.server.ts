@@ -36,7 +36,8 @@ export const actions: Actions = {
 				// limit protects this public, email-sending action too (a direct api call
 				// bypasses the rate-limit middleware). Mirrors the verify-email resend
 				// action. `redirectTo` is a relative path, which passes Better Auth's
-				// origin check; buildResetUrl resolves it against BETTER_AUTH_BASE_URL.
+				// origin check and becomes the `callbackURL` its built-in GET verifier
+				// redirects to after checking the token.
 				const headers = new Headers(request.headers);
 				headers.set('content-type', 'application/json');
 				headers.delete('content-length');
