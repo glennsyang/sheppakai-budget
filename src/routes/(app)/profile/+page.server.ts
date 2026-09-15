@@ -6,6 +6,7 @@ import { accountQueries, userQueries } from '$lib/server/db/queries';
 import { user } from '$lib/server/db/schema';
 import { sendPasswordChangedEmail } from '$lib/server/email';
 import { logger } from '$lib/server/logger';
+import { getBetterAuthErrorMessage } from '$lib/utils';
 import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -118,7 +119,13 @@ export const actions = {
 			logger.error('Failed to change password', error);
 			return message(
 				form,
-				{ type: 'error', text: 'Current password is incorrect or password change failed.' },
+				{
+					type: 'error',
+					text: getBetterAuthErrorMessage(
+						error,
+						'Current password is incorrect or password change failed.'
+					)
+				},
 				{ status: 400 }
 			);
 		}
