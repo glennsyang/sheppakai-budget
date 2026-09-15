@@ -29,7 +29,8 @@
 		form: profileForm,
 		errors: profileErrors,
 		message: profileMessage,
-		submitting: profileSubmitting
+		submitting: profileSubmitting,
+		enhance: profileEnhance
 	} = profileFormStore;
 
 	// Password form
@@ -47,7 +48,8 @@
 		form: passwordForm,
 		errors: passwordErrors,
 		message: passwordMessage,
-		submitting: passwordSubmitting
+		submitting: passwordSubmitting,
+		enhance: passwordEnhance
 	} = passwordFormStore;
 
 	// Profile editing state
@@ -100,7 +102,7 @@
 					{/if}
 				</div>
 
-				<form method="POST" action="?/update">
+				<form method="POST" action="?/update" use:profileEnhance>
 					<div class="space-y-4">
 						{#if $profileMessage}
 							<div
@@ -195,7 +197,7 @@
 				</div>
 
 				{#if isEditingPassword}
-					<form method="POST" action="?/changePassword">
+					<form method="POST" action="?/changePassword" use:passwordEnhance>
 						<div class="space-y-4">
 							{#if $passwordMessage}
 								<div
