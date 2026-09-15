@@ -15,7 +15,6 @@ import { admin, haveIBeenPwned } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 
 import { createAuthAfterHooks, logPasswordResetAudit } from './auth-audit-hooks';
-import { buildResetUrl } from './auth-reset-url';
 import { getDb } from './db';
 import * as schema from './db/schema';
 import { sendPasswordChangedEmail, sendPasswordResetEmail, sendVerificationEmail } from './email';
@@ -47,15 +46,13 @@ export const auth = betterAuth({
 		maxPasswordLength: 128,
 		revokeSessionsOnPasswordReset: true,
 		resetPasswordTokenExpiresIn: 60 * 10, // 10 minutes
-		sendResetPassword: async ({ user, url, token }) => {
-			// Extract and validate callbackURL before building reset link
-			const urlObj = new URL(url);
-			const callbackURL = urlObj.searchParams.get('callbackURL');
-			if (!callbackURL) {
-				throw new Error('Missing callbackURL parameter');
-			}
-			const resetUrl = buildResetUrl(callbackURL, token);
-			void sendPasswordResetEmail(user.email, user.name, resetUrl);
+		sendResetPassword: async ({ user, url }) => {
+			// `url` is Better Auth's own GET-verifier link
+			// (/api/auth/reset-password/<token>?callbackURL=...). Pass it straight
+			// through — its own originCheck middleware already validated
+			// callbackURL against trustedOrigins, and the verifier itself checks
+			// the token before redirecting to /reset-password.
+			void sendPasswordResetEmail(user.email, user.name, url);
 		},
 		onPasswordReset: async ({ user }) => {
 			logPasswordResetAudit(user, 'Sheppakai Budget');
