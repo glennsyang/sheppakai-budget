@@ -9,7 +9,16 @@ export const API_SCOPES = [
 	'transactions:write',
 	'budgets:read',
 	'categories:read',
-	'dashboard:read'
+	'dashboard:read',
+	'income:read',
+	'income:write',
+	'recurring:read',
+	'recurring:markPaid',
+	'windowCleaningCustomers:read',
+	'windowCleaningCustomers:write',
+	'windowCleaningJobs:read',
+	'windowCleaningJobs:write',
+	'contributions:write'
 ] as const;
 
 export type ApiScope = (typeof API_SCOPES)[number];
