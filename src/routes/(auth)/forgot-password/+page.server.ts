@@ -3,6 +3,7 @@ import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-
 import { auth } from '$lib/server/auth';
 import { FORGOT_PASSWORD_RESPONSE } from '$lib/server/auth/forgot-password-response';
 import { createAuthLoadForm, redirectIfAuthenticated } from '$lib/server/auth/form-helpers';
+import { createAuthRateLimiter, rateLimitedMessage } from '$lib/server/rate-limiter';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
@@ -13,6 +14,8 @@ const forgotSchema = z.object({
 	email: z.email('Please enter a valid email address')
 });
 
+const limiter = createAuthRateLimiter();
+
 export const load: PageServerLoad = async ({ locals, url }) => {
 	redirectIfAuthenticated(locals.user);
 	const form = await createAuthLoadForm(forgotSchema, url);
@@ -21,11 +24,17 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async (event) => {
+		const { request } = event;
 		const form = await superValidate(request, zod4(forgotSchema));
 
 		if (!form.valid) {
 			return invalidAuthForm(form);
+		}
+
+		const rateLimitStatus = await limiter.check(event);
+		if (rateLimitStatus.limited) {
+			return rateLimitedMessage(form, rateLimitStatus.retryAfter);
 		}
 
 		return handleAuthFormAction(
