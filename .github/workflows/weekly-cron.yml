@@ -14,6 +14,8 @@ jobs:
           CRON_SECRET: ${{ secrets['CRON_SECRET'] }}
           APP_URL: ${{ secrets['APP_URL'] }}
         run: |
-          curl -X POST $APP_URL/api/cron/email-weekly-summary \
+          response=$(curl -f -X POST $APP_URL/api/cron/email-weekly-summary \
             -H "Authorization: Bearer $CRON_SECRET" \
-            -H "Content-Type: application/json"
+            -H "Content-Type: application/json")
+          echo "$response"
+          echo "$response" | jq -e '.result.emailsFailed == 0'

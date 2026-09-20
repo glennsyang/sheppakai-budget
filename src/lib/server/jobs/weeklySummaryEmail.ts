@@ -252,18 +252,28 @@ export async function runWeeklySummaryEmail(date = new Date()): Promise<WeeklySu
 	const emailsSent = emailResults.filter((r) => r.status === 'fulfilled').length;
 	const emailsFailed = emailResults.filter((r) => r.status === 'rejected').length;
 
-	emailResults
-		.filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-		.forEach((r) => logger.error('Failed to send weekly summary email to recipient', r.reason));
+	emailResults.forEach((r, index) => {
+		if (r.status === 'rejected') {
+			logger.error('Failed to send weekly summary email to recipient', r.reason, {
+				email: recipients[index].email
+			});
+		}
+	});
 
-	logger.info('Weekly summary email run completed', {
+	const runCompletedMeta = {
 		recipientsScanned: recipients.length,
 		emailsSent,
 		emailsFailed,
 		overBudgetCount: overBudgetRows.length,
 		nearLimitCount: nearLimitRows.length,
 		monthLabel: monthRange.monthLabel
-	});
+	};
+
+	if (emailsFailed > 0) {
+		logger.warn('Weekly summary email run completed with failures', runCompletedMeta);
+	} else {
+		logger.info('Weekly summary email run completed', runCompletedMeta);
+	}
 
 	return {
 		success: true,
