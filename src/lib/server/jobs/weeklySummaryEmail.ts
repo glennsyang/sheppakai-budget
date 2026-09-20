@@ -255,7 +255,7 @@ export async function runWeeklySummaryEmail(date = new Date()): Promise<WeeklySu
 	emailResults.forEach((r, index) => {
 		if (r.status === 'rejected') {
 			logger.error('Failed to send weekly summary email to recipient', r.reason, {
-				to: recipients[index].email
+				email: recipients[index].email
 			});
 		}
 	});

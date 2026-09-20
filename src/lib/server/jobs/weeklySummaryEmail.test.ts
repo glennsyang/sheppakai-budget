@@ -149,7 +149,7 @@ describe('runWeeklySummaryEmail', () => {
 		expect(mockState.loggerError).toHaveBeenCalledWith(
 			'Failed to send weekly summary email to recipient',
 			sendError,
-			{ to: 'sam@example.com' }
+			{ email: 'sam@example.com' }
 		);
 		expect(mockState.loggerWarn).toHaveBeenCalledWith(
 			'Weekly summary email run completed with failures',
