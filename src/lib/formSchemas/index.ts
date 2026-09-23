@@ -2,7 +2,6 @@ export {
 	banUserSchema,
 	changePasswordSchema,
 	passwordSchema,
-	registerSchema,
 	resendVerificationSchema,
 	setPasswordSchema,
 	setUserRoleSchema,

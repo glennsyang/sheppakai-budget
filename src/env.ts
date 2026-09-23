@@ -50,6 +50,11 @@ export const variables = defineEnvVars({
 		description: 'Comma-separated list of hardcoded admin user IDs',
 		schema: z.string().default('dummy_admin_id')
 	},
+	ALLOWED_EMAILS: {
+		description:
+			'Comma-separated list of the only emails allowed to sign in (exact, case-insensitive match)',
+		schema: building ? z.string().default('') : z.string().min(1)
+	},
 	AUTH_ALERTS_URL: {
 		description: 'Ntfy.sh URL for authentication and security alert push notifications',
 		schema: z.url().default('https://notification-service.com/dummy-auth-alerts')
