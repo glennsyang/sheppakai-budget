@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Canonical password rule for register/reset: length-only, per NIST SP 800-63B §5.1.1.2
+// Canonical password rule for reset/set-password: length-only, per NIST SP 800-63B §5.1.1.2
 // (composition rules deliberately omitted). Matches minPasswordLength in src/lib/server/auth.ts.
 export const passwordSchema = z.string().min(12, 'Password must be at least 12 characters');
 
@@ -12,21 +12,6 @@ export const signInSchema = z.object({
 export const resendVerificationSchema = z.object({
 	email: z.email('Please enter a valid email address')
 });
-
-export const registerSchema = z
-	.object({
-		email: z.email('Please enter a valid email address'),
-		name: z
-			.string()
-			.min(2, 'Name must be at least 2 characters')
-			.max(100, 'Name must be at most 100 characters'),
-		password: passwordSchema,
-		confirmPassword: passwordSchema
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords don't match",
-		path: ['confirmPassword']
-	});
 
 export const updateProfileSchema = z.object({
 	name: z.string().min(1, 'Name is required').max(100, 'Name must be at most 100 characters')

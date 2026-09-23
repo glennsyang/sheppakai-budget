@@ -4,7 +4,7 @@ Sheppakai Budget is a full-stack personal finance and small business management 
 
 ## Features ✨
 
-- **Authentication** — Register, sign in, sign out, email verification, and password reset
+- **Authentication** — Invite-only (admin-created accounts, `ALLOWED_EMAILS` allowlist), sign in, sign out, email verification, and password reset
 - **Dashboard** — Visual overview of income, expenses, and budget progress
 - **Budget Management** — Set monthly budgets per category, see over-budget alerts
 - **Transactions** — Filterable expense/income table by date and category

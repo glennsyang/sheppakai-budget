@@ -2,7 +2,7 @@
 	import AuthFormMessage from '$lib/components/AuthFormMessage.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { Field, FieldDescription, FieldGroup, FieldLabel } from '$lib/components/ui/field';
+	import { Field, FieldGroup, FieldLabel } from '$lib/components/ui/field';
 	import { Input } from '$lib/components/ui/input';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import { superForm } from 'sveltekit-superforms';
@@ -91,11 +91,6 @@
 							Sign In
 						{/if}
 					</Button>
-					<FieldDescription class="text-center">
-						Don't have an account? <a href="/register" class="font-medium underline"
-							>Register here</a
-						>
-					</FieldDescription>
 				</Field>
 			</FieldGroup>
 		</form>

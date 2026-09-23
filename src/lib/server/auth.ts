@@ -1,5 +1,6 @@
 import {
 	ADMIN_USER_IDS,
+	ALLOWED_EMAILS,
 	BETTER_AUTH_BASE_URL,
 	BETTER_AUTH_SECRET,
 	NODE_ENV
@@ -10,15 +11,14 @@ import { apiKey } from '@better-auth/api-key';
 import { error } from '@sveltejs/kit';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { admin, haveIBeenPwned } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 
+import { createAllowlistBeforeHook, parseAllowedEmails } from './auth-allowlist-hook';
 import { createAuthAfterHooks, logPasswordResetAudit } from './auth-audit-hooks';
 import { getDb } from './db';
 import * as schema from './db/schema';
 import { sendPasswordChangedEmail, sendPasswordResetEmail, sendVerificationEmail } from './email';
-import { sendAuthAlerts } from './notifications';
 
 export const auth = betterAuth({
 	appName: 'Sheppakai Budget',
@@ -40,6 +40,8 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
+		// Accounts are created by an admin only (scripts/create-user.ts).
+		disableSignUp: true,
 		autoSignIn: false,
 		requireEmailVerification: true,
 		minPasswordLength: 12,
@@ -75,24 +77,9 @@ export const auth = betterAuth({
 		}
 	},
 	hooks: {
-		before: createAuthMiddleware(async (ctx) => {
-			// Real endpoint paths are `/sign-up/email` and `/sign-in/email` — the
-			// app's own `/register`/`/sign-in` SvelteKit routes never appear here
-			// (see createAuthAfterHooks in ./auth-audit-hooks.ts for the same note).
-			if (!ctx.path.includes('/sign-up/email') && !ctx.path.includes('/sign-in/email')) {
-				return;
-			}
-			if (!ctx.body?.email.includes('sheppard')) {
-				void sendAuthAlerts(
-					`⚠️ Registration/sign-in attempt with invalid email: ${ctx.body?.email} at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })} UTC.`,
-					'Sheppakai-Budget - Security Alert',
-					4
-				);
-				throw new APIError('BAD_REQUEST', {
-					message: 'Email must include "sheppard" for registration'
-				});
-			}
-		}),
+		// Public sign-up is off (disableSignUp above); this also restricts sign-in to
+		// the exact ALLOWED_EMAILS list.
+		before: createAllowlistBeforeHook('Sheppakai Budget', parseAllowedEmails(ALLOWED_EMAILS)),
 		after: createAuthAfterHooks('Sheppakai Budget')
 	},
 	advanced: {

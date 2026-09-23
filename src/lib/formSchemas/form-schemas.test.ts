@@ -7,8 +7,8 @@ import {
 	changePasswordSchema,
 	contributionSchema,
 	incomeSchema,
+	passwordSchema,
 	recurringSchema,
-	registerSchema,
 	resendVerificationSchema,
 	savingsGoalSchema,
 	savingsSchema,
@@ -41,45 +41,12 @@ describe('form schemas', () => {
 		expect(resendVerificationSchema.safeParse({}).success).toBe(false);
 	});
 
-	it('validates register password confirmation', () => {
-		expect(
-			registerSchema.safeParse({
-				email: 'user@example.com',
-				name: 'Valid User',
-				password: 'StrongPassword12!',
-				confirmPassword: 'StrongPassword12!'
-			}).success
-		).toBe(true);
-
-		const mismatch = registerSchema.safeParse({
-			email: 'user@example.com',
-			name: 'Valid User',
-			password: 'StrongPassword12!',
-			confirmPassword: 'DifferentPassword12!'
-		});
-		expect(mismatch.success).toBe(false);
+	it('accepts a password with no complexity, only length', () => {
+		expect(passwordSchema.safeParse('alllowercase12345').success).toBe(true);
 	});
 
-	it('accepts a register password with no complexity, only length', () => {
-		expect(
-			registerSchema.safeParse({
-				email: 'user@example.com',
-				name: 'Valid User',
-				password: 'alllowercase12345',
-				confirmPassword: 'alllowercase12345'
-			}).success
-		).toBe(true);
-	});
-
-	it('rejects a register password shorter than 12 characters', () => {
-		expect(
-			registerSchema.safeParse({
-				email: 'user@example.com',
-				name: 'Valid User',
-				password: 'short1!',
-				confirmPassword: 'short1!'
-			}).success
-		).toBe(false);
+	it('rejects a password shorter than 12 characters', () => {
+		expect(passwordSchema.safeParse('short1!').success).toBe(false);
 	});
 
 	it('validates budget month and year ranges', () => {
