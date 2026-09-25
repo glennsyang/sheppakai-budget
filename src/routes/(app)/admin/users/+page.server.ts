@@ -7,7 +7,7 @@ import {
 import { adminAuthFailure } from '$lib/server/actions/admin-guard';
 import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { isAdminUser } from '$lib/server/admin-status';
-import { auth } from '$lib/server/auth';
+import { assertAdmin, auth } from '$lib/server/auth';
 import { disableApiKeysForUser } from '$lib/server/db/writes/api-keys';
 import { logger } from '$lib/server/logger';
 import type { UserWithSessions } from '$lib/types';
@@ -36,7 +36,9 @@ async function disableKeysAfter(action: 'ban' | 'demotion', userId: string): Pro
 	}
 }
 
-export const load: PageServerLoad = async ({ request }) => {
+export const load: PageServerLoad = async ({ request, locals }) => {
+	assertAdmin(locals);
+
 	// Initialize all forms with unique IDs
 	const setRoleForm = await superValidate(zod4(setUserRoleSchema), { id: 'setUserRole' });
 	const setPasswordForm = await superValidate(zod4(setPasswordSchema), { id: 'setPassword' });

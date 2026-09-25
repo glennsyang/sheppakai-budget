@@ -1,3 +1,4 @@
+import { assertAdmin } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { apiKey } from '$lib/server/db/schema';
 import { logger } from '$lib/server/logger';
@@ -6,7 +7,9 @@ import { inArray } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import type { AdminApiLogEntry } from './columns';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+	assertAdmin(locals);
+
 	const db = getDb();
 
 	try {

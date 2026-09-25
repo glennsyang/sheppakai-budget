@@ -25,6 +25,9 @@ vi.mock('$lib/server/logger', () => ({
 	}
 }));
 
+import type { SQL } from 'drizzle-orm';
+import { SQLiteSyncDialect } from 'drizzle-orm/sqlite-core';
+
 import { runWeeklySummaryEmail } from './weeklySummaryEmail';
 
 // A query-builder stub matching the job's shapes:
@@ -35,6 +38,18 @@ function queryResult(rows: unknown[]) {
 		from: () => ({
 			where: () => resolved,
 			innerJoin: () => ({ where: () => resolved })
+		})
+	};
+}
+
+// Like queryResult, but records the `where` condition so the filter itself can be asserted.
+function capturingQueryResult(rows: unknown[], captured: { where?: SQL }) {
+	return {
+		from: () => ({
+			where: (condition: SQL) => {
+				captured.where = condition;
+				return Promise.resolve(rows);
+			}
 		})
 	};
 }
@@ -75,6 +90,21 @@ describe('runWeeklySummaryEmail', () => {
 		expect(result.reason).toBe('No budgets found for current month');
 		expect(result.recipientsScanned).toBe(1);
 		expect(mockState.sendWeeklySummaryEmail).not.toHaveBeenCalled();
+	});
+
+	it('only emails verified, non-banned users with an email address', async () => {
+		const recipientsQuery: { where?: SQL } = {};
+		mockState.select
+			.mockReturnValueOnce(capturingQueryResult([], recipientsQuery))
+			.mockReturnValueOnce(queryResult([]));
+
+		await runWeeklySummaryEmail(MONDAY_PACIFIC);
+
+		expect(recipientsQuery.where).toBeDefined();
+		const { sql, params } = new SQLiteSyncDialect().sqlToQuery(recipientsQuery.where as SQL);
+		expect(sql).toContain('"email_verified" = ?');
+		expect(sql).toContain('"banned" = ?');
+		expect(params).toEqual([0, 1, '']);
 	});
 
 	it('classifies over-budget and near-limit categories and emails every recipient', async () => {
