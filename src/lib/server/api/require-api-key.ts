@@ -1,7 +1,9 @@
 import { permissionsForScope, type ApiScope } from '$lib/api-scopes';
+import { userQueries } from '$lib/server/db/queries';
 import { parseBearerToken } from '$lib/server/http/bearer-token';
 import { logger } from '$lib/server/logger';
 
+import { isAdminUser, isBanActive } from '../admin-status';
 import { auth } from '../auth';
 import type { ApiErrorCode } from './response';
 
@@ -54,6 +56,25 @@ export async function requireApiKey(request: Request, scope: ApiScope): Promise<
 			};
 		}
 
+		return {
+			ok: false,
+			status: 401,
+			code: 'invalid_api_key',
+			message: 'Invalid API key.'
+		};
+	}
+
+	// The plugin only checks the key row itself (enabled, expiry, scope, rate limit), never
+	// its owner. Keys are minted only from the admin page, so a key is live only while its
+	// owner still exists, is not banned, and is still an admin — otherwise a banned or
+	// demoted admin's keys would keep working until they expire (up to 365 days).
+	const owner = await userQueries.findById(result.key.referenceId, false);
+	if (!owner || isBanActive(owner) || !isAdminUser(owner)) {
+		logger.warn('API key auth failed', {
+			path,
+			reason: !owner ? 'owner_not_found' : isBanActive(owner) ? 'owner_banned' : 'owner_not_admin',
+			apiKeyId: result.key.id
+		});
 		return {
 			ok: false,
 			status: 401,
