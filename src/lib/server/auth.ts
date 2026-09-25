@@ -14,6 +14,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { admin, haveIBeenPwned } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 
+import { isAdminUser } from './admin-status';
 import { createAllowlistBeforeHook, parseAllowedEmails } from './auth-allowlist-hook';
 import { createAuthAfterHooks, logPasswordResetAudit } from './auth-audit-hooks';
 import { getDb } from './db';
@@ -165,10 +166,7 @@ export function assertAdmin(locals: App.Locals): void {
 		throw error(401, 'Unauthorized');
 	}
 
-	const isHardcodedAdmin = ADMIN_USER_IDS.split(',').includes(locals.user.id);
-	const isRoleAdmin = locals.user.role === 'admin';
-
-	if (!isHardcodedAdmin && !isRoleAdmin) {
+	if (!isAdminUser(locals.user)) {
 		throw error(403, 'Forbidden');
 	}
 }

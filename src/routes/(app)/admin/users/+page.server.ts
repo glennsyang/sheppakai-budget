@@ -6,7 +6,9 @@ import {
 } from '$lib/formSchemas';
 import { adminAuthFailure } from '$lib/server/actions/admin-guard';
 import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
-import { assertAdmin, auth } from '$lib/server/auth';
+import { isAdminUser } from '$lib/server/admin-status';
+import { auth } from '$lib/server/auth';
+import { disableApiKeysForUser } from '$lib/server/db/writes/api-keys';
 import { logger } from '$lib/server/logger';
 import type { UserWithSessions } from '$lib/types';
 import { getBetterAuthErrorMessage } from '$lib/utils';
@@ -14,9 +16,27 @@ import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
-export const load: PageServerLoad = async ({ request, locals }) => {
-	assertAdmin(locals);
 
+/**
+ * Disables a user's API keys after a ban or demotion. `requireApiKey` already rejects keys
+ * whose owner is banned or no longer an admin; this makes the change stick, so unbanning or
+ * re-promoting the user later doesn't quietly bring the old keys back. Returns false when
+ * the disable failed, so the action can report it instead of claiming full success.
+ */
+async function disableKeysAfter(action: 'ban' | 'demotion', userId: string): Promise<boolean> {
+	try {
+		const count = await disableApiKeysForUser(userId);
+		if (count > 0) {
+			logger.info(`Disabled API keys after ${action}`, { userId, count });
+		}
+		return true;
+	} catch (error) {
+		logger.error(`Failed to disable API keys after ${action}`, { userId, error });
+		return false;
+	}
+}
+
+export const load: PageServerLoad = async ({ request }) => {
 	// Initialize all forms with unique IDs
 	const setRoleForm = await superValidate(zod4(setUserRoleSchema), { id: 'setUserRole' });
 	const setPasswordForm = await superValidate(zod4(setPasswordSchema), { id: 'setPassword' });
@@ -108,6 +128,17 @@ export const actions: Actions = {
 			});
 
 			logger.info(`Set role updated successfully`, { userId: form.data.userId });
+
+			// A user listed in ADMIN_USER_IDS stays an admin whatever their role, so their keys stay valid.
+			const demoted = !isAdminUser({ id: form.data.userId, role: form.data.role });
+			if (demoted && !(await disableKeysAfter('demotion', form.data.userId))) {
+				return message(
+					form,
+					{ type: 'error', text: 'User role updated, but failed to disable their API keys' },
+					{ status: 500 }
+				);
+			}
+
 			return message(form, { type: 'success', text: 'User role updated successfully' });
 		} catch (error) {
 			logger.error('Failed to set role:', error);
@@ -180,6 +211,15 @@ export const actions: Actions = {
 			});
 
 			logger.info(`User banned successfully`, { userId: form.data.userId });
+
+			if (!(await disableKeysAfter('ban', form.data.userId))) {
+				return message(
+					form,
+					{ type: 'error', text: 'User banned, but failed to disable their API keys' },
+					{ status: 500 }
+				);
+			}
+
 			return message(form, { type: 'success', text: 'User banned successfully' });
 		} catch (error) {
 			logger.error('Failed to ban user:', error);
