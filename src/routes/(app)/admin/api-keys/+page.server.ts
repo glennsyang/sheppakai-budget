@@ -3,14 +3,16 @@ import { scopesToPermissions } from '$lib/api-scopes';
 import { createApiKeySchema, idSchema } from '$lib/formSchemas';
 import { adminAuthFailure } from '$lib/server/actions/admin-guard';
 import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
-import { auth } from '$lib/server/auth';
+import { assertAdmin, auth } from '$lib/server/auth';
 import { logger } from '$lib/server/logger';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ request }) => {
+export const load: PageServerLoad = async ({ request, locals }) => {
+	assertAdmin(locals);
+
 	const createForm = await superValidate(zod4(createApiKeySchema), { id: 'createApiKey' });
 	const revokeForm = await superValidate(zod4(idSchema), { id: 'revokeApiKey' });
 

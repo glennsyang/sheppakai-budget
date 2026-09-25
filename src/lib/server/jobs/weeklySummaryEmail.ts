@@ -156,7 +156,7 @@ export async function runWeeklySummaryEmail(date = new Date()): Promise<WeeklySu
 			email: user.email
 		})
 		.from(user)
-		.where(and(eq(user.banned, false), ne(user.email, '')));
+		.where(and(eq(user.banned, false), eq(user.emailVerified, true), ne(user.email, '')));
 
 	const monthlyBudgets = await db
 		.select({

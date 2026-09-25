@@ -48,15 +48,18 @@ jobs:
 
           echo "Encrypting backup..."
           BACKUP_FILE="backup-${{ steps.timestamp.outputs.date }}.sql.gz"
-          gpg --batch --yes --pinentry-mode loopback \
-            --passphrase "$BACKUP_ENCRYPTION_PASSPHRASE" \
+          # Feed the passphrase on stdin (fd 0) rather than as an argument, so it never
+          # appears in the runner's process list. printf is a shell builtin, so it
+          # doesn't spawn a process with the passphrase in argv either.
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback \
+            --passphrase-fd 0 \
             --symmetric --cipher-algo AES256 \
             --output "$BACKUP_FILE.gpg" "$BACKUP_FILE"
 
           # Remove the plaintext archive so only the encrypted copy remains on disk.
           rm "$BACKUP_FILE"
 
-          echo "To decrypt: gpg --batch --yes --pinentry-mode loopback --passphrase \"\$BACKUP_ENCRYPTION_PASSPHRASE\" --decrypt --output backup.sql.gz $BACKUP_FILE.gpg"
+          echo "To decrypt: printf '%s' \"\$BACKUP_ENCRYPTION_PASSPHRASE\" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --decrypt --output backup.sql.gz $BACKUP_FILE.gpg"
 
       - name: Validate backup
         run: |

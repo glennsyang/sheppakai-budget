@@ -5,6 +5,9 @@ on:
     - cron: '10 8 1 * *' # 1st of every month at 12:10 AM PST / 1:10 AM PDT
   workflow_dispatch: # Allow manual trigger
 
+# Only curls the app with CRON_SECRET; needs no GITHUB_TOKEN scopes.
+permissions: {}
+
 jobs:
   trigger-emails:
     runs-on: ubuntu-latest
