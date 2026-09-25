@@ -17,6 +17,8 @@ export type AdminApiKey = {
 	expiresAt: Date | string | null;
 	createdAt: Date | string;
 	lastRequest: Date | string | null;
+	ownerName: string;
+	ownerEmail: string;
 };
 
 function scopesFromPermissions(permissions: Record<string, string[]> | null): string[] {
@@ -31,6 +33,11 @@ export const columns: ColumnDef<Features, AdminApiKey>[] = [
 		accessorKey: 'name',
 		header: 'Name',
 		cell: ({ row }) => row.original.name || '(unnamed)'
+	},
+	{
+		accessorKey: 'ownerName',
+		header: 'Owner',
+		cell: ({ row }) => `${row.original.ownerName} (${row.original.ownerEmail})`
 	},
 	{
 		accessorKey: 'start',

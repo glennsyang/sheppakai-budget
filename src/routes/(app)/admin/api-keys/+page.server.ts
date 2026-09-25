@@ -3,19 +3,27 @@ import { scopesToPermissions } from '$lib/api-scopes';
 import { createApiKeySchema, idSchema } from '$lib/formSchemas';
 import { adminAuthFailure } from '$lib/server/actions/admin-guard';
 import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
-import { auth } from '$lib/server/auth';
+import { assertAdmin, auth } from '$lib/server/auth';
+import { apiKeyQueries } from '$lib/server/db/queries';
+import { deleteApiKeyById } from '$lib/server/db/writes/api-keys';
 import { logger } from '$lib/server/logger';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ request }) => {
+export const load: PageServerLoad = async ({ locals }) => {
+	// The admin layout guards this too, but layout and page loads run in parallel and this
+	// load returns every user's keys, so it checks for itself rather than relying on that.
+	assertAdmin(locals);
+
 	const createForm = await superValidate(zod4(createApiKeySchema), { id: 'createApiKey' });
 	const revokeForm = await superValidate(zod4(idSchema), { id: 'revokeApiKey' });
 
 	try {
-		const { apiKeys } = await auth.api.listApiKeys({ headers: request.headers });
+		// Every admin's keys, not just the caller's: a banned or demoted admin can't be
+		// trusted to revoke their own, so any remaining admin must be able to.
+		const apiKeys = await apiKeyQueries.listAllWithOwner();
 		return { apiKeys, createForm, revokeForm };
 	} catch (error) {
 		logger.error('Failed to load API keys', error);
@@ -80,6 +88,7 @@ export const actions: Actions = {
 	},
 
 	revoke: async ({ request, locals }) => {
+		// Revokes any user's key, not only the caller's (see `deleteApiKeyById`).
 		const form = await superValidate(request, zod4(idSchema));
 
 		const authFailure = adminAuthFailure(locals, form);
@@ -92,8 +101,11 @@ export const actions: Actions = {
 		}
 
 		try {
-			await auth.api.deleteApiKey({ body: { keyId: form.data.id }, headers: request.headers });
-			logger.info('API key revoked', { keyId: form.data.id });
+			const deleted = await deleteApiKeyById(form.data.id);
+			if (!deleted) {
+				return message(form, { type: 'error', text: 'API key not found.' }, { status: 404 });
+			}
+			logger.info('API key revoked', { keyId: form.data.id, revokedBy: locals.user?.id });
 			return message(form, { type: 'success', text: 'API key revoked.' });
 		} catch (error) {
 			logger.error('Failed to revoke API key', error);

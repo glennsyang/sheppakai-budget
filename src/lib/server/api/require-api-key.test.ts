@@ -2,9 +2,24 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockVerifyApiKey = vi.hoisted(() => vi.fn<(...args: unknown[]) => Promise<unknown>>());
 const mockLoggerWarn = vi.hoisted(() => vi.fn<(...args: unknown[]) => void>());
+const mockFindUserById = vi.hoisted(() => vi.fn<(...args: unknown[]) => Promise<unknown>>());
+
+type Owner = {
+	id: string;
+	role: string | null;
+	banned: boolean | null;
+	banExpires: Date | null;
+};
+const activeAdmin: Owner = { id: 'user1', role: 'admin', banned: false, banExpires: null };
 
 vi.mock('../auth', () => ({
 	auth: { api: { verifyApiKey: mockVerifyApiKey } }
+}));
+
+vi.mock('$app/env/private', () => ({ ADMIN_USER_IDS: 'env-admin' }));
+
+vi.mock('$lib/server/db/queries', () => ({
+	userQueries: { findById: mockFindUserById }
 }));
 
 vi.mock('$lib/server/logger', () => ({
@@ -26,6 +41,8 @@ describe('requireApiKey', () => {
 	beforeEach(() => {
 		mockVerifyApiKey.mockReset();
 		mockLoggerWarn.mockReset();
+		mockFindUserById.mockReset();
+		mockFindUserById.mockResolvedValue(activeAdmin);
 	});
 
 	it('rejects a missing Authorization header', async () => {
@@ -150,5 +167,105 @@ describe('requireApiKey', () => {
 		for (const call of mockLoggerWarn.mock.calls) {
 			expect(JSON.stringify(call)).not.toContain('sk_test_super_secret');
 		}
+	});
+
+	describe('key owner checks', () => {
+		function validKeyFor(ownerId: string) {
+			mockVerifyApiKey.mockResolvedValue({
+				valid: true,
+				error: null,
+				key: { id: 'key1', referenceId: ownerId }
+			});
+		}
+
+		async function call() {
+			return requireApiKey(request({ authorization: 'Bearer sk_test_123' }), 'transactions:read');
+		}
+
+		const invalidKey = {
+			ok: false,
+			status: 401,
+			code: 'invalid_api_key',
+			message: 'Invalid API key.'
+		};
+
+		it('looks up the key owner without relations', async () => {
+			validKeyFor('user1');
+			await call();
+			expect(mockFindUserById).toHaveBeenCalledWith('user1', false);
+		});
+
+		it('rejects a key whose owner is banned', async () => {
+			validKeyFor('user1');
+			mockFindUserById.mockResolvedValue({ ...activeAdmin, banned: true });
+
+			expect(await call()).toEqual(invalidKey);
+			expect(mockLoggerWarn).toHaveBeenCalledWith(
+				'API key auth failed',
+				expect.objectContaining({ reason: 'owner_banned', apiKeyId: 'key1' })
+			);
+		});
+
+		it('rejects a key whose owner has a ban that has not yet expired', async () => {
+			validKeyFor('user1');
+			mockFindUserById.mockResolvedValue({
+				...activeAdmin,
+				banned: true,
+				banExpires: new Date(Date.now() + 60_000)
+			});
+
+			expect(await call()).toEqual(invalidKey);
+		});
+
+		it('accepts a key whose owner had a ban that has since expired', async () => {
+			validKeyFor('user1');
+			mockFindUserById.mockResolvedValue({
+				...activeAdmin,
+				banned: true,
+				banExpires: new Date(Date.now() - 60_000)
+			});
+
+			expect(await call()).toEqual({ ok: true, apiKeyId: 'key1', userId: 'user1' });
+		});
+
+		it('rejects a key whose owner was demoted to a plain user', async () => {
+			validKeyFor('user1');
+			mockFindUserById.mockResolvedValue({ ...activeAdmin, role: 'user' });
+
+			expect(await call()).toEqual(invalidKey);
+			expect(mockLoggerWarn).toHaveBeenCalledWith(
+				'API key auth failed',
+				expect.objectContaining({ reason: 'owner_not_admin' })
+			);
+		});
+
+		it('accepts a key whose owner is an ADMIN_USER_IDS admin even with role user', async () => {
+			validKeyFor('env-admin');
+			mockFindUserById.mockResolvedValue({ ...activeAdmin, id: 'env-admin', role: 'user' });
+
+			expect(await call()).toEqual({ ok: true, apiKeyId: 'key1', userId: 'env-admin' });
+		});
+
+		it('rejects a key whose owner no longer exists', async () => {
+			validKeyFor('user1');
+			mockFindUserById.mockResolvedValue(undefined);
+
+			expect(await call()).toEqual(invalidKey);
+			expect(mockLoggerWarn).toHaveBeenCalledWith(
+				'API key auth failed',
+				expect.objectContaining({ reason: 'owner_not_found' })
+			);
+		});
+
+		it('does not look up an owner when the key itself is invalid', async () => {
+			mockVerifyApiKey.mockResolvedValue({
+				valid: false,
+				error: { message: 'not found', code: 'KEY_NOT_FOUND' },
+				key: null
+			});
+
+			await call();
+			expect(mockFindUserById).not.toHaveBeenCalled();
+		});
 	});
 });
