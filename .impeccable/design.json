@@ -1,0 +1,392 @@
+{
+	"schemaVersion": 2,
+	"generatedAt": "2026-09-23T23:40:28.233489+00:00",
+	"title": "Design System: Sheppakai Budget",
+	"extensions": {
+		"colorMeta": {
+			"ink-navy": {
+				"role": "primary",
+				"displayName": "Ink Navy",
+				"canonical": "oklch(0.208 0.042 265.755)",
+				"tonalRamp": [
+					"oklch(0.15 0.042 265.755)",
+					"oklch(0.26 0.042 265.755)",
+					"oklch(0.37 0.042 265.755)",
+					"oklch(0.48 0.042 265.755)",
+					"oklch(0.6 0.042 265.755)",
+					"oklch(0.71 0.042 265.755)",
+					"oklch(0.83 0.042 265.755)",
+					"oklch(0.95 0.021 265.755)"
+				]
+			},
+			"paper-white": {
+				"role": "neutral",
+				"displayName": "Paper White",
+				"canonical": "oklch(1 0 0)",
+				"tonalRamp": [
+					"oklch(0.15 0 0)",
+					"oklch(0.26 0 0)",
+					"oklch(0.37 0 0)",
+					"oklch(0.48 0 0)",
+					"oklch(0.6 0 0)",
+					"oklch(0.71 0 0)",
+					"oklch(0.83 0 0)",
+					"oklch(0.95 0.0 0)"
+				]
+			},
+			"deep-ink": {
+				"role": "neutral",
+				"displayName": "Deep Ink",
+				"canonical": "oklch(0.129 0.042 264.695)",
+				"tonalRamp": [
+					"oklch(0.15 0.042 264.695)",
+					"oklch(0.26 0.042 264.695)",
+					"oklch(0.37 0.042 264.695)",
+					"oklch(0.48 0.042 264.695)",
+					"oklch(0.6 0.042 264.695)",
+					"oklch(0.71 0.042 264.695)",
+					"oklch(0.83 0.042 264.695)",
+					"oklch(0.95 0.021 264.695)"
+				]
+			},
+			"mist-slate": {
+				"role": "neutral",
+				"displayName": "Mist Slate",
+				"canonical": "oklch(0.968 0.007 247.896)",
+				"tonalRamp": [
+					"oklch(0.15 0.007 247.896)",
+					"oklch(0.26 0.007 247.896)",
+					"oklch(0.37 0.007 247.896)",
+					"oklch(0.48 0.007 247.896)",
+					"oklch(0.6 0.007 247.896)",
+					"oklch(0.71 0.007 247.896)",
+					"oklch(0.83 0.007 247.896)",
+					"oklch(0.95 0.004 247.896)"
+				]
+			},
+			"ledger-grey": {
+				"role": "neutral",
+				"displayName": "Ledger Grey",
+				"canonical": "oklch(0.554 0.046 257.417)",
+				"tonalRamp": [
+					"oklch(0.15 0.046 257.417)",
+					"oklch(0.26 0.046 257.417)",
+					"oklch(0.37 0.046 257.417)",
+					"oklch(0.48 0.046 257.417)",
+					"oklch(0.6 0.046 257.417)",
+					"oklch(0.71 0.046 257.417)",
+					"oklch(0.83 0.046 257.417)",
+					"oklch(0.95 0.023 257.417)"
+				]
+			},
+			"hairline": {
+				"role": "neutral",
+				"displayName": "Hairline",
+				"canonical": "oklch(0.929 0.013 255.508)",
+				"tonalRamp": [
+					"oklch(0.15 0.013 255.508)",
+					"oklch(0.26 0.013 255.508)",
+					"oklch(0.37 0.013 255.508)",
+					"oklch(0.48 0.013 255.508)",
+					"oklch(0.6 0.013 255.508)",
+					"oklch(0.71 0.013 255.508)",
+					"oklch(0.83 0.013 255.508)",
+					"oklch(0.95 0.006 255.508)"
+				]
+			},
+			"focus-slate": {
+				"role": "neutral",
+				"displayName": "Focus Slate",
+				"canonical": "oklch(0.704 0.04 256.788)",
+				"tonalRamp": [
+					"oklch(0.15 0.04 256.788)",
+					"oklch(0.26 0.04 256.788)",
+					"oklch(0.37 0.04 256.788)",
+					"oklch(0.48 0.04 256.788)",
+					"oklch(0.6 0.04 256.788)",
+					"oklch(0.71 0.04 256.788)",
+					"oklch(0.83 0.04 256.788)",
+					"oklch(0.95 0.02 256.788)"
+				]
+			},
+			"overspend-red": {
+				"role": "tertiary",
+				"displayName": "Overspend Red",
+				"canonical": "oklch(0.577 0.245 27.325)",
+				"tonalRamp": [
+					"oklch(0.15 0.245 27.325)",
+					"oklch(0.26 0.245 27.325)",
+					"oklch(0.37 0.245 27.325)",
+					"oklch(0.48 0.245 27.325)",
+					"oklch(0.6 0.245 27.325)",
+					"oklch(0.71 0.245 27.325)",
+					"oklch(0.83 0.245 27.325)",
+					"oklch(0.95 0.122 27.325)"
+				]
+			},
+			"in-the-black-green": {
+				"role": "tertiary",
+				"displayName": "In-the-Black Green",
+				"canonical": "oklch(0.627 0.194 149.214)",
+				"tonalRamp": [
+					"oklch(0.15 0.194 149.214)",
+					"oklch(0.26 0.194 149.214)",
+					"oklch(0.37 0.194 149.214)",
+					"oklch(0.48 0.194 149.214)",
+					"oklch(0.6 0.194 149.214)",
+					"oklch(0.71 0.194 149.214)",
+					"oklch(0.83 0.194 149.214)",
+					"oklch(0.95 0.097 149.214)"
+				]
+			},
+			"caution-amber": {
+				"role": "tertiary",
+				"displayName": "Caution Amber",
+				"canonical": "oklch(0.769 0.188 70.08)",
+				"tonalRamp": [
+					"oklch(0.15 0.188 70.08)",
+					"oklch(0.26 0.188 70.08)",
+					"oklch(0.37 0.188 70.08)",
+					"oklch(0.48 0.188 70.08)",
+					"oklch(0.6 0.188 70.08)",
+					"oklch(0.71 0.188 70.08)",
+					"oklch(0.83 0.188 70.08)",
+					"oklch(0.95 0.094 70.08)"
+				]
+			},
+			"chart-copper": {
+				"role": "secondary",
+				"displayName": "Chart Copper",
+				"canonical": "oklch(0.646 0.222 41.116)",
+				"tonalRamp": [
+					"oklch(0.15 0.222 41.116)",
+					"oklch(0.26 0.222 41.116)",
+					"oklch(0.37 0.222 41.116)",
+					"oklch(0.48 0.222 41.116)",
+					"oklch(0.6 0.222 41.116)",
+					"oklch(0.71 0.222 41.116)",
+					"oklch(0.83 0.222 41.116)",
+					"oklch(0.95 0.111 41.116)"
+				]
+			},
+			"chart-teal": {
+				"role": "secondary",
+				"displayName": "Chart Teal",
+				"canonical": "oklch(0.6 0.118 184.704)",
+				"tonalRamp": [
+					"oklch(0.15 0.118 184.704)",
+					"oklch(0.26 0.118 184.704)",
+					"oklch(0.37 0.118 184.704)",
+					"oklch(0.48 0.118 184.704)",
+					"oklch(0.6 0.118 184.704)",
+					"oklch(0.71 0.118 184.704)",
+					"oklch(0.83 0.118 184.704)",
+					"oklch(0.95 0.059 184.704)"
+				]
+			},
+			"chart-harbour": {
+				"role": "secondary",
+				"displayName": "Chart Harbour",
+				"canonical": "oklch(0.398 0.07 227.392)",
+				"tonalRamp": [
+					"oklch(0.15 0.07 227.392)",
+					"oklch(0.26 0.07 227.392)",
+					"oklch(0.37 0.07 227.392)",
+					"oklch(0.48 0.07 227.392)",
+					"oklch(0.6 0.07 227.392)",
+					"oklch(0.71 0.07 227.392)",
+					"oklch(0.83 0.07 227.392)",
+					"oklch(0.95 0.035 227.392)"
+				]
+			},
+			"chart-mustard": {
+				"role": "secondary",
+				"displayName": "Chart Mustard",
+				"canonical": "oklch(0.828 0.189 84.429)",
+				"tonalRamp": [
+					"oklch(0.15 0.189 84.429)",
+					"oklch(0.26 0.189 84.429)",
+					"oklch(0.37 0.189 84.429)",
+					"oklch(0.48 0.189 84.429)",
+					"oklch(0.6 0.189 84.429)",
+					"oklch(0.71 0.189 84.429)",
+					"oklch(0.83 0.189 84.429)",
+					"oklch(0.95 0.095 84.429)"
+				]
+			}
+		},
+		"typographyMeta": {
+			"display": {
+				"displayName": "Display",
+				"purpose": "Hero money figures (Safe to Spend)."
+			},
+			"headline": {
+				"displayName": "Headline",
+				"purpose": "KPI values, page titles."
+			},
+			"title": {
+				"displayName": "Title",
+				"purpose": "Card and section titles."
+			},
+			"body": {
+				"displayName": "Body",
+				"purpose": "Tables, forms, descriptions."
+			},
+			"label": {
+				"displayName": "Label",
+				"purpose": "Badges, captions, chart ticks."
+			}
+		},
+		"shadows": [
+			{
+				"name": "hint",
+				"value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+				"purpose": "Buttons, inputs, KPI cards."
+			},
+			{
+				"name": "rest",
+				"value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+				"purpose": "Default card."
+			},
+			{
+				"name": "overlay",
+				"value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+				"purpose": "Popovers, dropdowns, sheets."
+			}
+		],
+		"motion": [
+			{
+				"name": "card-beam-spin",
+				"value": "rotate 360deg, 4s linear infinite",
+				"purpose": "Conic border beam on over-budget cards."
+			},
+			{
+				"name": "state-transition",
+				"value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+				"purpose": "Tailwind default for hover/focus."
+			}
+		],
+		"breakpoints": [
+			{
+				"name": "sm",
+				"value": "640px"
+			},
+			{
+				"name": "md",
+				"value": "768px"
+			},
+			{
+				"name": "lg",
+				"value": "1024px"
+			},
+			{
+				"name": "xl",
+				"value": "1280px"
+			}
+		]
+	},
+	"components": [
+		{
+			"name": "Primary Button",
+			"kind": "button",
+			"refersTo": "button-primary",
+			"description": "Default action; ink fill.",
+			"html": "<button class=\"ds-btn ds-btn-primary\">Add transaction</button>",
+			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;transition:all .15s;outline:none;cursor:pointer} .ds-btn:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent)} .ds-btn-primary{background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;box-shadow:0 1px 2px 0 rgb(0 0 0/.05)} .ds-btn-primary:hover{background:color-mix(in oklch,var(--primary) 90%,transparent)}"
+		},
+		{
+			"name": "Outline Button",
+			"kind": "button",
+			"refersTo": "button-outline",
+			"description": "Secondary action; hairline border.",
+			"html": "<button class=\"ds-btn ds-btn-outline\">Sign in</button>",
+			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;transition:all .15s;outline:none;cursor:pointer} .ds-btn:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent)} .ds-btn-outline{background:var(--background);color:var(--foreground);border:1px solid var(--border);box-shadow:0 1px 2px 0 rgb(0 0 0/.05)} .ds-btn-outline:hover{background:var(--accent)}"
+		},
+		{
+			"name": "Destructive Button",
+			"kind": "button",
+			"refersTo": "button-destructive",
+			"description": "Delete / irreversible actions.",
+			"html": "<button class=\"ds-btn ds-btn-destructive\">Delete</button>",
+			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;transition:all .15s;outline:none;cursor:pointer} .ds-btn:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent)} .ds-btn-destructive{background:var(--destructive);color:#fff;border:1px solid transparent} .ds-btn-destructive:hover{background:color-mix(in oklch,var(--destructive) 90%,transparent)}"
+		},
+		{
+			"name": "Text Input",
+			"kind": "input",
+			"refersTo": "input",
+			"description": "Standard form field.",
+			"html": "<input class=\"ds-input\" placeholder=\"Amount\" />",
+			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-input{height:36px;width:240px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:var(--background);color:var(--foreground);font-size:14px;box-shadow:0 1px 2px 0 rgb(0 0 0/.05);outline:none;transition:box-shadow .15s,border-color .15s} .ds-input::placeholder{color:var(--muted-foreground)} .ds-input:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent)}"
+		},
+		{
+			"name": "Badge",
+			"kind": "chip",
+			"refersTo": "badge",
+			"description": "Status pill.",
+			"html": "<span class=\"ds-badge\">Recurring</span> <span class=\"ds-badge ds-badge-destructive\">Over budget</span>",
+			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:12px;font-weight:500;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent} .ds-badge-destructive{background:var(--destructive);color:#fff}"
+		},
+		{
+			"name": "Budget Progress Card",
+			"kind": "card",
+			"refersTo": "card",
+			"description": "KPI card: tabular figure, progress bar, caption; faint ink wash.",
+			"html": "<div class=\"ds-card\"><div class=\"ds-card-label\">Groceries</div><div class=\"ds-card-value\">$412.80 <span>/ $600</span></div><div class=\"ds-bar\"><i style=\"width:69%\"></i></div><div class=\"ds-card-foot\">$187.20 left \u00b7 9 days</div></div>",
+			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-card{width:280px;padding:24px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(to top,color-mix(in oklch,var(--primary) 5%,var(--card)),var(--card));box-shadow:0 1px 2px 0 rgb(0 0 0/.05);color:var(--foreground);display:flex;flex-direction:column;gap:10px} .ds-card-label{font-size:14px;color:var(--muted-foreground)} .ds-card-value{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums} .ds-card-value span{font-size:14px;font-weight:400;color:var(--muted-foreground)} .ds-bar{height:8px;border-radius:9999px;background:color-mix(in oklch,var(--primary) 20%,transparent);overflow:hidden} .ds-bar i{display:block;height:100%;background:var(--primary)} .ds-card-foot{font-size:14px;color:var(--positive);font-variant-numeric:tabular-nums}"
+		},
+		{
+			"name": "Safe-to-Spend Hero",
+			"kind": "custom",
+			"refersTo": "card",
+			"description": "Dashboard lead band: per-day figure + net position.",
+			"html": "<div class=\"ds-hero\"><div class=\"ds-hero-l\"><div class=\"ds-well\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/></svg></div><div><div class=\"ds-muted\">Safe to Spend Today</div><div class=\"ds-big\">$48.20 <span>/day</span></div></div></div><div class=\"ds-hero-r\"><div class=\"ds-muted\">Net Position</div><div class=\"ds-net\">$1,284.50</div><div class=\"ds-muted ds-xs\">9 days left</div></div></div>",
+			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-hero{display:flex;justify-content:space-between;align-items:center;gap:16px;width:560px;padding:16px 24px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(to top,color-mix(in oklch,var(--primary) 5%,var(--card)),var(--card));box-shadow:0 1px 2px 0 rgb(0 0 0/.05);color:var(--foreground)} .ds-hero-l{display:flex;align-items:center;gap:12px} .ds-well{width:48px;height:48px;border-radius:9999px;display:flex;align-items:center;justify-content:center;background:color-mix(in oklch,var(--primary) 10%,transparent);color:var(--primary)} .ds-muted{font-size:14px;color:var(--muted-foreground)} .ds-xs{font-size:12px} .ds-big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums} .ds-big span{font-size:14px;font-weight:400;color:var(--muted-foreground)} .ds-hero-r{text-align:right} .ds-net{font-size:20px;font-weight:700;color:var(--positive);font-variant-numeric:tabular-nums}"
+		}
+	],
+	"narrative": {
+		"northStar": "The Household Ledger",
+		"overview": "The interface behaves like a well-kept ledger book. The neutral slate frame steps back and the numbers speak. Surfaces are white paper in light mode and deep ink-navy in dark mode. Hierarchy comes from the size and weight of figures, not from decoration. Colour is held back for meaning: green when you are in the black, red when you've overspent, amber when a limit is close. The chart palette gives categories their own identities.\n\nThe density is operational. It uses a sidebar shell, a compact 48px header, and grids of KPI cards that reflow from two columns on phones to four or five on desktop. The system is currently a near-stock shadcn-svelte \"slate\" theme on Tailwind v4, and this file records it as a baseline before a redesign. It describes what exists so the replacement can deliberately keep or discard each part.",
+		"keyCharacteristics": [
+			"Cool blue-grey neutrals with one near-black ink primary; no brand hue yet.",
+			"Tabular numerals on every monetary figure.",
+			"Green, red and amber carry money status. The chart palette carries category identity.",
+			"Flat, bordered cards with barely-there shadows and a faint ink-tinted gradient wash.",
+			"Full light and dark parity through CSS custom properties (mode-watcher)."
+		],
+		"rules": [
+			{
+				"name": "The Money-Means-Colour Rule",
+				"body": "Green, red and amber only ever report a money state. Never use them for decoration, emphasis or branding.",
+				"section": "colors"
+			},
+			{
+				"name": "The Category Palette Rule",
+				"body": "Chart tokens identify categories and series. They never signal good or bad.",
+				"section": "colors"
+			},
+			{
+				"name": "The Tabular Figures Rule",
+				"body": "Every currency amount, percentage and count uses tabular-nums so columns and changing values don't jitter.",
+				"section": "typography"
+			},
+			{
+				"name": "The Border-First Rule",
+				"body": "A 1px hairline border separates surfaces. Shadow never replaces the border.",
+				"section": "elevation"
+			}
+		],
+		"dos": [
+			"Do use the semantic CSS tokens (bg-card, text-muted-foreground, border) so light and dark stay in parity.",
+			"Do set every monetary figure in tabular-nums, with the value larger and bolder than its label.",
+			"Do keep green, red and amber for money state, and the chart tokens for category identity.",
+			"Do separate surfaces with a 1px hairline border and at most a Rest shadow.",
+			"Do build new list pages on MonthlyTablePageShell and the existing card grid rhythm (16px gaps, 24px row spacing)."
+		],
+		"donts": [
+			"Don't use green, red or amber decoratively. They always report a money state.",
+			"Don't use chart colours to mean good or bad.",
+			"Don't hard-code Tailwind palette colours where a semantic token exists. Many existing text-red-400/text-green-600 usages are drift, not doctrine.",
+			"Don't extend this baseline for new visual work. A redesign is planned, so route new visual direction through /impeccable new-work."
+		]
+	}
+}
