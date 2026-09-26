@@ -64,7 +64,7 @@ export const actions = {
 		}
 	}),
 
-	changePassword: requireAuth(async ({ request }, currentUser) => {
+	changePassword: requireAuth(async ({ request, getClientAddress }, currentUser) => {
 		const form = await superValidate(request, zod4(changePasswordSchema));
 
 		if (!form.valid) {
@@ -76,11 +76,15 @@ export const actions = {
 		}
 
 		try {
-			const ipAddressHeader =
-				request.headers.get('x-forwarded-for') ||
-				request.headers.get('x-real-ip') ||
-				request.headers.get('x-client-ip');
-			const ipAddress = ipAddressHeader?.split(',')[0]?.trim() || undefined;
+			// Not X-Forwarded-For: its first entry is client-supplied, so a hijacked
+			// session could make the alert show a familiar IP. getClientAddress()
+			// reads the proxy-set Fly-Client-IP (ADDRESS_HEADER in fly.toml).
+			let ipAddress: string | undefined;
+			try {
+				ipAddress = getClientAddress() || undefined;
+			} catch {
+				ipAddress = undefined;
+			}
 			const userAgent = request.headers.get('user-agent') || undefined;
 
 			await auth.api.changePassword({
