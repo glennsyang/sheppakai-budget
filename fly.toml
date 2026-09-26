@@ -11,6 +11,12 @@ primary_region = 'yyz'
 # [deploy]
 #   release_command = "npx drizzle-kit migrate"
 
+[env]
+  # Fly's proxy terminates TCP, so the socket address is the proxy's, not the
+  # client's. Make getClientAddress() (used by the auth rate limiter) read the
+  # real client IP from the header Fly sets on every proxied request.
+  ADDRESS_HEADER = 'Fly-Client-IP'
+
 [[mounts]]
   source = 'sheppakai_budget_data'
   destination = '/data'
