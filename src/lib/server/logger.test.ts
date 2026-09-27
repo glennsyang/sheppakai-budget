@@ -1,5 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+const mockCaptureException = vi.hoisted(() => vi.fn<(...args: unknown[]) => void>());
+const mockCaptureMessage = vi.hoisted(() => vi.fn<(...args: unknown[]) => void>());
+
+vi.mock('@sentry/sveltekit', () => ({
+	captureException: mockCaptureException,
+	captureMessage: mockCaptureMessage
+}));
+
 describe('Logger Utility', () => {
 	let consoleDebugSpy: ReturnType<typeof vi.spyOn>;
 	let consoleInfoSpy: ReturnType<typeof vi.spyOn>;
@@ -129,6 +137,57 @@ describe('Logger Utility', () => {
 			logger.info('User created', { userId: 'abc123', email: 'test@example.com' });
 			const entry = lastEntry(consoleInfoSpy);
 			expect(entry).toMatchObject({ userId: 'abc123', email: 'test@example.com' });
+		});
+	});
+
+	describe('free-text PII redaction in production', () => {
+		beforeEach(() => {
+			vi.stubEnv('NODE_ENV', 'production');
+			vi.resetModules();
+			mockCaptureException.mockClear();
+			mockCaptureMessage.mockClear();
+		});
+
+		it('redacts an email address embedded in an Error message', async () => {
+			const { logger } = await import('./logger');
+			logger.error('Failed operation', new Error('Failed for a@b.com'));
+			const line = consoleErrorSpy.mock.calls.at(-1)?.[0] as string;
+			expect(line).not.toContain('a@b.com');
+			expect(line).toContain('[redacted]');
+		});
+
+		it('redacts a JWT-shaped token embedded in an Error message', async () => {
+			const { logger } = await import('./logger');
+			const fakeJwt =
+				'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dQw4w9WgXcQrRZ4rV9v9v9v9v9v9v9v9v9v9v9v9v9v';
+			logger.error('Token error', new Error(`Bad token: ${fakeJwt}`));
+			const line = consoleErrorSpy.mock.calls.at(-1)?.[0] as string;
+			expect(line).not.toContain(fakeJwt);
+		});
+
+		it('redacts PII in the message and in string meta values', async () => {
+			const { logger } = await import('./logger');
+			logger.warn('Email to a@b.com bounced', { recipient: 'c@d.com' });
+			const line = consoleWarnSpy.mock.calls.at(-1)?.[0] as string;
+			expect(line).not.toContain('a@b.com');
+			expect(line).not.toContain('c@d.com');
+			expect(mockCaptureMessage.mock.calls[0]?.[0]).not.toContain('a@b.com');
+		});
+
+		it('redacts PII in the Error object handed to Sentry', async () => {
+			const { logger } = await import('./logger');
+			logger.error('Failed operation', new Error('Failed for a@b.com'));
+			const [sentryError] = mockCaptureException.mock.calls[0] as [Error];
+			expect(sentryError.message).not.toContain('a@b.com');
+		});
+
+		it('does not redact free text in development', async () => {
+			vi.stubEnv('NODE_ENV', 'development');
+			vi.resetModules();
+			const { logger } = await import('./logger');
+			logger.error('Failed operation', new Error('Failed for a@b.com'));
+			const line = consoleErrorSpy.mock.calls.at(-1)?.[0] as string;
+			expect(line).toContain('a@b.com');
 		});
 	});
 
