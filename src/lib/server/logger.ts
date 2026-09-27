@@ -17,7 +17,7 @@ interface LogContext {
 }
 
 // Stripped from log output and Sentry payloads once IS_DEV is false.
-const PII_FIELDS = new Set(['userId', 'id', 'email', 'password', 'token', 'createdBy', 'updatedBy']);
+const PII_FIELDS = new Set(['userId', 'id', 'email', 'password', 'token', 'createdBy', 'updatedBy', 'ip', 'ipAddress']);
 
 function sanitize(value: unknown): unknown {
 	if (IS_DEV || value === undefined || value === null) return value;
