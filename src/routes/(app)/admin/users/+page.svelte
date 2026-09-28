@@ -6,11 +6,17 @@
 		setPasswordFormContext,
 		setUserRoleFormContext
 	} from '$lib/contexts';
-	import { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
+	import type {
+		banUserSchema,
+		createUserSchema,
+		setPasswordSchema,
+		setUserRoleSchema
+	} from '$lib/formSchemas';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
 	import { columns } from './columns';
+	import CreateUserDialog from './create-user-dialog.svelte';
 
 	interface Props {
 		data: {
@@ -19,6 +25,7 @@
 			setRoleForm: SuperValidated<z.infer<typeof setUserRoleSchema>>;
 			setPasswordForm: SuperValidated<z.infer<typeof setPasswordSchema>>;
 			banUserForm: SuperValidated<z.infer<typeof banUserSchema>>;
+			createUserForm: SuperValidated<z.infer<typeof createUserSchema>>;
 		};
 	}
 
@@ -47,9 +54,12 @@
 </svelte:head>
 
 <div class="space-y-4">
-	<div>
-		<h2 class="text-2xl font-bold">User Management</h2>
-		<p class="text-muted-foreground">Manage user accounts, roles, and permissions</p>
+	<div class="flex flex-wrap items-start justify-between gap-4">
+		<div>
+			<h2 class="text-2xl font-bold">User Management</h2>
+			<p class="text-muted-foreground">Manage user accounts, roles, and permissions</p>
+		</div>
+		<CreateUserDialog data={data.createUserForm} />
 	</div>
 
 	{#if data.loadError}

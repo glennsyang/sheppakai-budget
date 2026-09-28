@@ -40,3 +40,13 @@ export function createAllowlistBeforeHook(appName: string, allowedEmails: Set<st
 		throw new APIError('FORBIDDEN', { message: 'Invalid email or password' });
 	});
 }
+
+/**
+ * The exact `fly secrets set` command that adds `email` to the allowlist, keeping every
+ * existing entry. Admin-created users can't sign in until this has been run, because the
+ * app can't change a Fly secret at runtime.
+ */
+export function buildAllowlistCommand(rawAllowedEmails: string, email: string, flyApp: string) {
+	const emails = [...parseAllowedEmails(rawAllowedEmails), email.trim().toLowerCase()];
+	return `fly secrets set ALLOWED_EMAILS="${[...new Set(emails)].join(',')}" -a ${flyApp}`;
+}

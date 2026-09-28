@@ -41,7 +41,7 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
-		// Accounts are created by an admin only (scripts/create-user.ts).
+		// Accounts are created by an admin only (Admin → Users → Add User).
 		disableSignUp: true,
 		autoSignIn: false,
 		requireEmailVerification: true,

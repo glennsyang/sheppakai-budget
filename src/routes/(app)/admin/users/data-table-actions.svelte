@@ -30,6 +30,7 @@
 	let openUnbanDialog = $state<boolean>(false);
 	let openRevokeDialog = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
+	let openWelcomeModal = $state<boolean>(false);
 	let openSessionsSheet = $state<boolean>(false);
 
 	// Get all forms contexts
@@ -163,6 +164,9 @@
 		{:else}
 			<DropdownMenu.Item onclick={() => (openBanDialog = true)}>Ban User</DropdownMenu.Item>
 		{/if}
+		<DropdownMenu.Item onclick={() => (openWelcomeModal = true)}>
+			Send Welcome Email
+		</DropdownMenu.Item>
 		<DropdownMenu.Item onclick={() => (openSessionsSheet = true)}>List Sessions</DropdownMenu.Item>
 		<DropdownMenu.Item onclick={() => (openRevokeDialog = true)}>Revoke Sessions</DropdownMenu.Item>
 		<DropdownMenu.Item onclick={() => (openDeleteModal = true)}>Delete User</DropdownMenu.Item>
@@ -298,6 +302,16 @@
 	title="Revoke Session"
 	message="Are you sure you want to permanently revoke all sessions for {user.email}? This action cannot be undone."
 	confirmButtonText="Revoke Session"
+/>
+
+<!-- Send Welcome Email Confirmation -->
+<ConfirmModal
+	bind:open={openWelcomeModal}
+	id={user.id}
+	actionUrl="/admin/users?/sendWelcomeEmail"
+	title="Send Welcome Email"
+	message="Send {user.email} a welcome email with a new 72-hour link to set their password?"
+	confirmButtonText="Send Email"
 />
 
 <!-- Delete User Confirmation -->

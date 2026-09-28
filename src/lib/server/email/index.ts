@@ -128,7 +128,10 @@ export async function sendWeeklySummaryEmail(payload: WeeklySummaryEmailPayload)
 		logger.error('❌ Failed to send weekly summary email:', error);
 		throw error;
 	}
-	logger.debug('✅ Weekly summary email sent successfully:', { to: payload.to, result });
+	logger.debug('✅ Weekly summary email sent successfully:', {
+		to: payload.to,
+		result
+	});
 }
 
 export async function sendVerificationEmail(to: string, name: string, verificationUrl: string) {
@@ -287,7 +290,10 @@ export async function sendPasswordChangedEmail(payload: PasswordChangedEmailPayl
 		logger.error('❌ Failed to send password changed email:', error);
 		return error;
 	}
-	logger.debug('✅ Password changed email sent successfully:', { to: payload.to, result });
+	logger.debug('✅ Password changed email sent successfully:', {
+		to: payload.to,
+		result
+	});
 }
 
 export async function sendNewUserEmail(to: string, name: string) {
@@ -306,4 +312,78 @@ export async function sendNewUserEmail(to: string, name: string) {
 		return error;
 	}
 	logger.debug('✅ New user email sent successfully:', { to, result });
+}
+
+type WelcomeEmailPayload = {
+	to: string;
+	name: string;
+	setPasswordUrl: string;
+	signInUrl: string;
+};
+
+/**
+ * Sent when an admin creates an account. Unlike the other auth emails this one throws on
+ * failure: the admin action awaits it and tells the admin to resend, since the new user has
+ * no other way to learn the account exists.
+ */
+export async function sendWelcomeEmail(payload: WelcomeEmailPayload) {
+	logger.debug('📧 Sending welcome email to:', { to: payload.to });
+
+	const setPasswordUrl = escapeHtml(payload.setPasswordUrl);
+	const signInUrl = escapeHtml(payload.signInUrl);
+
+	let result;
+	try {
+		result = await brevo.transactionalEmails.sendTransacEmail({
+			sender: { name: 'Sheppakai Budget', email: BREVO_FROM_ADDRESS },
+			to: [{ email: payload.to, name: payload.name }],
+			subject: '[Sheppakai Budget] Your account is ready',
+			htmlContent: `
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<meta charset="utf-8">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<title>Welcome to Sheppakai Budget</title>
+				</head>
+				<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+					<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+						<h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Sheppakai Budget</h1>
+					</div>
+					<div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+						<p style="font-size: 16px; margin-bottom: 20px;">Hi ${escapeHtml(payload.name)},</p>
+						<p style="font-size: 16px; margin-bottom: 20px;">
+							An account has been created for you on Sheppakai Budget. To get started, choose your own password (at least 12 characters):
+						</p>
+						<div style="text-align: center; margin: 30px 0;">
+							<a href="${setPasswordUrl}"
+							   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+								Set Your Password
+							</a>
+						</div>
+						<p style="font-size: 14px; margin-bottom: 8px;"><strong>Then sign in:</strong></p>
+						<ol style="font-size: 14px; margin: 0 0 20px; padding-left: 20px;">
+							<li>Go to <a href="${signInUrl}">${signInUrl}</a> and sign in with your email and new password.</li>
+							<li>On your first sign-in you'll get a verification email. Click the link in it to finish signing in.</li>
+							<li>You can change your password any time from your Profile page.</li>
+						</ol>
+						<p style="font-size: 14px; color: #6b7280; margin-top: 20px;">
+							The set-password link expires in 72 hours. If it has expired, go to the sign-in page and choose <strong>Forgot password</strong> to get a new one. No password has been shared with anyone: you are the only one who will know it.
+						</p>
+					</div>
+					<div style="text-align: center; margin-top: 20px; padding: 20px; color: #9ca3af; font-size: 12px;">
+						<p>Sheppakai Budget - Your Personal Finance Companion</p>
+					</div>
+				</body>
+				</html>
+			`
+		});
+	} catch (error) {
+		logger.error('❌ Failed to send welcome email:', error);
+		throw error;
+	}
+	logger.debug('✅ Welcome email sent successfully:', {
+		to: payload.to,
+		result
+	});
 }

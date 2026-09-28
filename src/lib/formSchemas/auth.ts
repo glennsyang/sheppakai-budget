@@ -33,6 +33,18 @@ export const setUserRoleSchema = z.object({
 	role: z.string().min(4, 'Role is required').max(5, 'Role must be either user or admin')
 });
 
+// No password field: the server generates a throwaway one and the user sets their own
+// from the welcome email's set-password link.
+export const createUserSchema = z.object({
+	name: z
+		.string()
+		.trim()
+		.min(1, 'Name is required')
+		.max(100, 'Name must be at most 100 characters'),
+	email: z.email('Please enter a valid email address'),
+	role: z.enum(['user', 'admin']).default('user')
+});
+
 export const setPasswordSchema = z.object({
 	userId: z.string().min(1, 'User ID is required'),
 	newPassword: z.string().min(12, 'New password must be at least 12 characters')
