@@ -81,7 +81,7 @@ export function formatCurrencyRounded(amount: number): string {
  * @param error - The error object caught from a better-auth API call
  * @returns The error code string if it exists, undefined otherwise
  */
-function getBetterAuthErrorCode(error: unknown): string | undefined {
+export function getBetterAuthErrorCode(error: unknown): string | undefined {
 	return (error as { body?: { code?: string } })?.body?.code;
 }
 

@@ -1,6 +1,7 @@
 export {
 	banUserSchema,
 	changePasswordSchema,
+	createUserSchema,
 	passwordSchema,
 	resendVerificationSchema,
 	setPasswordSchema,

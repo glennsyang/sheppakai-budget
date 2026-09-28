@@ -5,6 +5,7 @@ import {
 	budgetSchema,
 	categorySchema,
 	changePasswordSchema,
+	createUserSchema,
 	contributionSchema,
 	incomeSchema,
 	passwordSchema,
@@ -274,5 +275,16 @@ describe('form schemas', () => {
 				tip: -5
 			}).success
 		).toBe(false);
+	});
+
+	it('validates create-user schema', () => {
+		const valid = { name: 'New Person', email: 'new@example.com', role: 'admin' };
+		expect(createUserSchema.safeParse(valid).success).toBe(true);
+		expect(createUserSchema.safeParse({ ...valid, name: '  ' }).success).toBe(false);
+		expect(createUserSchema.safeParse({ ...valid, email: 'not-an-email' }).success).toBe(false);
+		expect(createUserSchema.safeParse({ ...valid, role: 'owner' }).success).toBe(false);
+		expect(createUserSchema.parse({ name: 'New Person', email: 'new@example.com' }).role).toBe(
+			'user'
+		);
 	});
 });

@@ -25,7 +25,12 @@ vi.mock('@getbrevo/brevo', () => ({
 	}
 }));
 
-import { sendNewUserEmail, sendPasswordChangedEmail, sendWeeklySummaryEmail } from './index';
+import {
+	sendNewUserEmail,
+	sendPasswordChangedEmail,
+	sendWeeklySummaryEmail,
+	sendWelcomeEmail
+} from './index';
 
 function sentHtml(): string {
 	const [{ htmlContent }] = mockState.send.mock.calls[0];
@@ -124,5 +129,37 @@ describe('sendNewUserEmail', () => {
 		const html = sentHtml();
 		expect(html).not.toContain('<script>alert(1)</script>');
 		expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+	});
+});
+
+describe('sendWelcomeEmail', () => {
+	const payload = {
+		to: 'new@example.com',
+		name: '<script>alert(1)</script>',
+		setPasswordUrl:
+			'https://budget.example.com/api/auth/reset-password/tok?callbackURL=%2Freset-password',
+		signInUrl: 'https://budget.example.com/sign-in'
+	};
+
+	beforeEach(() => {
+		mockState.send.mockReset();
+		mockState.send.mockResolvedValue({ messageId: 'email-id' });
+	});
+
+	it('includes the set-password link and sign-in instructions, escaping the name', async () => {
+		await sendWelcomeEmail(payload);
+
+		const html = sentHtml();
+		expect(html).toContain('href="https://budget.example.com/api/auth/reset-password/tok');
+		expect(html).toContain('https://budget.example.com/sign-in');
+		expect(html).toContain('Forgot password');
+		expect(html).not.toContain('<script>alert(1)</script>');
+		expect(html).toContain('&lt;script&gt;');
+	});
+
+	it('throws when Brevo fails so the caller can surface it', async () => {
+		mockState.send.mockRejectedValue(new Error('brevo down'));
+
+		await expect(sendWelcomeEmail(payload)).rejects.toThrow('brevo down');
 	});
 });

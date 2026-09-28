@@ -19,7 +19,11 @@ vi.mock('better-auth/api', () => ({
 
 vi.mock('./notifications', () => ({ sendAuthAlerts: mockState.sendAuthAlerts }));
 
-import { createAllowlistBeforeHook, parseAllowedEmails } from './auth-allowlist-hook';
+import {
+	buildAllowlistCommand,
+	createAllowlistBeforeHook,
+	parseAllowedEmails
+} from './auth-allowlist-hook';
 
 type FakeCtx = { path: string; body?: { email?: unknown } };
 
@@ -73,5 +77,19 @@ describe('createAllowlistBeforeHook', () => {
 		await expect(
 			hook({ path: '/get-session', body: { email: 'stranger@example.com' } })
 		).resolves.toBeUndefined();
+	});
+});
+
+describe('buildAllowlistCommand', () => {
+	it('appends the new email to the existing normalised list', () => {
+		expect(buildAllowlistCommand(' A@x.com , b@x.com', ' New@X.com ', 'my-app')).toBe(
+			'fly secrets set ALLOWED_EMAILS="a@x.com,b@x.com,new@x.com" -a my-app'
+		);
+	});
+
+	it('does not duplicate an email that is already listed', () => {
+		expect(buildAllowlistCommand('a@x.com', 'A@x.com', 'my-app')).toBe(
+			'fly secrets set ALLOWED_EMAILS="a@x.com" -a my-app'
+		);
 	});
 });
