@@ -32,11 +32,12 @@ import { actions, load } from './+page.server';
 
 const adminLocals = { user: { id: 'admin-1', role: 'admin' } } as App.Locals;
 
-// Sentry's Vite plugin auto-wraps `load`, and its wrapper reads `event.request`/`route`.
+// Sentry's Vite plugin auto-wraps `load`, and its wrapper reads `event.request`/`url`/`route`.
 function loadEvent(locals: App.Locals) {
 	return {
 		locals,
 		request: new Request('https://budget.example.com/admin/api-keys'),
+		url: new URL('https://budget.example.com/admin/api-keys'),
 		route: { id: '/(app)/admin/api-keys' }
 	} as never;
 }
