@@ -8,7 +8,7 @@
 	let { children } = $props();
 </script>
 
-<ModeWatcher />
+<ModeWatcher disableHeadScriptInjection />
 <Toaster position="bottom-right" richColors />
 <Tooltip.Provider>
 	{@render children()}
