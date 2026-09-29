@@ -27,12 +27,13 @@ const config = {
 				// properties (e.g. bits-ui --bits-collapsible-content-height, chart colour
 				// vars) whose values are computed at runtime and cannot be hashed.
 				'style-src-attr': ['unsafe-inline'],
-				'img-src': ['self', 'data:', 'https:'],
+				'img-src': ['self', 'data:'],
 				'font-src': ['self'],
 				'connect-src': ['self', 'https://*.ingest.us.sentry.io', 'https://*.ingest.sentry.io'],
 				'frame-ancestors': ['none'],
 				'object-src': ['none'],
-				'base-uri': ['self']
+				'base-uri': ['self'],
+				'form-action': ['self']
 			}
 		},
 

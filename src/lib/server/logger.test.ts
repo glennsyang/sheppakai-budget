@@ -105,6 +105,7 @@ describe('Logger Utility', () => {
 				updatedBy: 'y',
 				ip: '203.0.113.7',
 				ipAddress: '198.51.100.9',
+				userAgent: 'Mozilla/5.0',
 				action: 'created'
 			});
 			const entry = lastEntry(consoleInfoSpy);
@@ -117,6 +118,7 @@ describe('Logger Utility', () => {
 			expect(entry).not.toHaveProperty('updatedBy');
 			expect(entry).not.toHaveProperty('ip');
 			expect(entry).not.toHaveProperty('ipAddress');
+			expect(entry).not.toHaveProperty('userAgent');
 			expect(entry).toMatchObject({ action: 'created' });
 		});
 
