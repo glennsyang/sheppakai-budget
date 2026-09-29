@@ -17,7 +17,8 @@ const config = {
 			directives: {
 				'default-src': ['self'],
 				// No unsafe-eval or unsafe-inline: layerchart/d3-scale/d3-shape do not use
-				// Function() or eval(); nonce-based CSP covers SvelteKit-injected scripts.
+				// Function() or eval(); nonce-based CSP covers SvelteKit-injected scripts and
+				// the theme pre-paint script in src/app.html (nonce="%sveltekit.nonce%").
 				'script-src': ['self'],
 				// <style> elements: SvelteKit nonce covers SSR-injected ones.
 				// unsafe-inline also required for chart libraries (layerchart) that inject

@@ -17,6 +17,14 @@
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 		<meta name="apple-mobile-web-app-title" content="Budget" />
+		<script nonce="%sveltekit.nonce%">
+			const mode = localStorage.getItem('mode-watcher-mode') ?? 'system';
+			const dark =
+				mode === 'dark' ||
+				(mode === 'system' && !window.matchMedia('(prefers-color-scheme: light)').matches);
+			document.documentElement.classList.toggle('dark', dark);
+			document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

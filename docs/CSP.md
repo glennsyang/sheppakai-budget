@@ -61,23 +61,23 @@ properties via `style="…"` attributes that cannot be hashed ahead of time. So:
 `style-src 'self' 'unsafe-inline'` (plus `https://fonts.googleapis.com` — see below) —
 equivalent for our purposes.
 
-## Known limitation — pre-paint theme scripts
+## Pre-paint theme scripts
 
 Each app runs a tiny inline `<script>` in `<head>` to set the theme/dark class before
-first paint, and SvelteKit's nonce mode only nonces the inline `<script>`/`<style>` **it**
-generates — not these — so each is blocked by `script-src 'self' 'nonce-…'` (a
-`Refused to execute inline script` console entry on cold load):
+first paint. SvelteKit's nonce mode only nonces the inline `<script>`/`<style>` **it**
+generates, so all three apps put this script in `src/app.html` with
+`nonce="%sveltekit.nonce%"` — the only supported way to nonce a hand-written script.
+`script-src` stays `'self'` + the per-request nonce.
 
-- **`budget` / `synapse`** — `<ModeWatcher>` (from `mode-watcher`) injects its FOUC script
-  into `<svelte:head>` via `{@html}`.
-- **`mealplanner`** — a hand-written `localStorage`/`prefers-color-scheme` snippet inline
-  in `src/app.html`.
+- **`budget` / `synapse`** — the snippet mirrors `mode-watcher`'s `setInitialMode`
+  (key `mode-watcher-mode`, so existing preferences carry over), and every
+  `<ModeWatcher>` gets `disableHeadScriptInjection` so it doesn't inject its own
+  un-nonced `{@html}` copy. If a `defaultTheme`/`data-theme` is ever used, pass it to
+  `<ModeWatcher>` too.
+- **`mealplanner`** — the hand-written `localStorage`/`prefers-color-scheme` snippet,
+  nonced the same way.
 
-In every case the real theme is (re)applied after hydration (`<ModeWatcher>`'s `onMount`;
-the Skeleton theme classes), so the only visible effect is a possible brief flash of the
-wrong theme on a cold load. Accepted for #440. If the flash matters, fix it in all repos
-at once — a `'sha256-…'` of the static snippet in `script-src`, `mode-watcher`'s `nonce`
-prop (needs the request nonce threaded through), or `disableHeadScriptInjection`.
+Passing `nonce` to `<ModeWatcher>` doesn't work: components can't read the request nonce.
 
 ## Canonical directive set
 
