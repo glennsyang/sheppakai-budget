@@ -50,8 +50,8 @@ This project is developer-ready and runs locally with a standard Node setup.
 
 ### Prerequisites
 
-- **Node.js 22.22.3** (required for better-sqlite3 compatibility)
-  - Optional with nvm: `nvm use 22.22.3`
+- **Node.js 22.23.3** (required for better-sqlite3 compatibility)
+  - Optional with nvm: `nvm use 22.23.3`
 
 ### Installation
 
