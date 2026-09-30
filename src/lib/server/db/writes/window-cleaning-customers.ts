@@ -1,8 +1,8 @@
 import { getDb } from '$lib/server/db';
 import { windowCleaningCustomerQueries } from '$lib/server/db/queries';
 import { windowCleaningCustomer } from '$lib/server/db/schema';
+import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import type { WindowCleaningCustomer } from '$lib/types';
-import { getCurrentUTCTimestamp } from '$lib/utils/dates';
 import { eq } from 'drizzle-orm';
 
 export type WindowCleaningCustomerInput = {
@@ -16,7 +16,8 @@ export type WindowCleaningCustomerInput = {
 	notes?: string;
 };
 
-function toRow(input: WindowCleaningCustomerInput) {
+/** Input → row mapping shared by the UI form actions and the API write path. */
+export function toWindowCleaningCustomerRow(input: WindowCleaningCustomerInput) {
 	return {
 		name: input.name,
 		address: input.address,
@@ -29,14 +30,13 @@ function toRow(input: WindowCleaningCustomerInput) {
 	};
 }
 
-/** Mirrors `createAction`/`updateAction` field mapping in `src/routes/(app)/window-cleaning/+page.server.ts`. */
 export async function createWindowCleaningCustomer(
 	input: WindowCleaningCustomerInput,
 	userId: string
 ): Promise<WindowCleaningCustomer> {
 	const [inserted] = await getDb()
 		.insert(windowCleaningCustomer)
-		.values({ ...toRow(input), userId, createdBy: userId, updatedBy: userId })
+		.values(withAuditFieldsForCreate({ ...toWindowCleaningCustomerRow(input), userId }, userId))
 		.returning();
 
 	const withRelations = await windowCleaningCustomerQueries.findById(inserted.id);
@@ -53,7 +53,7 @@ export async function updateWindowCleaningCustomer(
 ): Promise<WindowCleaningCustomer | undefined> {
 	await getDb()
 		.update(windowCleaningCustomer)
-		.set({ ...toRow(input), updatedBy: userId, updatedAt: getCurrentUTCTimestamp() })
+		.set(withAuditFieldsForUpdate(toWindowCleaningCustomerRow(input), userId))
 		.where(eq(windowCleaningCustomer.id, id));
 
 	return windowCleaningCustomerQueries.findById(id);

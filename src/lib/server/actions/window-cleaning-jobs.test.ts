@@ -26,6 +26,9 @@ vi.mock('$lib/formSchemas', () => ({ windowCleaningJobSchema: { _tag: 'mock-sche
 vi.mock('$lib/server/db/schema', () => ({
 	windowCleaningJob: { id: 'id-column', _tag: 'mock-table' }
 }));
+// The shared row mapper lives in db/writes, which pulls in the db client and queries
+vi.mock('$lib/server/db', () => ({ getDb: vi.fn<() => void>() }));
+vi.mock('$lib/server/db/queries', () => ({ windowCleaningJobQueries: {} }));
 vi.mock('$lib/utils/dates', () => ({
 	formatDateForStorage: (d: string) => `stored:${d}`
 }));

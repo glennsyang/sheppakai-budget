@@ -62,7 +62,7 @@ vi.mock('$lib/server/notifications/budget-threshold-alerts', () => ({
 	evaluateCreatedTransactionBudgetAlert: mockEvaluateBudgetAlert
 }));
 
-import { createTransaction } from './transactions';
+import { createTransaction, toTransactionRow } from './transactions';
 
 describe('createTransaction', () => {
 	beforeEach(() => {
@@ -145,5 +145,28 @@ describe('createTransaction', () => {
 				'user-1'
 			)
 		).rejects.toThrow('Failed to re-fetch transaction txn-1 after creation');
+	});
+});
+
+describe('toTransactionRow', () => {
+	const base = {
+		amount: 10,
+		payee: 'Shop',
+		notes: 'n',
+		date: '2020-06-15',
+		excludedFromBudget: true,
+		categoryId: 'cat-1'
+	};
+
+	it('maps a missing gstAmount to null so an update can clear it', () => {
+		expect(toTransactionRow(base).gstAmount).toBeNull();
+	});
+
+	it('keeps excludedFromBudget and formats the date for storage', () => {
+		const row = toTransactionRow({ ...base, gstAmount: 0.5 });
+		expect(row.excludedFromBudget).toBe(true);
+		expect(row.gstAmount).toBe(0.5);
+		expect(row.date).toMatch(/^2020-06-15/);
+		expect(row).not.toHaveProperty('userId');
 	});
 });

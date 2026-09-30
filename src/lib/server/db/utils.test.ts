@@ -15,6 +15,13 @@ const makeUser = (id = 'user-1') =>
 	}) as unknown as Parameters<typeof withAuditFieldsForCreate>[1];
 
 describe('withAuditFieldsForCreate', () => {
+	it('accepts a bare userId string', () => {
+		const result = withAuditFieldsForCreate({ name: 'x' }, 'api-user');
+
+		expect(result.createdBy).toBe('api-user');
+		expect(result.updatedBy).toBe('api-user');
+	});
+
 	it('adds createdBy and updatedBy from user.id', () => {
 		const data = { amount: 50, name: 'groceries' };
 		const result = withAuditFieldsForCreate(data, makeUser('abc'));
@@ -41,6 +48,13 @@ describe('withAuditFieldsForCreate', () => {
 });
 
 describe('withAuditFieldsForUpdate', () => {
+	it('accepts a bare userId string', () => {
+		const result = withAuditFieldsForUpdate({ paid: true }, 'api-user');
+
+		expect(result.updatedBy).toBe('api-user');
+		expect(result.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+	});
+
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date('2026-03-15T10:30:00.000Z'));
