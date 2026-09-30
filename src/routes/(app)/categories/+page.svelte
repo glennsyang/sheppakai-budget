@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -37,7 +38,11 @@
 					</Button>
 				</div>
 			</div>
-			<DataTable {columns} data={data.categories} />
+			{#if data.loadError}
+				<LoadErrorBanner message={data.loadError} />
+			{:else}
+				<DataTable {columns} data={data.categories} />
+			{/if}
 		</div>
 	</div>
 </div>

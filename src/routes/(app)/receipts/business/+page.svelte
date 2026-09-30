@@ -77,6 +77,7 @@
 
 <MonthlyTablePageShell
 	title="Business Receipts"
+	loadError={data.loadError}
 	description="Track your business expenses with GST"
 	{selectedMonth}
 	{selectedYear}

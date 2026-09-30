@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
@@ -25,6 +26,9 @@
 		skeletonRows?: number;
 		skeletonColumns?: number;
 		skeletonSummaryCards?: number;
+		// When set, the load failed: show the error instead of an empty table and
+		// zeroed summary totals.
+		loadError?: string;
 	}
 
 	let {
@@ -44,7 +48,8 @@
 		showSummary = true,
 		skeletonRows = 8,
 		skeletonColumns = 5,
-		skeletonSummaryCards = 2
+		skeletonSummaryCards = 2,
+		loadError
 	}: Props = $props();
 
 	// A month/year switch is a same-route navigation: keep the frame and the
@@ -104,6 +109,8 @@
 					</div>
 					{#if reloading.current}
 						<TableSkeleton rows={skeletonRows} columns={skeletonColumns} />
+					{:else if loadError}
+						<LoadErrorBanner message={loadError} />
 					{:else}
 						{@render tableContent()}
 					{/if}
@@ -111,7 +118,7 @@
 			</div>
 		</div>
 
-		{#if showSummary && summaryContent}
+		{#if showSummary && summaryContent && !loadError}
 			<div class={summaryColumnClass}>
 				{#if reloading.current}
 					<CardGridSkeleton

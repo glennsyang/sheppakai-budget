@@ -72,6 +72,7 @@
 
 <MonthlyTablePageShell
 	title="Income"
+	loadError={data.loadError}
 	description="Manage your income sources"
 	{selectedMonth}
 	{selectedYear}

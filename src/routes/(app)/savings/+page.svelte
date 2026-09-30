@@ -1,26 +1,17 @@
 <script lang="ts">
-	import type { Savings } from '$lib';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import SavingsModal from '$lib/components/SavingsModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { savingsFormContext } from '$lib/contexts';
-	import type { savingsSchema } from '$lib/formSchemas';
 	import { formatCurrency } from '$lib/utils';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
+	import type { PageProps } from './$types';
 	import { columns } from './columns';
 
-	interface Props {
-		data: {
-			savings: Savings[];
-			form: SuperValidated<z.infer<typeof savingsSchema>>;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	if (data.form) {
@@ -55,30 +46,36 @@
 							</Button>
 						</div>
 					</div>
-					<DataTable {columns} data={data.savings} />
+					{#if data.loadError}
+						<LoadErrorBanner message={data.loadError} />
+					{:else}
+						<DataTable {columns} data={data.savings} />
+					{/if}
 				</div>
 			</div>
 		</div>
 
-		<!-- Summary Card Column -->
-		<div class="lg:col-span-1">
-			<Card>
-				<CardHeader>
-					<CardTitle class="text-center text-2xl">Total Savings</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div class="text-center">
-						<p class="text-3xl font-bold text-green-600 dark:text-green-400">
-							{formatCurrency(totalSavings)}
-						</p>
-						<p class="text-muted-foreground mt-2 text-sm">
-							{data.savings.length}
-							{data.savings.length === 1 ? 'account' : 'accounts'}
-						</p>
-					</div>
-				</CardContent>
-			</Card>
-		</div>
+		{#if !data.loadError}
+			<!-- Summary Card Column -->
+			<div class="lg:col-span-1">
+				<Card>
+					<CardHeader>
+						<CardTitle class="text-center text-2xl">Total Savings</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div class="text-center">
+							<p class="text-3xl font-bold text-green-600 dark:text-green-400">
+								{formatCurrency(totalSavings)}
+							</p>
+							<p class="text-muted-foreground mt-2 text-sm">
+								{data.savings.length}
+								{data.savings.length === 1 ? 'account' : 'accounts'}
+							</p>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		{/if}
 	</div>
 </div>
 
