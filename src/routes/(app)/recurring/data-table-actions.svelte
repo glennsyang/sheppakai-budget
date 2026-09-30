@@ -6,7 +6,7 @@
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import type { recurringSchema } from '$lib/formSchemas';
+	import { toRecurringFormData, type recurringSchema } from '$lib/formSchemas';
 	import { actionMessage } from '$lib/utils/actionMessage';
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import { getContext } from 'svelte';
@@ -73,13 +73,7 @@
 
 <RecurringModal
 	bind:open={openEditModal}
-	initialData={{
-		id,
-		merchant: recurringData?.merchant,
-		description: recurringData?.description,
-		cadence: recurringData?.cadence,
-		amount: recurringData?.amount
-	}}
+	initialData={toRecurringFormData(recurringData)}
 	{recurringForm}
 	isEditing
 />

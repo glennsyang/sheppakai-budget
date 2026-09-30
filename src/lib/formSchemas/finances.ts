@@ -1,3 +1,4 @@
+import type { Recurring, Transaction } from '$lib/types';
 import { z } from 'zod';
 
 export const transactionSchema = z.object({
@@ -61,3 +62,28 @@ export const togglePaidSchema = z.object({
 	id: z.string().min(1, 'Recurring ID is required'),
 	paid: z.boolean()
 });
+
+export function toTransactionFormData(t: Transaction): z.input<typeof transactionSchema> {
+	return {
+		id: t.id,
+		amount: t.amount,
+		payee: t.payee,
+		notes: t.notes,
+		date: t.date,
+		gstAmount: t.gstAmount ?? undefined,
+		excludedFromBudget: t.excludedFromBudget,
+		categoryId: t.category?.id ?? ''
+	};
+}
+
+export function toRecurringFormData(r: Recurring): z.input<typeof recurringSchema> {
+	return {
+		id: r.id,
+		amount: r.amount,
+		description: r.description,
+		merchant: r.merchant,
+		cadence: r.cadence,
+		dueDay: r.dueDay,
+		dueMonth: r.dueMonth
+	};
+}
