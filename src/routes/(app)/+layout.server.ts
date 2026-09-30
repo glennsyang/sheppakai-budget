@@ -24,7 +24,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		return {
 			user: locals.user,
 			categories: [],
-			loadError: 'Failed to load categories. Please try refreshing the page.'
+			categoriesLoadError: 'Failed to load categories. Please try refreshing the page.'
 		};
 	}
 };

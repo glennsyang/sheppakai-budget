@@ -88,6 +88,7 @@
 
 <MonthlyTablePageShell
 	title="Fuel Receipts"
+	loadError={data.loadError}
 	description="Gas category transactions to track your GST"
 	{selectedMonth}
 	{selectedYear}

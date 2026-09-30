@@ -1,4 +1,5 @@
 <script lang="ts">
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 
 	import { columns, type AdminApiLogEntry } from './columns';
@@ -24,11 +25,7 @@
 	</div>
 
 	{#if data.loadError}
-		<div
-			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
-		>
-			{data.loadError}
-		</div>
+		<LoadErrorBanner message={data.loadError} />
 	{:else if data.entries.length === 0}
 		<div class="flex h-32 items-center justify-center rounded-lg border border-dashed">
 			<p class="text-muted-foreground">No API activity yet</p>

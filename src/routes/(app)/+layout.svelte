@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { navigating, page } from '$app/state';
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import SiteHeader from '$lib/components/SiteHeader.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -32,6 +33,9 @@
 				{#if isCrossRouteNavigation}
 					<LoadingSpinner fullScreen={true} size="lg" />
 				{:else}
+					{#if data.categoriesLoadError}
+						<LoadErrorBanner message={data.categoriesLoadError} />
+					{/if}
 					{@render children()}
 				{/if}
 			</main>

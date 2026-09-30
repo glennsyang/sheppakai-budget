@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { UserWithSessions } from '$lib';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import {
 		banUserFormContext,
@@ -63,11 +64,7 @@
 	</div>
 
 	{#if data.loadError}
-		<div
-			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
-		>
-			{data.loadError}
-		</div>
+		<LoadErrorBanner message={data.loadError} />
 	{:else}
 		<DataTable {columns} data={usersWithSessionsAndRole} />
 	{/if}

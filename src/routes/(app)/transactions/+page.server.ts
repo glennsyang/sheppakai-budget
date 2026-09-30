@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			return {
 				transactions,
 				budgets: [],
-				categorySpending: {},
+				categorySpending: {} as Record<string, number>,
 				excludedFromBudgetTotal: 0,
 				yearlyTransactions: [],
 				completedMonthsSinceJanuary: 0,
@@ -78,7 +78,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		return {
 			transactions: [],
 			budgets: [],
-			categorySpending: {},
+			categorySpending: {} as Record<string, number>,
 			excludedFromBudgetTotal: 0,
 			yearlyTransactions: [],
 			completedMonthsSinceJanuary,

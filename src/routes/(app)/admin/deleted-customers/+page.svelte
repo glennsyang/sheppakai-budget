@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { WindowCleaningCustomer } from '$lib';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import type { restoreCustomerSchema } from '$lib/formSchemas';
 	import { setContext } from 'svelte';
@@ -35,11 +36,7 @@
 	</div>
 
 	{#if data.loadError}
-		<div
-			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
-		>
-			{data.loadError}
-		</div>
+		<LoadErrorBanner message={data.loadError} />
 	{:else if data.deletedCustomers.length === 0}
 		<div class="flex h-64 items-center justify-center rounded-lg border border-dashed">
 			<p class="text-muted-foreground">No deleted customers found</p>

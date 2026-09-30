@@ -19,23 +19,10 @@
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
+	import type { PageProps } from './$types';
 	import { columns } from './columns';
 
-	interface Props {
-		data: {
-			transactions: Transaction[];
-			budgets: Budget[];
-			categorySpending: Record<string, number>;
-			excludedFromBudgetTotal?: number;
-			yearlyTransactions: Transaction[];
-			completedMonthsSinceJanuary: number;
-			form: SuperValidated<z.infer<typeof transactionSchema>>;
-			searchQuery: string;
-			searchLimitReached?: boolean;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	if (data.form) {
@@ -136,6 +123,7 @@
 
 <MonthlyTablePageShell
 	title="Transactions"
+	loadError={data.loadError}
 	description="Manage your daily financial transactions and expenses"
 	{selectedMonth}
 	{selectedYear}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { API_SCOPES, type ApiScope } from '$lib/api-scopes';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
@@ -182,11 +183,7 @@
 	</Card>
 
 	{#if data.loadError}
-		<div
-			class="border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm"
-		>
-			{data.loadError}
-		</div>
+		<LoadErrorBanner message={data.loadError} />
 	{:else if data.apiKeys.length === 0}
 		<div class="flex h-32 items-center justify-center rounded-lg border border-dashed">
 			<p class="text-muted-foreground">No API keys yet</p>
