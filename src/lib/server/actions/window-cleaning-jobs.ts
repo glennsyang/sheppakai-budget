@@ -1,6 +1,6 @@
 import { windowCleaningJobSchema } from '$lib/formSchemas';
 import { windowCleaningJob } from '$lib/server/db/schema';
-import { formatDateForStorage } from '$lib/utils/dates';
+import { toWindowCleaningJobRow } from '$lib/server/db/writes/window-cleaning-jobs';
 
 import { deleteAction, updateAction } from './crud-helpers';
 
@@ -8,15 +8,7 @@ export const updateJob = updateAction({
 	schema: windowCleaningJobSchema,
 	table: windowCleaningJob,
 	entityName: 'Job',
-	transformUpdate: (data) => ({
-		customerId: data.customerId,
-		jobDate: formatDateForStorage(data.jobDate),
-		jobTime: data.jobTime || null,
-		amountCharged: data.amountCharged,
-		tip: data.tip ?? 0,
-		durationHours: data.durationHours ?? null,
-		notes: data.notes || null
-	})
+	transformUpdate: (data) => toWindowCleaningJobRow(data)
 });
 
 export const deleteJob = deleteAction({

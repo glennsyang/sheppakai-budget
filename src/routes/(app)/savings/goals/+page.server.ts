@@ -3,6 +3,7 @@ import { createAction, deleteAction, updateAction } from '$lib/server/actions/cr
 import { getDb } from '$lib/server/db';
 import { savingsGoalQueries } from '$lib/server/db/queries';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
+import { toContributionRow } from '$lib/server/db/writes/contributions';
 import { formatDateForStorage } from '$lib/utils/dates';
 import { desc, eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
@@ -120,25 +121,14 @@ export const actions = {
 		schema: contributionSchema,
 		table: contribution,
 		entityName: 'Contribution',
-		transformCreate: (data, userId) => ({
-			goalId: data.goalId,
-			amount: data.amount,
-			date: formatDateForStorage(data.date),
-			description: data.description || null,
-			userId
-		})
+		transformCreate: (data, userId) => ({ ...toContributionRow(data.goalId, data), userId })
 	}),
 
 	updateContribution: updateAction({
 		schema: contributionSchema,
 		table: contribution,
 		entityName: 'Contribution',
-		transformUpdate: (data) => ({
-			goalId: data.goalId,
-			amount: data.amount,
-			date: formatDateForStorage(data.date),
-			description: data.description || null
-		})
+		transformUpdate: (data) => toContributionRow(data.goalId, data)
 	}),
 
 	deleteContribution: deleteAction({

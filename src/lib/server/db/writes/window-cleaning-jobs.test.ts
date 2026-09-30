@@ -30,7 +30,7 @@ vi.mock('$lib/server/db/queries', () => ({
 }));
 vi.mock('$lib/server/db/schema', () => ({ windowCleaningJob: {} }));
 
-import { createWindowCleaningJob } from './window-cleaning-jobs';
+import { createWindowCleaningJob, toWindowCleaningJobRow } from './window-cleaning-jobs';
 
 const input = { customerId: 'cust-1', jobDate: '2026-08-12', amountCharged: 120, tip: 20 };
 
@@ -66,5 +66,21 @@ describe('createWindowCleaningJob', () => {
 		await expect(createWindowCleaningJob(input, 'user-1')).rejects.toThrow(
 			'Failed to re-fetch window cleaning job job-1 after creation'
 		);
+	});
+});
+
+describe('toWindowCleaningJobRow', () => {
+	it('defaults tip to 0 and coerces empty optional fields to null', () => {
+		const row = toWindowCleaningJobRow({
+			customerId: 'cust-1',
+			jobDate: '2026-03-01',
+			jobTime: '',
+			amountCharged: 80,
+			notes: ''
+		});
+		expect(row.tip).toBe(0);
+		expect(row.jobTime).toBeNull();
+		expect(row.durationHours).toBeNull();
+		expect(row.notes).toBeNull();
 	});
 });

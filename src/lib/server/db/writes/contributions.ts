@@ -1,6 +1,7 @@
 import { getDb } from '$lib/server/db';
 import { contributionQueries } from '$lib/server/db/queries';
 import { contribution } from '$lib/server/db/schema';
+import { withAuditFieldsForCreate } from '$lib/server/db/utils';
 import type { Contribution } from '$lib/types';
 import { formatDateForStorage } from '$lib/utils/dates';
 
@@ -10,7 +11,16 @@ export type CreateContributionInput = {
 	description?: string;
 };
 
-/** Mirrors the `createContribution` action field mapping in `src/routes/(app)/savings/goals/+page.server.ts`. */
+/** Input → row mapping shared by the UI form actions and the API write path. */
+export function toContributionRow(goalId: string, input: CreateContributionInput) {
+	return {
+		goalId,
+		amount: input.amount,
+		date: formatDateForStorage(input.date),
+		description: input.description || null
+	};
+}
+
 export async function createContribution(
 	goalId: string,
 	input: CreateContributionInput,
@@ -18,15 +28,7 @@ export async function createContribution(
 ): Promise<Contribution> {
 	const [inserted] = await getDb()
 		.insert(contribution)
-		.values({
-			goalId,
-			amount: input.amount,
-			date: formatDateForStorage(input.date),
-			description: input.description || null,
-			userId,
-			createdBy: userId,
-			updatedBy: userId
-		})
+		.values(withAuditFieldsForCreate({ ...toContributionRow(goalId, input), userId }, userId))
 		.returning();
 
 	const withRelations = await contributionQueries.findById(inserted.id);

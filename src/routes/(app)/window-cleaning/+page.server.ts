@@ -6,9 +6,11 @@ import { getDb } from '$lib/server/db';
 import { windowCleaningCustomerQueries, windowCleaningJobQueries } from '$lib/server/db/queries';
 import { windowCleaningCustomer, windowCleaningJob } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { toWindowCleaningCustomerRow } from '$lib/server/db/writes/window-cleaning-customers';
+import { toWindowCleaningJobRow } from '$lib/server/db/writes/window-cleaning-jobs';
 import { logger } from '$lib/server/logger';
 import type { WindowCleaningJob } from '$lib/types';
-import { formatDateForStorage, getCurrentUTCTimestamp } from '$lib/utils/dates';
+import { getCurrentUTCTimestamp } from '$lib/utils/dates';
 import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
@@ -81,33 +83,14 @@ export const actions = {
 		schema: windowCleaningCustomerSchema,
 		table: windowCleaningCustomer,
 		entityName: 'Customer',
-		transformCreate: (data, userId) => ({
-			name: data.name,
-			address: data.address,
-			city: data.city,
-			unitNumber: data.unitNumber || null,
-			buzzerNumber: data.buzzerNumber || null,
-			phoneNumber: data.phoneNumber || null,
-			email: data.email || null,
-			notes: data.notes || null,
-			userId
-		})
+		transformCreate: (data, userId) => ({ ...toWindowCleaningCustomerRow(data), userId })
 	}),
 
 	updateCustomer: updateAction({
 		schema: windowCleaningCustomerSchema,
 		table: windowCleaningCustomer,
 		entityName: 'Customer',
-		transformUpdate: (data) => ({
-			name: data.name,
-			address: data.address,
-			city: data.city,
-			unitNumber: data.unitNumber || null,
-			buzzerNumber: data.buzzerNumber || null,
-			phoneNumber: data.phoneNumber || null,
-			email: data.email || null,
-			notes: data.notes || null
-		})
+		transformUpdate: (data) => toWindowCleaningCustomerRow(data)
 	}),
 
 	// Soft-delete: set deletedAt/deletedBy instead of hard delete, so this cannot use deleteAction
@@ -150,16 +133,7 @@ export const actions = {
 		schema: windowCleaningJobSchema,
 		table: windowCleaningJob,
 		entityName: 'Job',
-		transformCreate: (data, userId) => ({
-			customerId: data.customerId,
-			jobDate: formatDateForStorage(data.jobDate),
-			jobTime: data.jobTime || null,
-			amountCharged: data.amountCharged,
-			tip: data.tip ?? 0,
-			durationHours: data.durationHours ?? null,
-			notes: data.notes || null,
-			userId
-		})
+		transformCreate: (data, userId) => ({ ...toWindowCleaningJobRow(data), userId })
 	}),
 
 	updateJob,

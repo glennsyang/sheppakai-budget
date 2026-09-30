@@ -2,9 +2,10 @@ import { incomeSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { incomeQueries } from '$lib/server/db/queries';
 import { income } from '$lib/server/db/schema';
+import { toIncomeRow } from '$lib/server/db/writes/income';
 import { logger } from '$lib/server/logger';
 import { calculateMonthsSinceJanuary } from '$lib/utils/date-metrics';
-import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
+import { getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -50,17 +51,6 @@ export const actions = createCrudActions({
 	schema: incomeSchema,
 	table: income,
 	entityName: 'Income',
-	transformCreate: (data, userId) => ({
-		name: data.name,
-		description: data.description,
-		date: formatDateForStorage(data.date),
-		amount: data.amount,
-		userId
-	}),
-	transformUpdate: (data) => ({
-		name: data.name,
-		description: data.description,
-		date: formatDateForStorage(data.date),
-		amount: data.amount
-	})
+	transformCreate: (data, userId) => ({ ...toIncomeRow(data), userId }),
+	transformUpdate: (data) => toIncomeRow(data)
 }) satisfies Actions;

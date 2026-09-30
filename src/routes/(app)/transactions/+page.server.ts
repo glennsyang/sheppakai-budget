@@ -2,10 +2,11 @@ import { transactionSchema } from '$lib/formSchemas';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { budgetQueries, transactionQueries } from '$lib/server/db/queries';
 import { transaction } from '$lib/server/db/schema';
+import { toTransactionRow } from '$lib/server/db/writes/transactions';
 import { logger } from '$lib/server/logger';
 import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
 import { calculateMonthsSinceJanuary } from '$lib/utils/date-metrics';
-import { formatDateForStorage, getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
+import { getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -94,23 +95,6 @@ export const actions = createCrudActions({
 	table: transaction,
 	entityName: 'Transaction',
 	...transactionBudgetAlertHooks,
-	transformCreate: (data, userId) => ({
-		amount: data.amount,
-		gstAmount: data.gstAmount,
-		payee: data.payee,
-		notes: data.notes,
-		date: formatDateForStorage(data.date),
-		excludedFromBudget: data.excludedFromBudget,
-		categoryId: data.categoryId,
-		userId
-	}),
-	transformUpdate: (data) => ({
-		amount: data.amount,
-		gstAmount: data.gstAmount,
-		payee: data.payee,
-		notes: data.notes,
-		date: formatDateForStorage(data.date),
-		excludedFromBudget: data.excludedFromBudget,
-		categoryId: data.categoryId
-	})
+	transformCreate: (data, userId) => ({ ...toTransactionRow(data), userId }),
+	transformUpdate: (data) => toTransactionRow(data)
 }) satisfies Actions;
