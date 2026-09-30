@@ -30,6 +30,7 @@ export const receiptActions = createCrudActions({
 		notes: data.notes,
 		date: formatDateForStorage(data.date),
 		gstAmount: data.gstAmount ?? null,
+		excludedFromBudget: data.excludedFromBudget,
 		categoryId: data.categoryId,
 		userId
 	}),
@@ -39,6 +40,7 @@ export const receiptActions = createCrudActions({
 		notes: data.notes,
 		date: formatDateForStorage(data.date),
 		gstAmount: data.gstAmount ?? null,
+		excludedFromBudget: data.excludedFromBudget,
 		categoryId: data.categoryId
 	})
 });

@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
-	import type { transactionSchema } from '$lib/formSchemas';
+	import { toTransactionFormData, type transactionSchema } from '$lib/formSchemas';
 	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
@@ -48,15 +48,7 @@
 
 <TransactionModal
 	bind:open={openEditModal}
-	initialData={{
-		id,
-		amount: transactionData?.amount,
-		gstAmount: transactionData?.gstAmount ?? undefined,
-		categoryId: transactionData?.category?.id,
-		payee: transactionData?.payee,
-		notes: transactionData?.notes,
-		date: transactionData?.date
-	}}
+	initialData={toTransactionFormData(transactionData)}
 	isEditing
 	categories={categories()}
 	{transactionForm}
