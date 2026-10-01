@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
 	import type { Income } from '$lib';
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import MonthlyTablePageShell from '$lib/components/MonthlyTablePageShell.svelte';
@@ -8,7 +6,7 @@
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { incomeFormContext } from '$lib/contexts';
 	import { formatCurrency } from '$lib/utils';
-	import { getCurrentPacificMonthYear } from '$lib/utils/dates';
+	import { useMonthYearParams } from '$lib/utils/monthYearParams.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import type { PageProps } from './$types';
@@ -44,26 +42,7 @@
 		return yearlyTotalIncome / completedMonthsSinceJanuary;
 	});
 
-	const { month: defaultMonth, year: defaultYear } = getCurrentPacificMonthYear();
-
-	let selectedMonth = $derived(Number(page.url.searchParams.get('month')) || defaultMonth);
-	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
-
-	function onMonthYearChange(month: number, year: number) {
-		goto(`${'/income'}?month=${month}&year=${year}`, {
-			keepFocus: true,
-			replaceState: true
-		});
-	}
-
-	function onMonthJump(month: string | undefined) {
-		if (month) {
-			goto(`${'/income'}?month=${month}&year=${selectedYear}`, {
-				keepFocus: true,
-				replaceState: true
-			});
-		}
-	}
+	const monthYear = useMonthYearParams('/income');
 </script>
 
 <svelte:head>
@@ -74,10 +53,10 @@
 	title="Income"
 	loadError={data.loadError}
 	description="Manage your income sources"
-	{selectedMonth}
-	{selectedYear}
-	{onMonthYearChange}
-	{onMonthJump}
+	selectedMonth={monthYear.month}
+	selectedYear={monthYear.year}
+	onMonthYearChange={monthYear.onMonthYearChange}
+	onMonthJump={monthYear.onMonthJump}
 	mainClass="flex flex-col gap-6 lg:grid lg:grid-cols-4"
 	tableColumnClass="lg:col-span-3"
 	summaryColumnClass="lg:col-span-1"
