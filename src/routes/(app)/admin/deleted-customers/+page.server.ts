@@ -1,6 +1,5 @@
 import { restoreCustomerSchema } from '$lib/formSchemas';
-import { adminAuthFailure } from '$lib/server/actions/admin-guard';
-import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
+import { adminFormAction } from '$lib/server/actions/admin-guard';
 import { assertAdmin } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { windowCleaningCustomer } from '$lib/server/db/schema';
@@ -40,21 +39,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	restore: async ({ request, locals }) => {
-		// superValidate runs before the guard so the guard has a form to attach its message to.
-		const form = await superValidate(request, zod4(restoreCustomerSchema));
-
-		// The `!locals.user` arm is unreachable — adminAuthFailure already rejects anonymous
-		// callers — but it narrows the type for the audit fields below.
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure || !locals.user) {
-			return authFailure ?? message(form, { type: 'error', text: 'Unauthorized' }, { status: 401 });
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form);
-		}
-
+	restore: adminFormAction(restoreCustomerSchema, async (_event, form, user) => {
 		const db = getDb();
 
 		try {
@@ -66,7 +51,7 @@ export const actions: Actions = {
 							deletedAt: null,
 							deletedBy: null
 						},
-						locals.user
+						user
 					)
 				)
 				.where(eq(windowCleaningCustomer.id, form.data.customerId));
@@ -77,5 +62,5 @@ export const actions: Actions = {
 			logger.error('Failed to restore customer', error);
 			return message(form, { type: 'error', text: 'Failed to restore customer' }, { status: 500 });
 		}
-	}
+	})
 };

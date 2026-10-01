@@ -1,6 +1,5 @@
 import { unArchiveSchema } from '$lib/formSchemas';
-import { adminAuthFailure } from '$lib/server/actions/admin-guard';
-import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
+import { adminFormAction } from '$lib/server/actions/admin-guard';
 import { assertAdmin } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
 import { savingsGoal } from '$lib/server/db/schema';
@@ -43,21 +42,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	unarchive: async ({ request, locals }) => {
-		// superValidate runs before the guard so the guard has a form to attach its message to.
-		const form = await superValidate(request, zod4(unArchiveSchema));
-
-		// The `!locals.user` arm is unreachable — adminAuthFailure already rejects anonymous
-		// callers — but it narrows the type for the audit fields below.
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure || !locals.user) {
-			return authFailure ?? message(form, { type: 'error', text: 'Unauthorized' }, { status: 401 });
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form);
-		}
-
+	unarchive: adminFormAction(unArchiveSchema, async (_event, form, user) => {
 		const db = getDb();
 
 		try {
@@ -69,7 +54,7 @@ export const actions: Actions = {
 						{
 							status: 'active'
 						},
-						locals.user
+						user
 					)
 				)
 				.where(eq(savingsGoal.id, form.data.goalId));
@@ -87,5 +72,5 @@ export const actions: Actions = {
 				{ status: 500 }
 			);
 		}
-	}
+	})
 };
