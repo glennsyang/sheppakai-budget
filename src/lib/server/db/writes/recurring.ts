@@ -6,10 +6,9 @@ import type { Recurring } from '$lib/types';
 import { eq } from 'drizzle-orm';
 
 /**
- * Update path for API-key-driven paid/unpaid toggling, gated by the narrower
- * `recurring:markPaid` scope rather than a general `recurring:write` scope — the API
- * counterpart of the UI's `togglePaid` action, without granting the API broader update
- * access to other fields on a recurring entry.
+ * The single write path for paid/unpaid toggling, shared by the UI's `togglePaid` action and
+ * the API. The API gates it behind the narrower `recurring:markPaid` scope rather than a
+ * general `recurring:write` scope, so it never gets broader update access to other fields.
  */
 export async function markRecurringPaid(
 	id: string,

@@ -1,10 +1,9 @@
 import { recurringSchema, togglePaidSchema } from '$lib/formSchemas/finances';
 import { getUser, requireAuth } from '$lib/server/actions/auth-guard';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
-import { getDb } from '$lib/server/db';
 import { recurringQueries } from '$lib/server/db/queries';
 import { recurring } from '$lib/server/db/schema';
-import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { markRecurringPaid } from '$lib/server/db/writes/recurring';
 import { logger } from '$lib/server/logger';
 import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
@@ -58,10 +57,7 @@ export const actions = {
 		}
 
 		try {
-			await getDb()
-				.update(recurring)
-				.set(withAuditFieldsForUpdate({ paid: form.data.paid }, user))
-				.where(eq(recurring.id, form.data.id));
+			await markRecurringPaid(form.data.id, form.data.paid, user.id);
 			logger.info(`Toggled paid status for recurring expense ${form.data.id} to ${form.data.paid}`);
 			return message(form, { type: 'success', text: 'Paid status updated' });
 		} catch (error) {
