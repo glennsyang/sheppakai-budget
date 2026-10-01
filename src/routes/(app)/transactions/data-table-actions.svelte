@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { Transaction } from '$lib';
-	import RowActions from '$lib/components/RowActions.svelte';
+	import TransactionRowActions from '$lib/components/TransactionRowActions.svelte';
 
 	let { id, transactionData }: { id: string; transactionData: Transaction } = $props();
 </script>
 
-<RowActions
+<TransactionRowActions
 	{id}
 	{transactionData}
 	actionUrl="/transactions?/delete"

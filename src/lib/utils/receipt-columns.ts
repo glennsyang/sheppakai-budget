@@ -1,6 +1,6 @@
 import type { Transaction } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import RowActions from '$lib/components/RowActions.svelte';
+import TransactionRowActions from '$lib/components/TransactionRowActions.svelte';
 import {
 	type Features,
 	renderComponent,
@@ -68,7 +68,7 @@ export function createReceiptColumns(
 		{
 			id: 'actions',
 			cell: ({ row }) =>
-				renderComponent(RowActions, {
+				renderComponent(TransactionRowActions, {
 					id: row.original.id,
 					transactionData: row.original,
 					actionUrl,

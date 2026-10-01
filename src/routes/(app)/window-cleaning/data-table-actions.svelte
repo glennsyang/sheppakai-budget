@@ -1,12 +1,11 @@
 <script lang="ts">
 	import type { WindowCleaningCustomer, WindowCleaningCustomerWithStats } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import WindowCleaningCustomerModal from '$lib/components/WindowCleaningCustomerModal.svelte';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
 	import type { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import { getContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
@@ -26,37 +25,14 @@
 	) => void;
 </script>
 
-<DropdownMenu.Root>
-	<DropdownMenu.Trigger>
-		{#snippet child({ props }: { props: Record<string, unknown> })}
-			<Button
-				{...props}
-				variant="ghost"
-				size="icon"
-				class="relative size-8 p-0"
-				onclick={(e: MouseEvent) => {
-					e.stopPropagation();
-					(props.onclick as ((event: MouseEvent) => void) | undefined)?.(e);
-				}}
-			>
-				<span class="sr-only">Open menu</span>
-				<EllipsisIcon />
-			</Button>
-		{/snippet}
-	</DropdownMenu.Trigger>
-	<DropdownMenu.Content>
-		<DropdownMenu.Item onclick={() => (openEditModal = true)}>Edit</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => (openLogJobModal = true)}>Log Job</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => openCustomerSheet(customerData)}>View Jobs</DropdownMenu.Item>
-		<DropdownMenu.Separator />
-		<DropdownMenu.Item
-			class="text-destructive focus:text-destructive"
-			onclick={() => (openDeleteModal = true)}
-		>
-			Delete
-		</DropdownMenu.Item>
-	</DropdownMenu.Content>
-</DropdownMenu.Root>
+<RowActionsMenu
+	onEdit={() => (openEditModal = true)}
+	onDelete={() => (openDeleteModal = true)}
+	stopTriggerPropagation
+>
+	<DropdownMenu.Item onclick={() => (openLogJobModal = true)}>Log Job</DropdownMenu.Item>
+	<DropdownMenu.Item onclick={() => openCustomerSheet(customerData)}>View Jobs</DropdownMenu.Item>
+</RowActionsMenu>
 
 <WindowCleaningCustomerModal
 	bind:open={openEditModal}
