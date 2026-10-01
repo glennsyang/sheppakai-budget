@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
 	import type { Budget, ChartData } from '$lib';
 	import AreaChart from '$lib/components/AreaChart.svelte';
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
@@ -10,7 +8,8 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
 	import { months } from '$lib/utils';
-	import { getCurrentPacificMonthYear, padMonth } from '$lib/utils/dates';
+	import { padMonth } from '$lib/utils/dates';
+	import { useMonthYearParams } from '$lib/utils/monthYearParams.svelte';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
@@ -31,20 +30,9 @@
 	// Calculate total recurring expenses
 	let totalRecurring = $derived((data.recurring || []).reduce((sum, item) => sum + item.amount, 0));
 
-	const { month: defaultMonth, year: defaultYear } = getCurrentPacificMonthYear();
-
-	let selectedMonth = $derived(Number(page.url.searchParams.get('month')) || defaultMonth);
-	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
-
-	function onMonthYearChange(month: number, year: number) {
-		goto(`?month=${month}&year=${year}`, { keepFocus: true, replaceState: true });
-	}
-
-	function onMonthJump(month: string | undefined) {
-		if (month) {
-			goto(`?month=${month}&year=${selectedYear}`, { keepFocus: true, replaceState: true });
-		}
-	}
+	const monthYear = useMonthYearParams('/budget');
+	let selectedMonth = $derived(monthYear.month);
+	let selectedYear = $derived(monthYear.year);
 
 	const categories = getCategoriesContext();
 
@@ -270,11 +258,15 @@
 				<MonthYearSwitcher
 					currentMonth={selectedMonth}
 					currentYear={selectedYear}
-					onMonthChange={onMonthYearChange}
+					onMonthChange={monthYear.onMonthYearChange}
 				/>
 			</div>
 			<div class="w-full md:w-44">
-				<Select.Root type="single" value={selectedMonth.toString()} onValueChange={onMonthJump}>
+				<Select.Root
+					type="single"
+					value={selectedMonth.toString()}
+					onValueChange={monthYear.onMonthJump}
+				>
 					<Select.Trigger class="w-full">
 						{months.find((m) => m.value === selectedMonth.toString())?.label || 'Jump to Month'}
 					</Select.Trigger>

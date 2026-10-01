@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
 	import type { Budget, Transaction } from '$lib';
 	import CategoryBudgetProgress from '$lib/components/CategoryBudgetProgress.svelte';
 	import MonthlyTablePageShell from '$lib/components/MonthlyTablePageShell.svelte';
@@ -11,7 +10,7 @@
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
 	import type { transactionSchema } from '$lib/formSchemas';
 	import { formatCurrency } from '$lib/utils';
-	import { getCurrentPacificMonthYear } from '$lib/utils/dates';
+	import { useMonthYearParams } from '$lib/utils/monthYearParams.svelte';
 	import { calculateTransactionSummary } from '$lib/utils/transaction-summary';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -58,38 +57,19 @@
 			const trimmed = value.trim().slice(0, MAX_SEARCH_QUERY_LENGTH);
 			const url = trimmed
 				? `/transactions?search=${encodeURIComponent(trimmed)}`
-				: `/transactions?month=${selectedMonth}&year=${selectedYear}`;
+				: `/transactions?month=${monthYear.month}&year=${monthYear.year}`;
 			goto(url, { keepFocus: true, replaceState: true });
 		}, 500);
 	}
 
 	function clearSearch() {
-		goto(`/transactions?month=${selectedMonth}&year=${selectedYear}`, {
+		goto(`/transactions?month=${monthYear.month}&year=${monthYear.year}`, {
 			keepFocus: true,
 			replaceState: true
 		});
 	}
 
-	const { month: defaultMonth, year: defaultYear } = getCurrentPacificMonthYear();
-
-	let selectedMonth = $derived(Number(page.url.searchParams.get('month')) || defaultMonth);
-	let selectedYear = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
-
-	function onMonthYearChange(month: number, year: number) {
-		goto(`${'/transactions'}?month=${month}&year=${year}`, {
-			keepFocus: true,
-			replaceState: true
-		});
-	}
-
-	function onMonthJump(month: string | undefined) {
-		if (month) {
-			goto(`${'/transactions'}?month=${month}&year=${selectedYear}`, {
-				keepFocus: true,
-				replaceState: true
-			});
-		}
-	}
+	const monthYear = useMonthYearParams('/transactions');
 
 	const categories = getCategoriesContext();
 	let excludedFromBudgetTotal = $derived(data.excludedFromBudgetTotal ?? 0);
@@ -125,10 +105,10 @@
 	title="Transactions"
 	loadError={data.loadError}
 	description="Manage your daily financial transactions and expenses"
-	{selectedMonth}
-	{selectedYear}
-	{onMonthYearChange}
-	{onMonthJump}
+	selectedMonth={monthYear.month}
+	selectedYear={monthYear.year}
+	onMonthYearChange={monthYear.onMonthYearChange}
+	onMonthJump={monthYear.onMonthJump}
 	mainClass={data.searchQuery
 		? 'flex flex-col gap-6'
 		: 'flex flex-col gap-6 lg:grid lg:grid-cols-4'}
