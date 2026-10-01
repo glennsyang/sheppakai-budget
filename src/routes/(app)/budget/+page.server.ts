@@ -1,14 +1,11 @@
 import { budgetSchema } from '$lib/formSchemas';
-import { requireAuth } from '$lib/server/actions/auth-guard';
+import { createAction, updateAction } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';
 import { budgetQueries, recurringQueries } from '$lib/server/db/queries';
 import { budget, transaction } from '$lib/server/db/schema';
-import { withAuditFieldsForCreate, withAuditFieldsForUpdate } from '$lib/server/db/utils';
-import { logger } from '$lib/server/logger';
 import { getMonthYearFromUrl, padMonth } from '$lib/utils/dates';
 import { and, eq, sql } from 'drizzle-orm';
-import { message, superValidate } from 'sveltekit-superforms';
-import { zod4 } from 'sveltekit-superforms/adapters';
+import type { z } from 'zod';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -102,92 +99,32 @@ export const load: PageServerLoad = async ({ url }) => {
 	};
 };
 
-export const actions = {
-	create: requireAuth(async ({ request }, user) => {
-		const form = await superValidate(request, zod4(budgetSchema));
-
-		if (!form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form.' },
-				{ status: 400 }
-			);
-		}
-
-		try {
-			await getDb()
-				.insert(budget)
-				.values(
-					withAuditFieldsForCreate(
-						{
-							amount: form.data.amount,
-							year: form.data.year,
-							month: form.data.month,
-							presetType: form.data.presetType || null,
-							categoryId: form.data.categoryId,
-							userId: user.id
-						},
-						user
-					)
-				);
-
-			logger.info('budget created successfully', { month: form.data.month, year: form.data.year });
-		} catch (error) {
-			logger.error('Failed to create budget', error);
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to create budget. A database error occurred.' },
-				{ status: 500 }
-			);
-		}
-
-		return message(form, { type: 'success', text: 'Budget saved successfully' });
+const budgetActionConfig = {
+	schema: budgetSchema,
+	table: budget,
+	entityName: 'Budget',
+	messages: {
+		createSuccess: 'Budget saved successfully',
+		updateSuccess: 'Budget saved successfully'
+	},
+	transformCreate: (data: z.infer<typeof budgetSchema>, userId: string) => ({
+		amount: data.amount,
+		year: data.year,
+		month: data.month,
+		presetType: data.presetType || null,
+		categoryId: data.categoryId,
+		userId
 	}),
-
-	update: requireAuth(async ({ request }, user) => {
-		const form = await superValidate(request, zod4(budgetSchema));
-
-		if (!form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form.' },
-				{ status: 400 }
-			);
-		}
-
-		const budgetId = form.data.id;
-
-		if (!budgetId) {
-			return message(form, { type: 'error', text: 'Budget ID is required.' }, { status: 400 });
-		}
-
-		try {
-			await getDb()
-				.update(budget)
-				.set(
-					withAuditFieldsForUpdate(
-						{
-							amount: form.data.amount,
-							year: form.data.year,
-							month: form.data.month,
-							presetType: form.data.presetType || null,
-							categoryId: form.data.categoryId
-						},
-						user
-					)
-				)
-				.where(eq(budget.id, budgetId));
-
-			logger.info('budget updated successfully', { id: budgetId });
-		} catch (error) {
-			logger.error('Failed to update budget', error);
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to update budget. A database error occurred.' },
-				{ status: 500 }
-			);
-		}
-
-		return message(form, { type: 'success', text: 'Budget saved successfully' });
+	transformUpdate: (data: z.infer<typeof budgetSchema>) => ({
+		amount: data.amount,
+		year: data.year,
+		month: data.month,
+		presetType: data.presetType || null,
+		categoryId: data.categoryId
 	})
+};
+
+export const actions = {
+	create: createAction(budgetActionConfig),
+	update: updateAction(budgetActionConfig)
 } satisfies Actions;
