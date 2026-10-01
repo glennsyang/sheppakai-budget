@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { UserWithSessions } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
+	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -16,7 +17,6 @@
 	} from '$lib/contexts';
 	import type { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 	import { toast } from 'svelte-sonner';
 	import { superForm, type SuperValidated } from 'sveltekit-superforms';
@@ -145,33 +145,19 @@
 	}
 </script>
 
-<DropdownMenu.Root>
-	<DropdownMenu.Trigger>
-		{#snippet child({ props })}
-			<Button {...props} variant="ghost" size="icon" class="relative size-8 p-0">
-				<span class="sr-only">Open menu</span>
-				<EllipsisIcon />
-			</Button>
-		{/snippet}
-	</DropdownMenu.Trigger>
-	<DropdownMenu.Content>
-		<DropdownMenu.Item onclick={() => (openSetRoleDialog = true)}>Set Role</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => (openSetPasswordDialog = true)}>
-			Set Password
-		</DropdownMenu.Item>
-		{#if user.banned}
-			<DropdownMenu.Item onclick={() => (openUnbanDialog = true)}>Unban User</DropdownMenu.Item>
-		{:else}
-			<DropdownMenu.Item onclick={() => (openBanDialog = true)}>Ban User</DropdownMenu.Item>
-		{/if}
-		<DropdownMenu.Item onclick={() => (openWelcomeModal = true)}>
-			Send Welcome Email
-		</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => (openSessionsSheet = true)}>List Sessions</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => (openRevokeDialog = true)}>Revoke Sessions</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => (openDeleteModal = true)}>Delete User</DropdownMenu.Item>
-	</DropdownMenu.Content>
-</DropdownMenu.Root>
+<RowActionsMenu onDelete={() => (openDeleteModal = true)} deleteLabel="Delete User">
+	<DropdownMenu.Item onclick={() => (openSetRoleDialog = true)}>Set Role</DropdownMenu.Item>
+	<DropdownMenu.Item onclick={() => (openSetPasswordDialog = true)}>Set Password</DropdownMenu.Item>
+	{#if user.banned}
+		<DropdownMenu.Item onclick={() => (openUnbanDialog = true)}>Unban User</DropdownMenu.Item>
+	{:else}
+		<DropdownMenu.Item onclick={() => (openBanDialog = true)}>Ban User</DropdownMenu.Item>
+	{/if}
+	<DropdownMenu.Item onclick={() => (openWelcomeModal = true)}>Send Welcome Email</DropdownMenu.Item
+	>
+	<DropdownMenu.Item onclick={() => (openSessionsSheet = true)}>List Sessions</DropdownMenu.Item>
+	<DropdownMenu.Item onclick={() => (openRevokeDialog = true)}>Revoke Sessions</DropdownMenu.Item>
+</RowActionsMenu>
 
 <!-- Set Role Dialog -->
 <Dialog.Root bind:open={openSetRoleDialog}>

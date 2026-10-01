@@ -2,11 +2,9 @@
 	import type { Income } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import { incomeFormContext } from '$lib/contexts';
 	import type { incomeSchema } from '$lib/formSchemas';
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 
@@ -18,20 +16,7 @@
 	const incomeForm = incomeFormContext.get() as SuperValidated<z.infer<typeof incomeSchema>>;
 </script>
 
-<DropdownMenu.Root>
-	<DropdownMenu.Trigger>
-		{#snippet child({ props })}
-			<Button {...props} variant="ghost" size="icon" class="relative size-8 p-0">
-				<span class="sr-only">Open menu</span>
-				<EllipsisIcon />
-			</Button>
-		{/snippet}
-	</DropdownMenu.Trigger>
-	<DropdownMenu.Content>
-		<DropdownMenu.Item onclick={() => (openEditModal = true)}>Edit</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => (openDeleteModal = true)}>Delete</DropdownMenu.Item>
-	</DropdownMenu.Content>
-</DropdownMenu.Root>
+<RowActionsMenu onEdit={() => (openEditModal = true)} onDelete={() => (openDeleteModal = true)} />
 
 <IncomeModal
 	bind:open={openEditModal}
