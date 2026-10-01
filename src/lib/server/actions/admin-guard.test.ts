@@ -63,7 +63,7 @@ describe('adminFormAction', () => {
 		expect(handler).not.toHaveBeenCalled();
 	});
 
-	it('rejects before validating the form for a non-admin', async () => {
+	it('reports 403, not the form errors, for a non-admin with an invalid form', async () => {
 		const result = await adminFormAction(
 			schema,
 			handler
