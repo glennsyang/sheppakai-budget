@@ -1,8 +1,7 @@
 import type { ApiScope } from '$lib/api-scopes';
 import { scopesToPermissions } from '$lib/api-scopes';
 import { createApiKeySchema, idSchema } from '$lib/formSchemas';
-import { adminAuthFailure } from '$lib/server/actions/admin-guard';
-import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
+import { adminFormAction } from '$lib/server/actions/admin-guard';
 import { assertAdmin, auth } from '$lib/server/auth';
 import { apiKeyQueries } from '$lib/server/db/queries';
 import { deleteApiKeyById } from '$lib/server/db/writes/api-keys';
@@ -37,21 +36,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	create: async ({ request, locals }) => {
-		// superValidate runs before the guard so the guard has a form to attach its message to.
-		const form = await superValidate(request, zod4(createApiKeySchema));
-
-		// The `!locals.user` arm is unreachable — adminAuthFailure already rejects anonymous
-		// callers — but it narrows the type so `locals.user.id` below is safe.
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure || !locals.user) {
-			return authFailure ?? message(form, { type: 'error', text: 'Unauthorized' }, { status: 401 });
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form);
-		}
-
+	create: adminFormAction(createApiKeySchema, async (_event, form, user) => {
 		try {
 			// Deliberately not passing `headers` here: the plugin only accepts server-only fields
 			// like `permissions` and rate-limit overrides on a "trusted server" call (no headers/
@@ -59,7 +44,7 @@ export const actions: Actions = {
 			const created = await auth.api.createApiKey({
 				body: {
 					name: form.data.name,
-					userId: locals.user.id,
+					userId: user.id,
 					permissions: scopesToPermissions(form.data.scopes as ApiScope[]),
 					expiresIn: form.data.expiresInDays ? form.data.expiresInDays * 86400 : undefined
 				}
@@ -85,31 +70,20 @@ export const actions: Actions = {
 				{ status: 500 }
 			);
 		}
-	},
+	}),
 
-	revoke: async ({ request, locals }) => {
+	revoke: adminFormAction(idSchema, async (_event, form, user) => {
 		// Revokes any user's key, not only the caller's (see `deleteApiKeyById`).
-		const form = await superValidate(request, zod4(idSchema));
-
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form);
-		}
-
 		try {
 			const deleted = await deleteApiKeyById(form.data.id);
 			if (!deleted) {
 				return message(form, { type: 'error', text: 'API key not found.' }, { status: 404 });
 			}
-			logger.info('API key revoked', { keyId: form.data.id, revokedBy: locals.user?.id });
+			logger.info('API key revoked', { keyId: form.data.id, revokedBy: user.id });
 			return message(form, { type: 'success', text: 'API key revoked.' });
 		} catch (error) {
 			logger.error('Failed to revoke API key', error);
 			return message(form, { type: 'error', text: 'Failed to revoke API key.' }, { status: 500 });
 		}
-	}
+	})
 } satisfies Actions;

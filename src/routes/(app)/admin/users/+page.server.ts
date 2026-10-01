@@ -7,8 +7,7 @@ import {
 	setUserRoleSchema,
 	userIdSchema
 } from '$lib/formSchemas';
-import { adminAuthFailure } from '$lib/server/actions/admin-guard';
-import { invalidAuthForm } from '$lib/server/actions/auth-form-handler';
+import { adminFormAction } from '$lib/server/actions/admin-guard';
 import { isAdminUser } from '$lib/server/admin-status';
 import { assertAdmin, auth } from '$lib/server/auth';
 import { allowlistCommandFor, isEmailAllowlisted, sendWelcome } from '$lib/server/auth/welcome';
@@ -128,18 +127,7 @@ export const load: PageServerLoad = async ({ request, locals }) => {
 };
 
 export const actions: Actions = {
-	createUser: async ({ request, locals }) => {
-		const form = await superValidate(request, zod4(createUserSchema));
-
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form);
-		}
-
+	createUser: adminFormAction(createUserSchema, async ({ request }, form, user) => {
 		let created: { id: string; email: string; name: string };
 		try {
 			const result = await auth.api.createUser({
@@ -174,7 +162,7 @@ export const actions: Actions = {
 		}
 
 		logger.info('Admin created user', {
-			adminId: locals.user?.id,
+			adminId: user.id,
 			userId: created.id
 		});
 		void sendAuthAlerts(
@@ -217,76 +205,57 @@ export const actions: Actions = {
 			type: 'success',
 			text: `User created and welcome email sent.`
 		});
-	},
+	}),
 
-	sendWelcomeEmail: async ({ request, locals }) => {
-		const form = await superValidate(request, zod4(userIdSchema));
+	sendWelcomeEmail: adminFormAction(
+		userIdSchema,
+		async ({ request }, form, admin) => {
+			try {
+				const user = await auth.api.getUser({
+					query: { id: form.data.id },
+					headers: request.headers
+				});
 
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
+				if (!isEmailAllowlisted(user.email)) {
+					return message(
+						form,
+						{
+							type: 'error',
+							text: `${user.email} isn't in ALLOWED_EMAILS yet. Run: ${allowlistCommandFor(user.email)}`
+						},
+						{ status: 400 }
+					);
+				}
 
-		if (!form.valid) {
-			return invalidAuthForm(form, 'User ID is required');
-		}
+				await sendWelcome(user);
 
-		try {
-			const user = await auth.api.getUser({
-				query: { id: form.data.id },
-				headers: request.headers
-			});
-
-			if (!isEmailAllowlisted(user.email)) {
+				logger.info('Welcome email sent', {
+					adminId: admin.id,
+					userId: user.id
+				});
+				void sendAuthAlerts(
+					`Welcome email resent by admin to: ${user.email}`,
+					'Sheppakai Budget - Security Alert',
+					3
+				);
+				return message(form, { type: 'success', text: 'Welcome email sent' });
+			} catch (error) {
+				if (isRedirect(error)) throw error;
+				logger.error('Failed to send welcome email', {
+					userId: form.data.id,
+					error
+				});
 				return message(
 					form,
-					{
-						type: 'error',
-						text: `${user.email} isn't in ALLOWED_EMAILS yet. Run: ${allowlistCommandFor(user.email)}`
-					},
-					{ status: 400 }
+					{ type: 'error', text: 'Failed to send welcome email' },
+					{ status: 500 }
 				);
 			}
+		},
+		{ invalidMessage: 'User ID is required' }
+	),
 
-			await sendWelcome(user);
-
-			logger.info('Welcome email sent', {
-				adminId: locals.user?.id,
-				userId: user.id
-			});
-			void sendAuthAlerts(
-				`Welcome email resent by admin to: ${user.email}`,
-				'Sheppakai Budget - Security Alert',
-				3
-			);
-			return message(form, { type: 'success', text: 'Welcome email sent' });
-		} catch (error) {
-			if (isRedirect(error)) throw error;
-			logger.error('Failed to send welcome email', {
-				userId: form.data.id,
-				error
-			});
-			return message(
-				form,
-				{ type: 'error', text: 'Failed to send welcome email' },
-				{ status: 500 }
-			);
-		}
-	},
-
-	setRole: async ({ request, locals }) => {
-		// superValidate runs before the guard so the guard has a form to attach its message to.
-		const form = await superValidate(request, zod4(setUserRoleSchema));
-
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form);
-		}
-
+	setRole: adminFormAction(setUserRoleSchema, async ({ request }, form) => {
 		try {
 			await auth.api.setRole({
 				body: {
@@ -331,20 +300,9 @@ export const actions: Actions = {
 				{ status: 500 }
 			);
 		}
-	},
+	}),
 
-	setPassword: async ({ request, locals }) => {
-		const form = await superValidate(request, zod4(setPasswordSchema));
-
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form);
-		}
-
+	setPassword: adminFormAction(setPasswordSchema, async ({ request }, form) => {
 		try {
 			await auth.api.setUserPassword({
 				body: {
@@ -370,20 +328,9 @@ export const actions: Actions = {
 				{ status: 500 }
 			);
 		}
-	},
+	}),
 
-	banUser: async ({ request, locals }) => {
-		const form = await superValidate(request, zod4(banUserSchema));
-
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form);
-		}
-
+	banUser: adminFormAction(banUserSchema, async ({ request }, form) => {
 		try {
 			await auth.api.banUser({
 				body: {
@@ -421,101 +368,80 @@ export const actions: Actions = {
 				{ status: 500 }
 			);
 		}
-	},
+	}),
 
-	unbanUser: async ({ request, locals }) => {
-		const form = await superValidate(request, zod4(userIdSchema));
+	unbanUser: adminFormAction(
+		userIdSchema,
+		async ({ request }, form) => {
+			try {
+				await auth.api.unbanUser({
+					body: {
+						userId: form.data.id
+					},
+					headers: request.headers
+				});
 
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
+				logger.info(`User unbanned successfully`, { userId: form.data.id });
+				return message(form, {
+					type: 'success',
+					text: 'User unbanned successfully'
+				});
+			} catch (error) {
+				logger.error('Failed to unban user:', error);
+				return message(form, { type: 'error', text: 'Failed to unban user' }, { status: 500 });
+			}
+		},
+		{ invalidMessage: 'User ID is required' }
+	),
 
-		if (!form.valid) {
-			return invalidAuthForm(form, 'User ID is required');
-		}
+	revokeSession: adminFormAction(
+		userIdSchema,
+		async ({ request }, form) => {
+			try {
+				// Revoke all sessions for the user
+				await auth.api.revokeUserSessions({
+					body: {
+						userId: form.data.id
+					},
+					headers: request.headers
+				});
 
-		try {
-			await auth.api.unbanUser({
-				body: {
+				logger.info(`User sessions revoked successfully`, {
 					userId: form.data.id
-				},
-				headers: request.headers
-			});
+				});
+				return message(form, {
+					type: 'success',
+					text: 'Sessions revoked successfully'
+				});
+			} catch (error) {
+				logger.error('Failed to revoke sessions:', error);
+				return message(form, { type: 'error', text: 'Failed to revoke sessions' }, { status: 500 });
+			}
+		},
+		{ invalidMessage: 'User ID is required' }
+	),
 
-			logger.info(`User unbanned successfully`, { userId: form.data.id });
-			return message(form, {
-				type: 'success',
-				text: 'User unbanned successfully'
-			});
-		} catch (error) {
-			logger.error('Failed to unban user:', error);
-			return message(form, { type: 'error', text: 'Failed to unban user' }, { status: 500 });
-		}
-	},
+	deleteUser: adminFormAction(
+		userIdSchema,
+		async ({ request }, form) => {
+			try {
+				await auth.api.removeUser({
+					body: {
+						userId: form.data.id
+					},
+					headers: request.headers
+				});
 
-	revokeSession: async ({ request, locals }) => {
-		const form = await superValidate(request, zod4(userIdSchema));
-
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form, 'User ID is required');
-		}
-
-		try {
-			// Revoke all sessions for the user
-			await auth.api.revokeUserSessions({
-				body: {
-					userId: form.data.id
-				},
-				headers: request.headers
-			});
-
-			logger.info(`User sessions revoked successfully`, {
-				userId: form.data.id
-			});
-			return message(form, {
-				type: 'success',
-				text: 'Sessions revoked successfully'
-			});
-		} catch (error) {
-			logger.error('Failed to revoke sessions:', error);
-			return message(form, { type: 'error', text: 'Failed to revoke sessions' }, { status: 500 });
-		}
-	},
-
-	deleteUser: async ({ request, locals }) => {
-		const form = await superValidate(request, zod4(userIdSchema));
-
-		const authFailure = adminAuthFailure(locals, form);
-		if (authFailure) {
-			return authFailure;
-		}
-
-		if (!form.valid) {
-			return invalidAuthForm(form, 'User ID is required');
-		}
-
-		try {
-			await auth.api.removeUser({
-				body: {
-					userId: form.data.id
-				},
-				headers: request.headers
-			});
-
-			logger.info('User deleted successfully', { userId: form.data.id });
-			return message(form, {
-				type: 'success',
-				text: 'User deleted successfully'
-			});
-		} catch (error) {
-			logger.error('Failed to delete user:', error);
-			return message(form, { type: 'error', text: 'Failed to delete user' }, { status: 500 });
-		}
-	}
+				logger.info('User deleted successfully', { userId: form.data.id });
+				return message(form, {
+					type: 'success',
+					text: 'User deleted successfully'
+				});
+			} catch (error) {
+				logger.error('Failed to delete user:', error);
+				return message(form, { type: 'error', text: 'Failed to delete user' }, { status: 500 });
+			}
+		},
+		{ invalidMessage: 'User ID is required' }
+	)
 } satisfies Actions;

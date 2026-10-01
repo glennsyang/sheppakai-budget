@@ -156,7 +156,7 @@ export const auth = betterAuth({
  * write), on top of the `role === 'admin'` check that `requireAdmin` in
  * `./actions/auth-guard` performs in every repo. Use it directly in
  * `+layout.server.ts` / `+page.server.ts` load functions; for actions that need to attach the
- * failure to a superforms message, use `adminAuthFailure` from `./actions/admin-guard`.
+ * failure to a superforms message, wrap them in `adminFormAction` from `./actions/admin-guard`.
  *
  * @param locals - SvelteKit locals object containing user data
  * @throws {HttpError} 401 when unauthenticated, 403 when authenticated but not an admin
