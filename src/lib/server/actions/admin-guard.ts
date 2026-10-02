@@ -3,7 +3,7 @@ import { message, superValidate, type Infer, type SuperValidated } from 'sveltek
 import { zod4, type ZodValidationSchema } from 'sveltekit-superforms/adapters';
 
 import { assertAdmin } from '../auth';
-import { invalidAuthForm } from './auth-form-handler';
+import { invalidForm } from './form-responses';
 
 type AdminUser = NonNullable<App.Locals['user']>;
 
@@ -67,7 +67,7 @@ export function adminFormAction<
 		}
 
 		if (!form.valid) {
-			return invalidAuthForm(form, options.invalidMessage);
+			return invalidForm(form, options.invalidMessage);
 		}
 
 		return handler(event, form, event.locals.user);

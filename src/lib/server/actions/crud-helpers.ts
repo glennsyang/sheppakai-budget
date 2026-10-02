@@ -10,6 +10,7 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { z, ZodType } from 'zod';
 
 import { requireAuth } from './auth-guard';
+import { invalidForm } from './form-responses';
 import { type CrudMessages, getCrudMessage } from './messages';
 
 /**
@@ -94,18 +95,6 @@ interface CrudConfig<
 
 	/** Hook to run after deleting a record */
 	afterDelete?: (id: string) => Promise<void>;
-}
-
-/**
- * The single validation-failure response, per `docs/ERROR_HANDLING_POLICY.md`. Superforms turns a
- * `message(...)` with a 4xx status into `fail(status, { form })`, so the page gets field errors
- * *and* a banner from one call — no bare `fail(...)` and nothing for a page to branch on.
- */
-function invalidForm<TForm extends Record<string, unknown>>(
-	form: SuperValidated<TForm>,
-	text = 'Please correct the errors in the form.'
-) {
-	return message(form, { type: 'error', text }, { status: 400 });
 }
 
 /** A business-rule rejection from a `before*` hook — the hook's text, as a 400 banner. */

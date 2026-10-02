@@ -1,6 +1,7 @@
 import { recurringSchema, togglePaidSchema } from '$lib/formSchemas/finances';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
+import { invalidForm } from '$lib/server/actions/form-responses';
 import { recurringQueries } from '$lib/server/db/queries';
 import { recurring } from '$lib/server/db/schema';
 import { markRecurringPaid } from '$lib/server/db/writes/recurring';
@@ -54,11 +55,7 @@ export const actions = {
 		const form = await superValidate(request, zod4(togglePaidSchema));
 
 		if (!form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form' },
-				{ status: 400 }
-			);
+			return invalidForm(form);
 		}
 
 		try {

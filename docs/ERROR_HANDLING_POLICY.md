@@ -96,7 +96,10 @@ read `$message` and `$errors`. No page has to branch on which shape the server h
 
 ### Implementations
 
-Both halves live in `src/lib/server/actions/auth-form-handler.ts`:
+Both halves live in `src/lib/server/actions/auth-form-handler.ts`. Non-auth actions (CRUD helpers,
+admin guard, app routes) import the same validation helper as `invalidForm` from
+`src/lib/server/actions/form-responses.ts`, a re-export that keeps the auth module byte-identical
+across repos:
 
 ```typescript
 // Validation failure

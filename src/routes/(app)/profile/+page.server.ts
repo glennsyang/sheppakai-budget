@@ -1,5 +1,6 @@
 import { changePasswordSchema, updateProfileSchema } from '$lib/formSchemas';
 import { getUser, requireAuth } from '$lib/server/actions/auth-guard';
+import { invalidForm } from '$lib/server/actions/form-responses';
 import { auth } from '$lib/server/auth';
 import { accountQueries, userQueries } from '$lib/server/db/queries';
 import { updateUserName } from '$lib/server/db/writes/users';
@@ -56,11 +57,7 @@ export const actions = {
 		const form = await superValidate(request, zod4(updateProfileSchema));
 
 		if (!form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form.' },
-				{ status: 400 }
-			);
+			return invalidForm(form);
 		}
 
 		try {
@@ -82,11 +79,7 @@ export const actions = {
 		const form = await superValidate(request, zod4(changePasswordSchema));
 
 		if (!form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form.' },
-				{ status: 400 }
-			);
+			return invalidForm(form);
 		}
 
 		try {
