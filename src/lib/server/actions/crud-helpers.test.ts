@@ -18,7 +18,9 @@ type MockState = {
 		update: ReturnType<typeof vi.fn>;
 		delete: ReturnType<typeof vi.fn>;
 	};
-	beforeCreate: Mock<(data: Record<string, unknown>, userId: string) => Promise<void>>;
+	beforeCreate: Mock<
+		(data: Record<string, unknown>, userId: string) => Promise<void | { error: string }>
+	>;
 	afterCreate: Mock<(id: string, data: Record<string, unknown>) => Promise<void>>;
 	beforeUpdate: Mock<
 		(id: string, data: Record<string, unknown>, userId: string) => Promise<unknown>
@@ -88,16 +90,18 @@ const mockState: MockState = vi.hoisted((): MockState => {
 	state.insertReturning = vi.fn<() => Promise<unknown[]>>(async () => [
 		{ id: 'new-id', name: 'created' }
 	]);
-	state.insertValues = vi.fn<() => unknown>(() => ({ returning: state.insertReturning }));
+	state.insertValues = vi.fn<() => unknown>(() => ({
+		returning: state.insertReturning
+	}));
 	state.insert = vi.fn<() => unknown>(() => ({ values: state.insertValues }));
 	state.updateWhere = vi.fn<() => Promise<unknown[]>>(async () => []);
 	state.updateSet = vi.fn<() => unknown>(() => ({ where: state.updateWhere }));
 	state.update = vi.fn<() => unknown>(() => ({ set: state.updateSet }));
 	state.deleteWhere = vi.fn<() => Promise<unknown[]>>(async () => []);
 	state.deleteFrom = vi.fn<() => unknown>(() => ({ where: state.deleteWhere }));
-	state.beforeCreate = vi.fn<(data: Record<string, unknown>, userId: string) => Promise<void>>(
-		async () => undefined
-	);
+	state.beforeCreate = vi.fn<
+		(data: Record<string, unknown>, userId: string) => Promise<void | { error: string }>
+	>(async () => undefined);
 	state.afterCreate = vi.fn<(id: string, data: Record<string, unknown>) => Promise<void>>(
 		async () => undefined
 	);
@@ -217,7 +221,11 @@ describe('crud-helpers', () => {
 
 	it('createAction returns a 400 message when form is invalid', async () => {
 		mockState.superValidateResult = { valid: false, data: {} };
-		const action = createAction({ schema: baseSchema, table: mockTable, entityName: 'Thing' });
+		const action = createAction({
+			schema: baseSchema,
+			table: mockTable,
+			entityName: 'Thing'
+		});
 
 		const result = await action(makeEvent() as never);
 
@@ -229,7 +237,10 @@ describe('crud-helpers', () => {
 		expect(result).toEqual({
 			status: 400,
 			form: mockState.superValidateResult,
-			message: { type: 'error', text: 'Please correct the errors in the form.' },
+			message: {
+				type: 'error',
+				text: 'Please correct the errors in the form.'
+			},
 			__message: true
 		});
 	});
@@ -264,7 +275,10 @@ describe('crud-helpers', () => {
 		expect(inserted.userId).toBe('user-1');
 		expect(inserted.createdBy).toBe('user-1');
 		expect(inserted.updatedBy).toBe('user-1');
-		expect(mockState.afterCreate).toHaveBeenCalledWith('new-id', { id: 'new-id', name: 'created' });
+		expect(mockState.afterCreate).toHaveBeenCalledWith('new-id', {
+			id: 'new-id',
+			name: 'created'
+		});
 		expect(mockState.message).toHaveBeenCalledWith(mockState.superValidateResult, {
 			type: 'success',
 			text: 'Thing created successfully'
@@ -279,7 +293,11 @@ describe('crud-helpers', () => {
 
 	it('updateAction requires id', async () => {
 		mockState.superValidateResult = { valid: true, data: { name: 'No ID' } };
-		const action = updateAction({ schema: baseSchema, table: mockTable, entityName: 'Thing' });
+		const action = updateAction({
+			schema: baseSchema,
+			table: mockTable,
+			entityName: 'Thing'
+		});
 
 		const result = await action(makeEvent() as never);
 
@@ -326,7 +344,10 @@ describe('crud-helpers', () => {
 		expect(updated.id).toBeUndefined();
 		expect(updated.updatedBy).toBe('user-1');
 		expect(updated.updatedAt).toEqual(expect.any(String));
-		expect(mockState.updateWhere).toHaveBeenCalledWith({ field: 'id-column', value: 'record-1' });
+		expect(mockState.updateWhere).toHaveBeenCalledWith({
+			field: 'id-column',
+			value: 'record-1'
+		});
 		expect(mockState.afterUpdate).toHaveBeenCalledWith(
 			'record-1',
 			expect.objectContaining({ name: 'Row 1' }),
@@ -370,6 +391,65 @@ describe('crud-helpers', () => {
 		);
 	});
 
+	it('createAction returns hook error from beforeCreate without inserting', async () => {
+		mockState.beforeCreate.mockResolvedValueOnce({
+			error: 'Name already taken'
+		});
+		const beforeCreate = mockState.beforeCreate as unknown as NonNullable<
+			Parameters<typeof createAction>[0]['beforeCreate']
+		>;
+
+		const action = createAction({
+			schema: baseSchema,
+			table: mockTable,
+			entityName: 'Thing',
+			beforeCreate
+		});
+
+		const result = await action(makeEvent() as never);
+
+		expect(result).toEqual({
+			status: 400,
+			form: mockState.superValidateResult,
+			message: { type: 'error', text: 'Name already taken' },
+			__message: true
+		});
+		expect(mockState.insert).not.toHaveBeenCalled();
+		expect(mockState.loggerError).not.toHaveBeenCalled();
+	});
+
+	it('updateAction returns hook error from beforeUpdate without updating', async () => {
+		mockState.beforeUpdate.mockResolvedValueOnce({
+			error: 'Only completed goals can be archived'
+		});
+		const beforeUpdate = mockState.beforeUpdate as unknown as NonNullable<
+			Parameters<typeof updateAction>[0]['beforeUpdate']
+		>;
+		const afterUpdate = mockState.afterUpdate as unknown as NonNullable<
+			Parameters<typeof updateAction>[0]['afterUpdate']
+		>;
+
+		const action = updateAction({
+			schema: baseSchema,
+			table: mockTable,
+			entityName: 'Thing',
+			beforeUpdate,
+			afterUpdate
+		});
+
+		const result = await action(makeEvent() as never);
+
+		expect(result).toEqual({
+			status: 400,
+			form: mockState.superValidateResult,
+			message: { type: 'error', text: 'Only completed goals can be archived' },
+			__message: true
+		});
+		expect(mockState.update).not.toHaveBeenCalled();
+		expect(mockState.afterUpdate).not.toHaveBeenCalled();
+		expect(mockState.loggerError).not.toHaveBeenCalled();
+	});
+
 	it('deleteAction without id fails validation', async () => {
 		mockState.superValidateResult = { valid: false, data: {} };
 		const action = deleteAction({ table: mockTable, entityName: 'Thing' });
@@ -384,7 +464,10 @@ describe('crud-helpers', () => {
 		expect(result).toEqual({
 			status: 400,
 			form: mockState.superValidateResult,
-			message: { type: 'error', text: 'Please correct the errors in the form.' },
+			message: {
+				type: 'error',
+				text: 'Please correct the errors in the form.'
+			},
 			__message: true
 		});
 		expect(mockState.deleteFrom).not.toHaveBeenCalled();
@@ -396,12 +479,19 @@ describe('crud-helpers', () => {
 			Parameters<typeof deleteAction>[0]['afterDelete']
 		>;
 
-		const action = deleteAction({ table: mockTable, entityName: 'Thing', afterDelete });
+		const action = deleteAction({
+			table: mockTable,
+			entityName: 'Thing',
+			afterDelete
+		});
 
 		const result = await action(makeEvent([['id', 'row-1']]) as never);
 
 		expect(mockState.deleteFrom).toHaveBeenCalledWith(mockTable);
-		expect(mockState.deleteWhere).toHaveBeenCalledWith({ field: 'id-column', value: 'row-1' });
+		expect(mockState.deleteWhere).toHaveBeenCalledWith({
+			field: 'id-column',
+			value: 'row-1'
+		});
 		expect(mockState.afterDelete).toHaveBeenCalledWith('row-1');
 		expect(result).toEqual({
 			status: 200,
@@ -413,7 +503,9 @@ describe('crud-helpers', () => {
 
 	it('deleteAction returns hook error from beforeDelete', async () => {
 		mockState.superValidateResult = { valid: true, data: { id: 'row-2' } };
-		mockState.beforeDelete.mockResolvedValue({ error: 'Blocked by dependency' });
+		mockState.beforeDelete.mockResolvedValue({
+			error: 'Blocked by dependency'
+		});
 		const beforeDelete = mockState.beforeDelete as unknown as NonNullable<
 			Parameters<typeof deleteAction>[0]['beforeDelete']
 		>;
@@ -453,7 +545,10 @@ describe('crud-helpers', () => {
 		expect(result).toEqual({
 			status: 500,
 			form: mockState.superValidateResult,
-			message: { type: 'error', text: 'Failed to delete thing. A database error occurred.' },
+			message: {
+				type: 'error',
+				text: 'Failed to delete thing. A database error occurred.'
+			},
 			__message: true
 		});
 	});
@@ -462,7 +557,11 @@ describe('crud-helpers', () => {
 		mockState.insertValues.mockImplementationOnce(() => {
 			throw new Error('write failed');
 		});
-		const action = createAction({ schema: baseSchema, table: mockTable, entityName: 'Thing' });
+		const action = createAction({
+			schema: baseSchema,
+			table: mockTable,
+			entityName: 'Thing'
+		});
 
 		const result = await action(makeEvent() as never);
 
@@ -478,7 +577,10 @@ describe('crud-helpers', () => {
 		expect(result).toEqual({
 			status: 500,
 			form: mockState.superValidateResult,
-			message: { type: 'error', text: 'Failed to create thing. A database error occurred.' },
+			message: {
+				type: 'error',
+				text: 'Failed to create thing. A database error occurred.'
+			},
 			__message: true
 		});
 	});

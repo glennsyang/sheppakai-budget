@@ -24,6 +24,20 @@ type InferInsertType<TTable extends AnySQLiteTable> = TTable['$inferInsert'];
 type InferSelectType<TTable extends AnySQLiteTable> = TTable['$inferSelect'];
 
 /**
+ * What a `before*` hook returns to reject the request on a business rule. The text is shown to
+ * the user as a 400 banner; a thrown error is still treated as an unexpected 500.
+ */
+type HookError = { error: string };
+
+function isHookError(value: unknown): value is HookError {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		typeof (value as { error?: unknown }).error === 'string'
+	);
+}
+
+/**
  * Configuration for creating CRUD actions
  */
 interface CrudConfig<
@@ -55,18 +69,18 @@ interface CrudConfig<
 		userId: string
 	) => Partial<InferInsertType<TTable>>;
 
-	/** Hook to run before creating a record */
-	beforeCreate?: (data: InferSchemaType<TSchema>, userId: string) => Promise<void>;
+	/** Hook to run before creating a record; return `{ error }` to reject with a 400 message */
+	beforeCreate?: (data: InferSchemaType<TSchema>, userId: string) => Promise<void | HookError>;
 
 	/** Hook to run after creating a record */
 	afterCreate?: (id: string, data: InferSelectType<TTable>) => Promise<void>;
 
-	/** Hook to run before updating a record */
+	/** Hook to run before updating a record; return `{ error }` to reject with a 400 message */
 	beforeUpdate?: (
 		id: string,
 		data: InferSchemaType<TSchema>,
 		userId: string
-	) => Promise<TUpdateContext | void>;
+	) => Promise<TUpdateContext | void | HookError>;
 
 	/** Hook to run after updating a record */
 	afterUpdate?: (
@@ -75,8 +89,8 @@ interface CrudConfig<
 		context: TUpdateContext | undefined
 	) => Promise<void>;
 
-	/** Hook to run before deleting a record */
-	beforeDelete?: (id: string, userId: string) => Promise<void | { error: string }>;
+	/** Hook to run before deleting a record; return `{ error }` to reject with a 400 message */
+	beforeDelete?: (id: string, userId: string) => Promise<void | HookError>;
 
 	/** Hook to run after deleting a record */
 	afterDelete?: (id: string) => Promise<void>;
@@ -92,6 +106,14 @@ function invalidForm<TForm extends Record<string, unknown>>(
 	text = 'Please correct the errors in the form.'
 ) {
 	return message(form, { type: 'error', text }, { status: 400 });
+}
+
+/** A business-rule rejection from a `before*` hook — the hook's text, as a 400 banner. */
+function hookRejected<TForm extends Record<string, unknown>>(
+	form: SuperValidated<TForm>,
+	hookError: HookError
+) {
+	return message(form, { type: 'error', text: hookError.error }, { status: 400 });
 }
 
 /**
@@ -114,7 +136,10 @@ function createCreateAction<
 		try {
 			// Run beforeCreate hook if provided
 			if (config.beforeCreate) {
-				await config.beforeCreate(form.data as InferSchemaType<TSchema>, userId);
+				const result = await config.beforeCreate(form.data as InferSchemaType<TSchema>, userId);
+				if (isHookError(result)) {
+					return hookRejected(form, result);
+				}
 			}
 
 			// Transform data if transformer provided
@@ -194,11 +219,15 @@ function createUpdateAction<
 		try {
 			// Run beforeUpdate hook if provided
 			if (config.beforeUpdate) {
-				updateContext = (await config.beforeUpdate(
+				const result = await config.beforeUpdate(
 					recordId,
 					form.data as InferSchemaType<TSchema>,
 					userId
-				)) as TUpdateContext | undefined;
+				);
+				if (isHookError(result)) {
+					return hookRejected(form, result);
+				}
+				updateContext = result as TUpdateContext | undefined;
 			}
 
 			// Transform data if transformer provided
@@ -222,7 +251,9 @@ function createUpdateAction<
 				.set(dataToUpdate as InferInsertType<TTable>)
 				.where(eq(columns.id, recordId));
 
-			logger.info(`${config.entityName} updated successfully`, { id: recordId });
+			logger.info(`${config.entityName} updated successfully`, {
+				id: recordId
+			});
 
 			// Run afterUpdate hook if provided
 			if (config.afterUpdate) {
@@ -272,8 +303,8 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
 			// Run beforeDelete hook if provided
 			if (config.beforeDelete) {
 				const result = await config.beforeDelete(recordId, userId);
-				if (result && 'error' in result) {
-					return message(form, { type: 'error', text: result.error }, { status: 400 });
+				if (isHookError(result)) {
+					return hookRejected(form, result);
 				}
 			}
 

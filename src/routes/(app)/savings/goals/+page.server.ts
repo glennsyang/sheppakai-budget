@@ -82,11 +82,11 @@ export const actions = {
 				});
 
 				if (!currentGoal) {
-					throw new Error('Goal not found');
+					return { error: 'Goal not found' };
 				}
 
 				if (currentGoal.status !== 'completed') {
-					throw new Error('Only completed goals can be archived');
+					return { error: 'Only completed goals can be archived' };
 				}
 			}
 		},
@@ -121,7 +121,10 @@ export const actions = {
 		schema: contributionSchema,
 		table: contribution,
 		entityName: 'Contribution',
-		transformCreate: (data, userId) => ({ ...toContributionRow(data.goalId, data), userId })
+		transformCreate: (data, userId) => ({
+			...toContributionRow(data.goalId, data),
+			userId
+		})
 	}),
 
 	updateContribution: updateAction({
