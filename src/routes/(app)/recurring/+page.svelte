@@ -4,9 +4,9 @@
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
+	import { recurringFormContext } from '$lib/contexts';
 	import { formatCurrency } from '$lib/utils';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -14,7 +14,7 @@
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('recurringForm', data.form);
+	recurringFormContext.set(data.form);
 
 	let openModal = $state<boolean>(false);
 	const unpaidAsOf = new Intl.DateTimeFormat('en-US', {

@@ -7,9 +7,9 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import YearSwitcher from '$lib/components/YearSwitcher.svelte';
+	import { jobFormContext } from '$lib/contexts';
 	import { getCurrentPacificMonthYear, parseYearParam } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
-	import { setContext } from 'svelte';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -17,7 +17,7 @@
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('jobForm', data.jobForm);
+	jobFormContext.set(data.jobForm);
 
 	const { year: defaultYear } = getCurrentPacificMonthYear();
 

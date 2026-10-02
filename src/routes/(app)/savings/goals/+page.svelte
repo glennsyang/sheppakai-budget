@@ -10,30 +10,26 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
+	import {
+		contributionFormContext,
+		contributionSuccessContext,
+		savingsGoalsContext,
+		type ContributionSuccessPayload
+	} from '$lib/contexts';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
 	import { PlusIcon } from '@lucide/svelte/icons';
-	import { setContext } from 'svelte';
 
 	import type { PageProps } from './$types';
 	import DataTableActions from './data-table-actions.svelte';
 
-	interface ContributionSuccessPayload {
-		goalId: string;
-		amount: number;
-		previousGoalId?: string;
-		previousAmount?: number;
-	}
-
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('savingsGoalForm', data.savingsGoalForm);
-	// svelte-ignore state_referenced_locally
-	setContext('contributionForm', data.contributionForm);
+	contributionFormContext.set(data.contributionForm);
 
 	// Make goals available to child components via context
-	setContext('savingsGoals', () => data.goals);
-	setContext('onContributionSuccess', handleContributionSuccess);
+	savingsGoalsContext.set(() => data.goals);
+	contributionSuccessContext.set(handleContributionSuccess);
 
 	let openGoalModal = $state<boolean>(false);
 	let openContributionModal = $state<boolean>(false);

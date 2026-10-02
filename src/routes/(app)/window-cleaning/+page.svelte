@@ -9,11 +9,11 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import WindowCleaningCustomerModal from '$lib/components/WindowCleaningCustomerModal.svelte';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
+	import { customerFormContext, jobFormContext, openCustomerSheetContext } from '$lib/contexts';
 	import { formatLocalTimestamp, formatTime12h } from '$lib/utils/dates';
 	import { buildGoogleMapsUrl } from '$lib/utils/maps';
 	import { Pencil, Trash2, MapPin } from '@lucide/svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -21,14 +21,14 @@
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('customerForm', data.customerForm);
+	customerFormContext.set(data.customerForm);
 	// svelte-ignore state_referenced_locally
-	setContext('jobForm', data.jobForm);
+	jobFormContext.set(data.jobForm);
 	function openCustomerSheet(customer: WindowCleaningCustomerWithStats) {
 		selectedCustomer = customer;
 		openSheet = true;
 	}
-	setContext('openCustomerSheet', openCustomerSheet);
+	openCustomerSheetContext.set(openCustomerSheet);
 
 	let openAddCustomerModal = $state(false);
 	let openEditCustomerModal = $state(false);

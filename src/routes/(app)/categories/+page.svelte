@@ -3,8 +3,8 @@
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
+	import { categoryFormContext } from '$lib/contexts';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -12,7 +12,7 @@
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('categoryForm', data.form);
+	categoryFormContext.set(data.form);
 
 	let openModal = $state<boolean>(false);
 </script>

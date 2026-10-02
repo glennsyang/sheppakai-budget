@@ -3,17 +3,14 @@
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
-	import type { windowCleaningJobSchema } from '$lib/formSchemas';
-	import { getContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
+	import { jobFormContext } from '$lib/contexts';
 
 	let { jobData }: { jobData: WindowCleaningJob } = $props();
 
 	let openEditModal = $state(false);
 	let openDeleteModal = $state(false);
 
-	const jobForm = getContext('jobForm') as SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
+	const jobForm = jobFormContext.get();
 </script>
 
 <RowActionsMenu onEdit={() => (openEditModal = true)} onDelete={() => (openDeleteModal = true)} />

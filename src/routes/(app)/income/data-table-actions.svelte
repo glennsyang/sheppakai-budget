@@ -4,16 +4,13 @@
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import { incomeFormContext } from '$lib/contexts';
-	import type { incomeSchema } from '$lib/formSchemas';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
 	let { id, incomeData }: { id: string; incomeData: Income } = $props();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
 
-	const incomeForm = incomeFormContext.get() as SuperValidated<z.infer<typeof incomeSchema>>;
+	const incomeForm = incomeFormContext.get();
 </script>
 
 <RowActionsMenu onEdit={() => (openEditModal = true)} onDelete={() => (openDeleteModal = true)} />

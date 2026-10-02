@@ -7,18 +7,14 @@
 	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { toRecurringFormData, type recurringSchema } from '$lib/formSchemas';
+	import { recurringFormContext } from '$lib/contexts';
+	import { toRecurringFormData } from '$lib/formSchemas';
 	import { actionMessage } from '$lib/utils/actionMessage';
-	import { getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
 	let { id, recurringData }: { id: string; recurringData: Recurring } = $props();
 
-	const recurringForm = getContext('recurringForm') as SuperValidated<
-		z.infer<typeof recurringSchema>
-	>;
+	const recurringForm = recurringFormContext.get();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);

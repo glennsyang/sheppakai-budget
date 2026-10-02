@@ -3,17 +3,14 @@
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
-	import type { categorySchema } from '$lib/formSchemas';
-	import { getContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
+	import { categoryFormContext } from '$lib/contexts';
 
 	let { id, categoryData }: { id: string; categoryData: Category } = $props();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
 
-	const categoryForm = getContext('categoryForm') as SuperValidated<z.infer<typeof categorySchema>>;
+	const categoryForm = categoryFormContext.get();
 </script>
 
 <RowActionsMenu onEdit={() => (openEditModal = true)} onDelete={() => (openDeleteModal = true)} />
