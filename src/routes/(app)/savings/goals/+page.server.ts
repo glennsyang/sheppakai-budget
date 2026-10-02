@@ -1,12 +1,10 @@
 import { contributionSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
 import { createAction, deleteAction, updateAction } from '$lib/server/actions/crud-helpers';
-import { getDb } from '$lib/server/db';
-import { savingsGoalQueries } from '$lib/server/db/queries';
+import { contributionQueries, savingsGoalQueries } from '$lib/server/db/queries';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
 import { toContributionRow } from '$lib/server/db/writes/contributions';
 import { logger } from '$lib/server/logger';
 import { formatDateForStorage } from '$lib/utils/dates';
-import { desc, eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -21,17 +19,7 @@ export const load: PageServerLoad = async () => {
 		const goals = await savingsGoalQueries.findAll();
 
 		// Fetch all contributions
-		const contributions = await getDb().query.contribution.findMany({
-			with: {
-				goal: {
-					with: {
-						user: true
-					}
-				},
-				user: true
-			},
-			orderBy: [desc(contribution.date)]
-		});
+		const contributions = await contributionQueries.findAll();
 
 		// Filter out contributions linked to archived goals
 		const activeContributions = contributions.filter((c) => c.goal.status !== 'archived');
@@ -89,9 +77,7 @@ export const actions = {
 		beforeUpdate: async (id, data) => {
 			// Only allow archiving if goal is completed
 			if (data.status === 'archived') {
-				const currentGoal = await getDb().query.savingsGoal.findFirst({
-					where: eq(savingsGoal.id, id)
-				});
+				const currentGoal = await savingsGoalQueries.findById(id, false);
 
 				if (!currentGoal) {
 					return { error: 'Goal not found' };
@@ -116,10 +102,7 @@ export const actions = {
 		entityName: 'Savings goal',
 		beforeDelete: async (id) => {
 			// Check if contributions exist for this goal
-			const existingContributions = await getDb()
-				.select()
-				.from(contribution)
-				.where(eq(contribution.goalId, id));
+			const existingContributions = await contributionQueries.findByGoalId(id);
 
 			if (existingContributions.length > 0) {
 				return {

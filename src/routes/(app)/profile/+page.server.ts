@@ -1,13 +1,11 @@
 import { changePasswordSchema, updateProfileSchema } from '$lib/formSchemas';
 import { getUser, requireAuth } from '$lib/server/actions/auth-guard';
 import { auth } from '$lib/server/auth';
-import { getDb } from '$lib/server/db';
 import { accountQueries, userQueries } from '$lib/server/db/queries';
-import { user } from '$lib/server/db/schema';
+import { updateUserName } from '$lib/server/db/writes/users';
 import { sendPasswordChangedEmail } from '$lib/server/email';
 import { logger } from '$lib/server/logger';
 import { getBetterAuthErrorMessage } from '$lib/utils';
-import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -66,7 +64,7 @@ export const actions = {
 		}
 
 		try {
-			await getDb().update(user).set({ name: form.data.name }).where(eq(user.id, currentUser.id));
+			await updateUserName(currentUser.id, form.data.name);
 
 			logger.info('User profile updated successfully');
 			return message(form, { type: 'success', text: 'Profile updated successfully.' });

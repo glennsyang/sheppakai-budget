@@ -58,3 +58,11 @@ export async function updateWindowCleaningCustomer(
 
 	return windowCleaningCustomerQueries.findById(id);
 }
+
+/** Clears the soft-delete markers on a customer (admin use). */
+export async function restoreWindowCleaningCustomer(id: string, userId: string): Promise<void> {
+	await getDb()
+		.update(windowCleaningCustomer)
+		.set(withAuditFieldsForUpdate({ deletedAt: null, deletedBy: null }, userId))
+		.where(eq(windowCleaningCustomer.id, id));
+}

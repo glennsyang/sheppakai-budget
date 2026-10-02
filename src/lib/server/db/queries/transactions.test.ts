@@ -29,9 +29,29 @@ vi.mock('../schema', () => ({
 		excludedFromBudget: 'transaction.excluded_from_budget',
 		gstAmount: 'transaction.gst_amount',
 		payee: 'transaction.payee',
-		notes: 'transaction.notes'
+		notes: 'transaction.notes',
+		amount: 'transaction.amount'
 	}
 }));
+
+const mockAggregate = vi.hoisted(() => {
+	const chain = {
+		select: vi.fn<(fields: unknown) => unknown>(),
+		from: vi.fn<(table: unknown) => unknown>(),
+		where: vi.fn<(where: unknown) => unknown>(),
+		groupBy: vi.fn<(...groups: unknown[]) => unknown>(),
+		all: vi.fn<() => unknown[]>(() => [
+			{ categoryId: 'cat-1', month: '03', year: '2026', total: 42 }
+		])
+	};
+	chain.select.mockImplementation(() => chain);
+	chain.from.mockImplementation(() => chain);
+	chain.where.mockImplementation(() => chain);
+	chain.groupBy.mockImplementation(() => chain);
+	return chain;
+});
+
+vi.mock('../index', () => ({ getDb: () => ({ select: mockAggregate.select }) }));
 
 vi.mock('./factory', () => ({
 	createQueryBuilder: () => {
@@ -247,5 +267,26 @@ describe('transactionQueries', () => {
 
 			expect(result.limitReached).toBe(true);
 		});
+	});
+});
+
+describe('transactionQueries.sumByCategoryMonth', () => {
+	it('filters to the date range and budget-counted rows, grouped by category and month', async () => {
+		const result = await transactionQueries.sumByCategoryMonth('2026-01-01', '2026-03-31');
+
+		const where = mockAggregate.where.mock.lastCall![0] as {
+			type: string;
+			conditions: Array<{ type: string; field?: string; value?: unknown; values?: unknown[] }>;
+		};
+		expect(where.type).toBe('and');
+		expect(where.conditions[0].values).toContain('2026-01-01');
+		expect(where.conditions[1].values).toContain('2026-03-31');
+		expect(where.conditions[2]).toEqual({
+			type: 'eq',
+			field: 'transaction.excluded_from_budget',
+			value: false
+		});
+		expect(mockAggregate.groupBy.mock.lastCall![0]).toBe('transaction.category_id');
+		expect(result).toEqual([{ categoryId: 'cat-1', month: '03', year: '2026', total: 42 }]);
 	});
 });

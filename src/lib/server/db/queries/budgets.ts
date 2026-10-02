@@ -1,9 +1,11 @@
 import type { Budget } from '$lib/types';
 import { padMonth } from '$lib/utils/dates';
-import { and, eq } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 
 import { budget } from '../schema';
 import { createQueryBuilder } from './factory';
+
+type MonthYear = { month: string; year: string };
 
 const baseBuilder = createQueryBuilder({
 	tableName: 'budget',
@@ -39,6 +41,18 @@ export const budgetQueries = {
 				eq(budget.year, year.toString()),
 				eq(budget.month, padMonth(month))
 			)
+		});
+	},
+
+	// Find all budgets between two months inclusive, oldest first (budget history chart).
+	// Month must be zero-padded so the 'YYYY-MM' strings compare in calendar order.
+	findHistory: async (start: MonthYear, end: MonthYear): Promise<Budget[]> => {
+		return baseBuilder.findAll({
+			where: and(
+				sql`(${budget.year} || '-' || ${budget.month}) >= ${start.year + '-' + start.month}`,
+				sql`(${budget.year} || '-' || ${budget.month}) <= ${end.year + '-' + end.month}`
+			),
+			orderBy: [asc(budget.year), asc(budget.month)]
 		});
 	}
 };
