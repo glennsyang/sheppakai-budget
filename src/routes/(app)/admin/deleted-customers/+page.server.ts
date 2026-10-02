@@ -1,12 +1,9 @@
 import { restoreCustomerSchema } from '$lib/formSchemas';
 import { adminFormAction } from '$lib/server/actions/admin-guard';
 import { assertAdmin } from '$lib/server/auth';
-import { getDb } from '$lib/server/db';
 import { windowCleaningCustomerQueries } from '$lib/server/db/queries';
-import { windowCleaningCustomer } from '$lib/server/db/schema';
-import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { restoreWindowCleaningCustomer } from '$lib/server/db/writes/window-cleaning-customers';
 import { logger } from '$lib/server/logger';
-import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -33,21 +30,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	restore: adminFormAction(restoreCustomerSchema, async (_event, form, user) => {
-		const db = getDb();
-
 		try {
-			await db
-				.update(windowCleaningCustomer)
-				.set(
-					withAuditFieldsForUpdate(
-						{
-							deletedAt: null,
-							deletedBy: null
-						},
-						user
-					)
-				)
-				.where(eq(windowCleaningCustomer.id, form.data.customerId));
+			await restoreWindowCleaningCustomer(form.data.customerId, user.id);
 
 			logger.info(`Customer restored: ${form.data.customerId}`);
 			return message(form, { type: 'success', text: 'Customer restored successfully' });

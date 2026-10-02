@@ -1,11 +1,9 @@
 import { unArchiveSchema } from '$lib/formSchemas';
 import { adminFormAction } from '$lib/server/actions/admin-guard';
 import { assertAdmin } from '$lib/server/auth';
-import { getDb } from '$lib/server/db';
-import { savingsGoal } from '$lib/server/db/schema';
-import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
+import { savingsGoalQueries } from '$lib/server/db/queries';
+import { unarchiveSavingsGoal } from '$lib/server/db/writes/savings-goals';
 import { logger } from '$lib/server/logger';
-import { eq } from 'drizzle-orm';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -16,16 +14,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const form = await superValidate(zod4(unArchiveSchema));
 
-	const db = getDb();
-
 	try {
-		// Query archived savings goals with user information
-		const archivedGoals = await db.query.savingsGoal.findMany({
-			where: eq(savingsGoal.status, 'archived'),
-			with: {
-				user: true
-			}
-		});
+		const archivedGoals = await savingsGoalQueries.findArchived();
 
 		return {
 			archivedGoals,
@@ -43,21 +33,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	unarchive: adminFormAction(unArchiveSchema, async (_event, form, user) => {
-		const db = getDb();
-
 		try {
-			// Update the goal status to 'active'
-			await db
-				.update(savingsGoal)
-				.set(
-					withAuditFieldsForUpdate(
-						{
-							status: 'active'
-						},
-						user
-					)
-				)
-				.where(eq(savingsGoal.id, form.data.goalId));
+			await unarchiveSavingsGoal(form.data.goalId, user.id);
 
 			logger.info(`Goal with ID ${form.data.goalId} updated successfully`);
 			return message(form, { type: 'success', text: 'Goal unarchived successfully' });

@@ -1,4 +1,4 @@
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 
 import { contribution } from '../schema';
 import { createQueryBuilder } from './factory';
@@ -10,5 +10,13 @@ const baseBuilder = createQueryBuilder({
 });
 
 export const contributionQueries = {
-	...baseBuilder
+	...baseBuilder,
+
+	// Find all contributions for one goal, without relations
+	findByGoalId: async (goalId: string) => {
+		return baseBuilder.findAll({
+			where: eq(contribution.goalId, goalId),
+			with: {}
+		});
+	}
 };

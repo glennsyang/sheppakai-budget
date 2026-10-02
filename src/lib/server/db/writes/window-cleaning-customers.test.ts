@@ -39,6 +39,7 @@ vi.mock('drizzle-orm', () => ({ eq: (field: unknown, value: unknown) => ({ field
 
 import {
 	createWindowCleaningCustomer,
+	restoreWindowCleaningCustomer,
 	updateWindowCleaningCustomer
 } from './window-cleaning-customers';
 
@@ -108,5 +109,22 @@ describe('updateWindowCleaningCustomer', () => {
 		const result = await updateWindowCleaningCustomer('missing', input, 'user-1');
 
 		expect(result).toBeUndefined();
+	});
+});
+
+describe('restoreWindowCleaningCustomer', () => {
+	beforeEach(() => {
+		mockUpdateSet.mockClear();
+		mockUpdateWhere.mockClear();
+	});
+
+	it('clears the soft-delete markers with audit fields, scoped to the customer id', async () => {
+		await restoreWindowCleaningCustomer('cust-1', 'user-1');
+
+		const setValues = mockUpdateSet.mock.calls[0][0];
+		expect(setValues.deletedAt).toBeNull();
+		expect(setValues.deletedBy).toBeNull();
+		expect(setValues.updatedBy).toBe('user-1');
+		expect(mockUpdateWhere).toHaveBeenCalled();
 	});
 });

@@ -1,6 +1,7 @@
 import type { Transaction } from '$lib/types';
 import { and, desc, eq, isNotNull, ne, or, sql } from 'drizzle-orm';
 
+import { getDb } from '../index';
 import { transaction } from '../schema';
 import { createQueryBuilder } from './factory';
 
@@ -10,6 +11,13 @@ import { createQueryBuilder } from './factory';
 // table and use MATCH instead of LIKE.
 // Kept module-private: callers read `limitReached` off the search result instead.
 const SEARCH_RESULT_LIMIT = 200;
+
+type CategoryMonthTotal = {
+	categoryId: string;
+	month: string;
+	year: string;
+	total: number;
+};
 
 const baseBuilder = createQueryBuilder({
 	tableName: 'transaction',
@@ -125,5 +133,26 @@ export const transactionQueries = {
 		}
 
 		return baseBuilder.findAll({ where: and(...conditions) });
+	},
+
+	// Sum budget-counted transactions per category per month over a date range (budget history chart).
+	sumByCategoryMonth: async (startDate: string, endDate: string): Promise<CategoryMonthTotal[]> => {
+		return getDb()
+			.select({
+				categoryId: transaction.categoryId,
+				month: sql<string>`substr(${transaction.date}, 6, 2)`,
+				year: sql<string>`substr(${transaction.date}, 1, 4)`,
+				total: sql<number>`sum(${transaction.amount})`
+			})
+			.from(transaction)
+			.where(
+				and(
+					sql`date(${transaction.date}) >= date(${startDate})`,
+					sql`date(${transaction.date}) <= date(${endDate})`,
+					eq(transaction.excludedFromBudget, false)
+				)
+			)
+			.groupBy(transaction.categoryId, sql`substr(${transaction.date}, 1, 7)`)
+			.all();
 	}
 };

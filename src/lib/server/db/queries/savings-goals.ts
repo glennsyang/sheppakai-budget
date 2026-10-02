@@ -1,4 +1,4 @@
-import { asc, ne } from 'drizzle-orm';
+import { asc, eq, ne } from 'drizzle-orm';
 
 import { savingsGoal } from '../schema';
 import { createQueryBuilder } from './factory';
@@ -15,6 +15,13 @@ export const savingsGoalQueries = {
 		return baseBuilder.findAll({
 			...options,
 			where: ne(savingsGoal.status, 'archived')
+		});
+	},
+
+	// Find archived goals only (admin use)
+	findArchived: async () => {
+		return baseBuilder.findAll({
+			where: eq(savingsGoal.status, 'archived')
 		});
 	}
 };

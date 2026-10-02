@@ -8,6 +8,7 @@ const mockState = vi.hoisted(() => ({
 
 vi.mock('drizzle-orm', () => ({
 	asc: (field: unknown) => ({ type: 'asc', field }),
+	eq: (field: unknown, value: unknown) => ({ type: 'eq', field, value }),
 	ne: (field: unknown, value: unknown) => ({ type: 'ne', field, value })
 }));
 
@@ -51,6 +52,16 @@ describe('savingsGoalQueries', () => {
 			};
 			expect(arg.where.type).toBe('ne');
 			expect(arg.where.value).toBe('archived');
+		});
+	});
+});
+
+describe('savingsGoalQueries.findArchived', () => {
+	it('filters to archived goals only', async () => {
+		await savingsGoalQueries.findArchived();
+
+		expect(mockState.findAll).toHaveBeenCalledWith({
+			where: { type: 'eq', field: 'savingsGoal.status', value: 'archived' }
 		});
 	});
 });

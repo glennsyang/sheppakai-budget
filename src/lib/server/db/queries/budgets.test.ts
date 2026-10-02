@@ -9,7 +9,12 @@ const mockState = vi.hoisted(() => ({
 vi.mock('drizzle-orm', () => ({
 	and: (...conditions: unknown[]) => ({ type: 'and', conditions }),
 	asc: (field: unknown) => ({ type: 'asc', field }),
-	eq: (field: unknown, value: unknown) => ({ type: 'eq', field, value })
+	eq: (field: unknown, value: unknown) => ({ type: 'eq', field, value }),
+	sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
+		type: 'sql',
+		text: strings.join('?'),
+		values
+	})
 }));
 
 vi.mock('../schema', () => ({
@@ -112,5 +117,31 @@ describe('budgetQueries', () => {
 			expect(yearCond?.value).toBe('2026');
 			expect(monthCond?.value).toBe('05');
 		});
+	});
+});
+
+describe('budgetQueries.findHistory', () => {
+	beforeEach(() => {
+		mockState.findAll.mockReset();
+		mockState.findAll.mockResolvedValue([]);
+	});
+
+	it('bounds the YYYY-MM range inclusively and orders oldest first', async () => {
+		await budgetQueries.findHistory({ month: '11', year: '2025' }, { month: '10', year: '2026' });
+
+		const arg = mockState.findAll.mock.lastCall![0] as unknown as {
+			where: { type: string; conditions: Array<{ text: string; values: unknown[] }> };
+			orderBy: unknown[];
+		};
+		expect(arg.where.type).toBe('and');
+		const [lower, upper] = arg.where.conditions;
+		expect(lower.text).toContain('>=');
+		expect(lower.values.at(-1)).toBe('2025-11');
+		expect(upper.text).toContain('<=');
+		expect(upper.values.at(-1)).toBe('2026-10');
+		expect(arg.orderBy).toEqual([
+			{ type: 'asc', field: 'budget.year' },
+			{ type: 'asc', field: 'budget.month' }
+		]);
 	});
 });
