@@ -11,7 +11,7 @@ import { createQueryBuilder } from './factory';
 // Kept module-private: callers read `limitReached` off the search result instead.
 const SEARCH_RESULT_LIMIT = 200;
 
-const baseBuilder = createQueryBuilder<typeof transaction, Transaction>({
+const baseBuilder = createQueryBuilder({
 	tableName: 'transaction',
 	defaultRelations: { category: true, user: true },
 	defaultOrderBy: [desc(transaction.date)]

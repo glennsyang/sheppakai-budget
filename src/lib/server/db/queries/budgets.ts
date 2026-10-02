@@ -5,7 +5,7 @@ import { and, eq } from 'drizzle-orm';
 import { budget } from '../schema';
 import { createQueryBuilder } from './factory';
 
-const baseBuilder = createQueryBuilder<typeof budget, Budget>({
+const baseBuilder = createQueryBuilder({
 	tableName: 'budget',
 	defaultRelations: { category: true, user: true }
 });

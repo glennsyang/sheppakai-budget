@@ -1,4 +1,6 @@
-import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
+import type { auth } from '$lib/server/auth';
+import type { QueryRow } from '$lib/server/db/queries/factory';
+import type { SessionWithImpersonatedBy, UserWithRole } from 'better-auth/plugins';
 import type { Component } from 'svelte';
 
 /**
@@ -7,6 +9,10 @@ import type { Component } from 'svelte';
  *
  * @template T - The entity type for initialData (e.g., Transaction, Income, Category)
  */
+// Entity types are derived from the Drizzle schema plus the relations each query object
+// loads by default (`defaultRelations` in `$lib/server/db/queries`), so schema drift is a
+// type error rather than a silent mismatch.
+
 export interface BaseModalProps<T> {
 	/** Controls modal visibility (bindable) */
 	open: boolean;
@@ -24,120 +30,35 @@ export interface BaseModalProps<T> {
 	isLoading?: boolean;
 }
 
-export type User = {
-	id: string;
-	name: string;
-	email: string;
-	emailVerified: boolean;
-	image?: string | null;
-	role?: string | null;
-	banned?: boolean | null;
-	banReason?: string | null;
-	banExpires?: Date | null;
-	createdAt: Date | string;
-	updatedAt: Date | string;
-};
+/** The signed-in user as better-auth returns it on `locals.user`. */
+export type User = typeof auth.$Infer.Session.user;
 
-export type UserWithSessions = User & {
+export type UserWithSessions = UserWithRole & {
 	sessions: SessionWithImpersonatedBy[];
 };
 
-export type Category = {
-	id: string;
-	name: string;
-	description: string;
-	createdAt: string;
-	updatedAt: string;
-};
+export type Category = QueryRow<'category'>;
 
 export type CardType = 'budget' | 'income';
 
-export type Transaction = {
-	id: string;
-	amount: number;
-	payee: string;
-	notes: string;
-	date: string;
-	gstAmount?: number | null;
-	excludedFromBudget: boolean;
-	category: Category | null;
-	user: User;
-};
+export type Transaction = QueryRow<'transaction', { category: true; user: true }>;
 
-export type Budget = {
-	id: string;
-	amount: number;
-	month: string;
-	year: string;
-	presetType?: string | null;
-	category: Category | null;
-	user: User;
-};
+export type Budget = QueryRow<'budget', { category: true; user: true }>;
 
-export type Recurring = {
-	id: string;
-	merchant: string;
-	description: string;
-	cadence: 'Monthly' | 'Yearly';
-	amount: number;
-	paid: boolean;
-	dueDay: number | null;
-	dueMonth: number | null;
-	user: User;
-};
+export type Recurring = QueryRow<'recurring', { user: true }>;
 
-export type Income = {
-	id: string;
-	name: string;
-	description: string;
-	amount: number;
-	date: string;
-	userId: string;
-	createdAt: string;
-	updatedAt: string;
-};
+export type Income = QueryRow<'income'>;
 
-export type Savings = {
-	id: string;
-	title: string;
-	description: string | null;
-	amount: number;
-	userId: string;
-	user: User;
-	createdAt: string;
-	updatedAt: string;
-};
+export type Savings = QueryRow<'savings', { user: true }>;
 
-export type SavingsGoal = {
-	id: string;
-	name: string;
-	description: string | null;
-	targetAmount: number;
-	targetDate: string | null;
-	status: 'active' | 'completed' | 'paused' | 'archived';
-	userId: string;
-	user: User;
-	createdAt: string;
-	updatedAt: string;
-};
+export type SavingsGoal = QueryRow<'savingsGoal', { user: true }>;
 
 export type SavingsGoalWithProgress = SavingsGoal & {
 	currentAmount: number;
 	percentage: number;
 };
 
-export type Contribution = {
-	id: string;
-	goalId: string;
-	amount: number;
-	date: string;
-	description: string | null;
-	userId: string;
-	goal: SavingsGoal;
-	user: User;
-	createdAt: string;
-	updatedAt: string;
-};
+export type Contribution = QueryRow<'contribution', { goal: true; user: true }>;
 
 export type ChartData = {
 	date: Date;
@@ -184,38 +105,9 @@ export type MonthlyNetflowData = {
 	net: number;
 };
 
-export type WindowCleaningCustomer = {
-	id: string;
-	name: string;
-	address: string;
-	city: string;
-	unitNumber: string | null;
-	buzzerNumber: string | null;
-	phoneNumber: string | null;
-	email: string | null;
-	notes: string | null;
-	deletedAt: string | null;
-	deletedBy: string | null;
-	userId: string;
-	user: User;
-	createdAt: string;
-	updatedAt: string;
-};
+export type WindowCleaningCustomer = QueryRow<'windowCleaningCustomer', { user: true }>;
 
-export type WindowCleaningJob = {
-	id: string;
-	customerId: string;
-	jobDate: string;
-	jobTime: string | null;
-	amountCharged: number;
-	tip: number;
-	durationHours: number | null;
-	notes: string | null;
-	userId: string;
-	customer: WindowCleaningCustomer;
-	createdAt: string;
-	updatedAt: string;
-};
+export type WindowCleaningJob = QueryRow<'windowCleaningJob', { customer: true; user: true }>;
 
 export type WindowCleaningCustomerWithStats = WindowCleaningCustomer & {
 	jobs: WindowCleaningJob[];

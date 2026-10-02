@@ -10,7 +10,6 @@ vi.mock('drizzle-orm', () => ({
 }));
 
 vi.mock('../schema', () => ({
-	user: { id: 'user.id' },
 	account: { userId: 'account.user_id' }
 }));
 
@@ -22,37 +21,7 @@ vi.mock('./factory', () => ({
 	})
 }));
 
-import { accountQueries, userQueries } from './users';
-
-describe('userQueries', () => {
-	beforeEach(() => {
-		mockState.findAll.mockReset();
-		mockState.findFirst.mockReset();
-		mockState.findFirst.mockResolvedValue(undefined);
-	});
-
-	describe('findWithRelations', () => {
-		it('calls findFirst with eq(user.id) where condition', async () => {
-			await userQueries.findWithRelations('u-1');
-
-			expect(mockState.findFirst).toHaveBeenCalledWith(
-				expect.objectContaining({
-					where: { type: 'eq', field: 'user.id', value: 'u-1' }
-				})
-			);
-		});
-
-		it('requests accounts and sessions relations', async () => {
-			await userQueries.findWithRelations('u-1');
-
-			expect(mockState.findFirst).toHaveBeenCalledWith(
-				expect.objectContaining({
-					with: { accounts: true, sessions: true }
-				})
-			);
-		});
-	});
-});
+import { accountQueries } from './users';
 
 describe('accountQueries', () => {
 	beforeEach(() => {

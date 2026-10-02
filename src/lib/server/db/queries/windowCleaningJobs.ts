@@ -5,7 +5,7 @@ import { getDb } from '../index';
 import { windowCleaningJob } from '../schema';
 import { createQueryBuilder } from './factory';
 
-const baseBuilder = createQueryBuilder<typeof windowCleaningJob, WindowCleaningJob>({
+const baseBuilder = createQueryBuilder({
 	tableName: 'windowCleaningJob',
 	defaultRelations: { customer: true, user: true },
 	defaultOrderBy: [desc(windowCleaningJob.jobDate)]
