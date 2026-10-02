@@ -12,18 +12,35 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	const user = getUser(locals);
 	const mode = url.searchParams.get('mode') === 'yearly' ? 'yearly' : 'monthly';
 
-	const [dashboardData, hiddenSections, transactionForm] = await Promise.all([
-		mode === 'monthly' ? loadMonthlyDashboard(url) : loadYearlyDashboard(url),
-		dashboardPreferenceQueries.findHiddenKeysByUserId(user.id),
-		superValidate(zod4(transactionSchema))
-	]);
+	const transactionForm = await superValidate(zod4(transactionSchema));
 
-	const dashboardVisibilityForm = await superValidate(
-		{ hiddenSections },
-		zod4(dashboardVisibilitySchema)
-	);
+	try {
+		const [dashboardData, hiddenSections] = await Promise.all([
+			mode === 'monthly' ? loadMonthlyDashboard(url) : loadYearlyDashboard(url),
+			dashboardPreferenceQueries.findHiddenKeysByUserId(user.id)
+		]);
 
-	return { ...dashboardData, hiddenSections, dashboardVisibilityForm, transactionForm };
+		const dashboardVisibilityForm = await superValidate(
+			{ hiddenSections },
+			zod4(dashboardVisibilitySchema)
+		);
+
+		return { ...dashboardData, hiddenSections, dashboardVisibilityForm, transactionForm };
+	} catch (error) {
+		logger.error('Failed to load dashboard:', error);
+		const hiddenSections: string[] = [];
+		const dashboardVisibilityForm = await superValidate(
+			{ hiddenSections },
+			zod4(dashboardVisibilitySchema)
+		);
+		return {
+			mode,
+			hiddenSections,
+			dashboardVisibilityForm,
+			transactionForm,
+			loadError: 'Failed to load dashboard. Please try refreshing the page.'
+		};
+	}
 };
 
 export const actions = {

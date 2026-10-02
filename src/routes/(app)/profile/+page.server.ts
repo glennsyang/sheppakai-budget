@@ -15,26 +15,42 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const currentUser = getUser(locals);
-
-	// Get the full user data including updatedAt
-	const fullUserData = await userQueries.findById(currentUser.id);
-
-	// Get the account data to find when password was last updated
-	const accountData = await accountQueries.findByUserId(currentUser.id);
-
-	// Initialize profile form with current user data
-	const profileForm = await superValidate(
-		{ name: fullUserData?.name || '' },
-		zod4(updateProfileSchema)
-	);
 	const passwordForm = await superValidate(zod4(changePasswordSchema));
 
-	return {
-		user: fullUserData || currentUser,
-		profileForm,
-		passwordForm,
-		passwordUpdatedAt: accountData?.updatedAt || null
-	};
+	try {
+		// Get the full user data including updatedAt
+		const fullUserData = await userQueries.findById(currentUser.id);
+
+		// Get the account data to find when password was last updated
+		const accountData = await accountQueries.findByUserId(currentUser.id);
+
+		// Initialize profile form with current user data
+		const profileForm = await superValidate(
+			{ name: fullUserData?.name || '' },
+			zod4(updateProfileSchema)
+		);
+
+		return {
+			user: fullUserData || currentUser,
+			profileForm,
+			passwordForm,
+			passwordUpdatedAt: accountData?.updatedAt || null
+		};
+	} catch (error) {
+		logger.error('Failed to load profile:', error);
+		// The session user still carries the name and email the forms need.
+		const profileForm = await superValidate(
+			{ name: currentUser.name || '' },
+			zod4(updateProfileSchema)
+		);
+		return {
+			user: currentUser,
+			profileForm,
+			passwordForm,
+			passwordUpdatedAt: null,
+			loadError: 'Failed to load profile details. Please try refreshing the page.'
+		};
+	}
 };
 
 export const actions = {

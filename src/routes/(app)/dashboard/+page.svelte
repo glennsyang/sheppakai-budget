@@ -15,6 +15,7 @@
 	import GoalsSummaryStrip from '$lib/components/GoalsSummaryStrip.svelte';
 	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import KpiSparklineCard from '$lib/components/KpiSparklineCard.svelte';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import MonthlyBudgetSummaryCard from '$lib/components/MonthlyBudgetSummaryCard.svelte';
 	import MonthlyCategoryChart from '$lib/components/MonthlyCategoryChart.svelte';
 	import MonthlyNetflowChart from '$lib/components/MonthlyNetflowChart.svelte';
@@ -362,12 +363,9 @@
 			? Math.min((recurringMonthlyTotal / data.totalIncome) * 100, 100)
 			: 0
 	);
-	let totalGoalsSaved = $derived(
-		(data.goalsWithProgress || []).reduce((acc, g) => acc + g.currentAmount, 0)
-	);
-	let totalGoalsTarget = $derived(
-		(data.goalsWithProgress || []).reduce((acc, g) => acc + g.targetAmount, 0)
-	);
+	let goalsWithProgress = $derived(data.goalsWithProgress || []);
+	let totalGoalsSaved = $derived(goalsWithProgress.reduce((acc, g) => acc + g.currentAmount, 0));
+	let totalGoalsTarget = $derived(goalsWithProgress.reduce((acc, g) => acc + g.targetAmount, 0));
 	let excludedExpensesTotal = $derived(data.excludedExpensesTotal || 0);
 
 	// Pre-built lookup map for allYearBudgets: key is `${categoryId}-${monthValue}-${year}`
@@ -539,6 +537,8 @@
 			class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2"
 			label="Loading dashboard charts"
 		/>
+	{:else if data.loadError}
+		<LoadErrorBanner message={data.loadError} />
 	{:else if selectedMode === 'monthly'}
 		<!-- Safe-to-spend hero band -->
 		{#if isSectionVisible('safeToSpendHero')}
@@ -627,12 +627,12 @@
 					colorScheme="green"
 					tooltip="The sum of all your savings accounts, same total shown on the Savings page."
 				/>
-				{#if (data.goalsWithProgress || []).length > 0}
+				{#if goalsWithProgress.length > 0}
 					<KpiSparklineCard
 						label="Savings Goals"
 						icon={TargetIcon}
 						value={formatCurrency(totalGoalsSaved)}
-						subtext={`of ${formatCurrency(totalGoalsTarget)} target across ${data.goalsWithProgress.length} goal${data.goalsWithProgress.length === 1 ? '' : 's'}`}
+						subtext={`of ${formatCurrency(totalGoalsTarget)} target across ${goalsWithProgress.length} goal${goalsWithProgress.length === 1 ? '' : 's'}`}
 						colorScheme="green"
 						tooltip="The combined amount saved across all your active savings goals, compared to their combined target amount."
 					/>
@@ -731,9 +731,9 @@
 		{/if}
 
 		<!-- Savings goals strip -->
-		{#if isSectionVisible('goalsStrip') && (data.goalsWithProgress || []).length > 0}
+		{#if isSectionVisible('goalsStrip') && goalsWithProgress.length > 0}
 			<div class="mb-6">
-				<GoalsSummaryStrip goals={data.goalsWithProgress || []} />
+				<GoalsSummaryStrip goals={goalsWithProgress} />
 			</div>
 		{/if}
 
@@ -821,15 +821,15 @@
 					</p>
 					<p class="text-muted-foreground mt-1 text-xs">Across all savings accounts</p>
 				</div>
-				{#if (data.goalsWithProgress || []).length > 0}
+				{#if goalsWithProgress.length > 0}
 					<div class="bg-card rounded-xl border p-4 shadow-xs">
 						<p class="text-muted-foreground text-sm">Savings Goals</p>
 						<p class="mt-1 text-2xl font-bold text-green-600 tabular-nums dark:text-green-400">
 							{formatCurrency(totalGoalsSaved)}
 						</p>
 						<p class="text-muted-foreground mt-1 text-xs">
-							of {formatCurrency(totalGoalsTarget)} target across {data.goalsWithProgress.length}
-							goal{data.goalsWithProgress.length === 1 ? '' : 's'}
+							of {formatCurrency(totalGoalsTarget)} target across {goalsWithProgress.length}
+							goal{goalsWithProgress.length === 1 ? '' : 's'}
 						</p>
 					</div>
 				{/if}
@@ -860,9 +860,9 @@
 		{/if}
 
 		<!-- Savings goals strip (yearly) -->
-		{#if isSectionVisible('goalsStrip') && (data.goalsWithProgress || []).length > 0}
+		{#if isSectionVisible('goalsStrip') && goalsWithProgress.length > 0}
 			<div class="mb-6">
-				<GoalsSummaryStrip goals={data.goalsWithProgress || []} />
+				<GoalsSummaryStrip goals={goalsWithProgress} />
 			</div>
 		{/if}
 

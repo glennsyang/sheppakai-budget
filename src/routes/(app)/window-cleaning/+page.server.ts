@@ -18,64 +18,79 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const [customers, allJobs, customerStats] = await Promise.all([
-		windowCleaningCustomerQueries.findAll(),
-		windowCleaningJobQueries.findAll(),
-		windowCleaningJobQueries.getStatsPerCustomer()
-	]);
-
-	// Build O(1) lookup maps — avoids O(customers × jobs) filter loops
-	const statsMap = new Map(customerStats.map((s) => [s.customerId, s]));
-	const jobsMap = allJobs.reduce((acc, job) => {
-		const list = acc.get(job.customerId);
-		if (list) {
-			list.push(job);
-		} else {
-			acc.set(job.customerId, [job]);
-		}
-		return acc;
-	}, new Map<string, WindowCleaningJob[]>());
-
-	const customersWithStats = customers.map((customer) => {
-		const stats = statsMap.get(customer.id);
-		const jobs = jobsMap.get(customer.id) ?? [];
-		return {
-			...customer,
-			jobs,
-			totalEarned: stats?.totalEarned ?? 0,
-			lastJobDate: stats?.lastJobDate ?? null
-		};
-	});
-
-	// Page-level summary stats
-	const now = new Date();
-	const currentMonth = now.getMonth() + 1;
-	const currentYear = now.getFullYear();
-	const monthPad = String(currentMonth).padStart(2, '0');
-	const monthPrefix = `${currentYear}-${monthPad}`;
-
-	const jobsThisMonth = allJobs.filter((j) => j.jobDate.startsWith(monthPrefix));
-	const earnedThisMonth = jobsThisMonth.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
-
-	const jobsThisYear = allJobs.filter((j) => j.jobDate.startsWith(String(currentYear)));
-	const earnedThisYear = jobsThisYear.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
-
-	const jobsLastYear = allJobs.filter((j) => j.jobDate.startsWith(String(currentYear - 1)));
-	const earnedLastYear = jobsLastYear.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
-
 	const customerForm = await superValidate(zod4(windowCleaningCustomerSchema));
 	const jobForm = await superValidate(zod4(windowCleaningJobSchema));
 
-	return {
-		customers: customersWithStats,
-		totalCustomers: customers.length,
-		jobsThisMonthCount: jobsThisMonth.length,
-		earnedThisMonth,
-		earnedThisYear,
-		earnedLastYear,
-		customerForm,
-		jobForm
-	};
+	try {
+		const [customers, allJobs, customerStats] = await Promise.all([
+			windowCleaningCustomerQueries.findAll(),
+			windowCleaningJobQueries.findAll(),
+			windowCleaningJobQueries.getStatsPerCustomer()
+		]);
+
+		// Build O(1) lookup maps — avoids O(customers × jobs) filter loops
+		const statsMap = new Map(customerStats.map((s) => [s.customerId, s]));
+		const jobsMap = allJobs.reduce((acc, job) => {
+			const list = acc.get(job.customerId);
+			if (list) {
+				list.push(job);
+			} else {
+				acc.set(job.customerId, [job]);
+			}
+			return acc;
+		}, new Map<string, WindowCleaningJob[]>());
+
+		const customersWithStats = customers.map((customer) => {
+			const stats = statsMap.get(customer.id);
+			const jobs = jobsMap.get(customer.id) ?? [];
+			return {
+				...customer,
+				jobs,
+				totalEarned: stats?.totalEarned ?? 0,
+				lastJobDate: stats?.lastJobDate ?? null
+			};
+		});
+
+		// Page-level summary stats
+		const now = new Date();
+		const currentMonth = now.getMonth() + 1;
+		const currentYear = now.getFullYear();
+		const monthPad = String(currentMonth).padStart(2, '0');
+		const monthPrefix = `${currentYear}-${monthPad}`;
+
+		const jobsThisMonth = allJobs.filter((j) => j.jobDate.startsWith(monthPrefix));
+		const earnedThisMonth = jobsThisMonth.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
+
+		const jobsThisYear = allJobs.filter((j) => j.jobDate.startsWith(String(currentYear)));
+		const earnedThisYear = jobsThisYear.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
+
+		const jobsLastYear = allJobs.filter((j) => j.jobDate.startsWith(String(currentYear - 1)));
+		const earnedLastYear = jobsLastYear.reduce((sum, j) => sum + j.amountCharged + j.tip, 0);
+
+		return {
+			customers: customersWithStats,
+			totalCustomers: customers.length,
+			jobsThisMonthCount: jobsThisMonth.length,
+			earnedThisMonth,
+			earnedThisYear,
+			earnedLastYear,
+			customerForm,
+			jobForm
+		};
+	} catch (error) {
+		logger.error('Failed to load window cleaning customers:', error);
+		return {
+			customers: [],
+			totalCustomers: 0,
+			jobsThisMonthCount: 0,
+			earnedThisMonth: 0,
+			earnedThisYear: 0,
+			earnedLastYear: 0,
+			loadError: 'Failed to load window cleaning customers. Please try refreshing the page.',
+			customerForm,
+			jobForm
+		};
+	}
 };
 
 export const actions = {

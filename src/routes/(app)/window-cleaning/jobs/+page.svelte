@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import type { WindowCleaningJob } from '$lib';
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
@@ -25,6 +26,7 @@
 			earnedLastYear: number;
 			jobCount: number;
 			jobForm: SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
+			loadError?: string;
 		};
 	}
 
@@ -88,6 +90,8 @@
 			label="Loading job totals"
 		/>
 		<TableSkeleton rows={8} columns={columns.length} />
+	{:else if data.loadError}
+		<LoadErrorBanner message={data.loadError} />
 	{:else}
 		<!-- Stats Row -->
 		<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">

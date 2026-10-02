@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Recurring } from '$lib';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
@@ -63,44 +64,50 @@
 							</Button>
 						</div>
 					</div>
-					<DataTable
-						{columns}
-						data={data.recurrings as Recurring[]}
-						rowClassName={getRecurringRowClass}
-					/>
+					{#if data.loadError}
+						<LoadErrorBanner message={data.loadError} />
+					{:else}
+						<DataTable
+							{columns}
+							data={data.recurrings as Recurring[]}
+							rowClassName={getRecurringRowClass}
+						/>
+					{/if}
 				</div>
 			</div>
 		</div>
 
 		<!-- Summary Card Column -->
-		<div class="lg:col-span-1">
-			<div class="overflow-hidden rounded-lg border shadow">
-				<div class="p-6">
-					<h2 class="text-center text-2xl font-bold tracking-tight">Summary</h2>
-					<div class="my-4 border-t"></div>
-					<div class="flex items-center justify-between">
-						<span class="text-base font-medium">Total Monthly Recurring: </span>
-						<span class="text-2xl font-bold">{formatCurrency(totalRecurring)}</span>
+		{#if !data.loadError}
+			<div class="lg:col-span-1">
+				<div class="overflow-hidden rounded-lg border shadow">
+					<div class="p-6">
+						<h2 class="text-center text-2xl font-bold tracking-tight">Summary</h2>
+						<div class="my-4 border-t"></div>
+						<div class="flex items-center justify-between">
+							<span class="text-base font-medium">Total Monthly Recurring: </span>
+							<span class="text-2xl font-bold">{formatCurrency(totalRecurring)}</span>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div
-				class="mt-6 overflow-hidden rounded-lg border border-green-200/70 bg-green-50/40 shadow dark:border-green-900/60 dark:bg-green-950/20"
-			>
-				<div class="p-6">
-					<h2 class="text-center text-2xl font-bold tracking-tight">Unpaid</h2>
-					<p class="text-muted-foreground mt-1 text-center text-sm">Unpaid as of {unpaidAsOf}</p>
-					<div class="my-4 border-t"></div>
-					<div class="flex items-center justify-between">
-						<span class="text-base font-medium">Total Left to Pay: </span>
-						<span class="text-2xl font-bold text-green-700 dark:text-green-400"
-							>{formatCurrency(totalUnpaidRecurring)}</span
-						>
+				<div
+					class="mt-6 overflow-hidden rounded-lg border border-green-200/70 bg-green-50/40 shadow dark:border-green-900/60 dark:bg-green-950/20"
+				>
+					<div class="p-6">
+						<h2 class="text-center text-2xl font-bold tracking-tight">Unpaid</h2>
+						<p class="text-muted-foreground mt-1 text-center text-sm">Unpaid as of {unpaidAsOf}</p>
+						<div class="my-4 border-t"></div>
+						<div class="flex items-center justify-between">
+							<span class="text-base font-medium">Total Left to Pay: </span>
+							<span class="text-2xl font-bold text-green-700 dark:text-green-400"
+								>{formatCurrency(totalUnpaidRecurring)}</span
+							>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		{/if}
 	</div>
 </div>
 

@@ -13,13 +13,22 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = getUser(locals);
-	const recurrings = await recurringQueries.findAll({
-		where: eq(recurring.userId, user.id)
-	});
-
 	const form = await superValidate(zod4(recurringSchema));
 
-	return { recurrings, form };
+	try {
+		const recurrings = await recurringQueries.findAll({
+			where: eq(recurring.userId, user.id)
+		});
+
+		return { recurrings, form };
+	} catch (error) {
+		logger.error('Failed to load recurring transactions:', error);
+		return {
+			recurrings: [],
+			loadError: 'Failed to load recurring transactions. Please try refreshing the page.',
+			form
+		};
+	}
 };
 
 export const actions = {
