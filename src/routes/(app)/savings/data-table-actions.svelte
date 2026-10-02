@@ -4,16 +4,13 @@
 	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import SavingsModal from '$lib/components/SavingsModal.svelte';
 	import { savingsFormContext } from '$lib/contexts';
-	import type { savingsSchema } from '$lib/formSchemas';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
 	let { id, savingsData }: { id: string; savingsData: Savings } = $props();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
 
-	const savingsForm = savingsFormContext.get() as SuperValidated<z.infer<typeof savingsSchema>>;
+	const savingsForm = savingsFormContext.get();
 </script>
 
 <RowActionsMenu onEdit={() => (openEditModal = true)} onDelete={() => (openDeleteModal = true)} />

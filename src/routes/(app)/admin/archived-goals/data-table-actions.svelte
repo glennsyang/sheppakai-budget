@@ -3,20 +3,16 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { unArchiveFormContext } from '$lib/contexts';
-	import type { unArchiveSchema } from '$lib/formSchemas';
 	import ArchiveRestoreIcon from '@lucide/svelte/icons/archive-restore';
 	import { toast } from 'svelte-sonner';
-	import { superForm, type SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
+	import { superForm } from 'sveltekit-superforms';
 
 	let { goal }: { goal: SavingsGoal } = $props();
 
 	let openUnarchiveDialog = $state<boolean>(false);
 	let isSubmitting = $state<boolean>(false);
 
-	const unArchiveForm = unArchiveFormContext.get() as SuperValidated<
-		z.infer<typeof unArchiveSchema>
-	>;
+	const unArchiveForm = unArchiveFormContext.get();
 
 	const { form, enhance } = superForm(unArchiveForm, {
 		resetForm: true,

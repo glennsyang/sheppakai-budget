@@ -1,7 +1,7 @@
 <script lang="ts">
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
-	import { setContext } from 'svelte';
+	import { restoreCustomerFormContext } from '$lib/contexts';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -9,7 +9,7 @@
 	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	setContext('restoreForm', data.form);
+	restoreCustomerFormContext.set(data.form);
 </script>
 
 <svelte:head>

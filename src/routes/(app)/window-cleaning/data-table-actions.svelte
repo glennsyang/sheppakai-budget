@@ -5,10 +5,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import WindowCleaningCustomerModal from '$lib/components/WindowCleaningCustomerModal.svelte';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
-	import type { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
-	import { getContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
+	import { customerFormContext, jobFormContext, openCustomerSheetContext } from '$lib/contexts';
 
 	let { customerData }: { customerData: WindowCleaningCustomerWithStats } = $props();
 
@@ -16,13 +13,9 @@
 	let openDeleteModal = $state(false);
 	let openLogJobModal = $state(false);
 
-	const customerForm = getContext('customerForm') as SuperValidated<
-		z.infer<typeof windowCleaningCustomerSchema>
-	>;
-	const jobForm = getContext('jobForm') as SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
-	const openCustomerSheet = getContext('openCustomerSheet') as (
-		customer: WindowCleaningCustomerWithStats
-	) => void;
+	const customerForm = customerFormContext.get();
+	const jobForm = jobFormContext.get();
+	const openCustomerSheet = openCustomerSheetContext.get();
 </script>
 
 <RowActionsMenu

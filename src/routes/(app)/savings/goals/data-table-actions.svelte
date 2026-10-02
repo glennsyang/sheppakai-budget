@@ -3,30 +3,20 @@
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import ContributionModal from '$lib/components/ContributionModal.svelte';
 	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
-	import type { contributionSchema } from '$lib/formSchemas/savings';
-	import { getContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
-
-	interface ContributionSuccessPayload {
-		goalId: string;
-		amount: number;
-		previousGoalId?: string;
-		previousAmount?: number;
-	}
+	import {
+		contributionFormContext,
+		contributionSuccessContext,
+		savingsGoalsContext
+	} from '$lib/contexts';
 
 	let { id, contributionData }: { id: string; contributionData: Contribution } = $props();
 
 	let openEditModal = $state<boolean>(false);
 	let openDeleteModal = $state<boolean>(false);
 
-	const goals = getContext('savingsGoals') as () => SavingsGoal[];
-	const contributionForm = getContext('contributionForm') as SuperValidated<
-		z.infer<typeof contributionSchema>
-	>;
-	const onContributionSuccess = getContext('onContributionSuccess') as (
-		payload: ContributionSuccessPayload
-	) => void;
+	const goals = savingsGoalsContext.get();
+	const contributionForm = contributionFormContext.get();
+	const onContributionSuccess = contributionSuccessContext.get();
 </script>
 
 <RowActionsMenu onEdit={() => (openEditModal = true)} onDelete={() => (openDeleteModal = true)} />

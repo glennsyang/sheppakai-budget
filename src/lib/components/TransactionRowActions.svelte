@@ -4,9 +4,7 @@
 	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import TransactionModal from '$lib/components/TransactionModal.svelte';
 	import { getCategoriesContext, transactionFormContext } from '$lib/contexts';
-	import { toTransactionFormData, type transactionSchema } from '$lib/formSchemas';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
+	import { toTransactionFormData } from '$lib/formSchemas';
 
 	let {
 		id,
@@ -24,9 +22,7 @@
 	let openDeleteModal = $state<boolean>(false);
 
 	const categories = getCategoriesContext();
-	const transactionForm = transactionFormContext.get() as SuperValidated<
-		z.infer<typeof transactionSchema>
-	>;
+	const transactionForm = transactionFormContext.get();
 </script>
 
 <RowActionsMenu onEdit={() => (openEditModal = true)} onDelete={() => (openDeleteModal = true)} />

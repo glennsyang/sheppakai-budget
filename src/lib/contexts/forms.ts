@@ -1,5 +1,23 @@
-import { getContext, setContext } from 'svelte';
+import type {
+	banUserSchema,
+	categorySchema,
+	contributionSchema,
+	idSchema,
+	incomeSchema,
+	recurringSchema,
+	restoreCustomerSchema,
+	savingsSchema,
+	setPasswordSchema,
+	setUserRoleSchema,
+	transactionSchema,
+	unArchiveSchema,
+	windowCleaningCustomerSchema,
+	windowCleaningJobSchema
+} from '$lib/formSchemas';
 import type { SuperValidated } from 'sveltekit-superforms';
+import type { z } from 'zod';
+
+import { createContext } from './values';
 
 /**
  * Creates typed context helpers for a specific form.
@@ -8,47 +26,31 @@ import type { SuperValidated } from 'sveltekit-superforms';
  * @param contextName - Unique name for this form context
  * @returns Object with setter and getter functions
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createFormContext<T extends Record<string, any>>(contextName: string) {
-	const FORM_KEY = Symbol(contextName);
-	type FormContext = SuperValidated<T>;
-
-	return {
-		/**
-		 * Sets the form context in the component tree.
-		 *
-		 * @param form - Superforms validated form object
-		 */
-		set(form: FormContext): void {
-			setContext(FORM_KEY, form);
-		},
-
-		/**
-		 * Gets the form context from the component tree.
-		 *
-		 * @returns Superforms validated form object
-		 * @throws Error if context is not set (during development)
-		 */
-		get(): FormContext {
-			const context = getContext<FormContext>(FORM_KEY);
-
-			if (!context) {
-				throw new Error(
-					`${contextName} context not found. Ensure the form context is set in a parent component.`
-				);
-			}
-
-			return context;
-		}
-	};
+function createFormContext<T extends Record<string, unknown>>(contextName: string) {
+	return createContext<SuperValidated<T>>(contextName);
 }
 
-// Pre-defined form contexts for common use cases
-export const incomeFormContext = createFormContext('incomeForm');
-export const transactionFormContext = createFormContext('transactionForm');
-export const savingsFormContext = createFormContext('savingsForm');
-export const setUserRoleFormContext = createFormContext('setUserRoleForm');
-export const setPasswordFormContext = createFormContext('setPasswordForm');
-export const banUserFormContext = createFormContext('banUserForm');
-export const unArchiveFormContext = createFormContext('unArchiveForm');
-export const revokeApiKeyFormContext = createFormContext('revokeApiKeyForm');
+export const incomeFormContext = createFormContext<z.infer<typeof incomeSchema>>('incomeForm');
+export const transactionFormContext =
+	createFormContext<z.infer<typeof transactionSchema>>('transactionForm');
+export const savingsFormContext = createFormContext<z.infer<typeof savingsSchema>>('savingsForm');
+export const categoryFormContext =
+	createFormContext<z.infer<typeof categorySchema>>('categoryForm');
+export const recurringFormContext =
+	createFormContext<z.infer<typeof recurringSchema>>('recurringForm');
+export const contributionFormContext =
+	createFormContext<z.infer<typeof contributionSchema>>('contributionForm');
+export const customerFormContext =
+	createFormContext<z.infer<typeof windowCleaningCustomerSchema>>('customerForm');
+export const jobFormContext = createFormContext<z.infer<typeof windowCleaningJobSchema>>('jobForm');
+export const restoreCustomerFormContext =
+	createFormContext<z.infer<typeof restoreCustomerSchema>>('restoreCustomerForm');
+export const setUserRoleFormContext =
+	createFormContext<z.infer<typeof setUserRoleSchema>>('setUserRoleForm');
+export const setPasswordFormContext =
+	createFormContext<z.infer<typeof setPasswordSchema>>('setPasswordForm');
+export const banUserFormContext = createFormContext<z.infer<typeof banUserSchema>>('banUserForm');
+export const unArchiveFormContext =
+	createFormContext<z.infer<typeof unArchiveSchema>>('unArchiveForm');
+export const revokeApiKeyFormContext =
+	createFormContext<z.infer<typeof idSchema>>('revokeApiKeyForm');

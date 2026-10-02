@@ -15,12 +15,10 @@
 		setPasswordFormContext,
 		setUserRoleFormContext
 	} from '$lib/contexts';
-	import type { banUserSchema, setPasswordSchema, setUserRoleSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
 	import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 	import { toast } from 'svelte-sonner';
-	import { superForm, type SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
+	import { superForm } from 'sveltekit-superforms';
 
 	let { user }: { user: UserWithSessions } = $props();
 
@@ -34,13 +32,9 @@
 	let openSessionsSheet = $state<boolean>(false);
 
 	// Get all forms contexts
-	const setUserRoleForm = setUserRoleFormContext.get() as SuperValidated<
-		z.infer<typeof setUserRoleSchema>
-	>;
-	const setPasswordFormData = setPasswordFormContext.get() as SuperValidated<
-		z.infer<typeof setPasswordSchema>
-	>;
-	const banUserFormData = banUserFormContext.get() as SuperValidated<z.infer<typeof banUserSchema>>;
+	const setUserRoleForm = setUserRoleFormContext.get();
+	const setPasswordFormData = setPasswordFormContext.get();
+	const banUserFormData = banUserFormContext.get();
 
 	// Create separate superForm instances for each form
 	// Use dynamic IDs per user to avoid duplicates across table rows
