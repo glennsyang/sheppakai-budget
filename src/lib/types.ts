@@ -9,10 +9,6 @@ import type { Component } from 'svelte';
  *
  * @template T - The entity type for initialData (e.g., Transaction, Income, Category)
  */
-// Entity types are derived from the Drizzle schema plus the relations each query object
-// loads by default (`defaultRelations` in `$lib/server/db/queries`), so schema drift is a
-// type error rather than a silent mismatch.
-
 export interface BaseModalProps<T> {
 	/** Controls modal visibility (bindable) */
 	open: boolean;
@@ -29,6 +25,10 @@ export interface BaseModalProps<T> {
 	/** Loading state for async operations (bindable) */
 	isLoading?: boolean;
 }
+
+// Entity types are derived from the Drizzle schema plus the relations each query object
+// loads by default (`defaultRelations` in `$lib/server/db/queries`), so schema drift is a
+// type error rather than a silent mismatch.
 
 /** The signed-in user as better-auth returns it on `locals.user`. */
 export type User = typeof auth.$Infer.Session.user;
