@@ -8,24 +8,14 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { revokeApiKeyFormContext } from '$lib/contexts';
-	import type { createApiKeySchema, idSchema } from '$lib/formSchemas';
 	import CopyIcon from '@lucide/svelte/icons/copy';
 	import { toast } from 'svelte-sonner';
-	import { superForm, type SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
+	import { superForm } from 'sveltekit-superforms';
 
-	import { columns, type AdminApiKey } from './columns';
+	import type { PageProps } from './$types';
+	import { columns } from './columns';
 
-	interface Props {
-		data: {
-			apiKeys: AdminApiKey[];
-			loadError?: string;
-			createForm: SuperValidated<z.infer<typeof createApiKeySchema>>;
-			revokeForm: SuperValidated<z.infer<typeof idSchema>>;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	revokeApiKeyFormContext.set(data.revokeForm);

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Contribution, SavingsGoalWithProgress } from '$lib';
+	import type { SavingsGoalWithProgress } from '$lib';
 	import Confetti from '$lib/components/Confetti.svelte';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import ContributionModal from '$lib/components/ContributionModal.svelte';
@@ -10,24 +10,12 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import type { contributionSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
 	import { PlusIcon } from '@lucide/svelte/icons';
 	import { setContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
+	import type { PageProps } from './$types';
 	import DataTableActions from './data-table-actions.svelte';
-
-	interface Props {
-		data: {
-			goals: Array<SavingsGoalWithProgress>;
-			contributions: Contribution[];
-			savingsGoalForm: SuperValidated<z.infer<typeof savingsGoalSchema>>;
-			contributionForm: SuperValidated<z.infer<typeof contributionSchema>>;
-			loadError?: string;
-		};
-	}
 
 	interface ContributionSuccessPayload {
 		goalId: string;
@@ -36,7 +24,7 @@
 		previousAmount?: number;
 	}
 
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	setContext('savingsGoalForm', data.savingsGoalForm);

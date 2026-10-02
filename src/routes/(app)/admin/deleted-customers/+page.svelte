@@ -1,25 +1,12 @@
 <script lang="ts">
-	import type { WindowCleaningCustomer } from '$lib';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
-	import type { restoreCustomerSchema } from '$lib/formSchemas';
 	import { setContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
+	import type { PageProps } from './$types';
 	import { columns } from './columns';
 
-	type DeletedCustomer = WindowCleaningCustomer & { user: { name: string; email: string } };
-
-	interface Props {
-		data: {
-			deletedCustomers: DeletedCustomer[];
-			loadError?: string;
-			form: SuperValidated<z.infer<typeof restoreCustomerSchema>>;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	setContext('restoreForm', data.form);

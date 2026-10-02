@@ -1,36 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import type { WindowCleaningJob } from '$lib';
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import YearSwitcher from '$lib/components/YearSwitcher.svelte';
-	import type { windowCleaningJobSchema } from '$lib/formSchemas';
 	import { getCurrentPacificMonthYear, parseYearParam } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { setContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
+	import type { PageProps } from './$types';
 	import { columns } from './columns';
 
-	interface Props {
-		data: {
-			jobs: WindowCleaningJob[];
-			totalCharged: number;
-			totalTips: number;
-			totalEarned: number;
-			earnedLastYear: number;
-			jobCount: number;
-			jobForm: SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
-			loadError?: string;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	setContext('jobForm', data.jobForm);

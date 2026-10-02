@@ -9,32 +9,16 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import WindowCleaningCustomerModal from '$lib/components/WindowCleaningCustomerModal.svelte';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
-	import type { windowCleaningCustomerSchema, windowCleaningJobSchema } from '$lib/formSchemas';
 	import { formatLocalTimestamp, formatTime12h } from '$lib/utils/dates';
 	import { buildGoogleMapsUrl } from '$lib/utils/maps';
 	import { Pencil, Trash2, MapPin } from '@lucide/svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { setContext } from 'svelte';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
+	import type { PageProps } from './$types';
 	import { columns } from './columns';
 
-	interface Props {
-		data: {
-			customers: WindowCleaningCustomerWithStats[];
-			totalCustomers: number;
-			jobsThisMonthCount: number;
-			earnedThisMonth: number;
-			earnedThisYear: number;
-			earnedLastYear: number;
-			customerForm: SuperValidated<z.infer<typeof windowCleaningCustomerSchema>>;
-			jobForm: SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
-			loadError?: string;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	setContext('customerForm', data.customerForm);

@@ -28,15 +28,11 @@
 	};
 
 	// Calculate total recurring expenses
-	let totalRecurring = $derived(
-		((data.recurrings as Recurring[]) || []).reduce((sum, item) => sum + item.amount, 0)
-	);
+	let totalRecurring = $derived(data.recurrings.reduce((sum, item) => sum + item.amount, 0));
 
 	// Calculate total unpaid recurring expenses
 	let totalUnpaidRecurring = $derived(
-		((data.recurrings as Recurring[]) || [])
-			.filter((item) => !item.paid)
-			.reduce((sum, item) => sum + item.amount, 0)
+		data.recurrings.filter((item) => !item.paid).reduce((sum, item) => sum + item.amount, 0)
 	);
 </script>
 
@@ -67,11 +63,7 @@
 					{#if data.loadError}
 						<LoadErrorBanner message={data.loadError} />
 					{:else}
-						<DataTable
-							{columns}
-							data={data.recurrings as Recurring[]}
-							rowClassName={getRecurringRowClass}
-						/>
+						<DataTable {columns} data={data.recurrings} rowClassName={getRecurringRowClass} />
 					{/if}
 				</div>
 			</div>
@@ -111,4 +103,4 @@
 	</div>
 </div>
 
-<RecurringModal bind:open={openModal} recurringForm={data.form!} />
+<RecurringModal bind:open={openModal} recurringForm={data.form} />
