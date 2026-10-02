@@ -35,12 +35,14 @@ vi.mock('$lib/server/logger', () => ({
 import { load as apiKeysLoad } from './api-keys/+page.server';
 import { load as apiLogsLoad } from './api-logs/+page.server';
 import { load as archivedGoalsLoad } from './archived-goals/+page.server';
+import { load as deletedCustomersLoad } from './deleted-customers/+page.server';
 import { load as usersLoad } from './users/+page.server';
 
 const loads = {
 	'api-keys': apiKeysLoad,
 	'api-logs': apiLogsLoad,
 	'archived-goals': archivedGoalsLoad,
+	'deleted-customers': deletedCustomersLoad,
 	users: usersLoad
 };
 
