@@ -1,4 +1,5 @@
 <script lang="ts">
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Separator from '$lib/components/ui/separator';
@@ -86,6 +87,10 @@
 	</div>
 
 	<div class="space-y-6">
+		{#if data.loadError}
+			<LoadErrorBanner message={data.loadError} />
+		{/if}
+
 		<!-- Profile Information Section -->
 		<div class="overflow-hidden rounded-lg border shadow">
 			<div class="p-6">

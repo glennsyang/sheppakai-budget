@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { WindowCleaningCustomerWithStats, WindowCleaningJob } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
@@ -29,6 +30,7 @@
 			earnedLastYear: number;
 			customerForm: SuperValidated<z.infer<typeof windowCleaningCustomerSchema>>;
 			jobForm: SuperValidated<z.infer<typeof windowCleaningJobSchema>>;
+			loadError?: string;
 		};
 	}
 
@@ -102,70 +104,76 @@
 		</Button>
 	</div>
 
-	<!-- Stats Row -->
-	<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
-		<Card>
-			<CardContent class="pt-6">
-				<p class="text-muted-foreground text-sm">Customers</p>
-				<p class="text-2xl font-bold">{data.totalCustomers}</p>
-			</CardContent>
-		</Card>
-		<Card>
-			<CardContent class="pt-6">
-				<p class="text-muted-foreground text-sm">Jobs This Month</p>
-				<p class="text-2xl font-bold">{data.jobsThisMonthCount}</p>
-			</CardContent>
-		</Card>
-		<Card>
-			<CardContent class="pt-6">
-				<p class="text-muted-foreground text-sm">Earned This Month</p>
-				<p class="text-2xl font-bold text-green-600 dark:text-green-400">
-					{currencyFormatter.format(data.earnedThisMonth)}
-				</p>
-			</CardContent>
-		</Card>
-		<Card>
-			<CardContent class="pt-6">
-				<p class="text-muted-foreground text-sm">Earned This Year</p>
-				<p class="text-2xl font-bold text-green-600 dark:text-green-400">
-					{currencyFormatter.format(data.earnedThisYear)}
-				</p>
-				{#if data.earnedLastYear > 0}
-					{@const diff = data.earnedThisYear - data.earnedLastYear}
-					{@const pct = Math.round(Math.abs(diff / data.earnedLastYear) * 100)}
-					<p
-						class="mt-1 text-xs {diff >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'}"
-					>
-						{diff >= 0 ? '▲' : '▼'}
-						{pct}% vs {new Date().getFullYear() - 1} ({currencyFormatter.format(
-							data.earnedLastYear
-						)})
-					</p>
-				{/if}
-			</CardContent>
-		</Card>
-	</div>
-
-	<!-- Customers Table -->
-	{#if data.customers.length > 0}
-		<DataTable
-			{columns}
-			data={data.customers}
-			defaultSorting={[{ id: 'name', desc: false }]}
-			onRowClick={openCustomerSheet}
-		/>
+	{#if data.loadError}
+		<LoadErrorBanner message={data.loadError} />
 	{:else}
-		<Card>
-			<CardContent class="py-12 text-center">
-				<p class="text-muted-foreground">
-					No customers yet. Add your first customer to get started!
-				</p>
-				<Button class="mt-4" onclick={() => (openAddCustomerModal = true)}>
-					<PlusIcon class="mr-2 h-4 w-4" />
-					Add Your First Customer
-				</Button>
-			</CardContent>
-		</Card>
+		<!-- Stats Row -->
+		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
+			<Card>
+				<CardContent class="pt-6">
+					<p class="text-muted-foreground text-sm">Customers</p>
+					<p class="text-2xl font-bold">{data.totalCustomers}</p>
+				</CardContent>
+			</Card>
+			<Card>
+				<CardContent class="pt-6">
+					<p class="text-muted-foreground text-sm">Jobs This Month</p>
+					<p class="text-2xl font-bold">{data.jobsThisMonthCount}</p>
+				</CardContent>
+			</Card>
+			<Card>
+				<CardContent class="pt-6">
+					<p class="text-muted-foreground text-sm">Earned This Month</p>
+					<p class="text-2xl font-bold text-green-600 dark:text-green-400">
+						{currencyFormatter.format(data.earnedThisMonth)}
+					</p>
+				</CardContent>
+			</Card>
+			<Card>
+				<CardContent class="pt-6">
+					<p class="text-muted-foreground text-sm">Earned This Year</p>
+					<p class="text-2xl font-bold text-green-600 dark:text-green-400">
+						{currencyFormatter.format(data.earnedThisYear)}
+					</p>
+					{#if data.earnedLastYear > 0}
+						{@const diff = data.earnedThisYear - data.earnedLastYear}
+						{@const pct = Math.round(Math.abs(diff / data.earnedLastYear) * 100)}
+						<p
+							class="mt-1 text-xs {diff >= 0
+								? 'text-green-600 dark:text-green-400'
+								: 'text-red-500'}"
+						>
+							{diff >= 0 ? '▲' : '▼'}
+							{pct}% vs {new Date().getFullYear() - 1} ({currencyFormatter.format(
+								data.earnedLastYear
+							)})
+						</p>
+					{/if}
+				</CardContent>
+			</Card>
+		</div>
+
+		<!-- Customers Table -->
+		{#if data.customers.length > 0}
+			<DataTable
+				{columns}
+				data={data.customers}
+				defaultSorting={[{ id: 'name', desc: false }]}
+				onRowClick={openCustomerSheet}
+			/>
+		{:else}
+			<Card>
+				<CardContent class="py-12 text-center">
+					<p class="text-muted-foreground">
+						No customers yet. Add your first customer to get started!
+					</p>
+					<Button class="mt-4" onclick={() => (openAddCustomerModal = true)}>
+						<PlusIcon class="mr-2 h-4 w-4" />
+						Add Your First Customer
+					</Button>
+				</CardContent>
+			</Card>
+		{/if}
 	{/if}
 </div>
 

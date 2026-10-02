@@ -3,6 +3,7 @@ import { createAction, updateAction } from '$lib/server/actions/crud-helpers';
 import { getDb } from '$lib/server/db';
 import { budgetQueries, recurringQueries } from '$lib/server/db/queries';
 import { budget, transaction } from '$lib/server/db/schema';
+import { logger } from '$lib/server/logger';
 import { getMonthYearFromUrl, padMonth } from '$lib/utils/dates';
 import { and, eq, sql } from 'drizzle-orm';
 import type { z } from 'zod';
@@ -58,45 +59,57 @@ export const load: PageServerLoad = async ({ url }) => {
 	const endDate = new Date(Number(latestMonth.year), Number(latestMonth.month), 0);
 	const endDateStr = `${latestMonth.year}-${latestMonth.month}-${padMonth(endDate.getDate().toString())}`;
 
-	// Fetch historical budgets for the chart window
-	const historicalBudgets = await getDb().query.budget.findMany({
-		with: {
-			category: true,
-			user: true
-		},
-		where: and(
-			sql`(${budget.year} || '-' || ${budget.month}) >= ${earliestMonth.year + '-' + earliestMonth.month}`,
-			sql`(${budget.year} || '-' || ${budget.month}) <= ${latestMonth.year + '-' + latestMonth.month}`
-		),
-		orderBy: [budget.year, budget.month]
-	});
+	try {
+		// Fetch historical budgets for the chart window
+		const historicalBudgets = await getDb().query.budget.findMany({
+			with: {
+				category: true,
+				user: true
+			},
+			where: and(
+				sql`(${budget.year} || '-' || ${budget.month}) >= ${earliestMonth.year + '-' + earliestMonth.month}`,
+				sql`(${budget.year} || '-' || ${budget.month}) <= ${latestMonth.year + '-' + latestMonth.month}`
+			),
+			orderBy: [budget.year, budget.month]
+		});
 
-	// Fetch and aggregate transactions for the chart window
-	const historicalTransactions = getDb()
-		.select({
-			categoryId: transaction.categoryId,
-			month: sql<string>`substr(${transaction.date}, 6, 2)`,
-			year: sql<string>`substr(${transaction.date}, 1, 4)`,
-			total: sql<number>`sum(${transaction.amount})`
-		})
-		.from(transaction)
-		.where(
-			and(
-				sql`date(${transaction.date}) >= date(${startDate})`,
-				sql`date(${transaction.date}) <= date(${endDateStr})`,
-				eq(transaction.excludedFromBudget, false)
+		// Fetch and aggregate transactions for the chart window
+		const historicalTransactions = getDb()
+			.select({
+				categoryId: transaction.categoryId,
+				month: sql<string>`substr(${transaction.date}, 6, 2)`,
+				year: sql<string>`substr(${transaction.date}, 1, 4)`,
+				total: sql<number>`sum(${transaction.amount})`
+			})
+			.from(transaction)
+			.where(
+				and(
+					sql`date(${transaction.date}) >= date(${startDate})`,
+					sql`date(${transaction.date}) <= date(${endDateStr})`,
+					eq(transaction.excludedFromBudget, false)
+				)
 			)
-		)
-		.groupBy(transaction.categoryId, sql`substr(${transaction.date}, 1, 7)`)
-		.all();
+			.groupBy(transaction.categoryId, sql`substr(${transaction.date}, 1, 7)`)
+			.all();
 
-	return {
-		budget: await budgetQueries.findByMonthYear(month, year),
-		historicalBudgets,
-		historicalTransactions,
-		last6Months: last12Months,
-		recurring: await recurringQueries.findAll()
-	};
+		return {
+			budget: await budgetQueries.findByMonthYear(month, year),
+			historicalBudgets,
+			historicalTransactions,
+			last6Months: last12Months,
+			recurring: await recurringQueries.findAll()
+		};
+	} catch (error) {
+		logger.error('Failed to load budget:', error);
+		return {
+			budget: [],
+			historicalBudgets: [],
+			historicalTransactions: [],
+			last6Months: last12Months,
+			recurring: [],
+			loadError: 'Failed to load budget. Please try refreshing the page.'
+		};
+	}
 };
 
 const budgetActionConfig = {

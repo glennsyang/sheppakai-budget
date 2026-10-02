@@ -4,6 +4,7 @@ import { getDb } from '$lib/server/db';
 import { savingsGoalQueries } from '$lib/server/db/queries';
 import { contribution, savingsGoal } from '$lib/server/db/schema';
 import { toContributionRow } from '$lib/server/db/writes/contributions';
+import { logger } from '$lib/server/logger';
 import { formatDateForStorage } from '$lib/utils/dates';
 import { desc, eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms';
@@ -12,47 +13,58 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	// Fetch all goals
-	const goals = await savingsGoalQueries.findAll();
-
-	// Fetch all contributions
-	const contributions = await getDb().query.contribution.findMany({
-		with: {
-			goal: {
-				with: {
-					user: true
-				}
-			},
-			user: true
-		},
-		orderBy: [desc(contribution.date)]
-	});
-
-	// Filter out contributions linked to archived goals
-	const activeContributions = contributions.filter((c) => c.goal.status !== 'archived');
-
-	// Calculate progress for each goal
-	const goalsWithProgress = goals.map((goal) => {
-		const goalContributions = contributions.filter((c) => c.goalId === goal.id);
-		const currentAmount = goalContributions.reduce((sum, c) => sum + c.amount, 0);
-		const percentage = goal.targetAmount > 0 ? (currentAmount / goal.targetAmount) * 100 : 0;
-
-		return {
-			...goal,
-			currentAmount,
-			percentage: Math.min(percentage, 100)
-		};
-	});
-
 	const savingsGoalForm = await superValidate(zod4(savingsGoalSchema));
 	const contributionForm = await superValidate(zod4(contributionSchema));
 
-	return {
-		goals: goalsWithProgress,
-		contributions: activeContributions,
-		savingsGoalForm,
-		contributionForm
-	};
+	try {
+		// Fetch all goals
+		const goals = await savingsGoalQueries.findAll();
+
+		// Fetch all contributions
+		const contributions = await getDb().query.contribution.findMany({
+			with: {
+				goal: {
+					with: {
+						user: true
+					}
+				},
+				user: true
+			},
+			orderBy: [desc(contribution.date)]
+		});
+
+		// Filter out contributions linked to archived goals
+		const activeContributions = contributions.filter((c) => c.goal.status !== 'archived');
+
+		// Calculate progress for each goal
+		const goalsWithProgress = goals.map((goal) => {
+			const goalContributions = contributions.filter((c) => c.goalId === goal.id);
+			const currentAmount = goalContributions.reduce((sum, c) => sum + c.amount, 0);
+			const percentage = goal.targetAmount > 0 ? (currentAmount / goal.targetAmount) * 100 : 0;
+
+			return {
+				...goal,
+				currentAmount,
+				percentage: Math.min(percentage, 100)
+			};
+		});
+
+		return {
+			goals: goalsWithProgress,
+			contributions: activeContributions,
+			savingsGoalForm,
+			contributionForm
+		};
+	} catch (error) {
+		logger.error('Failed to load savings goals:', error);
+		return {
+			goals: [],
+			contributions: [],
+			loadError: 'Failed to load savings goals. Please try refreshing the page.',
+			savingsGoalForm,
+			contributionForm
+		};
+	}
 };
 
 export const actions = {

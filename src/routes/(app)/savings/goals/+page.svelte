@@ -3,6 +3,7 @@
 	import Confetti from '$lib/components/Confetti.svelte';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import ContributionModal from '$lib/components/ContributionModal.svelte';
+	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import SavingsGoalCard from '$lib/components/SavingsGoalCard.svelte';
 	import SavingsGoalModal from '$lib/components/SavingsGoalModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -24,6 +25,7 @@
 			contributions: Contribution[];
 			savingsGoalForm: SuperValidated<z.infer<typeof savingsGoalSchema>>;
 			contributionForm: SuperValidated<z.infer<typeof contributionSchema>>;
+			loadError?: string;
 		};
 	}
 
@@ -148,66 +150,70 @@
 		</div>
 	</div>
 
-	<!-- Summary Card -->
-	<Card class="mb-6">
-		<CardHeader>
-			<CardTitle class="text-xl">Overall Progress</CardTitle>
-		</CardHeader>
-		<CardContent>
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-				<div class="text-center">
-					<p class="text-muted-foreground text-sm">Total Target</p>
-					<p class="text-2xl font-bold">
-						${totalTargetAmount.toLocaleString('en-US', {
-							minimumFractionDigits: 2,
-							maximumFractionDigits: 2
-						})}
-					</p>
-				</div>
-				<div class="text-center">
-					<p class="text-muted-foreground text-sm">Total Saved</p>
-					<p class="text-2xl font-bold text-green-600 dark:text-green-400">
-						${totalCurrentAmount.toLocaleString('en-US', {
-							minimumFractionDigits: 2,
-							maximumFractionDigits: 2
-						})}
-					</p>
-				</div>
-				<div class="text-center">
-					<p class="text-muted-foreground text-sm">Overall Progress</p>
-					<p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-						{Math.round(overallProgress)}%
-					</p>
-				</div>
-			</div>
-		</CardContent>
-	</Card>
-
-	<!-- Goals Grid -->
-	{#if data.goals.length > 0}
-		<div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-			{#each data.goals as goal (goal.id)}
-				<SavingsGoalCard
-					{goal}
-					onViewContributions={handleOpenGoalContributions}
-					onAddContribution={handleAddContribution}
-					onEditGoal={handleEditGoal}
-					onDeleteGoal={handleDeleteGoal}
-				/>
-			{/each}
-		</div>
+	{#if data.loadError}
+		<LoadErrorBanner message={data.loadError} />
 	{:else}
-		<Card class="mb-8">
-			<CardContent class="py-12 text-center">
-				<p class="text-muted-foreground">
-					No savings goals yet. Create your first goal to get started!
-				</p>
-				<Button class="mt-4" onclick={handleCreateGoal}>
-					<PlusIcon class="mr-2 h-4 w-4" />
-					Create Your First Goal
-				</Button>
+		<!-- Summary Card -->
+		<Card class="mb-6">
+			<CardHeader>
+				<CardTitle class="text-xl">Overall Progress</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+					<div class="text-center">
+						<p class="text-muted-foreground text-sm">Total Target</p>
+						<p class="text-2xl font-bold">
+							${totalTargetAmount.toLocaleString('en-US', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							})}
+						</p>
+					</div>
+					<div class="text-center">
+						<p class="text-muted-foreground text-sm">Total Saved</p>
+						<p class="text-2xl font-bold text-green-600 dark:text-green-400">
+							${totalCurrentAmount.toLocaleString('en-US', {
+								minimumFractionDigits: 2,
+								maximumFractionDigits: 2
+							})}
+						</p>
+					</div>
+					<div class="text-center">
+						<p class="text-muted-foreground text-sm">Overall Progress</p>
+						<p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+							{Math.round(overallProgress)}%
+						</p>
+					</div>
+				</div>
 			</CardContent>
 		</Card>
+
+		<!-- Goals Grid -->
+		{#if data.goals.length > 0}
+			<div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+				{#each data.goals as goal (goal.id)}
+					<SavingsGoalCard
+						{goal}
+						onViewContributions={handleOpenGoalContributions}
+						onAddContribution={handleAddContribution}
+						onEditGoal={handleEditGoal}
+						onDeleteGoal={handleDeleteGoal}
+					/>
+				{/each}
+			</div>
+		{:else}
+			<Card class="mb-8">
+				<CardContent class="py-12 text-center">
+					<p class="text-muted-foreground">
+						No savings goals yet. Create your first goal to get started!
+					</p>
+					<Button class="mt-4" onclick={handleCreateGoal}>
+						<PlusIcon class="mr-2 h-4 w-4" />
+						Create Your First Goal
+					</Button>
+				</CardContent>
+			</Card>
+		{/if}
 	{/if}
 </div>
 

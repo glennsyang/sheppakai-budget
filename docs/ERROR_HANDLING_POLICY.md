@@ -195,5 +195,6 @@ shape. See `src/lib/server/api/response.ts` (`apiSuccess`/`apiError`) and
 ## References
 
 - Example load implementation: `src/routes/(app)/admin/users/+page.server.ts`
+- Every `(app)` page load that queries the database follows this pattern; `src/routes/(app)/load-error-fallbacks.test.ts` asserts the fallback shape for the loads that were brought in line last
 - Example action implementation: `src/routes/(auth)/sign-in/+page.server.ts`
 - Structure review: `docs/structure-review/2026-07-27-review.md` (Error Handling → Findings 1 and 2)
