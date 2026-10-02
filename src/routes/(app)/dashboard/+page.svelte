@@ -33,7 +33,14 @@
 	import { dashboardSectionsForMode } from '$lib/dashboardSections';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
 	import { computeCashFlowProjection } from '$lib/utils/cashFlowProjection';
-	import { getMonthProgress, getYearProgress } from '$lib/utils/dates';
+	import {
+		getCurrentPacificMonthYear,
+		getMonthProgress,
+		getYearProgress,
+		padMonth,
+		parseMonthParam,
+		parseYearParam
+	} from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { ChevronDownIcon } from '@lucide/svelte';
 	import {
@@ -61,26 +68,24 @@
 				year: string;
 		  };
 
-	const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
-	const currentYear = new Date().getFullYear().toString();
-
-	function normalizeMonthValue(value: string | undefined) {
-		if (!value) return currentMonth;
-		const parsedMonth = Number.parseInt(value, 10);
-		if (Number.isNaN(parsedMonth) || parsedMonth < 1 || parsedMonth > 12) {
-			return currentMonth;
-		}
-		return parsedMonth.toString().padStart(2, '0');
-	}
+	const { month: currentMonth, year: currentYear } = getCurrentPacificMonthYear();
 
 	let selectedMode = $derived(page.url.searchParams.get('mode') ?? data.mode ?? 'monthly');
 	let selectedMonth: string = $derived(
-		normalizeMonthValue(
-			page.url.searchParams.get('month') ?? data.month?.toString() ?? currentMonth
+		padMonth(
+			parseMonthParam(
+				page.url.searchParams.get('month'),
+				parseMonthParam(data.month?.toString() ?? null, currentMonth)
+			)
 		)
 	);
 	let selectedYear: string = $derived(
-		page.url.searchParams.get('year') ?? data.year?.toString() ?? currentYear
+		String(
+			parseYearParam(
+				page.url.searchParams.get('year'),
+				parseYearParam(data.year?.toString() ?? null, currentYear)
+			)
+		)
 	);
 	let yearlyView = $derived(page.url.searchParams.get('view') ?? data.view ?? 'current');
 

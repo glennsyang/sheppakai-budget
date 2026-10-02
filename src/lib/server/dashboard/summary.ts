@@ -22,7 +22,8 @@ import {
 	getMonthDateRange,
 	getMonthRangeFromUrl,
 	getPreviousMonthsRange,
-	getYearDateRange
+	getYearDateRange,
+	parseYearParam
 } from '$lib/utils/dates';
 import { inArray, sum } from 'drizzle-orm';
 
@@ -192,8 +193,7 @@ export async function loadMonthlyDashboard(url: URL) {
 export async function loadYearlyDashboard(url: URL) {
 	const currentYear = new Date().getFullYear();
 	const view = url.searchParams.get('view') === 'full' ? 'full' : 'current';
-	const yearParam = url.searchParams.get('year');
-	const year = yearParam ? Number.parseInt(yearParam) : currentYear;
+	const year = parseYearParam(url.searchParams.get('year'), currentYear);
 	const { startDate, endDate } = getYearDateRange(year);
 
 	const [

@@ -9,7 +9,7 @@
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import YearSwitcher from '$lib/components/YearSwitcher.svelte';
 	import type { windowCleaningJobSchema } from '$lib/formSchemas';
-	import { getCurrentPacificMonthYear } from '$lib/utils/dates';
+	import { getCurrentPacificMonthYear, parseYearParam } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 	import { setContext } from 'svelte';
 	import type { SuperValidated } from 'sveltekit-superforms';
@@ -37,17 +37,7 @@
 
 	const { year: defaultYear } = getCurrentPacificMonthYear();
 
-	function parseSelectedYear(searchParam: string | null, fallbackYear: number): number {
-		if (searchParam === null) {
-			return fallbackYear;
-		}
-
-		const parsedYear = Number.parseInt(searchParam, 10);
-
-		return Number.isFinite(parsedYear) ? parsedYear : fallbackYear;
-	}
-
-	let selectedYear = $derived(parseSelectedYear(page.url.searchParams.get('year'), defaultYear));
+	let selectedYear = $derived(parseYearParam(page.url.searchParams.get('year'), defaultYear));
 
 	function onYearChange(year: number) {
 		goto(`/window-cleaning/jobs?year=${year}`, {

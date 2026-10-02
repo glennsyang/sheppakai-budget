@@ -206,7 +206,34 @@ export function getCurrentPacificMonthYear(date: Date = new Date()): {
 }
 
 /**
+ * Parse a `month` search param, accepting only whole numbers 1-12
+ * @param value - Raw search param value (or null when absent)
+ * @param fallback - Month to use when the value is missing or invalid
+ *
+ * Example: "3" → 3, "13" → fallback, "3abc" → fallback
+ */
+export function parseMonthParam(value: string | null, fallback: number): number {
+	if (value === null || !/^\d{1,2}$/.test(value)) return fallback;
+	const month = Number(value);
+	return month >= 1 && month <= 12 ? month : fallback;
+}
+
+/**
+ * Parse a `year` search param, accepting only four-digit years 1900-9999
+ * @param value - Raw search param value (or null when absent)
+ * @param fallback - Year to use when the value is missing or invalid
+ *
+ * Example: "2025" → 2025, "99" → fallback, "abc" → fallback
+ */
+export function parseYearParam(value: string | null, fallback: number): number {
+	if (value === null || !/^\d{4}$/.test(value)) return fallback;
+	const year = Number(value);
+	return year >= 1900 ? year : fallback;
+}
+
+/**
  * Extract month and year from URL search params with fallback to current date
+ * Invalid or out-of-range values fall back to the current Pacific month/year.
  * @param url - URL object containing searchParams
  * @returns Object with month (1-12) and year
  *
@@ -214,13 +241,11 @@ export function getCurrentPacificMonthYear(date: Date = new Date()): {
  * Example: URL with no params → { month: 1, year: 2026 } (current date, Pacific time)
  */
 export function getMonthYearFromUrl(url: URL): { month: number; year: number } {
-	const monthParam = url.searchParams.get('month');
-	const yearParam = url.searchParams.get('year');
 	const current = getCurrentPacificMonthYear();
 
 	return {
-		month: monthParam ? Number.parseInt(monthParam) : current.month,
-		year: yearParam ? Number.parseInt(yearParam) : current.year
+		month: parseMonthParam(url.searchParams.get('month'), current.month),
+		year: parseYearParam(url.searchParams.get('year'), current.year)
 	};
 }
 
