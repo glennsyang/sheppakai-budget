@@ -2,6 +2,7 @@ import { restoreCustomerSchema } from '$lib/formSchemas';
 import { adminFormAction } from '$lib/server/actions/admin-guard';
 import { assertAdmin } from '$lib/server/auth';
 import { getDb } from '$lib/server/db';
+import { windowCleaningCustomerQueries } from '$lib/server/db/queries';
 import { windowCleaningCustomer } from '$lib/server/db/schema';
 import { withAuditFieldsForUpdate } from '$lib/server/db/utils';
 import { logger } from '$lib/server/logger';
@@ -16,16 +17,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const form = await superValidate(zod4(restoreCustomerSchema));
 
-	const db = getDb();
-
 	try {
-		const deletedCustomers = await db.query.windowCleaningCustomer.findMany({
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			where: (table: any, { isNotNull }: any) => isNotNull(table.deletedAt),
-			with: { user: true },
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			orderBy: (table: any, { desc }: any) => [desc(table.deletedAt)]
-		});
+		const deletedCustomers = await windowCleaningCustomerQueries.findDeleted();
 
 		return { deletedCustomers, form };
 	} catch (error) {
