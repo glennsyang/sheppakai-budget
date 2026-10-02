@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 
 const mockState = vi.hoisted(() => ({
 	findMany: vi.fn<() => Promise<unknown[]>>(async () => []),
@@ -10,7 +10,7 @@ vi.mock('../index', () => ({
 	getDb: mockState.getDb
 }));
 
-import { createQueryBuilder } from './factory';
+import { createQueryBuilder, type QueryRow } from './factory';
 
 describe('createQueryBuilder', () => {
 	beforeEach(() => {
@@ -105,6 +105,24 @@ describe('createQueryBuilder', () => {
 		expect(mockState.findFirst).toHaveBeenCalledWith({
 			where,
 			with: { category: true }
+		});
+	});
+
+	it('types rows and where callbacks from the Drizzle schema', async () => {
+		const builder = createQueryBuilder({
+			tableName: 'transaction',
+			defaultRelations: { category: true }
+		});
+
+		const row = await builder.findFirst({
+			where: (transaction, { eq }) => eq(transaction.categoryId, 'c-1')
+		});
+		expectTypeOf(row).toEqualTypeOf<QueryRow<'transaction', { category: true }> | undefined>();
+		expectTypeOf<NonNullable<typeof row>['category']['name']>().toEqualTypeOf<string>();
+
+		await builder.findFirst({
+			// @ts-expect-error -- unknown columns are a type error, not a runtime surprise
+			where: (transaction, { eq }) => eq(transaction.notAColumn, 'c-1')
 		});
 	});
 });

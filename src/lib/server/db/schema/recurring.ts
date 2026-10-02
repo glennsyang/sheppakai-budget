@@ -8,7 +8,7 @@ const recurring = sqliteTable('recurring', {
 	id: text('id').primaryKey().$defaultFn(generateId),
 	merchant: text('merchant').notNull(),
 	description: text('description').notNull(),
-	cadence: text('cadence').notNull(),
+	cadence: text('cadence').$type<'Monthly' | 'Yearly'>().notNull(),
 	amount: real('amount').notNull(),
 	paid: integer('paid', { mode: 'boolean' }).notNull().default(false),
 	dueDay: integer('due_day'),

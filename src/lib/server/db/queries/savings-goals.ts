@@ -1,10 +1,9 @@
-import type { SavingsGoal } from '$lib/types';
 import { asc, ne } from 'drizzle-orm';
 
 import { savingsGoal } from '../schema';
 import { createQueryBuilder } from './factory';
 
-const baseBuilder = createQueryBuilder<typeof savingsGoal, SavingsGoal>({
+const baseBuilder = createQueryBuilder({
 	tableName: 'savingsGoal',
 	defaultRelations: { user: true },
 	defaultOrderBy: [asc(savingsGoal.name)]

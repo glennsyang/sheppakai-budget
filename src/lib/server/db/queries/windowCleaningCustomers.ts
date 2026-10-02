@@ -5,7 +5,7 @@ import { getDb } from '../index';
 import { windowCleaningCustomer } from '../schema';
 import { createQueryBuilder } from './factory';
 
-const baseBuilder = createQueryBuilder<typeof windowCleaningCustomer, WindowCleaningCustomer>({
+const baseBuilder = createQueryBuilder({
 	tableName: 'windowCleaningCustomer',
 	defaultRelations: { user: true },
 	defaultOrderBy: [desc(windowCleaningCustomer.name)]
@@ -28,7 +28,7 @@ export const windowCleaningCustomerQueries = {
 			where: isNotNull(windowCleaningCustomer.deletedAt),
 			with: { user: true },
 			orderBy: [desc(windowCleaningCustomer.deletedAt)]
-		}) as Promise<WindowCleaningCustomer[]>;
+		});
 	},
 
 	// Find a single active customer by id

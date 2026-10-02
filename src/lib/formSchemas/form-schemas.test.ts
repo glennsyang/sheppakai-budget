@@ -114,11 +114,11 @@ describe('form schemas', () => {
 				amount: 10,
 				description: 'Netflix',
 				merchant: 'Netflix',
-				cadence: 'monthly'
+				cadence: 'Monthly'
 			}).success
 		).toBe(true);
 		expect(
-			recurringSchema.safeParse({ amount: 10, description: '', merchant: 'N', cadence: 'monthly' })
+			recurringSchema.safeParse({ amount: 10, description: '', merchant: 'N', cadence: 'Monthly' })
 				.success
 		).toBe(false);
 

@@ -1,32 +1,18 @@
-import type { User } from '$lib/types';
 import type { InferSelectModel } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
 
-import { account, user } from '../schema';
+import { account } from '../schema';
 import { createQueryBuilder } from './factory';
 
 type Account = InferSelectModel<typeof account>;
 
-const baseBuilder = createQueryBuilder<typeof user, User>({
+const baseBuilder = createQueryBuilder({
 	tableName: 'user'
 });
 
-export const userQueries = {
-	...baseBuilder,
+export const userQueries = baseBuilder;
 
-	// Find user with all relations
-	findWithRelations: async (userId: string) => {
-		return baseBuilder.findFirst({
-			where: eq(user.id, userId),
-			with: {
-				accounts: true,
-				sessions: true
-			}
-		});
-	}
-};
-
-const accountBuilder = createQueryBuilder<typeof account, Account>({
+const accountBuilder = createQueryBuilder({
 	tableName: 'account'
 });
 

@@ -4,7 +4,7 @@ import { and, asc, sql } from 'drizzle-orm';
 import { income } from '../schema';
 import { createQueryBuilder } from './factory';
 
-const baseBuilder = createQueryBuilder<typeof income, Income>({
+const baseBuilder = createQueryBuilder({
 	tableName: 'income',
 	defaultOrderBy: [asc(income.date)]
 });

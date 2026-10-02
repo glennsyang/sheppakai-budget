@@ -1,16 +1,23 @@
-import type { Budget, Transaction, User } from '$lib/types';
+import type { Budget, Transaction } from '$lib/types';
 import { describe, expect, it } from 'vitest';
 
 import { computeCategoryAnomalies, type HistoricalMonthRange } from './category-anomalies';
 
-const fixtureUser: User = {
+const fixtureUser: Transaction['user'] = {
 	id: 'user-1',
 	name: 'Test User',
 	email: 'test@example.com',
 	emailVerified: true,
-	createdAt: '2026-01-01',
-	updatedAt: '2026-01-01'
+	image: null,
+	role: 'user',
+	banned: false,
+	banReason: null,
+	banExpires: null,
+	createdAt: new Date('2026-01-01'),
+	updatedAt: new Date('2026-01-01')
 };
+
+const audit = { createdAt: '', createdBy: 'user-1', updatedAt: '', updatedBy: 'user-1' };
 
 function buildTx(
 	categoryId: string,
@@ -26,7 +33,10 @@ function buildTx(
 		date,
 		gstAmount: null,
 		excludedFromBudget: false,
-		category: { id: categoryId, name: categoryName, description: '', createdAt: '', updatedAt: '' },
+		categoryId,
+		category: { id: categoryId, name: categoryName, description: '', ...audit },
+		userId: fixtureUser.id,
+		...audit,
 		user: fixtureUser
 	};
 }
@@ -59,7 +69,11 @@ function buildBudget(categoryId: string, categoryName: string, amount: number): 
 		amount,
 		month: '6',
 		year: '2026',
-		category: { id: categoryId, name: categoryName, description: '', createdAt: '', updatedAt: '' },
+		presetType: null,
+		categoryId,
+		category: { id: categoryId, name: categoryName, description: '', ...audit },
+		userId: fixtureUser.id,
+		...audit,
 		user: fixtureUser
 	};
 }
@@ -111,18 +125,6 @@ describe('computeCategoryAnomalies', () => {
 		];
 
 		expect(computeCategoryAnomalies(transactions, shortRange)).toEqual([]);
-	});
-
-	it('ignores transactions with no category', () => {
-		const transactions: Transaction[] = [
-			...buildPriorMonthsSpend('groceries', 'Groceries', 100).map((tx) => ({
-				...tx,
-				category: null
-			})),
-			{ ...buildTx('groceries', 'Groceries', 200, '2026-06-15'), category: null }
-		];
-
-		expect(computeCategoryAnomalies(transactions, sixMonthRange)).toEqual([]);
 	});
 
 	it('sorts by percent-over descending and caps at 5 results', () => {

@@ -41,10 +41,7 @@ export const recurringSchema = z
 			.string()
 			.min(1, 'Merchant is required')
 			.max(100, 'Merchant must be at most 100 characters'),
-		cadence: z
-			.string()
-			.min(1, 'Cadence is required')
-			.max(50, 'Cadence must be at most 50 characters'),
+		cadence: z.enum(['Monthly', 'Yearly'], { error: 'Cadence is required' }),
 		dueDay: z.number().int().min(1).max(31).nullable().optional(),
 		dueMonth: z.number().int().min(1).max(12).nullable().optional()
 	})

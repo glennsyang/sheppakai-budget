@@ -1,4 +1,4 @@
-import type { Recurring, Transaction, User } from '$lib/types';
+import type { Recurring, Transaction } from '$lib/types';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -8,7 +8,21 @@ import {
 	transactionSchema
 } from './finances';
 
-const user = { id: 'u1' } as User;
+const user: Transaction['user'] = {
+	id: 'u1',
+	name: 'Test User',
+	email: 'test@example.com',
+	emailVerified: true,
+	image: null,
+	role: 'user',
+	banned: false,
+	banReason: null,
+	banExpires: null,
+	createdAt: new Date('2026-01-01'),
+	updatedAt: new Date('2026-01-01')
+};
+
+const audit = { createdAt: '', createdBy: 'u1', updatedAt: '', updatedBy: 'u1' };
 
 const transaction: Transaction = {
 	id: 't1',
@@ -18,7 +32,10 @@ const transaction: Transaction = {
 	date: '2026-09-15',
 	gstAmount: 2.1,
 	excludedFromBudget: true,
-	category: { id: 'c1', name: 'Food' } as Transaction['category'],
+	categoryId: 'c1',
+	category: { id: 'c1', name: 'Food', description: '', ...audit },
+	userId: 'u1',
+	...audit,
 	user
 };
 
@@ -31,6 +48,8 @@ const recurring: Recurring = {
 	paid: false,
 	dueDay: 15,
 	dueMonth: 3,
+	userId: 'u1',
+	...audit,
 	user
 };
 
