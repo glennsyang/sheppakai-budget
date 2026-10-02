@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { UserWithSessions } from '$lib';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import {
@@ -7,30 +6,12 @@
 		setPasswordFormContext,
 		setUserRoleFormContext
 	} from '$lib/contexts';
-	import type {
-		banUserSchema,
-		createUserSchema,
-		setPasswordSchema,
-		setUserRoleSchema
-	} from '$lib/formSchemas';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
+	import type { PageProps } from './$types';
 	import { columns } from './columns';
 	import CreateUserDialog from './create-user-dialog.svelte';
 
-	interface Props {
-		data: {
-			usersWithSessions: UserWithSessions[];
-			loadError?: string;
-			setRoleForm: SuperValidated<z.infer<typeof setUserRoleSchema>>;
-			setPasswordForm: SuperValidated<z.infer<typeof setPasswordSchema>>;
-			banUserForm: SuperValidated<z.infer<typeof banUserSchema>>;
-			createUserForm: SuperValidated<z.infer<typeof createUserSchema>>;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// Type guard to ensure role is defined and banned is boolean
 	const usersWithSessionsAndRole = $derived(

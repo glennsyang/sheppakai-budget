@@ -23,16 +23,14 @@
 
 	// Calculate monthly total income
 	let monthlyTotalIncome = $derived(
-		((data.monthlyIncomes as Income[]) || []).reduce((sum, item) => sum + item.amount, 0)
+		data.monthlyIncomes.reduce((sum, item) => sum + item.amount, 0)
 	);
 
 	// Calculate yearly total income
-	let yearlyTotalIncome = $derived(
-		((data.yearlyIncomes as Income[]) || []).reduce((sum, item) => sum + item.amount, 0)
-	);
+	let yearlyTotalIncome = $derived(data.yearlyIncomes.reduce((sum, item) => sum + item.amount, 0));
 
 	let yearlyAverageIncomePerMonth = $derived.by(() => {
-		const hasIncomes = ((data.yearlyIncomes as Income[]) || []).length > 0;
+		const hasIncomes = data.yearlyIncomes.length > 0;
 		const completedMonthsSinceJanuary = data.completedMonthsSinceJanuary ?? 0;
 
 		if (!hasIncomes || completedMonthsSinceJanuary <= 0) {
@@ -108,4 +106,4 @@
 	{/snippet}
 </MonthlyTablePageShell>
 
-<IncomeModal bind:open={openModal} incomeForm={data.form!} />
+<IncomeModal bind:open={openModal} incomeForm={data.form} />

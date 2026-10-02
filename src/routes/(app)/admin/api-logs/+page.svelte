@@ -2,16 +2,10 @@
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 
-	import { columns, type AdminApiLogEntry } from './columns';
+	import type { PageProps } from './$types';
+	import { columns } from './columns';
 
-	interface Props {
-		data: {
-			entries: AdminApiLogEntry[];
-			loadError?: string;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 </script>
 
 <svelte:head>

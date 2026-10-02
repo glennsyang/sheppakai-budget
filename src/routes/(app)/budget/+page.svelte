@@ -46,11 +46,11 @@
 
 	// Get budget for a specific category
 	function getBudgetForCategory(categoryId: string): Budget | undefined {
-		return (data.budget as Budget[]).find((b) => b.category?.id === categoryId);
+		return data.budget.find((b) => b.category?.id === categoryId);
 	}
 
 	// Calculate total budget for the month
-	let totalBudget = $derived((data.budget as Budget[]).reduce((sum, b) => sum + b.amount, 0));
+	let totalBudget = $derived(data.budget.reduce((sum, b) => sum + b.amount, 0));
 
 	// Calculate categories without budgets
 	let categoriesWithoutBudget = $derived(

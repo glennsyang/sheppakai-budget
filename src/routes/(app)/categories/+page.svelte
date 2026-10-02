@@ -47,4 +47,4 @@
 	</div>
 </div>
 
-<CategoryModal bind:open={openModal} categoryForm={data.form!} />
+<CategoryModal bind:open={openModal} categoryForm={data.form} />

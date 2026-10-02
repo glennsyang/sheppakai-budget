@@ -1,23 +1,12 @@
 <script lang="ts">
-	import type { SavingsGoal } from '$lib';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import { unArchiveFormContext } from '$lib/contexts';
-	import type { unArchiveSchema } from '$lib/formSchemas';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
+	import type { PageProps } from './$types';
 	import { columns } from './columns';
 
-	interface Props {
-		data: {
-			archivedGoals: SavingsGoal[];
-			loadError?: string;
-			form: SuperValidated<z.infer<typeof unArchiveSchema>>;
-		};
-	}
-
-	let { data }: Props = $props();
+	let { data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	if (data.form) unArchiveFormContext.set(data.form);

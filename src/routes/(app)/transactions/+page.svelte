@@ -15,8 +15,6 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { z } from 'zod';
 
 	import type { PageProps } from './$types';
 	import { columns } from './columns';
@@ -159,11 +157,7 @@
 	{/snippet}
 
 	{#snippet tableContent()}
-		<DataTable
-			{columns}
-			data={data.transactions as Transaction[]}
-			rowClassName={getTransactionRowClass}
-		/>
+		<DataTable {columns} data={data.transactions} rowClassName={getTransactionRowClass} />
 	{/snippet}
 
 	{#snippet summaryContent()}
@@ -232,4 +226,4 @@
 	{/snippet}
 </MonthlyTablePageShell>
 
-<TransactionModal bind:open={openModal} transactionForm={data.form!} categories={categories()} />
+<TransactionModal bind:open={openModal} transactionForm={data.form} categories={categories()} />
