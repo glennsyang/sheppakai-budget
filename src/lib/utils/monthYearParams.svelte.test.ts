@@ -7,7 +7,8 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('$app/navigation', () => ({ goto: mocks.goto }));
 vi.mock('$app/state', () => ({ page: mocks.page }));
-vi.mock('./dates', () => ({
+vi.mock('./dates', async (importOriginal) => ({
+	...(await importOriginal<typeof import('./dates')>()),
 	getCurrentPacificMonthYear: () => ({ month: 9, year: 2026 })
 }));
 
@@ -42,6 +43,16 @@ describe('useMonthYearParams', () => {
 
 		expect(params.month).toBe(9);
 		expect(params.year).toBe(2026);
+	});
+
+	it('falls back when params are out of range or partly numeric', () => {
+		mocks.page.url = new URL('http://localhost/income?month=13&year=20251');
+		expect(useMonthYearParams('/income').month).toBe(9);
+		expect(useMonthYearParams('/income').year).toBe(2026);
+
+		mocks.page.url = new URL('http://localhost/income?month=3abc&year=99');
+		expect(useMonthYearParams('/income').month).toBe(9);
+		expect(useMonthYearParams('/income').year).toBe(2026);
 	});
 
 	it('navigates to the base path with the new month and year', () => {

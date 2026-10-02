@@ -1,7 +1,7 @@
 import { goto } from '$app/navigation';
 import { page } from '$app/state';
 
-import { getCurrentPacificMonthYear } from './dates';
+import { getCurrentPacificMonthYear, parseMonthParam, parseYearParam } from './dates';
 
 /**
  * Reads the selected month/year from the `month` and `year` search params
@@ -14,8 +14,8 @@ import { getCurrentPacificMonthYear } from './dates';
 export function useMonthYearParams(basePath: string) {
 	const { month: defaultMonth, year: defaultYear } = getCurrentPacificMonthYear();
 
-	const month = $derived(Number(page.url.searchParams.get('month')) || defaultMonth);
-	const year = $derived(Number(page.url.searchParams.get('year')) || defaultYear);
+	const month = $derived(parseMonthParam(page.url.searchParams.get('month'), defaultMonth));
+	const year = $derived(parseYearParam(page.url.searchParams.get('year'), defaultYear));
 
 	function navigate(nextMonth: number | string, nextYear: number) {
 		void goto(`${basePath}?month=${nextMonth}&year=${nextYear}`, {

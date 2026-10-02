@@ -17,7 +17,9 @@ import {
 	getTodayDate,
 	getYearDateRange,
 	getYearProgress,
-	padMonth
+	padMonth,
+	parseMonthParam,
+	parseYearParam
 } from './dates';
 
 describe('Date Utilities - Local Timezone Storage', () => {
@@ -263,6 +265,54 @@ describe('Date Utilities - Local Timezone Storage', () => {
 			const result = getMonthYearFromUrl(url);
 			expect(result).toEqual({ month: 7, year: 2026 });
 		});
+
+		it.each(['abc', '0', '13', '3abc', '-1', '1.5', ''])(
+			'should fall back to the current month for invalid month %j',
+			(month) => {
+				const url = new URL(`http://localhost/?month=${month}&year=2025`);
+				expect(getMonthYearFromUrl(url)).toEqual({ month: 1, year: 2025 });
+			}
+		);
+
+		it.each(['abc', '99', '10000', '1899', '2025x', ''])(
+			'should fall back to the current year for invalid year %j',
+			(year) => {
+				const url = new URL(`http://localhost/?month=3&year=${year}`);
+				expect(getMonthYearFromUrl(url)).toEqual({ month: 3, year: 2026 });
+			}
+		);
+	});
+
+	describe('parseMonthParam', () => {
+		it('should accept 1-12 with or without a leading zero', () => {
+			expect(parseMonthParam('1', 5)).toBe(1);
+			expect(parseMonthParam('03', 5)).toBe(3);
+			expect(parseMonthParam('12', 5)).toBe(12);
+		});
+
+		it('should return the fallback for missing or invalid values', () => {
+			expect(parseMonthParam(null, 5)).toBe(5);
+			expect(parseMonthParam('13', 5)).toBe(5);
+			expect(parseMonthParam('00', 5)).toBe(5);
+			expect(parseMonthParam(' 3', 5)).toBe(5);
+			expect(parseMonthParam('1e1', 5)).toBe(5);
+		});
+	});
+
+	describe('parseYearParam', () => {
+		it('should accept four-digit years from 1900', () => {
+			expect(parseYearParam('1900', 2026)).toBe(1900);
+			expect(parseYearParam('2025', 2026)).toBe(2025);
+			expect(parseYearParam('9999', 2026)).toBe(9999);
+		});
+
+		it('should return the fallback for missing or invalid values', () => {
+			expect(parseYearParam(null, 2026)).toBe(2026);
+			expect(parseYearParam('1899', 2026)).toBe(2026);
+			expect(parseYearParam('10000', 2026)).toBe(2026);
+			expect(parseYearParam('0x7e9', 2026)).toBe(2026);
+			expect(parseYearParam('NaN', 2026)).toBe(2026);
+		});
 	});
 
 	describe('getMonthRangeFromUrl', () => {
@@ -327,6 +377,16 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				year: 2025,
 				startDate: '2025-12-01',
 				endDate: '2025-12-31'
+			});
+		});
+
+		it('should never produce a NaN date range for invalid params', () => {
+			const url = new URL('http://localhost/?month=abc&year=xyz');
+			expect(getMonthRangeFromUrl(url)).toEqual({
+				month: 1,
+				year: 2026,
+				startDate: '2026-01-01',
+				endDate: '2026-01-31'
 			});
 		});
 
