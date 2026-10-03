@@ -360,8 +360,9 @@ function buildPeriodProgress(
 }
 
 /**
- * Get completion progress for a selected month relative to the reference date.
- * Past months are complete, future months have not started, and the current month
+ * Get completion progress for a selected month relative to the reference date,
+ * as observed in the Pacific timezone so it agrees with the month/year resolved
+ * by getMonthYearFromUrl. Past months are complete, future months have not started, and the current month
  * uses the current day of month as the elapsed amount.
  */
 export function getMonthProgress(
@@ -370,8 +371,11 @@ export function getMonthProgress(
 	referenceDate: Date = new Date()
 ): PeriodProgress {
 	const totalUnits = new Date(year, month, 0).getDate();
-	const referenceYear = referenceDate.getFullYear();
-	const referenceMonth = referenceDate.getMonth() + 1;
+	const {
+		year: referenceYear,
+		month: referenceMonth,
+		day: referenceDay
+	} = getPacificDateParts(referenceDate);
 
 	if (year < referenceYear || (year === referenceYear && month < referenceMonth)) {
 		return buildPeriodProgress('month', totalUnits, totalUnits, 'past', 'day');
@@ -381,7 +385,7 @@ export function getMonthProgress(
 		return buildPeriodProgress('month', 0, totalUnits, 'future', 'day');
 	}
 
-	return buildPeriodProgress('month', referenceDate.getDate(), totalUnits, 'current', 'day');
+	return buildPeriodProgress('month', referenceDay, totalUnits, 'current', 'day');
 }
 
 /**
@@ -408,13 +412,14 @@ export function calculateMonthsSinceJanuary(
 }
 
 /**
- * Get completion progress for a selected year relative to the reference date.
- * Past years are complete, future years have not started, and the current year
- * uses the current day-of-year as the elapsed amount.
+ * Get completion progress for a selected year relative to the reference date,
+ * as observed in the Pacific timezone so it agrees with the month/year resolved
+ * by getMonthYearFromUrl. Past years are complete, future years have not started,
+ * and the current year counts the months before the current one as elapsed.
  */
 export function getYearProgress(year: number, referenceDate: Date = new Date()): PeriodProgress {
 	const totalUnits = 12;
-	const referenceYear = referenceDate.getFullYear();
+	const { year: referenceYear, month: referenceMonth } = getPacificDateParts(referenceDate);
 
 	if (year < referenceYear) {
 		return buildPeriodProgress('year', totalUnits, totalUnits, 'past', 'month');
@@ -424,7 +429,7 @@ export function getYearProgress(year: number, referenceDate: Date = new Date()):
 		return buildPeriodProgress('year', 0, totalUnits, 'future', 'month');
 	}
 
-	return buildPeriodProgress('year', referenceDate.getMonth(), totalUnits, 'current', 'month');
+	return buildPeriodProgress('year', referenceMonth - 1, totalUnits, 'current', 'month');
 }
 
 function getLastDayOfMonth(year: number, month: number): number {
