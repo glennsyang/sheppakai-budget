@@ -92,7 +92,7 @@
 						<div class="my-4 border-t"></div>
 						<div class="flex items-center justify-between">
 							<span class="text-base font-medium">Total Left to Pay: </span>
-							<span class="text-2xl font-bold text-green-700 dark:text-green-400"
+							<span class="text-positive text-2xl font-bold"
 								>{formatCurrency(totalUnpaidRecurring)}</span
 							>
 						</div>

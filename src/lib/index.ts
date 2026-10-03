@@ -4,7 +4,6 @@
 export type {
 	BaseModalProps,
 	Budget,
-	CardType,
 	Category,
 	CategoryAnomaly,
 	ChartData,

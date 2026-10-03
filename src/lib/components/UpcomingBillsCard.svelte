@@ -9,7 +9,6 @@
 	import { formatCurrency } from '$lib/utils';
 	import { actionMessage } from '$lib/utils/actionMessage';
 	import { getCurrentPeriodDueDate, getDaysUntilDue } from '$lib/utils/dates';
-	import { CalendarClockIcon } from '@lucide/svelte/icons';
 	import { toast } from 'svelte-sonner';
 
 	interface Props {
@@ -59,16 +58,13 @@
 
 <Card.Root>
 	<Card.Header class="pb-3">
-		<div class="flex items-center gap-2">
-			<CalendarClockIcon class="text-muted-foreground size-4" />
-			<Card.Title class="text-base">Upcoming Bills</Card.Title>
-		</div>
+		<Card.Title class="text-base tracking-tight">Upcoming bills</Card.Title>
 	</Card.Header>
 	<Card.Content class="pt-0">
 		{#if upcoming.length === 0}
 			<p class="text-muted-foreground py-4 text-center text-sm">No bills due soon</p>
 		{:else}
-			<div class="max-h-72 overflow-y-auto">
+			<div>
 				{#each upcoming as { item, daysUntilDue }, i (item.id)}
 					{#if i > 0}
 						<Separator.Root class="my-0" />

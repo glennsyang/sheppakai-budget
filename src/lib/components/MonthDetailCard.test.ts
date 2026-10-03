@@ -1,14 +1,14 @@
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
 
-import MonthlyBudgetSummaryCard from './MonthlyBudgetSummaryCard.svelte';
+import MonthDetailCard from './MonthDetailCard.svelte';
 
 const now = new Date();
 const currentMonth = { month: now.getMonth() + 1, year: now.getFullYear() };
 
-describe('MonthlyBudgetSummaryCard', () => {
+describe('MonthDetailCard', () => {
 	it('renders net balance in the on-track (positive) state', () => {
-		const html = render(MonthlyBudgetSummaryCard, {
+		const html = render(MonthDetailCard, {
 			props: {
 				actualSpent: 800,
 				plannedBudget: 1200,
@@ -24,7 +24,7 @@ describe('MonthlyBudgetSummaryCard', () => {
 	});
 
 	it('renders overspent state when actual spent exceeds income', () => {
-		const html = render(MonthlyBudgetSummaryCard, {
+		const html = render(MonthDetailCard, {
 			props: {
 				actualSpent: 3500,
 				plannedBudget: 4000,
@@ -40,7 +40,7 @@ describe('MonthlyBudgetSummaryCard', () => {
 	});
 
 	it('renders skeleton placeholders in loading state', () => {
-		const html = render(MonthlyBudgetSummaryCard, {
+		const html = render(MonthDetailCard, {
 			props: {
 				actualSpent: 500,
 				plannedBudget: 1000,
@@ -57,7 +57,7 @@ describe('MonthlyBudgetSummaryCard', () => {
 	});
 
 	it('shows zero net balance when income equals actual spent', () => {
-		const html = render(MonthlyBudgetSummaryCard, {
+		const html = render(MonthDetailCard, {
 			props: {
 				actualSpent: 2000,
 				plannedBudget: 2500,

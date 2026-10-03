@@ -39,8 +39,6 @@ export type UserWithSessions = UserWithRole & {
 
 export type Category = QueryRow<'category'>;
 
-export type CardType = 'budget' | 'income';
-
 export type Transaction = QueryRow<'transaction', { category: true; user: true }>;
 
 export type Budget = QueryRow<'budget', { category: true; user: true }>;

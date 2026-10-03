@@ -72,7 +72,7 @@
 	<!-- Custom Amount Card -->
 	<div
 		class="bg-card relative cursor-pointer rounded-lg border p-4 shadow transition-all {isSelected
-			? 'border-green-500 hover:border-green-500'
+			? 'border-positive hover:border-positive'
 			: 'hover:border-primary'}"
 		onclick={onSelect}
 		role="button"
@@ -116,12 +116,12 @@
 						autofocus
 					/>
 					<div class="flex items-center gap-1">
-						<button type="submit" class="rounded p-1 hover:bg-green-100 hover:text-green-600">
+						<button type="submit" class="hover:text-positive rounded p-1 hover:bg-green-100">
 							<CheckIcon class="h-4 w-4" />
 						</button>
 						<button
 							type="button"
-							class="rounded p-1 hover:bg-red-100 hover:text-red-600"
+							class="hover:text-destructive rounded p-1 hover:bg-red-100"
 							onclick={onCancel}
 						>
 							<XIcon class="h-4 w-4" />
@@ -167,7 +167,7 @@
 		<button
 			type="submit"
 			class="bg-card relative w-full rounded-lg border p-4 shadow transition-all {isSelected
-				? 'border-green-500 hover:border-green-500'
+				? 'border-positive hover:border-positive'
 				: 'hover:border-primary'}"
 			onclick={(e) => {
 				e.preventDefault();

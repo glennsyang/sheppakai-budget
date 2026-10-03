@@ -85,11 +85,11 @@
 					name="name"
 					bind:value={$form.name}
 					placeholder="e.g., Groceries, Rent, Utilities"
-					class={$errors.name ? 'border-red-400' : ''}
+					class={$errors.name ? 'border-destructive' : ''}
 					required
 				/>
 				{#if $errors.name}
-					<p class="text-sm text-red-500">{$errors.name}</p>
+					<p class="text-destructive text-sm">{$errors.name}</p>
 				{/if}
 			</div>
 
@@ -100,12 +100,12 @@
 					name="description"
 					bind:value={$form.description}
 					placeholder="A brief description of this category"
-					class={$errors.description ? 'border-red-400' : ''}
+					class={$errors.description ? 'border-destructive' : ''}
 					rows={3}
 					required
 				/>
 				{#if $errors.description}
-					<p class="text-sm text-red-500">{$errors.description}</p>
+					<p class="text-destructive text-sm">{$errors.description}</p>
 				{/if}
 			</div>
 

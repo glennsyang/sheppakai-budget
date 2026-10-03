@@ -28,7 +28,7 @@
 
 	function getTrendToneClass(direction: 'up' | 'down') {
 		if (direction === 'up') return 'text-destructive';
-		return 'text-green-600 dark:text-green-400';
+		return 'text-positive';
 	}
 
 	function getMonthsToShow(range: TimeRange) {
@@ -90,7 +90,7 @@
 		avgSpend === null || currentPlanned === 0
 			? 'text-muted-foreground'
 			: avgSpend < currentPlanned
-				? 'text-green-600 dark:text-green-400'
+				? 'text-positive'
 				: 'text-destructive'
 	);
 </script>

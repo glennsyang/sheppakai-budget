@@ -74,7 +74,7 @@
 				{$submitting ? 'Sending verification email…' : 'Resend verification email'}
 			</Button>
 			{#if $errors.email}
-				<p class="text-sm text-red-600 dark:text-red-400">{$errors.email}</p>
+				<p class="text-destructive text-sm">{$errors.email}</p>
 			{/if}
 		</form>
 

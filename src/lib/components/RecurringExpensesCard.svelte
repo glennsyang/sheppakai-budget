@@ -5,7 +5,7 @@
 	import * as Separator from '$lib/components/ui/separator/index.js';
 	import type { Recurring } from '$lib/types';
 	import { formatCurrency } from '$lib/utils';
-	import { ChevronDownIcon, RepeatIcon } from '@lucide/svelte/icons';
+	import { ChevronDownIcon } from '@lucide/svelte/icons';
 
 	interface Props {
 		recurring: Recurring[];
@@ -24,10 +24,7 @@
 	<Collapsible.Root bind:open>
 		<Card.Header class="pb-3">
 			<div class="flex items-center justify-between">
-				<div class="flex items-center gap-2">
-					<RepeatIcon class="text-muted-foreground size-4" />
-					<Card.Title class="text-base">Recurring Expenses</Card.Title>
-				</div>
+				<Card.Title class="text-base tracking-tight">Recurring expenses</Card.Title>
 				<div class="flex items-center gap-3">
 					<span class="text-sm font-semibold tabular-nums">{formatCurrency(monthlyTotal)}/mo</span>
 					<Collapsible.Trigger class="group flex cursor-pointer items-center">
@@ -45,7 +42,7 @@
 				{#if sorted.length === 0}
 					<p class="text-muted-foreground py-4 text-center text-sm">No recurring expenses</p>
 				{:else}
-					<div class="max-h-72 overflow-y-auto">
+					<div>
 						{#each sorted as item, i (item.id)}
 							{#if i > 0}
 								<Separator.Root class="my-0" />
@@ -62,17 +59,20 @@
 								<div class="flex items-center gap-2">
 									{#if isCurrentMonth}
 										{#if item.paid}
-											<Badge class="bg-green-500 text-xs text-white hover:bg-green-500">Paid</Badge>
+											<Badge class="bg-positive/12 text-positive border-transparent text-xs"
+												>Paid</Badge
+											>
 										{:else}
-											<Badge
-												class="bg-muted-foreground/30 hover:bg-muted-foreground/30 text-xs text-white"
-												>Not Yet Paid</Badge
+											<Badge variant="outline" class="text-muted-foreground text-xs"
+												>Not yet paid</Badge
 											>
 										{/if}
 									{/if}
-									<Badge variant="outline" class="text-xs">
-										{item.cadence}
-									</Badge>
+									{#if item.cadence !== 'Monthly'}
+										<Badge variant="outline" class="text-xs">
+											{item.cadence}
+										</Badge>
+									{/if}
 									<span class="text-sm font-semibold tabular-nums"
 										>{formatCurrency(item.amount)}</span
 									>

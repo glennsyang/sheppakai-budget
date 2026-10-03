@@ -165,7 +165,7 @@
 			<div class="space-y-2">
 				<label for="user-role">Role</label>
 				<Select.Root type="single" bind:value={$setRoleForm.role} required>
-					<Select.Trigger class="w-full {$setRoleErrors.role ? 'border-red-400' : ''}">
+					<Select.Trigger class="w-full {$setRoleErrors.role ? 'border-destructive' : ''}">
 						{$setRoleForm.role.charAt(0).toUpperCase() + $setRoleForm.role.slice(1)}
 					</Select.Trigger>
 					<Select.Content>
@@ -175,7 +175,7 @@
 					</Select.Content>
 				</Select.Root>
 				{#if $setRoleErrors.role}
-					<p class="text-sm text-red-500">{$setRoleErrors.role}</p>
+					<p class="text-destructive text-sm">{$setRoleErrors.role}</p>
 				{/if}
 				<input type="hidden" name="role" value={$setRoleForm.role} />
 			</div>
@@ -207,13 +207,13 @@
 					name="newPassword"
 					type="password"
 					bind:value={$setPasswordForm.newPassword}
-					class={$setPasswordErrors.newPassword ? 'border-red-400' : ''}
+					class={$setPasswordErrors.newPassword ? 'border-destructive' : ''}
 					required
 					minlength={12}
 					placeholder="Enter new password (min 12 characters)"
 				/>
 				{#if $setPasswordErrors.newPassword}
-					<p class="text-sm text-red-500">{$setPasswordErrors.newPassword}</p>
+					<p class="text-destructive text-sm">{$setPasswordErrors.newPassword}</p>
 				{/if}
 			</div>
 
@@ -244,12 +244,12 @@
 					name="banReason"
 					type="text"
 					bind:value={$banUserForm.banReason}
-					class={$banUserErrors.banReason ? 'border-red-400' : ''}
+					class={$banUserErrors.banReason ? 'border-destructive' : ''}
 					placeholder="Enter ban reason"
 					required
 				/>
 				{#if $banUserErrors.banReason}
-					<p class="text-sm text-red-500">{$banUserErrors.banReason}</p>
+					<p class="text-destructive text-sm">{$banUserErrors.banReason}</p>
 				{/if}
 			</div>
 

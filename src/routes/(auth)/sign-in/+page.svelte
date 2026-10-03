@@ -25,7 +25,7 @@
 			<FieldGroup>
 				{#if data.resetComplete}
 					<div
-						class="rounded-lg bg-green-50 p-4 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400"
+						class="rounded-lg bg-green-50 p-4 text-sm text-green-800 dark:bg-green-900/20"
 						role="status"
 					>
 						Password reset successfully! You can now sign in with your new password.
@@ -34,7 +34,7 @@
 
 				{#if data.invalidVerificationLink}
 					<div
-						class="rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-400"
+						class="rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-900/20"
 						role="alert"
 					>
 						That verification link is invalid or has expired. Please sign in or request a new one.
@@ -51,12 +51,12 @@
 						type="email"
 						placeholder="Enter your email"
 						bind:value={$form.email}
-						class={$errors.email ? 'border-red-500' : ''}
+						class={$errors.email ? 'border-destructive' : ''}
 						autocomplete="email"
 						required
 					/>
 					{#if $errors.email}
-						<p class="text-sm text-red-600 dark:text-red-400">{$errors.email}</p>
+						<p class="text-destructive text-sm">{$errors.email}</p>
 					{/if}
 				</Field>
 
@@ -73,12 +73,12 @@
 						type="password"
 						placeholder="Enter your password"
 						bind:value={$form.password}
-						class={$errors.password ? 'border-red-500' : ''}
+						class={$errors.password ? 'border-destructive' : ''}
 						autocomplete="current-password"
 						required
 					/>
 					{#if $errors.password}
-						<p class="text-sm text-red-600 dark:text-red-400">{$errors.password}</p>
+						<p class="text-destructive text-sm">{$errors.password}</p>
 					{/if}
 				</Field>
 

@@ -25,9 +25,9 @@
 
 <style>
 	:global(.progress-under-budget [data-slot='progress-indicator']) {
-		background-color: rgb(34, 197, 94); /* Green */
+		background-color: var(--primary);
 	}
 	:global(.progress-over-budget [data-slot='progress-indicator']) {
-		background-color: rgb(239, 68, 68); /* Red */
+		background-color: var(--destructive);
 	}
 </style>

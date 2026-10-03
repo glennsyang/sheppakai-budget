@@ -17,7 +17,7 @@ describe('AuthFormMessage', () => {
 
 		expect(html).toContain('Registration successful! Please sign in.');
 		expect(html).toContain('bg-green-50/80');
-		expect(html).toContain('text-green-700');
+		expect(html).toContain('text-positive');
 	});
 
 	it('renders error styling for an error message', () => {
@@ -27,7 +27,7 @@ describe('AuthFormMessage', () => {
 
 		expect(html).toContain('Invalid email or password');
 		expect(html).toContain('bg-red-50/80');
-		expect(html).toContain('text-red-700');
+		expect(html).toContain('text-destructive');
 	});
 
 	it('styles from the type rather than the wording of the text', () => {

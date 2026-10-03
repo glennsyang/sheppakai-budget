@@ -1,5 +1,6 @@
 import type { SidebarData } from '$lib/types';
 import BriefcaseBusinessIcon from '@lucide/svelte/icons/briefcase-business';
+import ClipboardCheckIcon from '@lucide/svelte/icons/clipboard-check';
 import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
 import FolderTreeIcon from '@lucide/svelte/icons/folder-tree';
 import FuelIcon from '@lucide/svelte/icons/fuel';
@@ -8,7 +9,6 @@ import PiggyBankIcon from '@lucide/svelte/icons/piggy-bank';
 import ReceiptIcon from '@lucide/svelte/icons/receipt';
 import RepeatIcon from '@lucide/svelte/icons/repeat';
 import ShieldIcon from '@lucide/svelte/icons/shield';
-import SprayCanIcon from '@lucide/svelte/icons/spray-can';
 import TargetIcon from '@lucide/svelte/icons/target';
 import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 import WalletIcon from '@lucide/svelte/icons/wallet';
@@ -74,7 +74,7 @@ export const sidebarData: SidebarData = {
 		{
 			title: 'Jobs',
 			url: '/window-cleaning/jobs',
-			icon: SprayCanIcon
+			icon: ClipboardCheckIcon
 		}
 	],
 	navSetup: [

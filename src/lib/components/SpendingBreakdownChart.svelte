@@ -2,109 +2,97 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
 	import type { SpendingBreakdownData } from '$lib/types';
-	import { abbreviateCategoryName, formatCurrency } from '$lib/utils';
-	import { Arc, PieChart, Text } from 'layerchart';
+	import { formatCurrency } from '$lib/utils';
+	import { Arc, PieChart } from 'layerchart';
 
 	interface Props {
 		chartData: SpendingBreakdownData[];
-		totalSpent: number;
 		onSliceClick?: (categoryId: string) => void;
 	}
 
-	let { chartData, totalSpent, onSliceClick }: Props = $props();
+	let { chartData, onSliceClick }: Props = $props();
 
 	let chartConfig = $derived(
 		Object.fromEntries(chartData.map((d) => [d.category, { label: d.category, color: d.color }]))
 	) satisfies Chart.ChartConfig;
 
-	let hasData = $derived(chartData.length > 0 && totalSpent > 0);
 	let sortedChartData = $derived([...chartData].toSorted((a, b) => b.amount - a.amount));
+	// Share of discretionary category spend, so the rows add up to 100%.
+	let categoryTotal = $derived(chartData.reduce((sum, d) => sum + d.amount, 0));
+	let hasData = $derived(chartData.length > 0 && categoryTotal > 0);
 </script>
 
-<div class="flex flex-col gap-4 lg:flex-row lg:justify-between">
-	<div class="w-full lg:flex-1/2">
-		<Card.Root class="from-primary/5 to-card dark:bg-card bg-linear-to-t shadow-xs">
-			<Card.Header>
-				<Card.Title>Spending Breakdown</Card.Title>
-				<Card.Description>Amount and share per category</Card.Description>
-			</Card.Header>
-			<div class="mb-4 w-full space-y-1.5 px-2">
-				{#each sortedChartData as item (item.category)}
-					<div class="flex items-center justify-between text-sm">
-						<div class="flex min-w-0 items-center gap-2">
-							<div
-								class="size-2.5 shrink-0 rounded-sm"
-								style="background-color: {item.color}"
-							></div>
-							<span class="text-muted-foreground truncate">{item.category}</span>
-						</div>
-						<div class="ml-2 flex shrink-0 items-center gap-2">
-							<span class="font-medium tabular-nums">{formatCurrency(item.amount)}</span>
-							<span class="text-muted-foreground w-10 text-right text-xs">
-								{totalSpent > 0 ? ((item.amount / totalSpent) * 100).toFixed(0) : 0}%
-							</span>
-						</div>
-					</div>
-				{/each}
-			</div>
-		</Card.Root>
-	</div>
-	<div class="w-full lg:flex-1/2">
-		<Card.Root class="from-primary/5 to-card dark:bg-card bg-linear-to-t shadow-xs">
-			<Card.Header>
-				<Card.Title>Spending by Category</Card.Title>
-				<Card.Description>Where your money went this month</Card.Description>
-			</Card.Header>
-			<Card.Content class="flex-1">
-				{#if !hasData}
-					<div class="text-muted-foreground flex h-48 items-center justify-center text-sm">
-						No spending recorded yet
-					</div>
-				{:else}
-					<Chart.Container config={chartConfig} class="mx-auto aspect-square max-h-62.5">
-						<PieChart
-							data={chartData}
-							key="category"
-							value="amount"
-							label={(d) =>
-								`${d.category}: ${formatCurrency(d.amount)} (${((d.amount / totalSpent) * 100).toFixed(0)}%)`}
-							cRange={chartData.map((d) => d.color)}
-							c="color"
-							props={{
-								pie: {
-									motion: 'tween'
-								}
-							}}
-						>
-							{#snippet tooltip()}
-								<Chart.Tooltip hideLabel />
-							{/snippet}
-							{#snippet arc({ props, visibleData, index })}
-								{@const category = visibleData[index].category}
-								{@const categoryId = visibleData[index].categoryId}
-								<Arc
-									{...props}
-									onclick={categoryId ? () => onSliceClick?.(categoryId) : undefined}
-									class={categoryId ? 'cursor-pointer' : ''}
+<Card.Root>
+	<Card.Header>
+		<Card.Title class="text-base tracking-tight">Spending by category</Card.Title>
+		<Card.Description>
+			{#if hasData}
+				{formatCurrency(categoryTotal)} of discretionary spending, recurring excluded.
+			{:else}
+				Where discretionary spending goes this month.
+			{/if}
+		</Card.Description>
+	</Card.Header>
+	<Card.Content class="flex-1">
+		{#if !hasData}
+			<p class="text-muted-foreground bg-muted/50 rounded-lg px-4 py-8 text-center text-sm">
+				Nothing logged yet. Categories appear here as you spend.
+			</p>
+		{:else}
+			<div class="grid items-center gap-6 sm:grid-cols-[10rem_minmax(0,1fr)]">
+				<Chart.Container config={chartConfig} class="mx-auto aspect-square w-40">
+					<PieChart
+						data={chartData}
+						key="category"
+						value="amount"
+						innerRadius={-14}
+						cornerRadius={3}
+						padAngle={0.015}
+						label={(d) =>
+							`${d.category}: ${formatCurrency(d.amount)} (${((d.amount / categoryTotal) * 100).toFixed(0)}%)`}
+						cRange={chartData.map((d) => d.color)}
+						c="color"
+					>
+						{#snippet tooltip()}
+							<Chart.Tooltip hideLabel />
+						{/snippet}
+						{#snippet arc({ props, visibleData, index })}
+							{@const categoryId = visibleData[index].categoryId}
+							<Arc
+								{...props}
+								onclick={categoryId ? () => onSliceClick?.(categoryId) : undefined}
+								class={categoryId ? 'cursor-pointer' : ''}
+							/>
+						{/snippet}
+					</PieChart>
+				</Chart.Container>
+				<ul class="space-y-0.5">
+					{#each sortedChartData as item (item.category)}
+						{@const share = (item.amount / categoryTotal) * 100}
+						<li>
+							<button
+								type="button"
+								disabled={!item.categoryId}
+								onclick={() => item.categoryId && onSliceClick?.(item.categoryId)}
+								class="hover:bg-muted/60 focus-visible:ring-ring/50 grid w-full grid-cols-[minmax(0,1fr)_auto_2.5rem] items-center gap-x-3 rounded-md px-2 py-1.5 text-left text-sm outline-none focus-visible:ring-[3px] disabled:cursor-default disabled:hover:bg-transparent"
+							>
+								<span class="flex min-w-0 items-center gap-2">
+									<span
+										class="size-2 shrink-0 rounded-full"
+										style="background-color: {item.color}"
+										aria-hidden="true"
+									></span>
+									<span class="truncate">{item.category}</span>
+								</span>
+								<span class="font-medium tabular-nums">{formatCurrency(item.amount)}</span>
+								<span class="text-muted-foreground text-right text-xs tabular-nums"
+									>{share.toFixed(0)}%</span
 								>
-									{#snippet children({ centroid })}
-										{@const displayCategory = abbreviateCategoryName(category)}
-										<Text
-											value={displayCategory}
-											x={centroid[0]}
-											y={centroid[1]}
-											textAnchor="middle"
-											verticalAnchor="middle"
-											font-size="12"
-											class="fill-background"
-										/>
-									{/snippet}
-								</Arc>
-							{/snippet}
-						</PieChart>
-					</Chart.Container>
-				{/if}
-			</Card.Content>
-		</Card.Root>
-	</div>
-</div>
+							</button>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
+	</Card.Content>
+</Card.Root>

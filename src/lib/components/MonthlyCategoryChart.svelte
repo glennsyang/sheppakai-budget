@@ -11,14 +11,16 @@
 		chartTitle: string;
 		chartDescription?: string;
 		chartData?: MonthlySpentChartData[];
+		/** Category identity colour for the within-budget portion. */
+		color?: string;
 	}
 
-	let { chartTitle, chartDescription, chartData }: Props = $props();
+	let { chartTitle, chartDescription, chartData, color = 'var(--chart-8)' }: Props = $props();
 
-	const chartConfig = {
-		budget: { label: 'Budget', color: 'var(--chart-2)' },
-		overbudget: { label: 'Over', color: 'var(--chart-1)' }
-	} satisfies Chart.ChartConfig;
+	let chartConfig = $derived({
+		budget: { label: 'Within budget', color },
+		overbudget: { label: 'Over budget', color: 'var(--destructive)' }
+	} satisfies Chart.ChartConfig);
 
 	const averageSpent = $derived.by(() => {
 		if (!chartData || chartData.length === 0) return 0;
@@ -29,8 +31,14 @@
 
 <Card.Root>
 	<Card.Header>
-		<Card.Title>{chartTitle}</Card.Title>
-		<Card.Description>{chartDescription ?? 'Monthly spending vs budget'}</Card.Description>
+		<Card.Title class="flex items-center gap-2 text-sm font-medium">
+			<span class="size-2 shrink-0 rounded-full" style="background: {color}" aria-hidden="true"
+			></span>
+			<span class="truncate">{chartTitle}</span>
+		</Card.Title>
+		<Card.Description class="text-xs"
+			>{chartDescription ?? 'Monthly spending vs budget'}</Card.Description
+		>
 	</Card.Header>
 	<Card.Content>
 		<Chart.Container config={chartConfig} class="aspect-auto h-44 w-full">
@@ -45,7 +53,7 @@
 						key: 'budget',
 						label: 'Budget',
 						color: chartConfig.budget.color,
-						props: { rounded: 'bottom' }
+						props: { rounded: 'bottom', radius: 3 }
 					},
 					{
 						key: 'overbudget',
@@ -63,7 +71,6 @@
 					highlight: { area: false },
 					xAxis: { format: (d) => d.slice(0, 3) }
 				}}
-				legend
 			>
 				{#snippet belowMarks()}
 					<Highlight area={{ class: 'fill-muted' }} />
@@ -74,13 +81,9 @@
 			</BarChart>
 		</Chart.Container>
 	</Card.Content>
-	<Card.Footer>
-		<div class="flex w-full items-start gap-2 text-sm">
-			<div class="grid gap-2">
-				<div class="text-muted-foreground flex items-center gap-2 leading-none font-medium">
-					Avg/month: <span class="text-foreground">{formatCurrency(averageSpent)}</span>
-				</div>
-			</div>
-		</div>
+	<Card.Footer class="text-muted-foreground text-xs">
+		Average <span class="text-foreground ms-1 font-medium tabular-nums"
+			>{formatCurrency(averageSpent)}</span
+		>/month
 	</Card.Footer>
 </Card.Root>

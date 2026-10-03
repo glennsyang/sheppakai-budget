@@ -6,8 +6,10 @@
 	let {
 		title,
 		items,
-		user
+		user,
+		activeUrl = null
 	}: {
+		activeUrl?: string | null;
 		title: string;
 		items: { title: string; url: string; icon?: Component; visible?: (role: string) => boolean }[];
 		user?: User;
@@ -23,7 +25,7 @@
 	<Sidebar.Menu>
 		{#each visibleItems as item (item.title)}
 			<Sidebar.MenuItem>
-				<Sidebar.MenuButton tooltipContent={item.title}>
+				<Sidebar.MenuButton tooltipContent={item.title} isActive={item.url === activeUrl}>
 					{#snippet child({ props })}
 						{@const IconComponent = item.icon}
 						<a href={item.url} data-sveltekit-preload-data="hover" {...props}>

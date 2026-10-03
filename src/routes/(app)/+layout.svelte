@@ -28,8 +28,8 @@
 	{#if data.user}
 		<AppSidebar {sidebarData} user={data.user} />
 		<Sidebar.Inset>
-			<SiteHeader />
-			<main class="flex flex-1 flex-col space-y-4 p-4 md:py-2">
+			<SiteHeader {sidebarData} />
+			<main class="flex flex-1 flex-col space-y-4 p-4 md:px-6 md:py-2 lg:px-8">
 				{#if isCrossRouteNavigation}
 					<LoadingSpinner fullScreen={true} size="lg" />
 				{:else}

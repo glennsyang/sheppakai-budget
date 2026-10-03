@@ -299,20 +299,23 @@
 							<h3 class="text-lg font-semibold">Categories</h3>
 						</div>
 					</div>
-					<div class="p-0 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+					<div class="space-y-0.5 p-2 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
 						{#each sortedCategories as category (category.id)}
 							{@const categoryBudget = getBudgetForCategory(category.id)}
 							<button
-								class="hover:bg-muted w-full px-4 py-3 text-left transition-colors {selectedCategoryId ===
-								category.id
-									? 'border-primary bg-muted border-l-4'
-									: 'border-l-4 border-transparent'}"
+								class={[
+									'focus-visible:ring-ring/50 w-full rounded-md px-3 py-2.5 text-left text-sm transition-colors outline-none focus-visible:ring-[3px]',
+									selectedCategoryId === category.id
+										? 'bg-accent text-accent-foreground'
+										: 'hover:bg-muted'
+								]}
+								aria-pressed={selectedCategoryId === category.id}
 								onclick={() => (selectedCategoryId = category.id)}
 							>
 								<div class="flex items-center justify-between">
 									<span class="font-medium">{category.name}</span>
 									{#if categoryBudget}
-										<CheckCircleIcon class="h-4 w-4 text-green-500" />
+										<CheckCircleIcon class="text-positive h-4 w-4" />
 									{:else}
 										<HelpCircleIcon class="text-muted-foreground h-4 w-4" />
 									{/if}
