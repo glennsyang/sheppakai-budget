@@ -368,6 +368,29 @@ export function getMonthProgress(
 }
 
 /**
+ * Count the months of `year` that have fully elapsed, as observed in the Pacific
+ * timezone so it agrees with the month/year resolved by getMonthYearFromUrl.
+ * Past years count 12, future years 0, and the current year counts the months
+ * before the current one (January → 0).
+ */
+export function calculateMonthsSinceJanuary(
+	year: number,
+	referenceDate: Date = new Date()
+): number {
+	const current = getCurrentPacificMonthYear(referenceDate);
+
+	if (year < current.year) {
+		return 12;
+	}
+
+	if (year > current.year) {
+		return 0;
+	}
+
+	return current.month - 1;
+}
+
+/**
  * Get completion progress for a selected year relative to the reference date.
  * Past years are complete, future years have not started, and the current year
  * uses the current day-of-year as the elapsed amount.

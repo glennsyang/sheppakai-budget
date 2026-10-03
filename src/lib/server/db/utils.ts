@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
+import { getCurrentUTCTimestamp } from '$lib/utils/dates';
+
 // Use the user type from App.Locals to match the actual user object
 type AuthenticatedUser = NonNullable<App.Locals['user']>;
 
@@ -35,8 +37,6 @@ export function withAuditFieldsForUpdate<T extends Record<string, unknown>>(
 	data: T,
 	user: AuthenticatedUser | string
 ): T & { updatedBy: string; updatedAt: string } {
-	// Import getCurrentUTCTimestamp inline to avoid circular dependency
-	const getCurrentUTCTimestamp = () => new Date().toISOString().replace('T', ' ').split('.')[0];
 	const userId = resolveUserId(user);
 
 	return {
