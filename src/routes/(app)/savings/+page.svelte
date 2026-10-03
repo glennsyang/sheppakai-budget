@@ -64,7 +64,7 @@
 					</CardHeader>
 					<CardContent>
 						<div class="text-center">
-							<p class="text-3xl font-bold text-green-600 dark:text-green-400">
+							<p class="text-positive text-3xl font-bold">
 								{formatCurrency(totalSavings)}
 							</p>
 							<p class="text-muted-foreground mt-2 text-sm">

@@ -112,8 +112,8 @@
 						{#if $profileMessage}
 							<div
 								class="flex items-center gap-2 rounded-md p-3 {$profileMessage.type === 'success'
-									? 'border border-green-200 bg-green-50 text-green-700'
-									: 'border border-red-200 bg-red-50 text-red-700'}"
+									? 'text-positive border border-green-200 bg-green-50'
+									: 'text-destructive border border-red-200 bg-red-50'}"
 							>
 								{#if $profileMessage.type === 'success'}
 									<CheckCircleIcon class="h-4 w-4" />
@@ -133,10 +133,10 @@
 									bind:value={$profileForm.name}
 									disabled={!isEditingProfile}
 									placeholder="Enter your first name"
-									class={$profileErrors.name ? 'border-red-400' : ''}
+									class={$profileErrors.name ? 'border-destructive' : ''}
 								/>
 								{#if $profileErrors.name}
-									<p class="mt-1 text-sm text-red-600">{$profileErrors.name}</p>
+									<p class="text-destructive mt-1 text-sm">{$profileErrors.name}</p>
 								{/if}
 							</div>
 						</div>
@@ -207,8 +207,8 @@
 							{#if $passwordMessage}
 								<div
 									class="flex items-center gap-2 rounded-md p-3 {$passwordMessage.type === 'success'
-										? 'border border-green-200 bg-green-50 text-green-700'
-										: 'border border-red-200 bg-red-50 text-red-700'}"
+										? 'text-positive border border-green-200 bg-green-50'
+										: 'text-destructive border border-red-200 bg-red-50'}"
 								>
 									{#if $passwordMessage.type === 'success'}
 										<CheckCircleIcon class="h-4 w-4" />
@@ -228,11 +228,11 @@
 									type="password"
 									bind:value={$passwordForm.currentPassword}
 									placeholder="Enter your current password"
-									class={$passwordErrors.currentPassword ? 'border-red-400' : ''}
+									class={$passwordErrors.currentPassword ? 'border-destructive' : ''}
 									required
 								/>
 								{#if $passwordErrors.currentPassword}
-									<p class="mt-1 text-sm text-red-600">{$passwordErrors.currentPassword}</p>
+									<p class="text-destructive mt-1 text-sm">{$passwordErrors.currentPassword}</p>
 								{/if}
 							</div>
 
@@ -246,11 +246,11 @@
 									type="password"
 									bind:value={$passwordForm.newPassword}
 									placeholder="Enter your new password"
-									class={$passwordErrors.newPassword ? 'border-red-400' : ''}
+									class={$passwordErrors.newPassword ? 'border-destructive' : ''}
 									required
 								/>
 								{#if $passwordErrors.newPassword}
-									<p class="mt-1 text-sm text-red-600">{$passwordErrors.newPassword}</p>
+									<p class="text-destructive mt-1 text-sm">{$passwordErrors.newPassword}</p>
 								{/if}
 							</div>
 
@@ -264,11 +264,11 @@
 									type="password"
 									bind:value={$passwordForm.confirmPassword}
 									placeholder="Confirm your new password"
-									class={$passwordErrors.confirmPassword ? 'border-red-400' : ''}
+									class={$passwordErrors.confirmPassword ? 'border-destructive' : ''}
 									required
 								/>
 								{#if $passwordErrors.confirmPassword}
-									<p class="mt-1 text-sm text-red-600">{$passwordErrors.confirmPassword}</p>
+									<p class="text-destructive mt-1 text-sm">{$passwordErrors.confirmPassword}</p>
 								{/if}
 							</div>
 

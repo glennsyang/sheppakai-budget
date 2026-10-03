@@ -113,11 +113,11 @@
 					name="merchant"
 					bind:value={$form.merchant}
 					placeholder="Where is this recurring expense charged?"
-					class={$errors.merchant ? 'border-red-400' : ''}
+					class={$errors.merchant ? 'border-destructive' : ''}
 					required
 				/>
 				{#if $errors.merchant}
-					<p class="text-sm text-red-500">{$errors.merchant}</p>
+					<p class="text-destructive text-sm">{$errors.merchant}</p>
 				{/if}
 			</div>
 
@@ -128,19 +128,19 @@
 					name="description"
 					bind:value={$form.description}
 					placeholder="What was this recurring expense for?"
-					class={$errors.description ? 'border-red-400' : ''}
+					class={$errors.description ? 'border-destructive' : ''}
 					rows={2}
 					required
 				/>
 				{#if $errors.description}
-					<p class="text-sm text-red-500">{$errors.description}</p>
+					<p class="text-destructive text-sm">{$errors.description}</p>
 				{/if}
 			</div>
 
 			<div class="space-y-2">
 				<label for="recurring-cadence" class="text-sm font-medium">Cadence</label>
 				<Select.Root type="single" name="cadence" bind:value={$form.cadence} required>
-					<Select.Trigger class="w-full {$errors.cadence ? 'border-red-400' : ''}">
+					<Select.Trigger class="w-full {$errors.cadence ? 'border-destructive' : ''}">
 						{$form.cadence ? $form.cadence : 'Select a cadence'}
 					</Select.Trigger>
 					<Select.Content>
@@ -150,7 +150,7 @@
 					</Select.Content>
 				</Select.Root>
 				{#if $errors.cadence}
-					<p class="text-sm text-red-500">{$errors.cadence}</p>
+					<p class="text-destructive text-sm">{$errors.cadence}</p>
 				{/if}
 			</div>
 
@@ -165,10 +165,10 @@
 						max="31"
 						bind:value={$form.dueDay}
 						placeholder="e.g. 15"
-						class={$errors.dueDay ? 'border-red-400' : ''}
+						class={$errors.dueDay ? 'border-destructive' : ''}
 					/>
 					{#if $errors.dueDay}
-						<p class="text-sm text-red-500">{$errors.dueDay}</p>
+						<p class="text-destructive text-sm">{$errors.dueDay}</p>
 					{/if}
 				</div>
 
@@ -181,7 +181,7 @@
 							value={String($form.dueMonth ?? '')}
 							onValueChange={(value) => ($form.dueMonth = value ? Number(value) : null)}
 						>
-							<Select.Trigger class="w-full {$errors.dueMonth ? 'border-red-400' : ''}">
+							<Select.Trigger class="w-full {$errors.dueMonth ? 'border-destructive' : ''}">
 								{dueMonthLabel ? dueMonthLabel : 'Select a month'}
 							</Select.Trigger>
 							<Select.Content>
@@ -192,7 +192,7 @@
 							</Select.Content>
 						</Select.Root>
 						{#if $errors.dueMonth}
-							<p class="text-sm text-red-500">{$errors.dueMonth}</p>
+							<p class="text-destructive text-sm">{$errors.dueMonth}</p>
 						{/if}
 					</div>
 				{/if}
@@ -208,11 +208,11 @@
 					min="0"
 					bind:value={$form.amount}
 					placeholder="0.00"
-					class={$errors.amount ? 'border-red-400' : ''}
+					class={$errors.amount ? 'border-destructive' : ''}
 					required
 				/>
 				{#if $errors.amount}
-					<p class="text-sm text-red-500">{$errors.amount}</p>
+					<p class="text-destructive text-sm">{$errors.amount}</p>
 				{/if}
 			</div>
 

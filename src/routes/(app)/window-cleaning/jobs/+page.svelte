@@ -90,17 +90,13 @@
 			<Card>
 				<CardContent class="pt-6">
 					<p class="text-muted-foreground text-sm">Total Earned</p>
-					<p class="text-2xl font-bold text-green-600 dark:text-green-400">
+					<p class="text-positive text-2xl font-bold">
 						{currencyFormatter.format(data.totalEarned)}
 					</p>
 					{#if data.earnedLastYear > 0}
 						{@const diff = data.totalEarned - data.earnedLastYear}
 						{@const pct = Math.round(Math.abs(diff / data.earnedLastYear) * 100)}
-						<p
-							class="mt-1 text-xs {diff >= 0
-								? 'text-green-600 dark:text-green-400'
-								: 'text-red-500'}"
-						>
+						<p class="mt-1 text-xs {diff >= 0 ? 'text-positive' : 'text-destructive'}">
 							{diff >= 0 ? '▲' : '▼'}
 							{pct}% vs {selectedYear - 1} ({currencyFormatter.format(data.earnedLastYear)})
 						</p>

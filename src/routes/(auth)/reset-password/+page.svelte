@@ -63,12 +63,12 @@
 							type="password"
 							placeholder="12+ characters, incl. upper/lower/number/symbol"
 							bind:value={$form.password}
-							class={$errors.password ? 'border-red-500' : ''}
+							class={$errors.password ? 'border-destructive' : ''}
 							autocomplete="new-password"
 							required
 						/>
 						{#if $errors.password}
-							<p class="text-sm text-red-600 dark:text-red-400">{$errors.password}</p>
+							<p class="text-destructive text-sm">{$errors.password}</p>
 						{/if}
 					</Field>
 
@@ -80,12 +80,12 @@
 							type="password"
 							placeholder="Confirm new password"
 							bind:value={$form.confirmPassword}
-							class={$errors.confirmPassword ? 'border-red-500' : ''}
+							class={$errors.confirmPassword ? 'border-destructive' : ''}
 							autocomplete="new-password"
 							required
 						/>
 						{#if $errors.confirmPassword}
-							<p class="text-sm text-red-600 dark:text-red-400">{$errors.confirmPassword}</p>
+							<p class="text-destructive text-sm">{$errors.confirmPassword}</p>
 						{/if}
 					</Field>
 

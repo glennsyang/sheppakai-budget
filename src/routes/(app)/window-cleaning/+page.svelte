@@ -108,7 +108,7 @@
 			<Card>
 				<CardContent class="pt-6">
 					<p class="text-muted-foreground text-sm">Earned This Month</p>
-					<p class="text-2xl font-bold text-green-600 dark:text-green-400">
+					<p class="text-positive text-2xl font-bold">
 						{currencyFormatter.format(data.earnedThisMonth)}
 					</p>
 				</CardContent>
@@ -116,17 +116,13 @@
 			<Card>
 				<CardContent class="pt-6">
 					<p class="text-muted-foreground text-sm">Earned This Year</p>
-					<p class="text-2xl font-bold text-green-600 dark:text-green-400">
+					<p class="text-positive text-2xl font-bold">
 						{currencyFormatter.format(data.earnedThisYear)}
 					</p>
 					{#if data.earnedLastYear > 0}
 						{@const diff = data.earnedThisYear - data.earnedLastYear}
 						{@const pct = Math.round(Math.abs(diff / data.earnedLastYear) * 100)}
-						<p
-							class="mt-1 text-xs {diff >= 0
-								? 'text-green-600 dark:text-green-400'
-								: 'text-red-500'}"
-						>
+						<p class="mt-1 text-xs {diff >= 0 ? 'text-positive' : 'text-destructive'}">
 							{diff >= 0 ? '▲' : '▼'}
 							{pct}% vs {new Date().getFullYear() - 1} ({currencyFormatter.format(
 								data.earnedLastYear
@@ -219,7 +215,7 @@
 				<div class="mb-4 flex gap-4 rounded-md border p-3 text-sm">
 					<div>
 						<span class="text-muted-foreground">Total Earned:</span>
-						<span class="ml-1 font-semibold text-green-600 dark:text-green-400">
+						<span class="text-positive ml-1 font-semibold">
 							{currencyFormatter.format(selectedCustomer.totalEarned)}
 						</span>
 					</div>

@@ -155,7 +155,7 @@
 					</div>
 					<div class="text-center">
 						<p class="text-muted-foreground text-sm">Total Saved</p>
-						<p class="text-2xl font-bold text-green-600 dark:text-green-400">
+						<p class="text-positive text-2xl font-bold">
 							${totalCurrentAmount.toLocaleString('en-US', {
 								minimumFractionDigits: 2,
 								maximumFractionDigits: 2

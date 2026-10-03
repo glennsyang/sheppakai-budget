@@ -33,12 +33,12 @@
 						type="email"
 						placeholder="Enter your email"
 						bind:value={$form.email}
-						class={$errors.email ? 'border-red-500' : ''}
+						class={$errors.email ? 'border-destructive' : ''}
 						autocomplete="email"
 						required
 					/>
 					{#if $errors.email}
-						<p class="text-sm text-red-600 dark:text-red-400">{$errors.email}</p>
+						<p class="text-destructive text-sm">{$errors.email}</p>
 					{/if}
 				</Field>
 

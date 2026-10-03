@@ -20,7 +20,7 @@
 	// Determine card color based on status
 	let statusColor = $derived(
 		goal.status === 'completed'
-			? 'border-green-500'
+			? 'border-positive'
 			: goal.status === 'paused'
 				? 'border-gray-400'
 				: goal.status === 'archived'
@@ -31,7 +31,7 @@
 	// Determine progress color based on percentage
 	let progressColor = $derived(
 		goal.percentage >= 100
-			? 'text-green-600 dark:text-green-400'
+			? 'text-positive'
 			: goal.percentage >= 50
 				? 'text-blue-600 dark:text-blue-400'
 				: 'text-orange-600 dark:text-orange-400'
@@ -157,7 +157,7 @@
 		<div class="flex items-center justify-between">
 			<span
 				class="rounded-full px-3 py-1 text-xs font-medium {goal.status === 'completed'
-					? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+					? 'bg-green-100 text-green-800 dark:bg-green-900'
 					: goal.status === 'paused'
 						? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
 						: goal.status === 'archived'

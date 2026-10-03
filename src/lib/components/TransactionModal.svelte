@@ -100,11 +100,11 @@
 						min="0"
 						bind:value={$form.amount}
 						placeholder="0.00"
-						class={$errors.amount ? 'border-red-400' : ''}
+						class={$errors.amount ? 'border-destructive' : ''}
 						required
 					/>
 					{#if $errors.amount}
-						<p class="text-sm text-red-500">{$errors.amount}</p>
+						<p class="text-destructive text-sm">{$errors.amount}</p>
 					{/if}
 				</div>
 				<div class="flex-2 space-y-2">
@@ -117,10 +117,10 @@
 						min="0"
 						bind:value={$form.gstAmount}
 						placeholder="0.00"
-						class={$errors.gstAmount ? 'border-red-400' : ''}
+						class={$errors.gstAmount ? 'border-destructive' : ''}
 					/>
 					{#if $errors.gstAmount}
-						<p class="text-sm text-red-500">{$errors.gstAmount}</p>
+						<p class="text-destructive text-sm">{$errors.gstAmount}</p>
 					{/if}
 				</div>
 			</div>
@@ -132,11 +132,11 @@
 					name="payee"
 					bind:value={$form.payee}
 					placeholder="Who did you pay?"
-					class={$errors.payee ? 'border-red-400' : ''}
+					class={$errors.payee ? 'border-destructive' : ''}
 					required
 				/>
 				{#if $errors.payee}
-					<p class="text-sm text-red-500">{$errors.payee}</p>
+					<p class="text-destructive text-sm">{$errors.payee}</p>
 				{/if}
 			</div>
 
@@ -147,11 +147,11 @@
 					name="notes"
 					bind:value={$form.notes}
 					placeholder="What was this transaction for?"
-					class={$errors.notes ? 'border-red-400' : ''}
+					class={$errors.notes ? 'border-destructive' : ''}
 					rows={2}
 				/>
 				{#if $errors.notes}
-					<p class="text-sm text-red-500">{$errors.notes}</p>
+					<p class="text-destructive text-sm">{$errors.notes}</p>
 				{/if}
 			</div>
 
@@ -162,11 +162,11 @@
 					name="date"
 					type="date"
 					bind:value={$form.date}
-					class={$errors.date ? 'border-red-400' : ''}
+					class={$errors.date ? 'border-destructive' : ''}
 					required
 				/>
 				{#if $errors.date}
-					<p class="text-sm text-red-500">{$errors.date}</p>
+					<p class="text-destructive text-sm">{$errors.date}</p>
 				{/if}
 			</div>
 
@@ -193,7 +193,7 @@
 			<div class="space-y-2">
 				<label for="transaction-category" class="text-sm font-medium">Category</label>
 				<Select.Root type="single" name="categoryId" bind:value={$form.categoryId} required>
-					<Select.Trigger class="w-full {$errors.categoryId ? 'border-red-400' : ''}">
+					<Select.Trigger class="w-full {$errors.categoryId ? 'border-destructive' : ''}">
 						{$form.categoryId
 							? sortedCategories.find((c) => c.id === $form.categoryId)?.name || 'Select a category'
 							: 'Select a category'}
@@ -208,7 +208,7 @@
 					</Select.Content>
 				</Select.Root>
 				{#if $errors.categoryId}
-					<p class="text-sm text-red-500">{$errors.categoryId}</p>
+					<p class="text-destructive text-sm">{$errors.categoryId}</p>
 				{/if}
 			</div>
 

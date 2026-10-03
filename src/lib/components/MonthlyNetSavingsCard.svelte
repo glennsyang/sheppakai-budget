@@ -1,65 +1,94 @@
 <script lang="ts">
 	import type { TimeRangeInOutData } from '$lib';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import { cn, formatCurrency } from '$lib/utils';
+	import { formatCurrency } from '$lib/utils';
 
 	interface Props {
 		chartData: TimeRangeInOutData[];
+		/** e.g. "May - Oct 2026" — the table covers only these months. */
+		rangeLabel: string;
 	}
 
-	let { chartData }: Props = $props();
+	let { chartData, rangeLabel }: Props = $props();
 
 	let totalIncome = $derived(chartData.reduce((sum, d) => sum + d.in, 0));
 	let totalSpent = $derived(chartData.reduce((sum, d) => sum + d.out, 0));
 	let totalNet = $derived(totalIncome - totalSpent);
+
+	function signed(amount: number) {
+		return `${amount > 0 ? '+' : amount < 0 ? '−' : ''}${formatCurrency(Math.abs(amount))}`;
+	}
 </script>
 
-<Card.Root class="shadow-xs">
-	<Card.Header class="pb-3">
-		<Card.Title class="text-muted-foreground text-base font-medium">Net Savings</Card.Title>
+<Card.Root>
+	<Card.Header>
+		<Card.Title class="text-base tracking-tight">Month by month</Card.Title>
+		<Card.Description>{rangeLabel}, income less all spending.</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		{#if chartData.length === 0}
-			<p class="text-muted-foreground text-sm">No data available.</p>
+			<p class="text-muted-foreground bg-muted/50 rounded-lg px-4 py-8 text-center text-sm">
+				No months to show yet.
+			</p>
 		{:else}
-			<div class="overflow-x-auto">
+			<div>
 				<table class="w-full text-sm">
 					<thead>
-						<tr class="text-muted-foreground border-b text-left">
-							<th class="pb-2 font-medium">Month</th>
-							<th class="pb-2 text-right font-medium">Income</th>
-							<th class="pb-2 text-right font-medium">Spent</th>
-							<th class="pb-2 text-right font-medium">Net</th>
+						<tr class="text-muted-foreground border-b text-left text-xs">
+							<th class="pb-2 font-normal">Month</th>
+							<th class="hidden pb-2 text-right font-normal sm:table-cell">Income</th>
+							<th class="hidden pb-2 text-right font-normal sm:table-cell">Spent</th>
+							<th class="pb-2 text-right font-normal">Net</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody class="divide-y">
 						{#each chartData as row (row.month)}
 							{@const net = row.in - row.out}
-							<tr class="border-border/50 border-b last:border-0">
-								<td class="py-2.5">{row.month}</td>
-								<td class="py-2.5 text-right tabular-nums">{formatCurrency(row.in)}</td>
-								<td class="py-2.5 text-right tabular-nums">{formatCurrency(row.out)}</td>
-								<td
-									class={`py-2.5 text-right font-medium tabular-nums ${net >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
+							<tr>
+								<td class="py-2.5">
+									{row.month}
+									<span class="text-muted-foreground block text-xs tabular-nums sm:hidden"
+										>{formatCurrency(row.in)} in · {formatCurrency(row.out)} out</span
+									>
+								</td>
+								<td class="hidden py-2.5 text-right tabular-nums sm:table-cell"
+									>{formatCurrency(row.in)}</td
 								>
-									{net >= 0 ? '+' : ''}{formatCurrency(net)}
+								<td class="hidden py-2.5 text-right tabular-nums sm:table-cell"
+									>{formatCurrency(row.out)}</td
+								>
+								<td
+									class={[
+										'py-2.5 text-right font-medium tabular-nums',
+										net >= 0 ? 'text-positive' : 'text-destructive'
+									]}
+								>
+									{signed(net)}
 								</td>
 							</tr>
 						{/each}
 					</tbody>
 					<tfoot>
-						<tr class="border-border border-t-2">
-							<td class="pt-2.5 font-bold">Total</td>
-							<td class="pt-2.5 text-right font-bold tabular-nums">{formatCurrency(totalIncome)}</td
+						<tr class="border-t">
+							<td class="pt-3 font-semibold">
+								Total
+								<span class="text-muted-foreground block text-xs font-normal tabular-nums sm:hidden"
+									>{formatCurrency(totalIncome)} in · {formatCurrency(totalSpent)} out</span
+								>
+							</td>
+							<td class="hidden pt-3 text-right font-semibold tabular-nums sm:table-cell"
+								>{formatCurrency(totalIncome)}</td
 							>
-							<td class="pt-2.5 text-right font-bold tabular-nums">{formatCurrency(totalSpent)}</td>
+							<td class="hidden pt-3 text-right font-semibold tabular-nums sm:table-cell"
+								>{formatCurrency(totalSpent)}</td
+							>
 							<td
-								class={cn(
-									'pt-2.5 text-right font-bold tabular-nums',
-									totalNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'
-								)}
+								class={[
+									'pt-3 text-right font-semibold tabular-nums',
+									totalNet >= 0 ? 'text-positive' : 'text-destructive'
+								]}
 							>
-								{totalNet >= 0 ? '+' : ''}{formatCurrency(totalNet)}
+								{signed(totalNet)}
 							</td>
 						</tr>
 					</tfoot>

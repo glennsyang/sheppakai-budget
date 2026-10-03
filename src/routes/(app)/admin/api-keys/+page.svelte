@@ -126,10 +126,10 @@
 						name="name"
 						bind:value={$form.name}
 						placeholder="e.g. Service account, assistant, etc."
-						class={$errors.name ? 'border-red-400' : ''}
+						class={$errors.name ? 'border-destructive' : ''}
 					/>
 					{#if $errors.name}
-						<p class="mt-1 text-sm text-red-600">{$errors.name}</p>
+						<p class="text-destructive mt-1 text-sm">{$errors.name}</p>
 					{/if}
 				</div>
 
@@ -147,7 +147,7 @@
 						{/each}
 					</div>
 					{#if $errors.scopes}
-						<p class="mt-1 text-sm text-red-600">{$errors.scopes}</p>
+						<p class="text-destructive mt-1 text-sm">{$errors.scopes}</p>
 					{/if}
 				</div>
 

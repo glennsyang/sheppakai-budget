@@ -10,7 +10,7 @@
 
 {#if message}
 	<div class="rounded-md p-4 {isSuccess ? 'bg-green-50/80' : 'bg-red-50/80'} backdrop-blur-sm">
-		<div class="text-sm {isSuccess ? 'text-green-700' : 'text-red-700'}">
+		<div class="text-sm {isSuccess ? 'text-positive' : 'text-destructive'}">
 			{message.text}
 		</div>
 	</div>

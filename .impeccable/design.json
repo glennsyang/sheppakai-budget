@@ -1,269 +1,529 @@
 {
 	"schemaVersion": 2,
-	"generatedAt": "2026-09-23T23:40:28.233489+00:00",
+	"generatedAt": "2026-10-03T21:30:40.226079+00:00",
 	"title": "Design System: Sheppakai Budget",
 	"extensions": {
 		"colorMeta": {
-			"ink-navy": {
-				"role": "primary",
-				"displayName": "Ink Navy",
-				"canonical": "oklch(0.208 0.042 265.755)",
+			"page-grey": {
+				"role": "neutral",
+				"displayName": "Page Grey",
+				"canonical": "oklch(0.985 0.003 264)",
+				"dark": "oklch(0.16 0.006 270)",
+				"cssVar": "--background",
 				"tonalRamp": [
-					"oklch(0.15 0.042 265.755)",
-					"oklch(0.26 0.042 265.755)",
-					"oklch(0.37 0.042 265.755)",
-					"oklch(0.48 0.042 265.755)",
-					"oklch(0.6 0.042 265.755)",
-					"oklch(0.71 0.042 265.755)",
-					"oklch(0.83 0.042 265.755)",
-					"oklch(0.95 0.021 265.755)"
+					"oklch(0.15 0.003 264)",
+					"oklch(0.26 0.003 264)",
+					"oklch(0.37 0.003 264)",
+					"oklch(0.48 0.003 264)",
+					"oklch(0.60 0.003 264)",
+					"oklch(0.71 0.003 264)",
+					"oklch(0.83 0.003 264)",
+					"oklch(0.95 0.002 264)"
 				]
 			},
-			"paper-white": {
+			"panel-white": {
 				"role": "neutral",
-				"displayName": "Paper White",
+				"displayName": "Panel White",
 				"canonical": "oklch(1 0 0)",
+				"dark": "oklch(0.198 0.007 270)",
+				"cssVar": "--card",
 				"tonalRamp": [
-					"oklch(0.15 0 0)",
-					"oklch(0.26 0 0)",
-					"oklch(0.37 0 0)",
-					"oklch(0.48 0 0)",
-					"oklch(0.6 0 0)",
-					"oklch(0.71 0 0)",
-					"oklch(0.83 0 0)",
+					"oklch(0.15 0.0 0)",
+					"oklch(0.26 0.0 0)",
+					"oklch(0.37 0.0 0)",
+					"oklch(0.48 0.0 0)",
+					"oklch(0.60 0.0 0)",
+					"oklch(0.71 0.0 0)",
+					"oklch(0.83 0.0 0)",
 					"oklch(0.95 0.0 0)"
 				]
 			},
-			"deep-ink": {
+			"shell-grey": {
 				"role": "neutral",
-				"displayName": "Deep Ink",
-				"canonical": "oklch(0.129 0.042 264.695)",
+				"displayName": "Shell Grey",
+				"canonical": "oklch(0.958 0.005 264)",
+				"dark": "oklch(0.13 0.005 270)",
+				"cssVar": "--sidebar",
 				"tonalRamp": [
-					"oklch(0.15 0.042 264.695)",
-					"oklch(0.26 0.042 264.695)",
-					"oklch(0.37 0.042 264.695)",
-					"oklch(0.48 0.042 264.695)",
-					"oklch(0.6 0.042 264.695)",
-					"oklch(0.71 0.042 264.695)",
-					"oklch(0.83 0.042 264.695)",
-					"oklch(0.95 0.021 264.695)"
+					"oklch(0.15 0.005 264)",
+					"oklch(0.26 0.005 264)",
+					"oklch(0.37 0.005 264)",
+					"oklch(0.48 0.005 264)",
+					"oklch(0.60 0.005 264)",
+					"oklch(0.71 0.005 264)",
+					"oklch(0.83 0.005 264)",
+					"oklch(0.95 0.003 264)"
 				]
 			},
-			"mist-slate": {
+			"ink": {
 				"role": "neutral",
-				"displayName": "Mist Slate",
-				"canonical": "oklch(0.968 0.007 247.896)",
+				"displayName": "Ink",
+				"canonical": "oklch(0.205 0.012 264)",
+				"dark": "oklch(0.955 0.004 270)",
+				"cssVar": "--foreground",
 				"tonalRamp": [
-					"oklch(0.15 0.007 247.896)",
-					"oklch(0.26 0.007 247.896)",
-					"oklch(0.37 0.007 247.896)",
-					"oklch(0.48 0.007 247.896)",
-					"oklch(0.6 0.007 247.896)",
-					"oklch(0.71 0.007 247.896)",
-					"oklch(0.83 0.007 247.896)",
-					"oklch(0.95 0.004 247.896)"
+					"oklch(0.15 0.012 264)",
+					"oklch(0.26 0.012 264)",
+					"oklch(0.37 0.012 264)",
+					"oklch(0.48 0.012 264)",
+					"oklch(0.60 0.012 264)",
+					"oklch(0.71 0.012 264)",
+					"oklch(0.83 0.012 264)",
+					"oklch(0.95 0.006 264)"
 				]
 			},
-			"ledger-grey": {
+			"muted-ink": {
 				"role": "neutral",
-				"displayName": "Ledger Grey",
-				"canonical": "oklch(0.554 0.046 257.417)",
+				"displayName": "Muted Ink",
+				"canonical": "oklch(0.515 0.016 264)",
+				"dark": "oklch(0.7 0.012 270)",
+				"cssVar": "--muted-foreground",
 				"tonalRamp": [
-					"oklch(0.15 0.046 257.417)",
-					"oklch(0.26 0.046 257.417)",
-					"oklch(0.37 0.046 257.417)",
-					"oklch(0.48 0.046 257.417)",
-					"oklch(0.6 0.046 257.417)",
-					"oklch(0.71 0.046 257.417)",
-					"oklch(0.83 0.046 257.417)",
-					"oklch(0.95 0.023 257.417)"
+					"oklch(0.15 0.016 264)",
+					"oklch(0.26 0.016 264)",
+					"oklch(0.37 0.016 264)",
+					"oklch(0.48 0.016 264)",
+					"oklch(0.60 0.016 264)",
+					"oklch(0.71 0.016 264)",
+					"oklch(0.83 0.016 264)",
+					"oklch(0.95 0.008 264)"
+				]
+			},
+			"quiet-fill": {
+				"role": "neutral",
+				"displayName": "Quiet Fill",
+				"canonical": "oklch(0.957 0.005 264)",
+				"dark": "oklch(0.25 0.008 270)",
+				"cssVar": "--muted",
+				"tonalRamp": [
+					"oklch(0.15 0.005 264)",
+					"oklch(0.26 0.005 264)",
+					"oklch(0.37 0.005 264)",
+					"oklch(0.48 0.005 264)",
+					"oklch(0.60 0.005 264)",
+					"oklch(0.71 0.005 264)",
+					"oklch(0.83 0.005 264)",
+					"oklch(0.95 0.003 264)"
 				]
 			},
 			"hairline": {
 				"role": "neutral",
 				"displayName": "Hairline",
-				"canonical": "oklch(0.929 0.013 255.508)",
+				"canonical": "oklch(0.918 0.005 264)",
+				"dark": "oklch(1 0 0 / 8%)",
+				"cssVar": "--border",
 				"tonalRamp": [
-					"oklch(0.15 0.013 255.508)",
-					"oklch(0.26 0.013 255.508)",
-					"oklch(0.37 0.013 255.508)",
-					"oklch(0.48 0.013 255.508)",
-					"oklch(0.6 0.013 255.508)",
-					"oklch(0.71 0.013 255.508)",
-					"oklch(0.83 0.013 255.508)",
-					"oklch(0.95 0.006 255.508)"
+					"oklch(0.15 0.005 264)",
+					"oklch(0.26 0.005 264)",
+					"oklch(0.37 0.005 264)",
+					"oklch(0.48 0.005 264)",
+					"oklch(0.60 0.005 264)",
+					"oklch(0.71 0.005 264)",
+					"oklch(0.83 0.005 264)",
+					"oklch(0.95 0.003 264)"
 				]
 			},
-			"focus-slate": {
+			"input-stroke": {
 				"role": "neutral",
-				"displayName": "Focus Slate",
-				"canonical": "oklch(0.704 0.04 256.788)",
+				"displayName": "Input Stroke",
+				"canonical": "oklch(0.882 0.007 264)",
+				"dark": "oklch(1 0 0 / 13%)",
+				"cssVar": "--input",
 				"tonalRamp": [
-					"oklch(0.15 0.04 256.788)",
-					"oklch(0.26 0.04 256.788)",
-					"oklch(0.37 0.04 256.788)",
-					"oklch(0.48 0.04 256.788)",
-					"oklch(0.6 0.04 256.788)",
-					"oklch(0.71 0.04 256.788)",
-					"oklch(0.83 0.04 256.788)",
-					"oklch(0.95 0.02 256.788)"
+					"oklch(0.15 0.007 264)",
+					"oklch(0.26 0.007 264)",
+					"oklch(0.37 0.007 264)",
+					"oklch(0.48 0.007 264)",
+					"oklch(0.60 0.007 264)",
+					"oklch(0.71 0.007 264)",
+					"oklch(0.83 0.007 264)",
+					"oklch(0.95 0.004 264)"
 				]
 			},
-			"overspend-red": {
+			"track": {
+				"role": "neutral",
+				"displayName": "Track",
+				"canonical": "oklch(0.935 0.005 264)",
+				"dark": "oklch(1 0 0 / 8%)",
+				"cssVar": "--track",
+				"tonalRamp": [
+					"oklch(0.15 0.005 264)",
+					"oklch(0.26 0.005 264)",
+					"oklch(0.37 0.005 264)",
+					"oklch(0.48 0.005 264)",
+					"oklch(0.60 0.005 264)",
+					"oklch(0.71 0.005 264)",
+					"oklch(0.83 0.005 264)",
+					"oklch(0.95 0.003 264)"
+				]
+			},
+			"shell-hover": {
+				"role": "neutral",
+				"displayName": "Shell Hover",
+				"canonical": "oklch(0.925 0.007 264)",
+				"dark": "oklch(0.225 0.008 270)",
+				"cssVar": "--sidebar-accent",
+				"tonalRamp": [
+					"oklch(0.15 0.007 264)",
+					"oklch(0.26 0.007 264)",
+					"oklch(0.37 0.007 264)",
+					"oklch(0.48 0.007 264)",
+					"oklch(0.60 0.007 264)",
+					"oklch(0.71 0.007 264)",
+					"oklch(0.83 0.007 264)",
+					"oklch(0.95 0.004 264)"
+				]
+			},
+			"action-indigo": {
+				"role": "primary",
+				"displayName": "Action Indigo",
+				"canonical": "oklch(0.51 0.2 270)",
+				"dark": "oklch(0.6 0.19 272)",
+				"cssVar": "--primary",
+				"tonalRamp": [
+					"oklch(0.15 0.2 270)",
+					"oklch(0.26 0.2 270)",
+					"oklch(0.37 0.2 270)",
+					"oklch(0.48 0.2 270)",
+					"oklch(0.60 0.2 270)",
+					"oklch(0.71 0.2 270)",
+					"oklch(0.83 0.2 270)",
+					"oklch(0.95 0.1 270)"
+				]
+			},
+			"on-indigo": {
+				"role": "primary",
+				"displayName": "On Indigo",
+				"canonical": "oklch(0.99 0.004 270)",
+				"dark": "oklch(0.99 0.004 270)",
+				"cssVar": "--primary-foreground",
+				"tonalRamp": [
+					"oklch(0.15 0.004 270)",
+					"oklch(0.26 0.004 270)",
+					"oklch(0.37 0.004 270)",
+					"oklch(0.48 0.004 270)",
+					"oklch(0.60 0.004 270)",
+					"oklch(0.71 0.004 270)",
+					"oklch(0.83 0.004 270)",
+					"oklch(0.95 0.002 270)"
+				]
+			},
+			"indigo-tint": {
+				"role": "primary",
+				"displayName": "Indigo Tint",
+				"canonical": "oklch(0.95 0.012 270)",
+				"dark": "oklch(0.27 0.02 272)",
+				"cssVar": "--accent",
+				"tonalRamp": [
+					"oklch(0.15 0.012 270)",
+					"oklch(0.26 0.012 270)",
+					"oklch(0.37 0.012 270)",
+					"oklch(0.48 0.012 270)",
+					"oklch(0.60 0.012 270)",
+					"oklch(0.71 0.012 270)",
+					"oklch(0.83 0.012 270)",
+					"oklch(0.95 0.006 270)"
+				]
+			},
+			"focus-indigo": {
+				"role": "primary",
+				"displayName": "Focus Indigo",
+				"canonical": "oklch(0.6 0.17 270)",
+				"dark": "oklch(0.66 0.16 272)",
+				"cssVar": "--ring",
+				"tonalRamp": [
+					"oklch(0.15 0.17 270)",
+					"oklch(0.26 0.17 270)",
+					"oklch(0.37 0.17 270)",
+					"oklch(0.48 0.17 270)",
+					"oklch(0.60 0.17 270)",
+					"oklch(0.71 0.17 270)",
+					"oklch(0.83 0.17 270)",
+					"oklch(0.95 0.085 270)"
+				]
+			},
+			"money-green": {
+				"role": "secondary",
+				"displayName": "Money Green",
+				"canonical": "oklch(0.545 0.135 156)",
+				"dark": "oklch(0.76 0.14 158)",
+				"cssVar": "--positive",
+				"tonalRamp": [
+					"oklch(0.15 0.135 156)",
+					"oklch(0.26 0.135 156)",
+					"oklch(0.37 0.135 156)",
+					"oklch(0.48 0.135 156)",
+					"oklch(0.60 0.135 156)",
+					"oklch(0.71 0.135 156)",
+					"oklch(0.83 0.135 156)",
+					"oklch(0.95 0.068 156)"
+				]
+			},
+			"money-amber": {
+				"role": "secondary",
+				"displayName": "Money Amber",
+				"canonical": "oklch(0.6 0.14 62)",
+				"dark": "oklch(0.81 0.13 78)",
+				"cssVar": "--warning",
+				"tonalRamp": [
+					"oklch(0.15 0.14 62)",
+					"oklch(0.26 0.14 62)",
+					"oklch(0.37 0.14 62)",
+					"oklch(0.48 0.14 62)",
+					"oklch(0.60 0.14 62)",
+					"oklch(0.71 0.14 62)",
+					"oklch(0.83 0.14 62)",
+					"oklch(0.95 0.07 62)"
+				]
+			},
+			"money-red": {
+				"role": "secondary",
+				"displayName": "Money Red",
+				"canonical": "oklch(0.575 0.215 26)",
+				"dark": "oklch(0.69 0.18 23)",
+				"cssVar": "--destructive",
+				"tonalRamp": [
+					"oklch(0.15 0.2 26)",
+					"oklch(0.26 0.2 26)",
+					"oklch(0.37 0.2 26)",
+					"oklch(0.48 0.2 26)",
+					"oklch(0.60 0.2 26)",
+					"oklch(0.71 0.2 26)",
+					"oklch(0.83 0.2 26)",
+					"oklch(0.95 0.1 26)"
+				]
+			},
+			"series-1": {
 				"role": "tertiary",
-				"displayName": "Overspend Red",
-				"canonical": "oklch(0.577 0.245 27.325)",
+				"displayName": "Series 1",
+				"canonical": "oklch(0.62 0.13 240)",
+				"dark": "oklch(0.72 0.11 240)",
+				"cssVar": "--chart-1",
 				"tonalRamp": [
-					"oklch(0.15 0.245 27.325)",
-					"oklch(0.26 0.245 27.325)",
-					"oklch(0.37 0.245 27.325)",
-					"oklch(0.48 0.245 27.325)",
-					"oklch(0.6 0.245 27.325)",
-					"oklch(0.71 0.245 27.325)",
-					"oklch(0.83 0.245 27.325)",
-					"oklch(0.95 0.122 27.325)"
+					"oklch(0.15 0.13 240)",
+					"oklch(0.26 0.13 240)",
+					"oklch(0.37 0.13 240)",
+					"oklch(0.48 0.13 240)",
+					"oklch(0.60 0.13 240)",
+					"oklch(0.71 0.13 240)",
+					"oklch(0.83 0.13 240)",
+					"oklch(0.95 0.065 240)"
 				]
 			},
-			"in-the-black-green": {
+			"series-2": {
 				"role": "tertiary",
-				"displayName": "In-the-Black Green",
-				"canonical": "oklch(0.627 0.194 149.214)",
+				"displayName": "Series 2",
+				"canonical": "oklch(0.66 0.12 220)",
+				"dark": "oklch(0.74 0.11 220)",
+				"cssVar": "--chart-2",
 				"tonalRamp": [
-					"oklch(0.15 0.194 149.214)",
-					"oklch(0.26 0.194 149.214)",
-					"oklch(0.37 0.194 149.214)",
-					"oklch(0.48 0.194 149.214)",
-					"oklch(0.6 0.194 149.214)",
-					"oklch(0.71 0.194 149.214)",
-					"oklch(0.83 0.194 149.214)",
-					"oklch(0.95 0.097 149.214)"
+					"oklch(0.15 0.12 220)",
+					"oklch(0.26 0.12 220)",
+					"oklch(0.37 0.12 220)",
+					"oklch(0.48 0.12 220)",
+					"oklch(0.60 0.12 220)",
+					"oklch(0.71 0.12 220)",
+					"oklch(0.83 0.12 220)",
+					"oklch(0.95 0.06 220)"
 				]
 			},
-			"caution-amber": {
+			"series-3": {
 				"role": "tertiary",
-				"displayName": "Caution Amber",
-				"canonical": "oklch(0.769 0.188 70.08)",
+				"displayName": "Series 3",
+				"canonical": "oklch(0.66 0.11 185)",
+				"dark": "oklch(0.75 0.1 185)",
+				"cssVar": "--chart-3",
 				"tonalRamp": [
-					"oklch(0.15 0.188 70.08)",
-					"oklch(0.26 0.188 70.08)",
-					"oklch(0.37 0.188 70.08)",
-					"oklch(0.48 0.188 70.08)",
-					"oklch(0.6 0.188 70.08)",
-					"oklch(0.71 0.188 70.08)",
-					"oklch(0.83 0.188 70.08)",
-					"oklch(0.95 0.094 70.08)"
+					"oklch(0.15 0.11 185)",
+					"oklch(0.26 0.11 185)",
+					"oklch(0.37 0.11 185)",
+					"oklch(0.48 0.11 185)",
+					"oklch(0.60 0.11 185)",
+					"oklch(0.71 0.11 185)",
+					"oklch(0.83 0.11 185)",
+					"oklch(0.95 0.055 185)"
 				]
 			},
-			"chart-copper": {
-				"role": "secondary",
-				"displayName": "Chart Copper",
-				"canonical": "oklch(0.646 0.222 41.116)",
+			"series-4": {
+				"role": "tertiary",
+				"displayName": "Series 4",
+				"canonical": "oklch(0.63 0.16 310)",
+				"dark": "oklch(0.72 0.14 310)",
+				"cssVar": "--chart-4",
 				"tonalRamp": [
-					"oklch(0.15 0.222 41.116)",
-					"oklch(0.26 0.222 41.116)",
-					"oklch(0.37 0.222 41.116)",
-					"oklch(0.48 0.222 41.116)",
-					"oklch(0.6 0.222 41.116)",
-					"oklch(0.71 0.222 41.116)",
-					"oklch(0.83 0.222 41.116)",
-					"oklch(0.95 0.111 41.116)"
+					"oklch(0.15 0.16 310)",
+					"oklch(0.26 0.16 310)",
+					"oklch(0.37 0.16 310)",
+					"oklch(0.48 0.16 310)",
+					"oklch(0.60 0.16 310)",
+					"oklch(0.71 0.16 310)",
+					"oklch(0.83 0.16 310)",
+					"oklch(0.95 0.08 310)"
 				]
 			},
-			"chart-teal": {
-				"role": "secondary",
-				"displayName": "Chart Teal",
-				"canonical": "oklch(0.6 0.118 184.704)",
+			"series-5": {
+				"role": "tertiary",
+				"displayName": "Series 5",
+				"canonical": "oklch(0.68 0.15 50)",
+				"dark": "oklch(0.76 0.13 55)",
+				"cssVar": "--chart-5",
 				"tonalRamp": [
-					"oklch(0.15 0.118 184.704)",
-					"oklch(0.26 0.118 184.704)",
-					"oklch(0.37 0.118 184.704)",
-					"oklch(0.48 0.118 184.704)",
-					"oklch(0.6 0.118 184.704)",
-					"oklch(0.71 0.118 184.704)",
-					"oklch(0.83 0.118 184.704)",
-					"oklch(0.95 0.059 184.704)"
+					"oklch(0.15 0.15 50)",
+					"oklch(0.26 0.15 50)",
+					"oklch(0.37 0.15 50)",
+					"oklch(0.48 0.15 50)",
+					"oklch(0.60 0.15 50)",
+					"oklch(0.71 0.15 50)",
+					"oklch(0.83 0.15 50)",
+					"oklch(0.95 0.075 50)"
 				]
 			},
-			"chart-harbour": {
-				"role": "secondary",
-				"displayName": "Chart Harbour",
-				"canonical": "oklch(0.398 0.07 227.392)",
+			"series-6": {
+				"role": "tertiary",
+				"displayName": "Series 6",
+				"canonical": "oklch(0.65 0.15 350)",
+				"dark": "oklch(0.73 0.14 350)",
+				"cssVar": "--chart-6",
 				"tonalRamp": [
-					"oklch(0.15 0.07 227.392)",
-					"oklch(0.26 0.07 227.392)",
-					"oklch(0.37 0.07 227.392)",
-					"oklch(0.48 0.07 227.392)",
-					"oklch(0.6 0.07 227.392)",
-					"oklch(0.71 0.07 227.392)",
-					"oklch(0.83 0.07 227.392)",
-					"oklch(0.95 0.035 227.392)"
+					"oklch(0.15 0.15 350)",
+					"oklch(0.26 0.15 350)",
+					"oklch(0.37 0.15 350)",
+					"oklch(0.48 0.15 350)",
+					"oklch(0.60 0.15 350)",
+					"oklch(0.71 0.15 350)",
+					"oklch(0.83 0.15 350)",
+					"oklch(0.95 0.075 350)"
 				]
 			},
-			"chart-mustard": {
-				"role": "secondary",
-				"displayName": "Chart Mustard",
-				"canonical": "oklch(0.828 0.189 84.429)",
+			"series-7": {
+				"role": "tertiary",
+				"displayName": "Series 7",
+				"canonical": "oklch(0.72 0.12 95)",
+				"dark": "oklch(0.8 0.11 95)",
+				"cssVar": "--chart-7",
 				"tonalRamp": [
-					"oklch(0.15 0.189 84.429)",
-					"oklch(0.26 0.189 84.429)",
-					"oklch(0.37 0.189 84.429)",
-					"oklch(0.48 0.189 84.429)",
-					"oklch(0.6 0.189 84.429)",
-					"oklch(0.71 0.189 84.429)",
-					"oklch(0.83 0.189 84.429)",
-					"oklch(0.95 0.095 84.429)"
+					"oklch(0.15 0.12 95)",
+					"oklch(0.26 0.12 95)",
+					"oklch(0.37 0.12 95)",
+					"oklch(0.48 0.12 95)",
+					"oklch(0.60 0.12 95)",
+					"oklch(0.71 0.12 95)",
+					"oklch(0.83 0.12 95)",
+					"oklch(0.95 0.06 95)"
+				]
+			},
+			"series-8": {
+				"role": "tertiary",
+				"displayName": "Series 8",
+				"canonical": "oklch(0.58 0.06 250)",
+				"dark": "oklch(0.66 0.05 250)",
+				"cssVar": "--chart-8",
+				"tonalRamp": [
+					"oklch(0.15 0.06 250)",
+					"oklch(0.26 0.06 250)",
+					"oklch(0.37 0.06 250)",
+					"oklch(0.48 0.06 250)",
+					"oklch(0.60 0.06 250)",
+					"oklch(0.71 0.06 250)",
+					"oklch(0.83 0.06 250)",
+					"oklch(0.95 0.03 250)"
+				]
+			},
+			"category-hues": {
+				"role": "tertiary",
+				"displayName": "Category Hues (generated)",
+				"canonical": "oklch(calc(var(--category-l) - tier * var(--category-tier-step)) var(--category-c) h), h in [190,280,340,220,310,115,250]",
+				"light": {
+					"--category-l": 0.68,
+					"--category-c": 0.13,
+					"--category-tier-step": 0.2
+				},
+				"dark": {
+					"--category-l": 0.8,
+					"--category-c": 0.12,
+					"--category-tier-step": 0.22
+				},
+				"tonalRamp": [
+					"oklch(0.68 0.13 190)",
+					"oklch(0.68 0.13 280)",
+					"oklch(0.68 0.13 340)",
+					"oklch(0.68 0.13 220)",
+					"oklch(0.68 0.13 310)",
+					"oklch(0.68 0.13 115)",
+					"oklch(0.68 0.13 250)",
+					"oklch(0.48 0.13 190)"
 				]
 			}
 		},
 		"typographyMeta": {
 			"display": {
 				"displayName": "Display",
-				"purpose": "Hero money figures (Safe to Spend)."
+				"purpose": "The single hero answer figure (Safe to Spend, month or year result). One per screen; display-phone below sm."
+			},
+			"display-phone": {
+				"displayName": "Display (phone)",
+				"purpose": "The hero figure below the sm breakpoint (2.75rem). Pairs only with Display."
 			},
 			"headline": {
 				"displayName": "Headline",
-				"purpose": "KPI values, page titles."
+				"purpose": "Page greeting; 1.5rem below sm."
 			},
 			"title": {
 				"displayName": "Title",
-				"purpose": "Card and section titles."
+				"purpose": "Sentence-case panel and section titles, no icon."
+			},
+			"figure": {
+				"displayName": "Figure",
+				"purpose": "Stat-strip values, tabular."
 			},
 			"body": {
 				"displayName": "Body",
-				"purpose": "Tables, forms, descriptions."
+				"purpose": "Rows, sentences, amounts."
 			},
 			"label": {
 				"displayName": "Label",
-				"purpose": "Badges, captions, chart ticks."
+				"purpose": "Stat labels, sublines, meter captions, muted."
+			},
+			"axis": {
+				"displayName": "Axis",
+				"purpose": "Chart ticks and in-chart annotations, muted, tabular."
 			}
 		},
 		"shadows": [
 			{
-				"name": "hint",
-				"value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-				"purpose": "Buttons, inputs, KPI cards."
+				"name": "elev-xs",
+				"value": "0 1px 2px 0 oklch(0.2 0.02 264 / 0.05)",
+				"dark": "none",
+				"purpose": "Buttons, inputs, segmented thumb."
 			},
 			{
-				"name": "rest",
-				"value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
-				"purpose": "Default card."
+				"name": "elev-sm",
+				"value": "0 1px 2px 0 oklch(0.2 0.02 264 / 0.04), 0 2px 8px -2px oklch(0.2 0.02 264 / 0.06)",
+				"dark": "none",
+				"purpose": "Panels and the inset content sheet."
 			},
 			{
-				"name": "overlay",
-				"value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-				"purpose": "Popovers, dropdowns, sheets."
+				"name": "elev-md",
+				"value": "0 2px 4px -1px oklch(0.2 0.02 264 / 0.06), 0 8px 24px -6px oklch(0.2 0.02 264 / 0.12)",
+				"dark": "0 8px 24px -6px oklch(0 0 0 / 0.5)",
+				"purpose": "Popovers, menus, dialogs."
 			}
 		],
 		"motion": [
 			{
-				"name": "card-beam-spin",
-				"value": "rotate 360deg, 4s linear infinite",
-				"purpose": "Conic border beam on over-budget cards."
+				"name": "state",
+				"value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+				"purpose": "Colour, background and shadow state transitions."
 			},
 			{
-				"name": "state-transition",
-				"value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
-				"purpose": "Tailwind default for hover/focus."
+				"name": "bar-fill",
+				"value": "width 500ms ease-out",
+				"purpose": "Meter and category bar fills, once on load."
+			},
+			{
+				"name": "chevron-nudge",
+				"value": "translateX(2px) on row hover",
+				"purpose": "Row affordance."
 			}
 		],
 		"breakpoints": [
@@ -280,113 +540,158 @@
 				"value": "1024px"
 			},
 			{
-				"name": "xl",
+				"name": "content-max",
 				"value": "1280px"
 			}
-		]
+		],
+		"shell": {
+			"headerHeight": "48px",
+			"insetMargin": "8px",
+			"insetRadius": "16px",
+			"headerBackdrop": "page-grey 85% + backdrop-blur(12px)",
+			"scope": "Only /dashboard has had a composition pass; other (app) routes inherit tokens and primitives only."
+		}
 	},
 	"components": [
 		{
 			"name": "Primary Button",
 			"kind": "button",
 			"refersTo": "button-primary",
-			"description": "Default action; ink fill.",
-			"html": "<button class=\"ds-btn ds-btn-primary\">Add transaction</button>",
-			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;transition:all .15s;outline:none;cursor:pointer} .ds-btn:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent)} .ds-btn-primary{background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;box-shadow:0 1px 2px 0 rgb(0 0 0/.05)} .ds-btn-primary:hover{background:color-mix(in oklch,var(--primary) 90%,transparent)}"
+			"description": "The screen's one primary action (Log expense).",
+			"html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>Log expense</button>",
+			"css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:6px;height:36px;padding:8px 12px;border:0;border-radius:10px;background:var(--primary,oklch(0.51 0.2 270));color:var(--primary-foreground,oklch(0.99 0.004 270));font:500 14px/1 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;box-shadow:var(--elev-xs,0 1px 2px 0 oklch(0.2 0.02 264/.05));transition:background-color .15s,box-shadow .15s;cursor:pointer}.ds-btn-primary:hover{background:color-mix(in oklch,var(--primary,oklch(0.51 0.2 270)) 90%,transparent)}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.6 0.17 270)) 50%,transparent)}"
 		},
 		{
 			"name": "Outline Button",
 			"kind": "button",
 			"refersTo": "button-outline",
-			"description": "Secondary action; hairline border.",
-			"html": "<button class=\"ds-btn ds-btn-outline\">Sign in</button>",
-			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;transition:all .15s;outline:none;cursor:pointer} .ds-btn:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent)} .ds-btn-outline{background:var(--background);color:var(--foreground);border:1px solid var(--border);box-shadow:0 1px 2px 0 rgb(0 0 0/.05)} .ds-btn-outline:hover{background:var(--accent)}"
-		},
-		{
-			"name": "Destructive Button",
-			"kind": "button",
-			"refersTo": "button-destructive",
-			"description": "Delete / irreversible actions.",
-			"html": "<button class=\"ds-btn ds-btn-destructive\">Delete</button>",
-			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;transition:all .15s;outline:none;cursor:pointer} .ds-btn:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent)} .ds-btn-destructive{background:var(--destructive);color:#fff;border:1px solid transparent} .ds-btn-destructive:hover{background:color-mix(in oklch,var(--destructive) 90%,transparent)}"
+			"description": "Secondary actions beside the primary (Customize).",
+			"html": "<button class=\"ds-btn-outline\">Customize</button>",
+			"css": ".ds-btn-outline{height:36px;padding:8px 16px;border:1px solid var(--input,oklch(0.882 0.007 264));border-radius:10px;background:var(--background,oklch(0.985 0.003 264));color:var(--foreground,oklch(0.205 0.012 264));font:500 14px/1 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;box-shadow:var(--elev-xs,0 1px 2px 0 oklch(0.2 0.02 264/.05));transition:background-color .15s;cursor:pointer}.ds-btn-outline:hover{background:var(--accent,oklch(0.95 0.012 270))}.ds-btn-outline:focus-visible{outline:none;border-color:var(--ring,oklch(0.6 0.17 270));box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.6 0.17 270)) 50%,transparent)}"
 		},
 		{
 			"name": "Text Input",
 			"kind": "input",
 			"refersTo": "input",
-			"description": "Standard form field.",
+			"description": "Form fields across CRUD routes.",
 			"html": "<input class=\"ds-input\" placeholder=\"Amount\" />",
-			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-input{height:36px;width:240px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:var(--background);color:var(--foreground);font-size:14px;box-shadow:0 1px 2px 0 rgb(0 0 0/.05);outline:none;transition:box-shadow .15s,border-color .15s} .ds-input::placeholder{color:var(--muted-foreground)} .ds-input:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent)}"
+			"css": ".ds-input{height:36px;width:240px;padding:4px 12px;border:1px solid var(--input,oklch(0.882 0.007 264));border-radius:10px;background:var(--background,oklch(0.985 0.003 264));color:var(--foreground,oklch(0.205 0.012 264));font:400 14px/1.4 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;box-shadow:var(--elev-xs,0 1px 2px 0 oklch(0.2 0.02 264/.05));transition:border-color .15s,box-shadow .15s}.ds-input::placeholder{color:var(--muted-foreground,oklch(0.515 0.016 264))}.ds-input:focus-visible{outline:none;border-color:var(--ring,oklch(0.6 0.17 270));box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.6 0.17 270)) 50%,transparent)}"
 		},
 		{
-			"name": "Badge",
+			"name": "Segmented Control",
 			"kind": "chip",
-			"refersTo": "badge",
-			"description": "Status pill.",
-			"html": "<span class=\"ds-badge\">Recurring</span> <span class=\"ds-badge ds-badge-destructive\">Over budget</span>",
-			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:12px;font-weight:500;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent} .ds-badge-destructive{background:var(--destructive);color:#fff}"
+			"refersTo": "segmented-control",
+			"description": "Period switch (Monthly / Yearly).",
+			"html": "<div class=\"ds-seg\"><button class=\"ds-seg-item ds-seg-on\">Monthly</button><button class=\"ds-seg-item\">Yearly</button></div>",
+			"css": ".ds-seg{display:inline-flex;height:36px;padding:3px;border-radius:12px;background:var(--muted,oklch(0.957 0.005 264))}.ds-seg-item{padding:4px 12px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--foreground,oklch(0.205 0.012 264));font:500 14px/1 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;cursor:pointer;transition:background-color .15s,box-shadow .15s}.ds-seg-on{background:var(--background,oklch(0.985 0.003 264));box-shadow:var(--elev-xs,0 1px 2px 0 oklch(0.2 0.02 264/.05))}.ds-seg-item:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.6 0.17 270)) 50%,transparent)}"
 		},
 		{
-			"name": "Budget Progress Card",
+			"name": "Sidebar Navigation",
+			"kind": "nav",
+			"refersTo": "nav-item-active",
+			"description": "App shell nav; active item medium weight with indigo icon.",
+			"html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-nav-on\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z\"/></svg>Dashboard</a><a class=\"ds-nav-item\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/></svg>Transactions</a></nav>",
+			"css": ".ds-nav{display:flex;flex-direction:column;gap:4px;width:220px;padding:8px;background:var(--sidebar,oklch(0.958 0.005 264))}.ds-nav-item{display:flex;align-items:center;gap:8px;height:32px;padding:8px;border-radius:10px;color:var(--sidebar-foreground,oklch(0.32 0.012 264));font:400 14px/1 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;text-decoration:none;cursor:pointer;transition:background-color .15s}.ds-nav-item svg{color:var(--muted-foreground,oklch(0.515 0.016 264))}.ds-nav-item:hover{background:var(--sidebar-accent,oklch(0.925 0.007 264));color:var(--sidebar-accent-foreground,oklch(0.18 0.012 264))}.ds-nav-on{background:var(--sidebar-accent,oklch(0.925 0.007 264));color:var(--sidebar-accent-foreground,oklch(0.18 0.012 264));font-weight:500}.ds-nav-on svg{color:var(--primary,oklch(0.51 0.2 270))}"
+		},
+		{
+			"name": "Panel",
 			"kind": "card",
-			"refersTo": "card",
-			"description": "KPI card: tabular figure, progress bar, caption; faint ink wash.",
-			"html": "<div class=\"ds-card\"><div class=\"ds-card-label\">Groceries</div><div class=\"ds-card-value\">$412.80 <span>/ $600</span></div><div class=\"ds-bar\"><i style=\"width:69%\"></i></div><div class=\"ds-card-foot\">$187.20 left \u00b7 9 days</div></div>",
-			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-card{width:280px;padding:24px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(to top,color-mix(in oklch,var(--primary) 5%,var(--card)),var(--card));box-shadow:0 1px 2px 0 rgb(0 0 0/.05);color:var(--foreground);display:flex;flex-direction:column;gap:10px} .ds-card-label{font-size:14px;color:var(--muted-foreground)} .ds-card-value{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums} .ds-card-value span{font-size:14px;font-weight:400;color:var(--muted-foreground)} .ds-bar{height:8px;border-radius:9999px;background:color-mix(in oklch,var(--primary) 20%,transparent);overflow:hidden} .ds-bar i{display:block;height:100%;background:var(--primary)} .ds-card-foot{font-size:14px;color:var(--positive);font-variant-numeric:tabular-nums}"
+			"refersTo": "panel",
+			"description": "The one container: 16px, hairline, elev-sm; sentence-case title, no icon.",
+			"html": "<section class=\"ds-panel\"><h3 class=\"ds-panel-title\">Monthly overview</h3><p class=\"ds-panel-desc\">Income less everything spent.</p><div class=\"ds-panel-row\"><span>Income</span><span>$4,896.26</span></div><div class=\"ds-panel-row\"><span>Discretionary spent</span><span>−$1,073.12</span></div></section>",
+			"css": ".ds-panel{width:360px;padding:24px;border:1px solid var(--border,oklch(0.918 0.005 264));border-radius:16px;background:var(--card,oklch(1 0 0));color:var(--card-foreground,oklch(0.205 0.012 264));box-shadow:var(--elev-sm,0 1px 2px 0 oklch(0.2 0.02 264/.04),0 2px 8px -2px oklch(0.2 0.02 264/.06));font-family:\"Inter Variable\",ui-sans-serif,system-ui,sans-serif}.ds-panel-title{margin:0;font-size:16px;font-weight:600;letter-spacing:-.025em}.ds-panel-desc{margin:6px 0 16px;font-size:14px;color:var(--muted-foreground,oklch(0.515 0.016 264))}.ds-panel-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;font-variant-numeric:tabular-nums}.ds-panel-row span:first-child{color:var(--muted-foreground,oklch(0.515 0.016 264))}"
 		},
 		{
-			"name": "Safe-to-Spend Hero",
+			"name": "Stat Strip",
 			"kind": "custom",
-			"refersTo": "card",
-			"description": "Dashboard lead band: per-day figure + net position.",
-			"html": "<div class=\"ds-hero\"><div class=\"ds-hero-l\"><div class=\"ds-well\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/></svg></div><div><div class=\"ds-muted\">Safe to Spend Today</div><div class=\"ds-big\">$48.20 <span>/day</span></div></div></div><div class=\"ds-hero-r\"><div class=\"ds-muted\">Net Position</div><div class=\"ds-net\">$1,284.50</div><div class=\"ds-muted ds-xs\">9 days left</div></div></div>",
-			"css": ":host{--primary:oklch(0.208 0.042 265.755);--primary-foreground:oklch(0.984 0.003 247.858);--background:oklch(1 0 0);--foreground:oklch(0.129 0.042 264.695);--card:oklch(1 0 0);--muted-foreground:oklch(0.554 0.046 257.417);--accent:oklch(0.968 0.007 247.896);--border:oklch(0.929 0.013 255.508);--ring:oklch(0.704 0.04 256.788);--destructive:oklch(0.577 0.245 27.325);--positive:oklch(0.627 0.194 149.214);font-family:ui-sans-serif, system-ui, sans-serif} .ds-hero{display:flex;justify-content:space-between;align-items:center;gap:16px;width:560px;padding:16px 24px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(to top,color-mix(in oklch,var(--primary) 5%,var(--card)),var(--card));box-shadow:0 1px 2px 0 rgb(0 0 0/.05);color:var(--foreground)} .ds-hero-l{display:flex;align-items:center;gap:12px} .ds-well{width:48px;height:48px;border-radius:9999px;display:flex;align-items:center;justify-content:center;background:color-mix(in oklch,var(--primary) 10%,transparent);color:var(--primary)} .ds-muted{font-size:14px;color:var(--muted-foreground)} .ds-xs{font-size:12px} .ds-big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums} .ds-big span{font-size:14px;font-weight:400;color:var(--muted-foreground)} .ds-hero-r{text-align:right} .ds-net{font-size:20px;font-weight:700;color:var(--positive);font-variant-numeric:tabular-nums}"
+			"refersTo": "stat-cell",
+			"description": "One panel of 1px-gap divided KPI cells; tone only for money state.",
+			"html": "<dl class=\"ds-strip\"><div class=\"ds-cell\"><dt>Discretionary used</dt><dd class=\"ds-fig ds-pos\">53%</dd><div class=\"ds-m\"><i class=\"ds-pos-bg\" style=\"width:53%\"></i></div></div><div class=\"ds-cell\"><dt>Recurring burden</dt><dd class=\"ds-fig ds-warn\">48%</dd><div class=\"ds-m\"><i class=\"ds-warn-bg\" style=\"width:48%\"></i></div></div><div class=\"ds-cell\"><dt>Total savings</dt><dd class=\"ds-fig\">$132,437.07</dd></div></dl>",
+			"css": ".ds-strip{display:flex;gap:1px;margin:0;overflow:hidden;border:1px solid var(--border,oklch(0.918 0.005 264));border-radius:16px;background:var(--border,oklch(0.918 0.005 264));box-shadow:var(--elev-sm,0 1px 2px 0 oklch(0.2 0.02 264/.04));font-family:\"Inter Variable\",ui-sans-serif,system-ui,sans-serif}.ds-cell{flex:1;display:flex;flex-direction:column;gap:4px;padding:20px;background:var(--card,oklch(1 0 0))}.ds-cell dt{font-size:12px;color:var(--muted-foreground,oklch(0.515 0.016 264))}.ds-fig{margin:0;font-size:20px;font-weight:600;letter-spacing:-.025em;font-variant-numeric:tabular-nums;color:var(--foreground,oklch(0.205 0.012 264))}.ds-pos{color:var(--positive,oklch(0.545 0.135 156))}.ds-warn{color:var(--warning,oklch(0.6 0.14 62))}.ds-m{height:4px;margin-top:4px;border-radius:9999px;background:var(--track,oklch(0.935 0.005 264));overflow:hidden}.ds-m i{display:block;height:100%;border-radius:9999px;transition:width .5s ease-out}.ds-pos-bg{background:var(--positive,oklch(0.545 0.135 156))}.ds-warn-bg{background:var(--warning,oklch(0.6 0.14 62))}"
+		},
+		{
+			"name": "Category Row",
+			"kind": "custom",
+			"refersTo": "category-row",
+			"description": "Dot, name, category-hue meter (red when over), spent/planned, remaining.",
+			"html": "<button class=\"ds-crow\"><span class=\"ds-cname\"><i class=\"ds-dot\" style=\"background:oklch(0.68 0.13 220)\"></i>Groceries</span><span class=\"ds-cbar\"><i style=\"width:68%;background:oklch(0.68 0.13 220)\"></i></span><span class=\"ds-camt\"><b>$175.21</b> left</span></button><button class=\"ds-crow\"><span class=\"ds-cname\"><i class=\"ds-dot\" style=\"background:oklch(0.68 0.13 190)\"></i>Entertainment</span><span class=\"ds-cbar\"><i style=\"width:100%;background:var(--destructive,oklch(0.575 0.215 26))\"></i></span><span class=\"ds-camt ds-over\">$69.53 over</span></button>",
+			"css": ".ds-crow{display:grid;grid-template-columns:12rem 1fr 8rem;align-items:center;gap:16px;width:560px;padding:12px 20px;border:0;border-bottom:1px solid var(--border,oklch(0.918 0.005 264));background:var(--card,oklch(1 0 0));color:var(--foreground,oklch(0.205 0.012 264));font:400 14px/1.4 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;text-align:left;cursor:pointer;transition:background-color .15s}.ds-crow:hover,.ds-crow:focus-visible{outline:none;background:color-mix(in oklch,var(--muted,oklch(0.957 0.005 264)) 60%,transparent)}.ds-cname{display:flex;align-items:center;gap:10px;font-weight:500}.ds-dot{width:8px;height:8px;border-radius:9999px}.ds-cbar{height:6px;border-radius:9999px;background:var(--track,oklch(0.935 0.005 264));overflow:hidden}.ds-cbar i{display:block;height:100%;border-radius:9999px;transition:width .5s ease-out}.ds-camt{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted-foreground,oklch(0.515 0.016 264))}.ds-camt b{font-weight:500;color:var(--foreground,oklch(0.205 0.012 264))}.ds-over{font-weight:500;color:var(--destructive,oklch(0.575 0.215 26))}"
 		}
 	],
 	"narrative": {
-		"northStar": "The Household Ledger",
-		"overview": "The interface behaves like a well-kept ledger book. The neutral slate frame steps back and the numbers speak. Surfaces are white paper in light mode and deep ink-navy in dark mode. Hierarchy comes from the size and weight of figures, not from decoration. Colour is held back for meaning: green when you are in the black, red when you've overspent, amber when a limit is close. The chart palette gives categories their own identities.\n\nThe density is operational. It uses a sidebar shell, a compact 48px header, and grids of KPI cards that reflow from two columns on phones to four or five on desktop. The system is currently a near-stock shadcn-svelte \"slate\" theme on Tailwind v4, and this file records it as a baseline before a redesign. It describes what exists so the replacement can deliberately keep or discard each part.",
+		"northStar": "The Quiet Ledger",
+		"overview": "A modern personal-finance app finished to Copilot Money / Linear standard: one calm, near-neutral surface where the single figure that answers \"can I spend today?\" sits first and the month's pace is drawn honestly beneath it. Colour is rationed by job. Indigo means \"you can act here\". Green, amber and red mean money state and nothing else. A set of even-lightness hues names categories. All other data ink is the foreground colour.\n\nDensity is moderate. Panels hold real content, rows breathe at 12px vertical padding, and figures carry the hierarchy through size and tabular alignment, not boxes or colour. The app shell is a recessed grey sidebar with the content inset as one raised sheet. In light mode depth is soft, low offset shadow. In dark mode it is tonal lift with no shadow at all.\n\nThe world was built to replace a wall of same-size KPI cards, spinning beams and sparklines. The answer comes once, at the top, at a size that reads in under a second.",
 		"keyCharacteristics": [
-			"Cool blue-grey neutrals with one near-black ink primary; no brand hue yet.",
-			"Tabular numerals on every monetary figure.",
-			"Green, red and amber carry money status. The chart palette carries category identity.",
-			"Flat, bordered cards with barely-there shadows and a faint ink-tinted gradient wash.",
-			"Full light and dark parity through CSS custom properties (mode-watcher)."
+			"Cool near-neutral greys (hue 264-270, chroma at or below 0.016) carry nearly every pixel.",
+			"One indigo accent, reserved for action, selection, focus and the today marker.",
+			"Money colours encode money state only. Category hues identify categories only. The two never share a hue band.",
+			"Inter Variable with optical sizing, `cv11` + `ss03`, and tabular figures on every amount.",
+			"16px panels, 10px controls, 1px hairlines; soft shadow in light, none in dark.",
+			"Motion is limited to state transitions (150ms) and one ease-out bar fill on load (500ms)."
 		],
 		"rules": [
 			{
-				"name": "The Money-Means-Colour Rule",
-				"body": "Green, red and amber only ever report a money state. Never use them for decoration, emphasis or branding.",
+				"name": "The Money Means Money Rule",
+				"body": "Green, amber and red appear only when they report money state (under, close, over, net sign). Never use them for decoration, for category identity, or for success toasts that are unrelated to money.",
 				"section": "colors"
 			},
 			{
-				"name": "The Category Palette Rule",
-				"body": "Chart tokens identify categories and series. They never signal good or bad.",
+				"name": "The One Voice Rule",
+				"body": "Indigo is for action, selection, focus and the today marker. Never use it to fill a chart, tint a panel or colour a category.",
 				"section": "colors"
 			},
 			{
-				"name": "The Tabular Figures Rule",
-				"body": "Every currency amount, percentage and count uses tabular-nums so columns and changing values don't jitter.",
+				"name": "The Separate Bands Rule",
+				"body": "Category hues (190, 220, 250, 280, 310, 340, 115) stay out of the money bands (red ~26, amber ~62, green ~156) and out of indigo's 270 at full chroma. A category never reads as a money state. When a category is over budget, its bar switches to Money Red because state overrides identity.",
+				"section": "colors"
+			},
+			{
+				"name": "The Neutral Ink Rule",
+				"body": "Data ink defaults to the foreground colour: the actual-spend line, meter fills with no state, chart grid and axis in hairline or muted ink. Colour enters a chart only to carry state or identity.",
+				"section": "colors"
+			},
+			{
+				"name": "The Tabular Money Rule",
+				"body": "Every currency amount, percentage and day count is set with `tabular-nums`. Columns of money align on the digit.",
 				"section": "typography"
 			},
 			{
-				"name": "The Border-First Rule",
-				"body": "A 1px hairline border separates surfaces. Shadow never replaces the border.",
+				"name": "The Sentence Case Rule",
+				"body": "Titles and labels are sentence case, with no uppercase tracking, no eyebrows above titles, and no icon before the title text.",
+				"section": "typography"
+			},
+			{
+				"name": "The Tonal Dark Rule",
+				"body": "In dark mode, a surface is raised by lightness, never by shadow. Only elements that float above the page (elev-md) cast one.",
+				"section": "elevation"
+			},
+			{
+				"name": "The One Layer Rule",
+				"body": "A panel never sits inside another panel. Subdivide with hairline dividers, 1px-gap cells or a quiet-fill column instead.",
 				"section": "elevation"
 			}
 		],
 		"dos": [
-			"Do use the semantic CSS tokens (bg-card, text-muted-foreground, border) so light and dark stay in parity.",
-			"Do set every monetary figure in tabular-nums, with the value larger and bolder than its label.",
-			"Do keep green, red and amber for money state, and the chart tokens for category identity.",
-			"Do separate surfaces with a 1px hairline border and at most a Rest shadow.",
-			"Do build new list pages on MonthlyTablePageShell and the existing card grid rhythm (16px gaps, 24px row spacing)."
+			"**Do** put one answer figure first on a screen, in Display at 3.5rem, and give every other figure the Figure or Body role.",
+			"**Do** colour money with Money Green / Amber / Red only when it reports under / close / over or a net sign.",
+			"**Do** use action indigo only for the primary action, the active selection, focus and the today marker.",
+			"**Do** identify categories with the generated category hue (dot, bar, donut segment) and keep it consistent for a category across a screen.",
+			"**Do** draw chart data in ink and muted ink by default, with grid and axes in hairline and muted 11px tabular text.",
+			"**Do** show each ledger figure once. If the hero states the remainder, the panels below do not repeat it.",
+			"**Do** write sentence-case panel titles with no icon, plus an optional one-line muted description.",
+			"**Do** subdivide panels with hairlines, 1px-gap cells or a quiet-fill column.",
+			"**Do** keep light and dark at parity, raising dark surfaces by lightness, not shadow.",
+			"**Do** limit motion to 150ms colour/shadow transitions and a single 500ms ease-out bar fill on load."
 		],
 		"donts": [
-			"Don't use green, red or amber decoratively. They always report a money state.",
-			"Don't use chart colours to mean good or bad.",
-			"Don't hard-code Tailwind palette colours where a semantic token exists. Many existing text-red-400/text-green-600 usages are drift, not doctrine.",
-			"Don't extend this baseline for new visual work. A redesign is planned, so route new visual direction through /impeccable new-work."
+			"**Don't** nest a card inside a card.",
+			"**Don't** use sparklines, progress rings or same-size KPI card grids. Use the stat strip, row meters or the pace chart. (A category breakdown donut is a composition chart, not a progress ring.)",
+			"**Don't** put gradient washes on surfaces, panels, buttons or text. The only gradient is the neutral ink fade under the pace chart's actual-spend line, which is data ink.",
+			"**Don't** use spinning beams, shimmer borders or looping decorative animation.",
+			"**Don't** use a money hue for a category, or indigo for a category or chart series.",
+			"**Don't** put icons before panel titles, uppercase eyebrows or kickers above titles.",
+			"**Don't** set a second display family or use weight 700 for figures. The system tops out at 600.",
+			"**Don't** use an amount without `tabular-nums`."
 		]
 	}
 }

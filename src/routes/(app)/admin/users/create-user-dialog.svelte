@@ -112,12 +112,12 @@
 						id="create-user-name"
 						name="name"
 						bind:value={$form.name}
-						class={$errors.name ? 'border-red-400' : ''}
+						class={$errors.name ? 'border-destructive' : ''}
 						required
 						maxlength={100}
 					/>
 					{#if $errors.name}
-						<p class="text-sm text-red-500">{$errors.name}</p>
+						<p class="text-destructive text-sm">{$errors.name}</p>
 					{/if}
 				</div>
 
@@ -129,11 +129,11 @@
 						type="email"
 						autocomplete="off"
 						bind:value={$form.email}
-						class={$errors.email ? 'border-red-400' : ''}
+						class={$errors.email ? 'border-destructive' : ''}
 						required
 					/>
 					{#if $errors.email}
-						<p class="text-sm text-red-500">{$errors.email}</p>
+						<p class="text-destructive text-sm">{$errors.email}</p>
 					{/if}
 				</div>
 

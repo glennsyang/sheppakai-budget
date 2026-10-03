@@ -3,8 +3,10 @@
 	import type { Component } from 'svelte';
 
 	let {
-		items
+		items,
+		activeUrl = null
 	}: {
+		activeUrl?: string | null;
 		items: {
 			title: string;
 			url?: string;
@@ -19,7 +21,7 @@
 		<Sidebar.Menu>
 			{#each items as item (item.title)}
 				<Sidebar.MenuItem>
-					<Sidebar.MenuButton tooltipContent={item.title}>
+					<Sidebar.MenuButton tooltipContent={item.title} isActive={item.url === activeUrl}>
 						{#snippet child({ props })}
 							{@const IconComponent = item.icon}
 							<a href={item.url} data-sveltekit-preload-data="hover" {...props}>

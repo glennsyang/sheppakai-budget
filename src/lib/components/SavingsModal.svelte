@@ -81,11 +81,11 @@
 					name="title"
 					bind:value={$form.title}
 					placeholder="e.g., Emergency Fund, Vacation Savings"
-					class={$errors.title ? 'border-red-400' : ''}
+					class={$errors.title ? 'border-destructive' : ''}
 					required
 				/>
 				{#if $errors.title}
-					<p class="text-sm text-red-500">{$errors.title}</p>
+					<p class="text-destructive text-sm">{$errors.title}</p>
 				{/if}
 			</div>
 
@@ -96,11 +96,11 @@
 					name="description"
 					bind:value={$form.description}
 					placeholder="Add additional details about this savings account"
-					class={$errors.description ? 'border-red-400' : ''}
+					class={$errors.description ? 'border-destructive' : ''}
 					rows={2}
 				/>
 				{#if $errors.description}
-					<p class="text-sm text-red-500">{$errors.description}</p>
+					<p class="text-destructive text-sm">{$errors.description}</p>
 				{/if}
 			</div>
 
@@ -114,11 +114,11 @@
 					min="0"
 					bind:value={$form.amount}
 					placeholder="0.00"
-					class={$errors.amount ? 'border-red-400' : ''}
+					class={$errors.amount ? 'border-destructive' : ''}
 					required
 				/>
 				{#if $errors.amount}
-					<p class="text-sm text-red-500">{$errors.amount}</p>
+					<p class="text-destructive text-sm">{$errors.amount}</p>
 				{/if}
 			</div>
 
