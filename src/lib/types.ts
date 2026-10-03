@@ -5,7 +5,7 @@ import type { Component } from 'svelte';
 
 /**
  * Base props for all modal/dialog components in the application.
- * Provides common interface for open state, data initialization, and loading states.
+ * Provides common interface for open state, data initialization, and edit mode.
  *
  * @template T - The entity type for initialData (e.g., Transaction, Income, Category)
  */
@@ -13,17 +13,11 @@ export interface BaseModalProps<T> {
 	/** Controls modal visibility (bindable) */
 	open: boolean;
 
-	/** Modal title displayed in the dialog header */
-	title?: string;
-
 	/** Initial data for editing mode - partial to allow creating with subset of fields */
 	initialData?: Partial<T>;
 
 	/** Whether modal is in edit mode (true) or create mode (false) */
 	isEditing?: boolean;
-
-	/** Loading state for async operations (bindable) */
-	isLoading?: boolean;
 }
 
 // Entity types are derived from the Drizzle schema plus the relations each query object

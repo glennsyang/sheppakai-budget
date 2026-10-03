@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	return { form };
 };
 
-export const actions: Actions = {
+export const actions = {
 	default: async (event) => {
 		const { request } = event;
 		const form = await superValidate(request, zod4(forgotSchema));

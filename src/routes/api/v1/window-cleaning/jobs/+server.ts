@@ -8,7 +8,8 @@ import {
 import { windowCleaningJobQueries } from '$lib/server/db/queries';
 import { createWindowCleaningJob } from '$lib/server/db/writes/window-cleaning-jobs';
 import { logger } from '$lib/server/logger';
-import type { RequestHandler } from '@sveltejs/kit';
+
+import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ request, url }) => {
 	const auth = await requireApiKey(request, 'windowCleaningJobs:read');

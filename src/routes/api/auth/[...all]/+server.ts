@@ -1,10 +1,7 @@
 import { auth } from '$lib/server/auth';
-import type { RequestEvent } from '@sveltejs/kit';
 
-export async function GET(event: RequestEvent) {
-	return auth.handler(event.request);
-}
+import type { RequestHandler } from './$types';
 
-export async function POST(event: RequestEvent) {
-	return auth.handler(event.request);
-}
+export const GET: RequestHandler = ({ request }) => auth.handler(request);
+
+export const POST: RequestHandler = ({ request }) => auth.handler(request);

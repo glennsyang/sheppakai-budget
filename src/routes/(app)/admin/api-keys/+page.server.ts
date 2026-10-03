@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 };
 
-export const actions: Actions = {
+export const actions = {
 	create: adminFormAction(createApiKeySchema, async (_event, form, user) => {
 		try {
 			// Deliberately not passing `headers` here: the plugin only accepts server-only fields

@@ -8,7 +8,8 @@ import {
 import { transactionQueries } from '$lib/server/db/queries';
 import { createTransaction } from '$lib/server/db/writes/transactions';
 import { logger } from '$lib/server/logger';
-import type { RequestHandler } from '@sveltejs/kit';
+
+import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ request, url }) => {
 	const auth = await requireApiKey(request, 'transactions:read');

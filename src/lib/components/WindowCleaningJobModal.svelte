@@ -20,7 +20,6 @@
 		open = $bindable(),
 		initialData,
 		isEditing,
-		isLoading = $bindable(false),
 		jobForm,
 		preselectedCustomerId
 	}: Props = $props();
@@ -189,10 +188,7 @@
 
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
-				<Button
-					type="submit"
-					disabled={$submitting || isLoading || !$form.jobDate || !$form.amountCharged}
-				>
+				<Button type="submit" disabled={$submitting || !$form.jobDate || !$form.amountCharged}>
 					{isEditing ? 'Save Changes' : 'Log Job'}
 				</Button>
 			</Dialog.Footer>

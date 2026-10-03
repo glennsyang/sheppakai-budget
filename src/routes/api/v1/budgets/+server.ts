@@ -3,7 +3,8 @@ import { apiError, apiSuccess } from '$lib/server/api/response';
 import { apiBudgetsQuerySchema } from '$lib/server/api/schemas/budgets';
 import { budgetQueries } from '$lib/server/db/queries';
 import { logger } from '$lib/server/logger';
-import type { RequestHandler } from '@sveltejs/kit';
+
+import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ request, url }) => {
 	const auth = await requireApiKey(request, 'budgets:read');

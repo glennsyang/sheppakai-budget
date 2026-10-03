@@ -126,7 +126,7 @@ export const load: PageServerLoad = async ({ request, locals }) => {
 	}
 };
 
-export const actions: Actions = {
+export const actions = {
 	createUser: adminFormAction(createUserSchema, async ({ request }, form, user) => {
 		let created: { id: string; email: string; name: string };
 		try {
