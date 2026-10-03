@@ -2,8 +2,10 @@ export {
 	banUserSchema,
 	changePasswordSchema,
 	createUserSchema,
+	forgotPasswordSchema,
 	passwordSchema,
 	resendVerificationSchema,
+	resetPasswordSchema,
 	setPasswordSchema,
 	setUserRoleSchema,
 	signInSchema,
@@ -18,6 +20,7 @@ export { dashboardVisibilitySchema } from './dashboard';
 export {
 	incomeSchema,
 	recurringSchema,
+	togglePaidSchema,
 	toRecurringFormData,
 	toTransactionFormData,
 	transactionSchema

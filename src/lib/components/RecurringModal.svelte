@@ -5,7 +5,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import type { recurringSchema } from '$lib/formSchemas/finances';
+	import type { recurringSchema } from '$lib/formSchemas';
 	import { toast } from 'svelte-sonner';
 	import { superForm, type SuperValidated } from 'sveltekit-superforms';
 	import z from 'zod';

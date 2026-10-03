@@ -332,7 +332,7 @@ function createDeleteAction<TTable extends AnySQLiteTable>(
  * @example
  * ```typescript
  * import { createCrudActions } from '$lib/server/actions/crud-helpers';
- * import { transactionSchema } from '$lib/formSchemas/finances';
+ * import { transactionSchema } from '$lib/formSchemas';
  * import { transaction } from '$lib/server/db/schema';
  * import { formatDateForStorage } from '$lib/utils/dates';
  *

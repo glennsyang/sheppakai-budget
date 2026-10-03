@@ -5,7 +5,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import type { savingsGoalSchema } from '$lib/formSchemas/savings';
+	import type { savingsGoalSchema } from '$lib/formSchemas';
 	import { extractDateFromTimestamp } from '$lib/utils/dates';
 	import { toast } from 'svelte-sonner';
 	import type { SuperValidated } from 'sveltekit-superforms';
