@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
 
-// WithAuditFieldsForUpdate calls getCurrentUTCTimestamp inline, so we
+// WithAuditFieldsForUpdate stamps updatedAt via getCurrentUTCTimestamp, so we
 // Can control the clock via fake timers.
 import { generateId, withAuditFieldsForCreate, withAuditFieldsForUpdate } from './utils';
 

@@ -4,8 +4,11 @@ import { incomeQueries } from '$lib/server/db/queries';
 import { income } from '$lib/server/db/schema';
 import { toIncomeRow } from '$lib/server/db/writes/income';
 import { logger } from '$lib/server/logger';
-import { calculateMonthsSinceJanuary } from '$lib/utils/date-metrics';
-import { getMonthRangeFromUrl, getYearDateRange } from '$lib/utils/dates';
+import {
+	calculateMonthsSinceJanuary,
+	getMonthRangeFromUrl,
+	getYearDateRange
+} from '$lib/utils/dates';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
@@ -18,7 +21,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	// Get yearly date range
 	const { startDate: yearStartDate, endDate: yearEndDate } = getYearDateRange(year);
 
-	let completedMonthsSinceJanuary = calculateMonthsSinceJanuary(year);
+	const completedMonthsSinceJanuary = calculateMonthsSinceJanuary(year);
 
 	const form = await superValidate(zod4(incomeSchema));
 

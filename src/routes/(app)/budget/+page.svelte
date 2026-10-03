@@ -74,11 +74,11 @@
 
 	// Create chartData for the selected category
 	let chartData = $derived.by(() => {
-		if (!selectedCategoryId || !data.last6Months) {
+		if (!selectedCategoryId || !data.last12Months) {
 			return [];
 		}
 
-		return data.last6Months.map((monthData) => {
+		return data.last12Months.map((monthData) => {
 			// Find budget for this month/category
 			const budgetForMonth = data.historicalBudgets?.find(
 				(b) =>

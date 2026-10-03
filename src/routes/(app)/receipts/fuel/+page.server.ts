@@ -1,7 +1,7 @@
 import { transactionQueries } from '$lib/server/db/queries';
 import { logger } from '$lib/server/logger';
 import { getReceiptLoadContext } from '$lib/server/receipts/load-helpers';
-import { calculateMonthsSinceJanuary } from '$lib/utils/date-metrics';
+import { calculateMonthsSinceJanuary } from '$lib/utils/dates';
 
 import type { PageServerLoad } from './$types';
 
@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 		await getReceiptLoadContext(url, categories);
 
 	try {
-		let completedMonthsSinceJanuary = calculateMonthsSinceJanuary(year);
+		const completedMonthsSinceJanuary = calculateMonthsSinceJanuary(year);
 
 		const [monthlyTransactions, yearlyTransactions] = await Promise.all([
 			transactionQueries.findByCategory(gasCategory.id, { start: startDate, end: endDate }),

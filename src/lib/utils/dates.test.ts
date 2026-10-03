@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+	calculateMonthsSinceJanuary,
 	extractDateFromTimestamp,
 	formatDateForStorage,
 	formatLocalTimestamp,
@@ -601,6 +602,34 @@ describe('Date Utilities - Local Timezone Storage', () => {
 
 		it('returns null for invalid non-time input', () => {
 			expect(formatTime12h('not-a-time')).toBeNull();
+		});
+	});
+
+	describe('calculateMonthsSinceJanuary', () => {
+		it('returns 12 for a past year', () => {
+			expect(calculateMonthsSinceJanuary(2025, new Date('2026-06-15T19:00:00Z'))).toBe(12);
+		});
+
+		it('returns 0 for a future year', () => {
+			expect(calculateMonthsSinceJanuary(2027, new Date('2026-06-15T19:00:00Z'))).toBe(0);
+		});
+
+		it('returns the completed months for the current year', () => {
+			expect(calculateMonthsSinceJanuary(2026, new Date('2026-06-15T19:00:00Z'))).toBe(5);
+		});
+
+		it('returns 0 in January', () => {
+			expect(calculateMonthsSinceJanuary(2026, new Date('2026-01-20T19:00:00Z'))).toBe(0);
+		});
+
+		it('uses the Pacific month when UTC has already rolled over', () => {
+			// 2026-03-01 03:00 UTC is still Feb 28 in Pacific time
+			expect(calculateMonthsSinceJanuary(2026, new Date('2026-03-01T03:00:00Z'))).toBe(1);
+		});
+
+		it('uses the Pacific year when UTC has already reached New Year', () => {
+			// 2027-01-01 03:00 UTC is still Dec 31, 2026 in Pacific time
+			expect(calculateMonthsSinceJanuary(2026, new Date('2027-01-01T03:00:00Z'))).toBe(11);
 		});
 	});
 

@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			budget: await budgetQueries.findByMonthYear(month, year),
 			historicalBudgets,
 			historicalTransactions,
-			last6Months: last12Months,
+			last12Months,
 			recurring: await recurringQueries.findAll()
 		};
 	} catch (error) {
@@ -80,7 +80,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			budget: [],
 			historicalBudgets: [],
 			historicalTransactions: [],
-			last6Months: last12Months,
+			last12Months,
 			recurring: [],
 			loadError: 'Failed to load budget. Please try refreshing the page.'
 		};
