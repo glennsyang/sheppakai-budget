@@ -1,6 +1,7 @@
 import type { auth } from '$lib/server/auth';
+import type { sessionQueries } from '$lib/server/db/queries';
 import type { QueryRow } from '$lib/server/db/queries/factory';
-import type { SessionWithImpersonatedBy, UserWithRole } from 'better-auth/plugins';
+import type { UserWithRole } from 'better-auth/plugins';
 import type { Component } from 'svelte';
 
 /**
@@ -27,8 +28,13 @@ export interface BaseModalProps<T> {
 /** The signed-in user as better-auth returns it on `locals.user`. */
 export type User = typeof auth.$Infer.Session.user;
 
+/** A session row as shown on the admin users page: everything but the token. */
+export type AdminSessionSummary = Awaited<
+	ReturnType<typeof sessionQueries.findSummariesByUserIds>
+>[number];
+
 export type UserWithSessions = UserWithRole & {
-	sessions: SessionWithImpersonatedBy[];
+	sessions: AdminSessionSummary[];
 };
 
 export type Category = QueryRow<'category'>;

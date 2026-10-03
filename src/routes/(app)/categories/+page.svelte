@@ -1,6 +1,5 @@
 <script lang="ts">
 	import CategoryModal from '$lib/components/CategoryModal.svelte';
-	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { categoryFormContext } from '$lib/contexts';
@@ -38,9 +37,8 @@
 					</Button>
 				</div>
 			</div>
-			{#if data.loadError}
-				<LoadErrorBanner message={data.loadError} />
-			{:else}
+			<!-- Categories come from the (app) layout, which also renders the banner if they failed to load. -->
+			{#if !data.categoriesLoadError}
 				<DataTable {columns} data={data.categories} />
 			{/if}
 		</div>

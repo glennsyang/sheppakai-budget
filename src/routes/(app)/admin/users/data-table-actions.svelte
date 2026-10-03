@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { UserWithSessions } from '$lib';
+	import type { AdminSessionSummary, UserWithSessions } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import { Badge } from '$lib/components/ui/badge/index.js';
@@ -16,7 +16,6 @@
 		setUserRoleFormContext
 	} from '$lib/contexts';
 	import { formatLocalTimestamp } from '$lib/utils/dates';
-	import type { SessionWithImpersonatedBy } from 'better-auth/plugins';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 
@@ -134,7 +133,7 @@
 	);
 
 	// Helper function to check if session is active
-	function isSessionActive(session: SessionWithImpersonatedBy): boolean {
+	function isSessionActive(session: AdminSessionSummary): boolean {
 		return new Date(session.expiresAt) > new Date();
 	}
 </script>

@@ -6,6 +6,7 @@ import { toIncomeRow } from '$lib/server/db/writes/income';
 import { logger } from '$lib/server/logger';
 import {
 	calculateMonthsSinceJanuary,
+	filterByDateRange,
 	getMonthRangeFromUrl,
 	getYearDateRange
 } from '$lib/utils/dates';
@@ -26,11 +27,9 @@ export const load: PageServerLoad = async ({ url }) => {
 	const form = await superValidate(zod4(incomeSchema));
 
 	try {
-		// Load monthly incomes for user
-		const monthlyIncomes = await incomeQueries.findByDateRange(startDate, endDate);
-
-		// Load yearly incomes for user
+		// The month is a subset of the year, so load the year once and derive the month from it.
 		const yearlyIncomes = await incomeQueries.findByDateRange(yearStartDate, yearEndDate);
+		const monthlyIncomes = filterByDateRange(yearlyIncomes, startDate, endDate);
 
 		return {
 			monthlyIncomes,
