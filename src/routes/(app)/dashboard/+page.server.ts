@@ -1,5 +1,6 @@
 import { dashboardVisibilitySchema, transactionSchema } from '$lib/formSchemas';
 import { getUser, requireAuth } from '$lib/server/actions/auth-guard';
+import { invalidForm } from '$lib/server/actions/form-responses';
 import { loadMonthlyDashboard, loadYearlyDashboard } from '$lib/server/dashboard/summary';
 import { dashboardPreferenceQueries } from '$lib/server/db/queries';
 import { logger } from '$lib/server/logger';
@@ -48,11 +49,7 @@ export const actions = {
 		const form = await superValidate(request, zod4(dashboardVisibilitySchema));
 
 		if (!form.valid) {
-			return message(
-				form,
-				{ type: 'error', text: 'Please correct the errors in the form.' },
-				{ status: 400 }
-			);
+			return invalidForm(form);
 		}
 
 		try {
