@@ -58,21 +58,20 @@ export const load: PageServerLoad = async ({ url }) => {
 	const endDateStr = `${latestMonth.year}-${latestMonth.month}-${padMonth(endDate.getDate().toString())}`;
 
 	try {
-		// Fetch historical budgets for the chart window
-		const historicalBudgets = await budgetQueries.findHistory(earliestMonth, latestMonth);
-
-		// Fetch and aggregate transactions for the chart window
-		const historicalTransactions = await transactionQueries.sumByCategoryMonth(
-			startDate,
-			endDateStr
-		);
+		// Chart-window history plus the selected month's budget and the recurring list.
+		const [historicalBudgets, historicalTransactions, budget, recurring] = await Promise.all([
+			budgetQueries.findHistory(earliestMonth, latestMonth),
+			transactionQueries.sumByCategoryMonth(startDate, endDateStr),
+			budgetQueries.findByMonthYear(month, year),
+			recurringQueries.findAll()
+		]);
 
 		return {
-			budget: await budgetQueries.findByMonthYear(month, year),
+			budget,
 			historicalBudgets,
 			historicalTransactions,
 			last12Months,
-			recurring: await recurringQueries.findAll()
+			recurring
 		};
 	} catch (error) {
 		logger.error('Failed to load budget:', error);

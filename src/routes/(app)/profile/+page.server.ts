@@ -17,11 +17,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const passwordForm = await superValidate(zod4(changePasswordSchema));
 
 	try {
-		// Get the full user data including updatedAt
-		const fullUserData = await userQueries.findById(currentUser.id);
-
-		// Get the account data to find when password was last updated
-		const accountData = await accountQueries.findByUserId(currentUser.id);
+		// The full user row (for updatedAt) and the account row (for when the password last changed).
+		const [fullUserData, accountData] = await Promise.all([
+			userQueries.findById(currentUser.id),
+			accountQueries.findByUserId(currentUser.id)
+		]);
 
 		// Initialize profile form with current user data
 		const profileForm = await superValidate(

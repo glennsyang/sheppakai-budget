@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	calculateMonthsSinceJanuary,
 	extractDateFromTimestamp,
+	filterByDateRange,
 	formatDateForStorage,
 	formatLocalTimestamp,
 	formatTime12h,
@@ -602,6 +603,40 @@ describe('Date Utilities - Local Timezone Storage', () => {
 
 		it('returns null for invalid non-time input', () => {
 			expect(formatTime12h('not-a-time')).toBeNull();
+		});
+	});
+
+	describe('filterByDateRange', () => {
+		const rows = [
+			{ id: 'dec-31', date: '2025-12-31 23:59:59' },
+			{ id: 'mar-01-midnight', date: '2026-03-01 00:00:00' },
+			{ id: 'mar-15', date: '2026-03-15 12:30:00' },
+			{ id: 'mar-31-late', date: '2026-03-31 23:59:59' },
+			{ id: 'apr-01', date: '2026-04-01 00:00:00' },
+			{ id: 'date-only', date: '2026-03-10' }
+		];
+
+		it('keeps rows within the inclusive range, including the last second of the end day', () => {
+			expect(filterByDateRange(rows, '2026-03-01', '2026-03-31').map((r) => r.id)).toEqual([
+				'mar-01-midnight',
+				'mar-15',
+				'mar-31-late',
+				'date-only'
+			]);
+		});
+
+		it('returns nothing for a month with no rows', () => {
+			expect(filterByDateRange(rows, '2026-10-01', '2026-10-31')).toEqual([]);
+		});
+
+		it('preserves the input order', () => {
+			const reversed = [...rows].reverse();
+			expect(filterByDateRange(reversed, '2026-03-01', '2026-03-31').map((r) => r.id)).toEqual([
+				'date-only',
+				'mar-31-late',
+				'mar-15',
+				'mar-01-midnight'
+			]);
 		});
 	});
 

@@ -24,9 +24,11 @@ vi.mock('$lib/server/db', () => ({
 vi.mock('$lib/server/db/queries', () => ({
 	accountQueries: mockState.failingQueries,
 	budgetQueries: mockState.failingQueries,
+	contributionQueries: mockState.failingQueries,
 	dashboardPreferenceQueries: mockState.failingQueries,
 	recurringQueries: mockState.failingQueries,
 	savingsGoalQueries: mockState.failingQueries,
+	transactionQueries: mockState.failingQueries,
 	userQueries: mockState.failingQueries,
 	windowCleaningCustomerQueries: mockState.failingQueries,
 	windowCleaningJobQueries: mockState.failingQueries

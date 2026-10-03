@@ -22,6 +22,7 @@ export type {
 	TimeRangeInOutData,
 	Transaction,
 	User,
+	AdminSessionSummary,
 	UserWithSessions,
 	WindowCleaningCustomer,
 	WindowCleaningCustomerWithStats,

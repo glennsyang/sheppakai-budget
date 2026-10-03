@@ -15,11 +15,10 @@ export const load: PageServerLoad = async () => {
 	const contributionForm = await superValidate(zod4(contributionSchema));
 
 	try {
-		// Fetch all goals
-		const goals = await savingsGoalQueries.findAll();
-
-		// Fetch all contributions
-		const contributions = await contributionQueries.findAll();
+		const [goals, contributions] = await Promise.all([
+			savingsGoalQueries.findAll(),
+			contributionQueries.findAll()
+		]);
 
 		// Filter out contributions linked to archived goals
 		const activeContributions = contributions.filter((c) => c.goal.status !== 'archived');

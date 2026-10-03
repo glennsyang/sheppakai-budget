@@ -11,6 +11,7 @@ import { adminFormAction } from '$lib/server/actions/admin-guard';
 import { isAdminUser } from '$lib/server/admin-status';
 import { assertAdmin, auth } from '$lib/server/auth';
 import { allowlistCommandFor, isEmailAllowlisted, sendWelcome } from '$lib/server/auth/welcome';
+import { sessionQueries } from '$lib/server/db/queries';
 import { disableApiKeysForUser } from '$lib/server/db/writes/api-keys';
 import { logger } from '$lib/server/logger';
 import { sendAuthAlerts } from '$lib/server/notifications';
@@ -84,27 +85,16 @@ export const load: PageServerLoad = async ({ request, locals }) => {
 			};
 		}
 
-		// Loop through all the users and get their user sessions
-		const usersWithSessions: UserWithSessions[] = await Promise.all(
-			result.users.map(async (user) => {
-				try {
-					const sessionsResult = await auth.api.listUserSessions({
-						body: { userId: user.id },
-						headers: request.headers
-					});
-					return {
-						...user,
-						sessions: sessionsResult.sessions || []
-					};
-				} catch (error) {
-					logger.error(`Failed to get sessions for user ${user.id}:`, error);
-					return {
-						...user,
-						sessions: []
-					};
-				}
-			})
+		// One query for every listed user's sessions, grouped by user below.
+		const sessions = await sessionQueries.findSummariesByUserIds(
+			result.users.map((user) => user.id)
 		);
+		const sessionsByUser = Map.groupBy(sessions, (session) => session.userId);
+
+		const usersWithSessions: UserWithSessions[] = result.users.map((user) => ({
+			...user,
+			sessions: sessionsByUser.get(user.id) ?? []
+		}));
 
 		return {
 			usersWithSessions,

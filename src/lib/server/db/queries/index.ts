@@ -8,6 +8,6 @@ export { recurringQueries } from './recurring';
 export { savingsQueries } from './savings';
 export { savingsGoalQueries } from './savings-goals';
 export { transactionQueries } from './transactions';
-export { accountQueries, userQueries } from './users';
+export { accountQueries, sessionQueries, userQueries } from './users';
 export { windowCleaningCustomerQueries } from './windowCleaningCustomers';
 export { windowCleaningJobQueries } from './windowCleaningJobs';

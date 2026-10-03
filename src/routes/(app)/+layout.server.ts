@@ -15,14 +15,11 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 	try {
 		const categories = await categoryQueries.findAll();
 
-		return {
-			user: locals.user,
-			categories
-		};
+		// `user` comes from the root layout; this guard only narrows who reaches the group.
+		return { categories };
 	} catch (error) {
 		logger.error('Failed to load categories:', error);
 		return {
-			user: locals.user,
 			categories: [],
 			categoriesLoadError: 'Failed to load categories. Please try refreshing the page.'
 		};

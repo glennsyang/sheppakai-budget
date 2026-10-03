@@ -116,6 +116,23 @@ export function getYearDateRange(year: number) {
 }
 
 /**
+ * Keep the rows whose `date` falls within [startDate, endDate], both inclusive.
+ * Compares the YYYY-MM-DD part only, matching the `date(col) >= date(start)` /
+ * `date(col) <= date(end)` bounds the queries use, so a month can be derived in
+ * memory from an already-loaded year instead of a second query.
+ */
+export function filterByDateRange<T extends { date: string }>(
+	rows: T[],
+	startDate: string,
+	endDate: string
+): T[] {
+	return rows.filter((row) => {
+		const day = row.date.slice(0, 10);
+		return day >= startDate && day <= endDate;
+	});
+}
+
+/**
  * Get current date in YYYY-MM-DD format
  * For default values in date input fields
  */

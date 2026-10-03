@@ -5,6 +5,9 @@ const {
 	setRoleMock,
 	createUserMock,
 	getUserMock,
+	listUsersMock,
+	listUserSessionsMock,
+	findSessionSummariesMock,
 	disableApiKeysForUserMock,
 	loggerMock,
 	welcomeMock,
@@ -14,6 +17,9 @@ const {
 	setRoleMock: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
 	createUserMock: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
 	getUserMock: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
+	listUsersMock: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
+	listUserSessionsMock: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
+	findSessionSummariesMock: vi.fn<(userIds: string[]) => Promise<unknown[]>>(),
 	welcomeMock: {
 		isEmailAllowlisted: vi.fn<(email: string) => boolean>(),
 		allowlistCommandFor: vi.fn<(email: string) => string>(),
@@ -37,12 +43,18 @@ vi.mock('$lib/server/auth', () => ({
 			banUser: banUserMock,
 			setRole: setRoleMock,
 			createUser: createUserMock,
-			getUser: getUserMock
+			getUser: getUserMock,
+			listUsers: listUsersMock,
+			listUserSessions: listUserSessionsMock
 		}
 	},
 	assertAdmin: (locals: App.Locals) => {
 		if (locals.user?.role !== 'admin') throw new Error('Forbidden');
 	}
+}));
+
+vi.mock('$lib/server/db/queries', () => ({
+	sessionQueries: { findSummariesByUserIds: findSessionSummariesMock }
 }));
 
 vi.mock('$lib/server/db/writes/api-keys', () => ({
@@ -55,7 +67,9 @@ vi.mock('$lib/server/auth/welcome', () => welcomeMock);
 
 vi.mock('$lib/server/notifications', () => ({ sendAuthAlerts: sendAuthAlertsMock }));
 
-import { actions } from './+page.server';
+import type { UserWithSessions } from '$lib/types';
+
+import { actions, load } from './+page.server';
 
 const adminLocals = { user: { id: 'admin-1', role: 'admin' } } as App.Locals;
 
@@ -323,5 +337,53 @@ describe('admin users actions: create user + welcome email', () => {
 			expect(getUserMock).not.toHaveBeenCalled();
 			expect(result).toMatchObject({ status: 403 });
 		});
+	});
+});
+
+describe('admin users load: sessions', () => {
+	type LoadEvent = Parameters<typeof load>[0];
+	type LoadResult = { usersWithSessions: UserWithSessions[]; loadError?: string };
+	const loadEvent = {
+		request: new Request('https://budget.example.com/admin/users'),
+		url: new URL('https://budget.example.com/admin/users'),
+		route: { id: '/(app)/admin/users' },
+		locals: adminLocals
+	} as unknown as LoadEvent;
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		listUsersMock.mockResolvedValue({
+			users: [
+				{ id: 'u1', name: 'One', email: 'one@example.com' },
+				{ id: 'u2', name: 'Two', email: 'two@example.com' }
+			]
+		});
+	});
+
+	it("loads every listed user's sessions in one query and groups them by user", async () => {
+		findSessionSummariesMock.mockResolvedValueOnce([
+			{ id: 's1', userId: 'u1', expiresAt: new Date(), createdAt: new Date() },
+			{ id: 's2', userId: 'u1', expiresAt: new Date(), createdAt: new Date() }
+		]);
+
+		const result = (await load(loadEvent)) as LoadResult;
+
+		expect(findSessionSummariesMock).toHaveBeenCalledOnce();
+		expect(findSessionSummariesMock).toHaveBeenCalledWith(['u1', 'u2']);
+		expect(listUserSessionsMock).not.toHaveBeenCalled();
+		expect(result.usersWithSessions.map((u) => [u.id, u.sessions.map((s) => s.id)])).toEqual([
+			['u1', ['s1', 's2']],
+			['u2', []]
+		]);
+	});
+
+	it('returns the load-error fallback when the session query fails', async () => {
+		findSessionSummariesMock.mockRejectedValueOnce(new Error('db down'));
+
+		const result = (await load(loadEvent)) as LoadResult;
+
+		expect(result.usersWithSessions).toEqual([]);
+		expect(result.loadError).toBeDefined();
+		expect(loggerMock.error).toHaveBeenCalled();
 	});
 });

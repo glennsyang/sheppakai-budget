@@ -7,6 +7,7 @@ import { logger } from '$lib/server/logger';
 import { transactionBudgetAlertHooks } from '$lib/server/notifications/budget-threshold-alerts';
 import {
 	calculateMonthsSinceJanuary,
+	filterByDateRange,
 	getMonthRangeFromUrl,
 	getYearDateRange
 } from '$lib/utils/dates';
@@ -46,15 +47,17 @@ export const load: PageServerLoad = async ({ url }) => {
 			};
 		}
 
-		const transactions = await transactionQueries.findByDateRange(startDate, endDate);
+		// The month is a subset of the year, so load the year once and derive the month from it.
+		const [yearlyTransactions, budgets] = await Promise.all([
+			transactionQueries.findByDateRange(yearStartDate, yearEndDate),
+			budgetQueries.findByMonthYear(month, year)
+		]);
+		const transactions = filterByDateRange(yearlyTransactions, startDate, endDate);
 		const budgetTransactions = transactions.filter((txn) => !txn.excludedFromBudget);
 		const excludedFromBudgetTotal = transactions.reduce(
 			(sum, txn) => sum + (txn.excludedFromBudget ? txn.amount : 0),
 			0
 		);
-
-		// Load budgets for the current month/year
-		const budgets = await budgetQueries.findByMonthYear(month, year);
 
 		// Calculate spending per category
 		const categorySpending = budgetTransactions.reduce<Record<string, number>>((acc, txn) => {
@@ -64,8 +67,6 @@ export const load: PageServerLoad = async ({ url }) => {
 			}
 			return acc;
 		}, {});
-
-		const yearlyTransactions = await transactionQueries.findByDateRange(yearStartDate, yearEndDate);
 
 		return {
 			transactions,
