@@ -495,7 +495,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 
 	describe('getMonthProgress', () => {
 		it('returns elapsed days for the current month', () => {
-			const progress = getMonthProgress(3, 2026, new Date('2026-03-06T12:00:00'));
+			const progress = getMonthProgress(3, 2026, new Date('2026-03-06T19:00:00Z'));
 
 			expect(progress).toMatchObject({
 				kind: 'month',
@@ -508,7 +508,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 		});
 
 		it('returns completed progress for a past month', () => {
-			const progress = getMonthProgress(2, 2026, new Date('2026-03-06T12:00:00'));
+			const progress = getMonthProgress(2, 2026, new Date('2026-03-06T19:00:00Z'));
 
 			expect(progress).toEqual({
 				kind: 'month',
@@ -521,7 +521,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 		});
 
 		it('returns zero progress for a future month', () => {
-			const progress = getMonthProgress(4, 2026, new Date('2026-03-06T12:00:00'));
+			const progress = getMonthProgress(4, 2026, new Date('2026-03-06T19:00:00Z'));
 
 			expect(progress).toEqual({
 				kind: 'month',
@@ -534,7 +534,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 		});
 
 		it('handles February in a leap year', () => {
-			const progress = getMonthProgress(2, 2024, new Date('2024-02-29T12:00:00'));
+			const progress = getMonthProgress(2, 2024, new Date('2024-02-29T19:00:00Z'));
 
 			expect(progress).toEqual({
 				kind: 'month',
@@ -547,7 +547,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 		});
 
 		it('handles February in a non-leap year', () => {
-			const progress = getMonthProgress(2, 2026, new Date('2026-02-14T12:00:00'));
+			const progress = getMonthProgress(2, 2026, new Date('2026-02-14T19:00:00Z'));
 
 			expect(progress).toMatchObject({
 				kind: 'month',
@@ -557,6 +557,18 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				unit: 'day'
 			});
 			expect(progress.percentage).toBe(50);
+		});
+
+		it('uses the Pacific date when UTC has already rolled into the next month', () => {
+			// 2026-03-01T03:00:00Z is still Feb 28 in Pacific time
+			const reference = new Date('2026-03-01T03:00:00Z');
+
+			expect(getMonthProgress(2, 2026, reference)).toMatchObject({
+				elapsedUnits: 28,
+				totalUnits: 28,
+				status: 'current'
+			});
+			expect(getMonthProgress(3, 2026, reference).status).toBe('future');
 		});
 	});
 
@@ -670,7 +682,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 
 	describe('getYearProgress', () => {
 		it('returns elapsed days for the current year', () => {
-			const progress = getYearProgress(2026, new Date('2026-03-06T12:00:00'));
+			const progress = getYearProgress(2026, new Date('2026-03-06T19:00:00Z'));
 
 			expect(progress).toMatchObject({
 				kind: 'year',
@@ -683,7 +695,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 		});
 
 		it('returns completed progress for a past year', () => {
-			const progress = getYearProgress(2025, new Date('2026-03-06T12:00:00'));
+			const progress = getYearProgress(2025, new Date('2026-03-06T19:00:00Z'));
 
 			expect(progress).toEqual({
 				kind: 'year',
@@ -696,7 +708,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 		});
 
 		it('returns zero progress for a future year', () => {
-			const progress = getYearProgress(2027, new Date('2026-03-06T12:00:00'));
+			const progress = getYearProgress(2027, new Date('2026-03-06T19:00:00Z'));
 
 			expect(progress).toEqual({
 				kind: 'year',
@@ -709,7 +721,7 @@ describe('Date Utilities - Local Timezone Storage', () => {
 		});
 
 		it('uses completed months for leap years as well', () => {
-			const progress = getYearProgress(2024, new Date('2024-03-01T12:00:00'));
+			const progress = getYearProgress(2024, new Date('2024-03-01T19:00:00Z'));
 
 			expect(progress).toMatchObject({
 				kind: 'year',
@@ -719,6 +731,17 @@ describe('Date Utilities - Local Timezone Storage', () => {
 				unit: 'month'
 			});
 			expect(progress.percentage).toBeCloseTo((2 / 12) * 100, 6);
+		});
+
+		it("uses the Pacific date on New Year's Eve when UTC has already rolled over", () => {
+			// 2027-01-01T03:00:00Z is still Dec 31, 2026 in Pacific time
+			const reference = new Date('2027-01-01T03:00:00Z');
+
+			expect(getYearProgress(2026, reference)).toMatchObject({
+				elapsedUnits: 11,
+				status: 'current'
+			});
+			expect(getYearProgress(2027, reference).status).toBe('future');
 		});
 	});
 
