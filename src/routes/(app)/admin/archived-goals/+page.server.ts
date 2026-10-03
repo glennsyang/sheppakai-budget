@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 };
 
-export const actions: Actions = {
+export const actions = {
 	unarchive: adminFormAction(unArchiveSchema, async (_event, form, user) => {
 		try {
 			await unarchiveSavingsGoal(form.data.goalId, user.id);
@@ -50,4 +50,4 @@ export const actions: Actions = {
 			);
 		}
 	})
-};
+} satisfies Actions;

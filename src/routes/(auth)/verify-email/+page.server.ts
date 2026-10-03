@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	};
 };
 
-export const actions: Actions = {
+export const actions = {
 	resend: async (event) => {
 		const { request } = event;
 		const form = await superValidate(request, zod4(resendVerificationSchema));
@@ -67,4 +67,4 @@ export const actions: Actions = {
 			}
 		);
 	}
-};
+} satisfies Actions;

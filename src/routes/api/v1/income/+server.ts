@@ -5,7 +5,8 @@ import { apiCreateIncomeSchema, apiIncomeListQuerySchema } from '$lib/server/api
 import { incomeQueries } from '$lib/server/db/queries';
 import { createIncome } from '$lib/server/db/writes/income';
 import { logger } from '$lib/server/logger';
-import type { RequestHandler } from '@sveltejs/kit';
+
+import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ request, url }) => {
 	const auth = await requireApiKey(request, 'income:read');

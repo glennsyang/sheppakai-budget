@@ -14,13 +14,7 @@
 		customerForm: SuperValidated<z.infer<typeof windowCleaningCustomerSchema>>;
 	}
 
-	let {
-		open = $bindable(),
-		initialData,
-		isEditing,
-		isLoading = $bindable(false),
-		customerForm
-	}: Props = $props();
+	let { open = $bindable(), initialData, isEditing, customerForm }: Props = $props();
 
 	const formInstance = $derived(
 		superForm(customerForm, {
@@ -220,7 +214,7 @@
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
 				<Button
 					type="submit"
-					disabled={$submitting || isLoading || !$form.name || !$form.address || !$form.city}
+					disabled={$submitting || !$form.name || !$form.address || !$form.city}
 				>
 					{isEditing ? 'Save Changes' : 'Add Customer'}
 				</Button>

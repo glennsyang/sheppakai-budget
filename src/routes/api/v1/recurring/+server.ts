@@ -2,7 +2,8 @@ import { requireApiKey } from '$lib/server/api/require-api-key';
 import { apiError, apiSuccess } from '$lib/server/api/response';
 import { recurringQueries } from '$lib/server/db/queries';
 import { logger } from '$lib/server/logger';
-import type { RequestHandler } from '@sveltejs/kit';
+
+import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ request }) => {
 	const auth = await requireApiKey(request, 'recurring:read');

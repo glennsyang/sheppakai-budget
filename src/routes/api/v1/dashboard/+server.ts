@@ -3,7 +3,8 @@ import { apiError, apiSuccess } from '$lib/server/api/response';
 import { apiDashboardQuerySchema } from '$lib/server/api/schemas/dashboard';
 import { getDashboardSummary } from '$lib/server/dashboard/summary';
 import { logger } from '$lib/server/logger';
-import type { RequestHandler } from '@sveltejs/kit';
+
+import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ request, url }) => {
 	const auth = await requireApiKey(request, 'dashboard:read');

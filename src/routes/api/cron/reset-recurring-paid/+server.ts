@@ -2,7 +2,9 @@ import { CRON_SECRET } from '$app/env/private';
 import { verifyCronAuthorization } from '$lib/server/cron-auth';
 import { runResetRecurringPaid } from '$lib/server/jobs/recurring';
 import { logger } from '$lib/server/logger';
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
+
+import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const authResult = verifyCronAuthorization(request.headers.get('authorization'), CRON_SECRET);

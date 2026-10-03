@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 };
 
-export const actions: Actions = {
+export const actions = {
 	restore: adminFormAction(restoreCustomerSchema, async (_event, form, user) => {
 		try {
 			await restoreWindowCleaningCustomer(form.data.customerId, user.id);
@@ -40,4 +40,4 @@ export const actions: Actions = {
 			return message(form, { type: 'error', text: 'Failed to restore customer' }, { status: 500 });
 		}
 	})
-};
+} satisfies Actions;
