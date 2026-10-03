@@ -1,5 +1,5 @@
 import { SIGN_IN_ROUTE } from '$lib/auth-routes';
-import { passwordSchema } from '$lib/formSchemas';
+import { resetPasswordSchema } from '$lib/formSchemas';
 import { handleAuthFormAction, invalidAuthForm } from '$lib/server/actions/auth-form-handler';
 import { auth } from '$lib/server/auth';
 import { redirectIfAuthenticated } from '$lib/server/auth/form-helpers';
@@ -7,33 +7,10 @@ import { createAuthRateLimiter, rateLimitedMessage } from '$lib/server/rate-limi
 import { redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
 
 import type { Actions, PageServerLoad } from './$types';
 
 const limiter = createAuthRateLimiter();
-
-const resetPasswordSchema = z
-	.object({
-		password: passwordSchema,
-		confirmPassword: passwordSchema,
-		// Hidden field for token
-		token: z.string().optional()
-	})
-	.superRefine((data, ctx) => {
-		if (data.password !== data.confirmPassword) {
-			ctx.addIssue({
-				code: 'custom',
-				message: "Passwords don't match",
-				path: ['password']
-			});
-			ctx.addIssue({
-				code: 'custom',
-				message: "Passwords don't match",
-				path: ['confirmPassword']
-			});
-		}
-	});
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	redirectIfAuthenticated(locals.user);

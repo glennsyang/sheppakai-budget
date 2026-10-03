@@ -1,4 +1,4 @@
-import { recurringSchema, togglePaidSchema } from '$lib/formSchemas/finances';
+import { recurringSchema, togglePaidSchema } from '$lib/formSchemas';
 import { requireAuth } from '$lib/server/actions/auth-guard';
 import { createCrudActions } from '$lib/server/actions/crud-helpers';
 import { invalidForm } from '$lib/server/actions/form-responses';

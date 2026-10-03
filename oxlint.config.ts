@@ -43,6 +43,14 @@ export default defineConfig({
 			rules: {
 				'typescript/no-base-to-string': 'off'
 			}
+		},
+		{
+			// auth-guard.ts is kept identical across sibling repos, so its own tests may import
+			// requireAdmin even though the app itself must not (see the rule below).
+			files: ['src/lib/server/actions/auth-guard.test.ts'],
+			rules: {
+				'eslint/no-restricted-imports': 'off'
+			}
 		}
 	],
 	plugins: ['eslint', 'typescript', 'oxc', 'vitest', 'unicorn'],
@@ -52,6 +60,22 @@ export default defineConfig({
 			{
 				argsIgnorePattern: '^_',
 				varsIgnorePattern: '^_'
+			}
+		],
+		// requireAdmin in the shared auth-guard.ts checks the DB role only, so it would 403 an
+		// admin granted via ADMIN_USER_IDS. The file stays byte-identical across repos, so the
+		// guard against using it here lives in config rather than in the file.
+		'eslint/no-restricted-imports': [
+			'error',
+			{
+				paths: [
+					{
+						name: '$lib/server/actions/auth-guard',
+						importNames: ['requireAdmin'],
+						message:
+							'requireAdmin checks the role only and ignores ADMIN_USER_IDS. Use adminFormAction (actions) or assertAdmin (loads).'
+					}
+				]
 			}
 		],
 		'typescript/no-non-null-assertion': 'error',

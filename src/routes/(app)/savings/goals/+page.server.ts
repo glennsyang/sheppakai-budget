@@ -1,4 +1,4 @@
-import { contributionSchema, savingsGoalSchema } from '$lib/formSchemas/savings';
+import { contributionSchema, savingsGoalSchema } from '$lib/formSchemas';
 import { createAction, deleteAction, updateAction } from '$lib/server/actions/crud-helpers';
 import { contributionQueries, savingsGoalQueries } from '$lib/server/db/queries';
 import { contribution, savingsGoal } from '$lib/server/db/schema';

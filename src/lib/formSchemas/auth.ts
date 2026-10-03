@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Canonical password rule for reset/set-password: length-only, per NIST SP 800-63B §5.1.1.2
+// Canonical password rule for reset/change/set-password: length-only, per NIST SP 800-63B §5.1.1.2
 // (composition rules deliberately omitted). Matches minPasswordLength in src/lib/server/auth.ts.
 export const passwordSchema = z.string().min(12, 'Password must be at least 12 characters');
 
@@ -9,9 +9,36 @@ export const signInSchema = z.object({
 	password: z.string().min(1, 'Password is required')
 });
 
-export const resendVerificationSchema = z.object({
+// Resend-verification and forgot-password both take just an email address.
+const emailOnlySchema = z.object({
 	email: z.email('Please enter a valid email address')
 });
+
+export const resendVerificationSchema = emailOnlySchema;
+
+export const forgotPasswordSchema = emailOnlySchema;
+
+export const resetPasswordSchema = z
+	.object({
+		password: passwordSchema,
+		confirmPassword: passwordSchema,
+		// Hidden field for token
+		token: z.string().optional()
+	})
+	.superRefine((data, ctx) => {
+		if (data.password !== data.confirmPassword) {
+			ctx.addIssue({
+				code: 'custom',
+				message: "Passwords don't match",
+				path: ['password']
+			});
+			ctx.addIssue({
+				code: 'custom',
+				message: "Passwords don't match",
+				path: ['confirmPassword']
+			});
+		}
+	});
 
 export const updateProfileSchema = z.object({
 	name: z.string().min(1, 'Name is required').max(100, 'Name must be at most 100 characters')
@@ -20,7 +47,7 @@ export const updateProfileSchema = z.object({
 export const changePasswordSchema = z
 	.object({
 		currentPassword: z.string().min(1, 'Current password is required'),
-		newPassword: z.string().min(12, 'New password must be at least 12 characters'),
+		newPassword: passwordSchema,
 		confirmPassword: z.string().min(1, 'Please confirm your password')
 	})
 	.refine((data) => data.newPassword === data.confirmPassword, {
@@ -47,7 +74,7 @@ export const createUserSchema = z.object({
 
 export const setPasswordSchema = z.object({
 	userId: z.string().min(1, 'User ID is required'),
-	newPassword: z.string().min(12, 'New password must be at least 12 characters')
+	newPassword: passwordSchema
 });
 
 export const banUserSchema = z.object({

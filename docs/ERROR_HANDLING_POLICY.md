@@ -144,8 +144,8 @@ is the only place that unwraps a result by hand.
 
 ### Migration status
 
-Every action in the app follows this contract. `requireAuth`'s 401 is the sole exception (see below),
-and `actionMessage()` keeps its `data.error` fallback for that one case alone.
+Every action in the app follows this contract. The shared `requireAuth` 401 wall is the sole
+exception (see below), and `actionMessage()` keeps its `data.error` fallback for that one case alone.
 
 Success messages for CRUD actions come from `getCrudMessage()` in
 `src/lib/server/actions/messages.ts`, so the server owns the wording and pages render
@@ -163,12 +163,20 @@ soft-deletes and so cannot use `deleteAction`.
 - **Auth redirects**: `throw redirect(...)` is intentional control flow, not an error case
 - **Validation failures**: Already handled by superforms/zod validation
 - **Intentional error throws**: When using `error(404, 'Not found')` is appropriate
-- **`requireAuth`'s 401**: `src/lib/server/actions/auth-guard.ts` returns `fail(401, { error })`
-  because it runs before any `superValidate` and so has no form to carry a message. It is
-  defence-in-depth — `src/routes/(app)/+layout.server.ts` already redirects unauthenticated users, so
-  this path is not normally reachable. Contrast `adminAuthFailure`
-  (`src/lib/server/actions/admin-guard.ts`), which takes an optional `form` and returns
-  `message(form, ...)` when given one.
+- **`requireAuth` / `requireAdmin` 401/403**: `src/lib/server/actions/auth-guard.ts` returns
+  `fail(401 | 403, { error })` because its wrappers run before any `superValidate` and so have no
+  form to carry a message. The file is kept byte-identical across the sibling repos, so it is not
+  bent to this repo's contract. The 401 is defence-in-depth: `src/routes/(app)/+layout.server.ts`
+  already redirects unauthenticated users, so the path is reachable only when a session expires
+  between page load and submit, and `actionMessage()` keeps its `data.error` fallback for it.
+  Contrast `adminAuthFailure` (`src/lib/server/actions/admin-guard.ts`), which always runs after
+  validation and answers with `message(form, ...)`.
+- **Admin actions use `adminFormAction`, never `requireAdmin`**: the shared `requireAdmin` checks
+  the DB `role` only, while this repo's admin check (`isAdminUser`, via `assertAdmin` /
+  `adminFormAction`) also honours the `ADMIN_USER_IDS` bootstrap. Importing `requireAdmin` outside
+  its own test is an oxlint error (`no-restricted-imports` in `oxlint.config.ts`).
+- **Sign-out**: `src/routes/(auth)/sign-out/+page.server.ts` has no form. A Better Auth failure is
+  logged and the action still redirects to sign-in, so the user never sees a 500 for it.
 
 ## Frontend Integration
 
