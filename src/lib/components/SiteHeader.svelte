@@ -39,11 +39,14 @@
 </script>
 
 <header
-	class="bg-background/85 sticky top-0 z-20 flex h-(--header-height) shrink-0 items-center gap-2 border-b backdrop-blur-md md:rounded-t-xl"
+	class="bg-background/85 sticky top-0 z-20 flex h-[calc(var(--header-height)+env(safe-area-inset-top))] shrink-0 items-center gap-2 border-b pt-[env(safe-area-inset-top)] backdrop-blur-md md:rounded-t-xl"
 >
 	<div class="flex w-full items-center gap-1 px-3 sm:px-4 lg:px-6">
-		<Sidebar.Trigger class="text-muted-foreground -ms-1 h-11 w-11 md:h-8 md:w-8" />
-		<Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
+		<Sidebar.Trigger class="text-muted-foreground -ms-1 hidden md:inline-flex md:h-8 md:w-8" />
+		<Separator
+			orientation="vertical"
+			class="mx-2 hidden data-[orientation=vertical]:h-4 md:block"
+		/>
 		<p class="flex min-w-0 items-center gap-1.5 text-sm">
 			{#if crumb?.section}
 				<span class="text-muted-foreground hidden sm:inline">{crumb.section}</span>

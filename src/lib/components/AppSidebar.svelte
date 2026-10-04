@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import type { SidebarData, User } from '$lib';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { matchNavUrl } from '$lib/utils/navigation';
 	import CircleDollarSignIcon from '@lucide/svelte/icons/circle-dollar-sign';
 
 	import NavMain from './NavMain.svelte';
@@ -16,19 +17,18 @@
 	let { sidebarData, user, ...restProps }: Props = $props();
 
 	// Longest matching nav URL wins, so /window-cleaning/jobs doesn't also light up /window-cleaning.
-	let activeUrl = $derived.by(() => {
-		const path = page.url.pathname;
-		const urls = [
-			...sidebarData.navMain,
-			...sidebarData.navSavings,
-			...sidebarData.navReceipts,
-			...sidebarData.navWindows,
-			...sidebarData.navSetup
-		]
-			.map((item) => item.url)
-			.filter((url): url is string => !!url && (path === url || path.startsWith(`${url}/`)));
-		return urls.sort((a, b) => b.length - a.length)[0] ?? null;
-	});
+	let activeUrl = $derived(
+		matchNavUrl(
+			page.url.pathname,
+			[
+				...sidebarData.navMain,
+				...sidebarData.navSavings,
+				...sidebarData.navReceipts,
+				...sidebarData.navWindows,
+				...sidebarData.navSetup
+			].map((item) => item.url)
+		)
+	);
 </script>
 
 <Sidebar.Root collapsible="icon" variant="inset" {...restProps}>
