@@ -63,7 +63,7 @@
 <Dialog.Root bind:open>
 	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
-			<Dialog.Title>{isEditing ? 'Edit Category' : 'Add New Category'}</Dialog.Title>
+			<Dialog.Title>{isEditing ? 'Edit category' : 'Add category'}</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
 					? 'Update this category. Modify the name and description as needed.'

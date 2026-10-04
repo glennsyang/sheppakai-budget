@@ -1,11 +1,7 @@
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { badgeCell, stackCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 export type AdminApiLogEntry = {
 	id: string;
@@ -23,7 +19,12 @@ export type AdminApiLogEntry = {
 
 function formatAuditTimestamp(createdAt: string): string {
 	// createdAt is written by SQLite's `current_timestamp`, which is UTC with no offset suffix.
-	return new Date(`${createdAt.replace(' ', 'T')}Z`).toLocaleString();
+	return new Date(`${createdAt.replace(' ', 'T')}Z`).toLocaleString('en-US', {
+		month: 'short',
+		day: 'numeric',
+		hour: 'numeric',
+		minute: '2-digit'
+	});
 }
 
 export const columns: ColumnDef<Features, AdminApiLogEntry>[] = [
@@ -31,10 +32,23 @@ export const columns: ColumnDef<Features, AdminApiLogEntry>[] = [
 		accessorKey: 'createdAt',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
-				columnName: 'Created',
+				columnName: 'When',
 				onclick: column.getToggleSortingHandler()
 			}),
-		cell: ({ row }) => formatAuditTimestamp(row.original.createdAt)
+		cell: ({ row }) => formatAuditTimestamp(row.original.createdAt),
+		meta: { mobile: 'detail', width: 'w-40' }
+	},
+	{
+		accessorKey: 'action',
+		header: 'Action',
+		meta: { mobile: 'title' }
+	},
+	{
+		id: 'request',
+		header: 'Request',
+		accessorFn: (row) => `${row.method} ${row.path}`,
+		cell: ({ row }) => stackCell(`${row.original.method} ${row.original.path}`, null, true),
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'user',
@@ -44,54 +58,25 @@ export const columns: ColumnDef<Features, AdminApiLogEntry>[] = [
 				onclick: column.getToggleSortingHandler()
 			}),
 		accessorFn: (row) => row.user.email,
-		cell: ({ row }) => row.original.user.name
+		cell: ({ row }) => row.original.user.name ?? row.original.user.email
 	},
 	{
 		accessorKey: 'apiKeyId',
-		header: 'API Key',
-		cell: ({ row }) => {
-			const keySnippet = createRawSnippet<[{ name: string | null; id: string; exists: boolean }]>(
-				(getKey) => {
-					const { name, id, exists } = getKey();
-					return {
-						render: () =>
-							exists
-								? `<span>${name || '(unnamed)'}</span>`
-								: `<div><span class="font-mono text-xs">${id}</span><div class="text-sm text-muted-foreground">Key no longer exists</div></div>`
-					};
-				}
-			);
-			return renderSnippet(keySnippet, {
-				name: row.original.apiKeyName,
-				id: row.original.apiKeyId,
-				exists: row.original.apiKeyExists
-			});
-		}
-	},
-	{
-		accessorKey: 'method',
-		header: 'Method'
-	},
-	{
-		accessorKey: 'path',
-		header: 'Path'
-	},
-	{
-		accessorKey: 'action',
-		header: 'Action'
+		header: 'API key',
+		accessorFn: (row) => row.apiKeyName ?? row.apiKeyId,
+		cell: ({ row }) =>
+			row.original.apiKeyExists
+				? row.original.apiKeyName || '(unnamed)'
+				: stackCell(row.original.apiKeyId, 'Key no longer exists', true)
 	},
 	{
 		accessorKey: 'statusCode',
 		header: 'Status',
-		cell: ({ row }) => {
-			const statusSnippet = createRawSnippet<[number]>((getStatus) => {
-				const status = getStatus();
-				const colorClass = status >= 400 ? 'text-red-600' : 'text-green-600';
-				return {
-					render: () => `<span class="font-medium ${colorClass}">${status}</span>`
-				};
-			});
-			return renderSnippet(statusSnippet, row.original.statusCode);
-		}
+		cell: ({ row }) =>
+			badgeCell({
+				label: String(row.original.statusCode),
+				tone: row.original.statusCode >= 400 ? 'negative' : 'muted'
+			}),
+		meta: { mobile: 'value', align: 'end', width: 'w-20' }
 	}
 ];

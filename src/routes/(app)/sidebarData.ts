@@ -48,7 +48,7 @@ export const sidebarData: SidebarData = {
 			icon: WalletIcon
 		},
 		{
-			title: 'Savings Goals',
+			title: 'Savings goals',
 			url: '/savings/goals',
 			icon: TargetIcon
 		}

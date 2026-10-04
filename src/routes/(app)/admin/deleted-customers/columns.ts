@@ -1,12 +1,8 @@
 import type { WindowCleaningCustomer } from '$lib';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { stackCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
@@ -15,7 +11,8 @@ type DeletedCustomer = WindowCleaningCustomer & { user: { name: string; email: s
 export const columns: ColumnDef<Features, DeletedCustomer>[] = [
 	{
 		accessorKey: 'name',
-		header: 'Customer Name'
+		header: 'Customer',
+		meta: { mobile: 'title' }
 	},
 	{
 		accessorKey: 'address',
@@ -24,36 +21,24 @@ export const columns: ColumnDef<Features, DeletedCustomer>[] = [
 			const c = row.original;
 			const unit = c.unitNumber ? `, Unit ${c.unitNumber}` : '';
 			return `${c.address}${unit}, ${c.city}`;
-		}
+		},
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'user',
 		header: 'Owner',
 		accessorFn: (row) => row.user.email,
-		cell: ({ row }) => {
-			const ownerSnippet = createRawSnippet<[{ email: string; name: string }]>((getUser) => {
-				const { email, name } = getUser();
-				return {
-					render: () =>
-						`<div><div class="font-medium">${name}</div><div class="text-sm text-muted-foreground">${email}</div></div>`
-				};
-			});
-			return renderSnippet(ownerSnippet, {
-				email: row.original.user.email,
-				name: row.original.user.name
-			});
-		}
+		cell: ({ row }) => stackCell(row.original.user.name, row.original.user.email)
 	},
 	{
 		accessorKey: 'deletedAt',
 		header: 'Deleted',
-		cell: ({ row }) => (row.original.deletedAt ? formatLocalTimestamp(row.original.deletedAt) : '—')
+		cell: ({ row }) =>
+			row.original.deletedAt ? formatLocalTimestamp(row.original.deletedAt) : '—',
+		meta: { mobile: 'subvalue' }
 	},
 	{
 		id: 'actions',
-		cell: ({ row }) =>
-			renderComponent(DataTableActions, {
-				customer: row.original
-			})
+		cell: ({ row }) => renderComponent(DataTableActions, { customer: row.original })
 	}
 ];

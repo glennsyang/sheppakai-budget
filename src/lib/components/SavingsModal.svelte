@@ -60,7 +60,7 @@
 <Dialog.Root bind:open>
 	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
-			<Dialog.Title>{isEditing ? 'Edit Savings' : 'Add New Savings'}</Dialog.Title>
+			<Dialog.Title>{isEditing ? 'Edit savings account' : 'Add savings account'}</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
 					? 'Update this savings entry. Modify the title, description, or amount as needed.'
@@ -110,6 +110,7 @@
 					id="savings-amount"
 					name="amount"
 					type="number"
+					inputmode="decimal"
 					step="0.01"
 					min="0"
 					bind:value={$form.amount}

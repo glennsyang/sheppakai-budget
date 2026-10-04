@@ -1,5 +1,6 @@
 <script lang="ts">
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 
 	import type { PageProps } from './$types';
@@ -9,22 +10,20 @@
 </script>
 
 <svelte:head>
-	<title>API Logs</title>
+	<title>API logs · Admin</title>
 </svelte:head>
 
-<div class="space-y-6">
-	<div>
-		<h2 class="text-2xl font-bold">API Logs</h2>
-		<p class="text-muted-foreground">Audit trail of write actions taken via the external API</p>
-	</div>
+<SectionHeader title="API logs" description="Every write made through the external API" />
 
-	{#if data.loadError}
-		<LoadErrorBanner message={data.loadError} />
-	{:else if data.entries.length === 0}
-		<div class="flex h-32 items-center justify-center rounded-lg border border-dashed">
-			<p class="text-muted-foreground">No API activity yet</p>
-		</div>
-	{:else}
-		<DataTable {columns} data={data.entries} defaultSorting={[{ id: 'createdAt', desc: true }]} />
-	{/if}
-</div>
+{#if data.loadError}
+	<LoadErrorBanner message={data.loadError} />
+{:else}
+	<DataTable
+		{columns}
+		data={data.entries}
+		defaultPageSize={20}
+		defaultSorting={[{ id: 'createdAt', desc: true }]}
+		searchPlaceholder="Search actions, paths or users…"
+		emptyMessage="No API activity yet."
+	/>
+{/if}

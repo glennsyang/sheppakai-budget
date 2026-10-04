@@ -39,7 +39,7 @@
 	bind:open={openDeleteModal}
 	{id}
 	{actionUrl}
-	title="Delete Transaction"
+	title="Delete transaction"
 	message={deleteMessage}
 	confirmButtonText="Delete"
 />

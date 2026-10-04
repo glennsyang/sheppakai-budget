@@ -2,13 +2,13 @@
 	import InfoTooltip from '$lib/components/InfoTooltip.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Chart from '$lib/components/ui/chart/index.js';
-	import * as Select from '$lib/components/ui/select/index.js';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import type { ChartData } from '$lib/types';
 	import { formatCurrency, formatCurrencyRounded } from '$lib/utils';
 	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import { scaleUtc } from 'd3-scale';
-	import { curveNatural } from 'd3-shape';
+	import { curveMonotoneX } from 'd3-shape';
 	import { Area, AreaChart, LinearGradient } from 'layerchart';
 
 	interface Props {
@@ -22,8 +22,8 @@
 	let timeRange = $state<TimeRange>('6m');
 
 	const chartConfig = {
-		actual: { label: 'Actual', color: 'var(--chart-1)' },
-		planned: { label: 'Planned', color: 'var(--chart-2)' }
+		actual: { label: 'Spent', color: 'var(--foreground)' },
+		planned: { label: 'Budgeted', color: 'var(--muted-foreground)' }
 	} satisfies Chart.ChartConfig;
 
 	function getTrendToneClass(direction: 'up' | 'down') {
@@ -95,31 +95,24 @@
 	);
 </script>
 
-<Card.Root>
-	<Card.Header
-		class="flex flex-col gap-3 border-b py-5 sm:flex-row sm:items-start sm:justify-between"
-	>
+<Card.Root class="gap-4">
+	<Card.Header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 		<div class="grid gap-1">
-			<Card.Title>Spending history for {categoryName}</Card.Title>
-			<Card.Description>
-				Showing <i>planned</i> and <i>actual</i> for {selectedRangeLabel.toLowerCase()}
-			</Card.Description>
+			<Card.Title class="text-base tracking-tight">{categoryName} over time</Card.Title>
+			<Card.Description>Spent against budgeted, {selectedRangeLabel.toLowerCase()}</Card.Description
+			>
 		</div>
-		<Select.Root type="single" bind:value={timeRange}>
-			<Select.Trigger class="w-40 rounded-lg" aria-label="Select chart range">
-				{selectedRangeLabel}
-			</Select.Trigger>
-			<Select.Content class="rounded-xl">
-				<Select.Item value="3m" class="rounded-lg">Last 3 months</Select.Item>
-				<Select.Item value="6m" class="rounded-lg">Last 6 months</Select.Item>
-				<Select.Item value="12m" class="rounded-lg">Last 12 months</Select.Item>
-			</Select.Content>
-		</Select.Root>
+		<Tabs.Root bind:value={() => timeRange, (v) => (timeRange = v as TimeRange)}>
+			<Tabs.List class="h-9" aria-label="Chart range">
+				<Tabs.Trigger value="3m" class="px-3">3 mo</Tabs.Trigger>
+				<Tabs.Trigger value="6m" class="px-3">6 mo</Tabs.Trigger>
+				<Tabs.Trigger value="12m" class="px-3">12 mo</Tabs.Trigger>
+			</Tabs.List>
+		</Tabs.Root>
 	</Card.Header>
 	<Card.Content>
-		<Chart.Container config={chartConfig}>
+		<Chart.Container config={chartConfig} class="aspect-auto h-64 w-full sm:h-72">
 			<AreaChart
-				legend
 				data={filteredChartData}
 				x="date"
 				xScale={scaleUtc()}
@@ -145,38 +138,56 @@
 					}
 				}}
 			>
-				{#snippet marks({ context })}
-					{#each context.series.visibleSeries as s (s.key)}
-						<LinearGradient
-							stops={[s.color ?? '', 'color-mix(in lch, ' + s.color + ' 10%, transparent)']}
-							vertical
-						>
-							{#snippet children({ gradient })}
-								<Area
-									seriesKey={s.key}
-									curve={curveNatural}
-									fillOpacity={0.4}
-									line={{ class: 'stroke-1' }}
-									motion="tween"
-									{...s.props}
-									fill={gradient}
-								/>
-							{/snippet}
-						</LinearGradient>
-					{/each}
+				{#snippet marks()}
+					<!-- Spent is ink over a faint ink fade; budgeted is a dashed muted line (Neutral Ink Rule). -->
+					<LinearGradient
+						stops={[
+							'color-mix(in oklch, var(--foreground) 10%, transparent)',
+							'color-mix(in oklch, var(--foreground) 0%, transparent)'
+						]}
+						vertical
+					>
+						{#snippet children({ gradient })}
+							<Area
+								seriesKey="actual"
+								curve={curveMonotoneX}
+								line={{ class: 'stroke-[2px] stroke-foreground' }}
+								motion="tween"
+								fill={gradient}
+							/>
+						{/snippet}
+					</LinearGradient>
+					<Area
+						seriesKey="planned"
+						curve={curveMonotoneX}
+						fill="transparent"
+						line={{ class: 'stroke-[1.5px] stroke-muted-foreground/60 [stroke-dasharray:4_4]' }}
+						motion="tween"
+					/>
 				{/snippet}
 				{#snippet tooltip()}
 					<Chart.Tooltip labelFormatter={(v: Date) => formatMonthLongUtc(v)} indicator="dot" />
 				{/snippet}
 			</AreaChart>
 		</Chart.Container>
+		<ul class="text-muted-foreground mt-3 flex items-center justify-center gap-5 text-xs">
+			<li class="flex items-center gap-2">
+				<span class="bg-foreground h-0.5 w-4 rounded-full" aria-hidden="true"></span>Spent
+			</li>
+			<li class="flex items-center gap-2">
+				<span
+					class="border-muted-foreground/70 w-4 border-t-[1.5px] border-dashed"
+					aria-hidden="true"
+				></span>Budgeted
+			</li>
+		</ul>
 	</Card.Content>
 	<Card.Footer>
-		<div class="mt-4 flex w-full items-start gap-2 text-sm">
-			<div class="grid gap-2">
+		<div class="flex w-full items-start gap-2 text-xs">
+			<div class="grid gap-1.5">
 				{#if trendingData}
 					<div
-						class={`flex items-center gap-2 leading-none font-medium ${getTrendToneClass(trendingData.direction)}`}
+						class={`flex items-center gap-1.5 leading-none font-medium tabular-nums ${getTrendToneClass(trendingData.direction)}`}
 					>
 						{trendingData.direction[0].toUpperCase() + trendingData.direction.slice(1)} by {trendingData.value.toFixed(
 							1
@@ -194,7 +205,7 @@
 					</div>
 				{/if}
 				{#if avgSpend !== null}
-					<div class="flex items-center gap-1.5 leading-none {avgColorClass}">
+					<div class="flex items-center gap-1.5 leading-none tabular-nums {avgColorClass}">
 						{selectedRangeLabel} avg spend: {formatCurrency(avgSpend)}
 						<InfoTooltip
 							size="sm"

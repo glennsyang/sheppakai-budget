@@ -52,13 +52,13 @@
 
 <Button onclick={() => (open = true)}>
 	<UserPlusIcon class="size-4" />
-	Add User
+	Add user
 </Button>
 
 <Dialog.Root bind:open>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Add User</Dialog.Title>
+			<Dialog.Title>Add user</Dialog.Title>
 			<Dialog.Description>
 				They'll get a welcome email with a link to set their own password.
 			</Dialog.Description>
@@ -154,7 +154,7 @@
 				<Dialog.Footer>
 					<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
 					<Button type="submit" disabled={$submitting}>
-						{$submitting ? 'Creating...' : 'Create User'}
+						{$submitting ? 'Creating...' : 'Create user'}
 					</Button>
 				</Dialog.Footer>
 			</form>

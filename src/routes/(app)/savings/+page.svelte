@@ -1,8 +1,9 @@
 <script lang="ts">
+	import DashboardStatStrip, { type Stat } from '$lib/components/DashboardStatStrip.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
+	import PageShell from '$lib/components/PageShell.svelte';
 	import SavingsModal from '$lib/components/SavingsModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { savingsFormContext } from '$lib/contexts';
 	import { formatCurrency } from '$lib/utils';
@@ -20,63 +21,53 @@
 
 	let openModal = $state<boolean>(false);
 
-	// Calculate total savings
 	let totalSavings = $derived(data.savings.reduce((sum, saving) => sum + saving.amount, 0));
+	let largest = $derived(
+		data.savings.reduce<(typeof data.savings)[number] | null>(
+			(top, s) => (!top || s.amount > top.amount ? s : top),
+			null
+		)
+	);
+
+	let stats = $derived<Stat[]>([
+		{
+			label: 'Total savings',
+			value: formatCurrency(totalSavings),
+			subtext: `${data.savings.length} ${data.savings.length === 1 ? 'account' : 'accounts'}`
+		},
+		{
+			label: 'Largest account',
+			value: largest ? formatCurrency(largest.amount) : '—',
+			subtext: largest?.title
+		}
+	]);
 </script>
 
 <svelte:head>
 	<title>Savings</title>
 </svelte:head>
 
-<div class="px-4 py-6 sm:px-0">
-	<div class="flex flex-col gap-6 lg:grid lg:grid-cols-4">
-		<!-- Table Column (larger) -->
-		<div class="lg:col-span-3">
-			<div class="overflow-hidden rounded-lg border shadow">
-				<div class="p-6">
-					<div class="mb-4 flex items-center justify-between">
-						<div>
-							<h1 class="text-3xl font-bold tracking-tight">Savings</h1>
-							<p class="text-muted-foreground mt-2">Track and manage your savings accounts</p>
-						</div>
-						<div class="flex items-center gap-2">
-							<Button size="sm" onclick={() => (openModal = true)}>
-								<PlusIcon />
-								Add
-							</Button>
-						</div>
-					</div>
-					{#if data.loadError}
-						<LoadErrorBanner message={data.loadError} />
-					{:else}
-						<DataTable {columns} data={data.savings} />
-					{/if}
-				</div>
-			</div>
-		</div>
+<PageShell title="Savings" subtitle="What is set aside in each account">
+	{#snippet actions()}
+		<Button href="/savings/goals" variant="outline">Goals</Button>
+		<Button onclick={() => (openModal = true)}>
+			<PlusIcon />
+			Add account
+		</Button>
+	{/snippet}
 
-		{#if !data.loadError}
-			<!-- Summary Card Column -->
-			<div class="lg:col-span-1">
-				<Card>
-					<CardHeader>
-						<CardTitle class="text-center text-2xl">Total Savings</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div class="text-center">
-							<p class="text-positive text-3xl font-bold">
-								{formatCurrency(totalSavings)}
-							</p>
-							<p class="text-muted-foreground mt-2 text-sm">
-								{data.savings.length}
-								{data.savings.length === 1 ? 'account' : 'accounts'}
-							</p>
-						</div>
-					</CardContent>
-				</Card>
-			</div>
-		{/if}
-	</div>
-</div>
+	{#if data.loadError}
+		<LoadErrorBanner message={data.loadError} />
+	{:else}
+		<DashboardStatStrip {stats} />
+		<DataTable
+			{columns}
+			data={data.savings}
+			searchable={data.savings.length > 10}
+			defaultSorting={[{ id: 'amount', desc: true }]}
+			emptyMessage="No savings accounts yet. Add one to track its balance here."
+		/>
+	{/if}
+</PageShell>
 
 <SavingsModal bind:open={openModal} savingsForm={data.form} />

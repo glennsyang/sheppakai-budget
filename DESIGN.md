@@ -153,11 +153,120 @@ components:
   nav-item-active:
     backgroundColor: '{colors.shell-hover}'
     textColor: '{colors.ink}'
+  page-header:
+    textColor: '{colors.ink}'
+    typography: '{typography.headline}'
+  period-picker:
+    backgroundColor: '{colors.panel-white}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    height: '36px'
+  period-picker-phone:
+    height: '44px'
+  ledger-panel:
+    backgroundColor: '{colors.panel-white}'
+    textColor: '{colors.ink}'
+    rounded: '{rounded.xl}'
+  ledger-table-header:
+    textColor: '{colors.muted-ink}'
+    typography: '{typography.label}'
+    padding: '0 12px'
+    height: '40px'
+  ledger-table-row:
+    textColor: '{colors.ink}'
+    typography: '{typography.body}'
+    padding: '8px 12px'
+    height: '48px'
+  ledger-table-row-hover:
+    backgroundColor: '{colors.quiet-fill}'
+  ledger-row-phone:
+    textColor: '{colors.ink}'
+    typography: '{typography.body}'
+    padding: '10px 8px 10px 16px'
+    height: '56px'
+  ledger-group-heading:
+    backgroundColor: '{colors.quiet-fill}'
+    textColor: '{colors.muted-ink}'
+    typography: '{typography.label}'
+    padding: '6px 16px'
+  status-badge:
+    backgroundColor: '{colors.quiet-fill}'
+    textColor: '{colors.ink}'
+    typography: '{typography.label}'
+    rounded: '{rounded.md}'
+    padding: '0 6px'
+    height: '20px'
+  status-badge-positive:
+    textColor: '{colors.money-green}'
+  status-badge-negative:
+    textColor: '{colors.money-red}'
+  status-badge-muted:
+    textColor: '{colors.muted-ink}'
+  tag-chip:
+    textColor: '{colors.muted-ink}'
+    typography: '{typography.axis}'
+    rounded: '{rounded.md}'
+    padding: '2px 6px'
+  dialog:
+    backgroundColor: '{colors.panel-white}'
+    textColor: '{colors.ink}'
+    rounded: '{rounded.xl}'
+    padding: '24px'
+    width: '512px'
+  dialog-sheet:
+    backgroundColor: '{colors.panel-white}'
+    textColor: '{colors.ink}'
+    rounded: '{rounded.xl}'
+    padding: '20px'
+    width: '100%'
+  dialog-title:
+    textColor: '{colors.ink}'
+    typography: '{typography.title}'
+  goal-row:
+    textColor: '{colors.ink}'
+    typography: '{typography.body}'
+    padding: '16px 20px'
+  goal-meter:
+    backgroundColor: '{colors.track}'
+    rounded: '{rounded.full}'
+    height: '6px'
+  goal-meter-fill:
+    backgroundColor: '{colors.money-green}'
+  choice-row:
+    textColor: '{colors.ink}'
+    typography: '{typography.body}'
+    padding: '12px 20px'
+  choice-radio-selected:
+    backgroundColor: '{colors.action-indigo}'
+    rounded: '{rounded.full}'
+    size: '16px'
+  paid-toggle:
+    rounded: '{rounded.full}'
+    size: '20px'
+  paid-toggle-on:
+    backgroundColor: '{colors.action-indigo}'
+    textColor: '{colors.on-indigo}'
+  tab-nav-item:
+    textColor: '{colors.muted-ink}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    padding: '0 12px'
+    height: '30px'
+  tab-nav-item-active:
+    backgroundColor: '{colors.page-grey}'
+    textColor: '{colors.ink}'
+  form-message:
+    backgroundColor: '{colors.quiet-fill}'
+    textColor: '{colors.ink}'
+    typography: '{typography.body}'
+    rounded: '{rounded.md}'
+    padding: '10px 12px'
 ---
 
 # Design System: Sheppakai Budget
 
-<!-- Recorded from the shipped build on branch redesign-app-world (src/app.css, the (app) shell, and the dashboard). Light values are in the frontmatter; dark values live in the sidecar (.impeccable/design.json, colorMeta.*.dark). Only /dashboard (monthly and yearly views) has had a composition pass; every other authenticated route inherits these tokens and primitives but not yet these compositions. -->
+<!-- Recorded from the shipped build: src/app.css, the (app) shell and the dashboard (branch redesign-app-world), then every other route (branch redesign-all-routes: transactions, budget, income, recurring, savings, receipts, window-cleaning, categories, profile, admin, auth and the landing page). Light values are in the frontmatter; dark values live in the sidecar (.impeccable/design.json, colorMeta.*.dark). -->
 
 ## Overview
 
@@ -169,6 +278,8 @@ Density is moderate. Panels hold real content, rows breathe at 12px vertical pad
 
 The world was built to replace a wall of same-size KPI cards, spinning beams and sparklines. The answer comes once, at the top, at a size that reads in under a second.
 
+Every other route reads like the dashboard: one header with a muted subtitle, one stat strip carrying the page's answer figures, then one panel holding the ledger. On a phone the ledger becomes stacked rows grouped under date headings and capture dialogs rise as bottom sheets; at the desk it is a hairline table.
+
 **Key Characteristics:**
 
 - Cool near-neutral greys (hue 264-270, chroma at or below 0.016) carry nearly every pixel.
@@ -177,6 +288,7 @@ The world was built to replace a wall of same-size KPI cards, spinning beams and
 - Inter Variable with optical sizing, `cv11` + `ss03`, and tabular figures on every amount.
 - 16px panels, 10px controls, 1px hairlines; soft shadow in light, none in dark.
 - Motion is limited to state transitions (150ms) and one ease-out bar fill on load (500ms).
+- Every route is header, stat strip, ledger panel: stacked date-grouped rows below `md`, a hairline table from `md`.
 
 ## Colors
 
@@ -184,15 +296,15 @@ A cool, almost-colourless ledger with one indigo voice and a strictly rationed m
 
 ### Primary
 
-- **Action Indigo** (action-indigo): the primary button ("Log expense"), active nav icon, inline links ("Set one"), the today/last-day dot on the pace chart, caret colour, and the 22% text-selection tint. Dark mode lifts it to `oklch(0.6 0.19 272)`.
+- **Action Indigo** (action-indigo): the primary button ("Log expense"), active nav icon, inline links ("Set one"), the today/last-day dot on the pace chart, caret colour, the 22% text-selection tint, the selected radio in a choice list, the paid toggle when on, and the brand mark tile. Dark mode lifts it to `oklch(0.6 0.19 272)`.
 - **Indigo Tint** (indigo-tint): hover fill for outline buttons and menu items. The only place indigo appears as a surface.
 - **Focus Indigo** (focus-indigo): focus rings, drawn as a 3px ring at 50% alpha.
 
 ### Secondary (money state)
 
-- **Money Green** (money-green): under budget, positive net, "Stayed on track", goal progress fills, positive stat tone.
-- **Money Amber** (money-amber): close to the limit (category "left" amount when close; stat cells in warning tone such as recurring burden).
-- **Money Red** (money-red): over budget, negative net, overspend amounts, over-budget bar fills, the over-budget alert panel border (30% alpha).
+- **Money Green** (money-green): under budget, positive net, "Stayed on track", goal progress fills and savings-goal row meters, the "Reached" goal badge, positive stat tone.
+- **Money Amber** (money-amber): close to the limit (category "left" amount when close; a category budget meter at 90% or more; stat cells in warning tone such as recurring burden).
+- **Money Red** (money-red): over budget, negative net, overspend amounts, over-budget bar fills, the over-budget alert panel border (30% alpha). The same value is the destructive role the input error state already used: field errors, the load-error banner (border at 30%), destructive menu items, and negative status badges for failed or disabled records (12% fill, red text).
 
 ### Tertiary (identity)
 
@@ -233,8 +345,8 @@ A cool, almost-colourless ledger with one indigo voice and a strictly rationed m
 
 - **Display** (600, 3.5rem; 2.75rem below `sm`, line-height 1, -0.035em, tabular): the single hero figure (Safe to Spend / month result). Its "/day" unit is set at body size in muted ink. One per screen.
 - **Display (phone)** (600, 2.75rem, line-height 1, -0.035em, tabular): the same hero figure below `sm`. A step of its own, not an ad-hoc size; it pairs only with Display.
-- **Headline** (600, 1.75rem; 1.5rem below `sm`, tracking-tight): the page greeting ("Hi, Glenn"), with a body-size muted subtitle.
-- **Title** (600, 1rem, tracking-tight): panel and section titles in sentence case ("Spending pace" is 0.875rem/500 inside the hero).
+- **Headline** (600, 1.75rem; 1.5rem below `sm`, tracking-tight): the page greeting ("Hi, Glenn") and every route's page title ("Transactions", "Admin"), always with a body-size muted subtitle beneath. The landing page alone sets its one headline at 2.25rem / 3rem from `sm` with -0.035em tracking.
+- **Title** (600, 1rem, tracking-tight): panel, section and dialog titles in sentence case ("Spending pace" is 0.875rem/500 inside the hero; the auth card title is 1.25rem).
 - **Figure** (600, 1.25rem, tracking-tight, tabular): stat-strip values.
 - **Body** (400, 0.875rem): rows, sentences, amounts; medium (500) for the emphasized amount in a sentence.
 - **Label** (400, 0.75rem, muted): stat labels, sublines, meter captions.
@@ -244,7 +356,7 @@ A cool, almost-colourless ledger with one indigo voice and a strictly rationed m
 
 **The Tabular Money Rule.** Every currency amount, percentage and day count is set with `tabular-nums`. Columns of money align on the digit.
 
-**The Sentence Case Rule.** Titles and labels are sentence case, with no uppercase tracking, no eyebrows above titles, and no icon before the title text.
+**The Sentence Case Rule.** Titles, labels, sidebar nav items ("Savings goals"), tab labels ("Archived goals", "API keys") and dialog titles ("Add income", "Edit category") are sentence case, with no uppercase tracking, no eyebrows above titles, and no icon before the title text.
 
 ## Layout
 
@@ -253,6 +365,14 @@ The shell is a fixed left sidebar on shell grey, with content in an inset sheet 
 Content is capped at `max-w-7xl` (1280px), with main padding of 16px, 24px at `md` and 32px at `lg`. Page rhythm: the header block is followed by 24px, panels stack at 16px, and section groups are separated by 32px. Inside panels the padding is 20px (24px at `sm`, 32px for the hero's figure column), and rows use 12px × 16-20px.
 
 The hero splits 5fr : 7fr at `lg` (figure column | pace chart) and stacks below `lg` with a hairline between. The stat strip is a single panel with cells separated by 1px gaps over the hairline colour: 2 per row on phone, 3 at `sm`, one row at `lg`. Paired panels sit in a 2-column grid at `lg`.
+
+Every non-dashboard route uses the same page frame: the header block (title and subtitle left; the period picker and the page's one primary action in an actions row that wraps on phones and sits right-aligned, bottom-aligned with the title, from `lg`), then 16px gaps between the stat strip and the ledger panel. Monthly ledger pages may add one side panel (budget by category, for example) beside the ledger only from `2xl` (1536px), at minmax(18rem, 22rem); below `2xl` it stacks under the ledger. Admin adds its tab nav directly under the header.
+
+Settings-style sections (profile, API keys) are one panel each with a 16rem label column (Title plus a one-line muted description) beside the form from `lg`, stacked below; forms cap at 32-42rem. Auth pages and the landing page sit on shell grey with a 56px header (brand mark left, theme toggle right). Auth content is a single 384px card, high on the screen on phones (8vh top) and centred from `sm`. The landing page splits copy | a divided panel of feature rows from `lg` at max 1024px.
+
+**The Thumb Rule.** Below `md`, every control a thumb hits is 44px: the period picker, toolbar search, pager buttons, row toggles, row action buttons and tab-nav items (40px). From `md` they return to the desk sizes (32-36px).
+
+**The One Header Rule.** A route has one header (Headline title plus muted subtitle) and at most one primary-variant button in its actions row. Summary totals live in the stat strip, never in their own boxes beside the ledger.
 
 ## Elevation & Depth
 
@@ -272,7 +392,7 @@ This is a hybrid system. In light mode, depth is a soft, cool, low-offset shadow
 
 ## Shapes
 
-Corners are soft and consistent, keyed off a 12px base: panels and the inset sheet 16px, the segmented-control track 12px, controls/nav items/chips/row-scale buttons 10px, small inner elements 8px. Meters, bar tracks, dots and markers are fully round. Borders are 1px hairlines everywhere, and dividers inside panels are hairlines too, never shadows.
+Corners are soft and consistent, keyed off a 12px base: panels, dialogs, the inset sheet and the top corners of phone bottom sheets 16px, the segmented-control track 12px, controls/nav items/chips/row-scale buttons 10px, status badges, tag chips and the brand-mark tile also 10px, small inner elements 8px. Meters, bar tracks, dots and markers are fully round. Borders are 1px hairlines everywhere, and dividers inside panels are hairlines too, never shadows.
 
 ## Components
 
@@ -287,7 +407,9 @@ Refined and restrained.
 
 ### Segmented control
 
-A quiet-fill track (12px radius, 3px inset, 36px). The active segment is a page-grey thumb with elev-xs and medium-weight ink text. Used for period switches (Monthly / Yearly, Last 6 months / Full year).
+A quiet-fill track (12px radius, 3px inset, 36px). The active segment is a page-grey thumb with elev-xs and medium-weight ink text. Used for period switches (Monthly / Yearly, Last 6 months / Full year) and chart ranges (3 mo / 6 mo / 12 mo).
+
+The admin tab nav is the same control built from links: a wrapping quiet-fill track, 30px items (40px below `md`) at 10px radius, inactive items muted ink that darken on hover, the active item a page-grey thumb with elev-xs, medium weight and `aria-current`.
 
 ### Cards / Containers (panels)
 
@@ -306,7 +428,7 @@ A quiet-fill track (12px radius, 3px inset, 36px). The active segment is a page-
 
 ### Navigation
 
-The sidebar sits on shell grey. Items are 32px, 10px radius, 14px text, with 16px icons in muted ink. Hover and active states fill with shell-hover. The active item is medium weight and its icon turns action indigo, the only colour in the sidebar besides the brand mark. Group labels are small and muted, in sentence case. Collapsed (icon) mode uses 32px squares.
+The sidebar sits on shell grey. Item labels are sentence case. Items are 32px, 10px radius, 14px text, with 16px icons in muted ink. Hover and active states fill with shell-hover. The active item is medium weight and its icon turns action indigo, the only colour in the sidebar besides the brand mark. Group labels are small and muted, in sentence case. Collapsed (icon) mode uses 32px squares.
 
 ### Safe-to-spend hero (signature)
 
@@ -319,6 +441,61 @@ One panel of divided cells separated by 1px gaps over the hairline colour. Each 
 ### Category row and meter
 
 A full-width row button: an 8px category dot, a medium-weight name, a 6px round meter on track filled in the category hue (or Money Red when over), muted "spent / planned" in tabular figures, and the remaining amount (amber when close, red "over" when over) with a trailing chevron that nudges 2px on hover. Rows are divided by hairlines and hover fills with quiet fill at 60%. Generic progress meters (`ui/progress`) fill with ink at 55%, not indigo.
+
+The side-panel variant (category budget progress) is a compact 10px × 16-20px row: dot and medium-weight name, a muted tabular "N% of $X" (red and medium when over), and a 6px meter in the category hue that turns Money Amber at 90% and Money Red when over.
+
+### Page header and period picker
+
+The header is Headline title plus muted body subtitle, with the actions row beside it from `lg`. The period picker is one 36px panel-white control (44px below `md`) with a 1px stroke, 10px radius and elev-xs: muted ghost chevrons at each end and, in month mode, a borderless select trigger in medium tabular text that opens a jump-to-month list ("Jun 2026" below `sm`, "June 2026" above). Year mode shows the year as static medium tabular text between the chevrons. The primary action sits after it.
+
+### Ledger panel (signature)
+
+One 16px panel with elev-sm holding toolbar, rows and pager, separated by hairlines. The toolbar holds a search field with a leading muted search icon (max 384px, 44px below `md`), or a page-supplied server search, and a muted ghost "Columns" menu from `md` when more than two columns can hide.
+
+Below `md` each record is a stacked ledger row, at least 56px tall: an optional lead (toggle or avatar), a medium-weight title, a muted 12px detail line whose parts are joined by "·" and ellipsized, a right-aligned value with an optional muted subvalue beneath, and the row-actions menu. Columns declare their place through a mobile role (lead, title, detail, value, subvalue). Columns without a role stay off the phone list, and phone-only columns can carry a combined line such as "GST $4.20". Date-based ledgers group consecutive rows under a quiet-fill (50%) heading in muted medium 12px text ("Fri, Oct 2", with the year added outside the current year). A clickable row is one full-row hit target that darkens with quiet fill on press.
+
+From `md` it is a hairline table: 40px muted 12px medium headers, 48px rows divided by hairlines, 12px cell padding (16px outer, 20px from `lg`), amounts right-aligned, text truncated at 18rem, hover at 60% quiet fill, and keyboard-focusable rows with an inset focus ring. Empty states are one muted centred sentence ("No matches for “…”" when searching). The pager appears only past 10 rows: a muted tabular "1–20 of 46" left, a rows-per-page select (from `md`) and ghost chevrons right.
+
+### Table cells
+
+- **Money:** right-aligned, tabular, medium ink. Secondary amounts (GST, tips) are muted and regular. A money tone (green/red) is allowed only for money state.
+- **Stack:** a truncated primary line over a muted 12px secondary. Identifiers can set the primary in 12px mono.
+- **Category:** an 8px category-hue dot before the truncated name.
+- **Status badge:** 20px, 10px radius, 12px medium. Tones: neutral (quiet fill, ink), muted (hairline outline, muted ink), positive (money green at 12% fill, green text), negative (red at 12% fill, red text).
+- **Tag list:** wrapping 11px mono tags with a hairline outline and muted text. An empty list shows a muted em dash.
+
+### Dialogs
+
+Below `sm` every dialog is a bottom sheet: full width, 16px top corners, no side or bottom border, 20px padding plus the safe-area inset, capped at 92% of the viewport height with its own scroll, sliding up from the bottom. From `sm` it is a centred 512px dialog with 16px corners, 24px padding and a zoom-fade entrance. Both use elev-md. The header is left-aligned with a sentence-case Title and clears a 36px close button (32px from `sm`, 10px radius, muted icon). Footer buttons stack full-width on phones, primary on top, and sit right-aligned in a row from `sm`. Amount fields use `inputmode="decimal"` so phones open the number pad.
+
+### Savings goal row
+
+Goals are rows in one panel, not cards. Each row has a medium-weight name (the full-row hit target that opens contributions) with an optional status badge, a muted subline ("By …" · description), and a 6px meter on track filled in Money Green (muted ink at 50% when paused or archived). Above the meter sits the tabular "$X of $Y" and a muted "$Z to go · N%". At `lg` the row becomes three columns (16rem name | meter | actions); below `lg` the meter spans a second line. Actions are an outline "Contribute" button (icon-only below `sm`, 44px below `md`) and the row-actions menu.
+
+### Choice list
+
+Budget presets are a divided list of full-width choice rows (12px × 16-20px) inside the panel: a 16px radio (input-stroke ring when off, an action-indigo disc with a 6px on-indigo dot when on), a medium-weight label, and a tabular amount on the right that is medium when selected and muted otherwise. The custom choice edits inline with a right-aligned tabular amount field and Save / Cancel. Hover and focus fill with quiet fill at 60%.
+
+### Paid toggle
+
+On recurring rows, a 20px round check in a 44px (32px from `md`) hit area: an input-stroke ring when unpaid, darkening on hover, and an action-indigo disc with a 12px on-indigo check when paid. It flips optimistically and stays silent on success.
+
+### Area chart
+
+A panel titled "{Category} over time" with a muted description and a segmented range control. Spent is a 2px ink line over a 10%-to-0 ink fade, budgeted is a 1.5px dashed muted line at 60%, both on a monotone curve. A custom centred legend uses a short ink stroke and a dashed muted stroke rather than colour swatches. The footer reports the month-on-month change in red (up) or green (down) with a trend icon, and the range's average spend toned against the current budget.
+
+### Section header and settings sections
+
+A section header is a sentence-case Title with an optional muted body description and right-aligned actions, sitting on the page rather than in a panel. Settings sections are described under Layout.
+
+### Messages
+
+- **Form message:** a quiet-fill (60%) block at 10px radius, 10px × 12px, body text, with a 16px leading icon: circle-alert in Money Red for errors, circle-check for success. The build currently tints the success check money green; that use is outside the Money Means Money Rule and is not part of the system. Used inside auth and settings forms.
+- **Load-error banner:** a panel-white block at 16px radius with a Money Red border at 30%, elev-sm, a red circle-alert icon and one body sentence. It replaces the stat strip and ledger when a load fails, rather than showing zeroed totals.
+
+### Brand mark
+
+A 24px action-indigo tile (10px radius) holding a 14px on-indigo circle-dollar icon (SVG), followed by "Sheppakai Budget" at 15px semibold, tracking-tight. Used in the auth and landing headers.
 
 ## Do's and Don'ts
 
@@ -334,6 +511,10 @@ A full-width row button: an 8px category dot, a medium-weight name, a 6px round 
 - **Do** subdivide panels with hairlines, 1px-gap cells or a quiet-fill column.
 - **Do** keep light and dark at parity, raising dark surfaces by lightness, not shadow.
 - **Do** limit motion to 150ms colour/shadow transitions and a single 500ms ease-out bar fill on load.
+- **Do** build every route as header, stat strip, then ledger panel, with the period picker and one primary action in the header's actions row.
+- **Do** give every ledger column a mobile role so phones get stacked rows, and group date ledgers under day headings.
+- **Do** make phone controls 44px, and set `inputmode="decimal"` on amount fields.
+- **Do** let dialogs become bottom sheets below `sm`, with full-width footer buttons.
 
 ### Don't:
 
@@ -345,3 +526,5 @@ A full-width row button: an 8px category dot, a medium-weight name, a 6px round 
 - **Don't** put icons before panel titles, uppercase eyebrows or kickers above titles.
 - **Don't** set a second display family or use weight 700 for figures. The system tops out at 600.
 - **Don't** use an amount without `tabular-nums`.
+- **Don't** put summary totals in separate boxes beside the table. They go in the stat strip.
+- **Don't** add a side panel beside the ledger below `2xl`, or one that repeats the stat strip.

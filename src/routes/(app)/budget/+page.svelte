@@ -2,19 +2,18 @@
 	import type { Budget, ChartData } from '$lib';
 	import AreaChart from '$lib/components/AreaChart.svelte';
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
+	import DashboardStatStrip, { type Stat } from '$lib/components/DashboardStatStrip.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
-	import MonthYearSwitcher from '$lib/components/MonthYearSwitcher.svelte';
+	import PageShell from '$lib/components/PageShell.svelte';
+	import PeriodPicker from '$lib/components/PeriodPicker.svelte';
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
-	import SummaryRow from '$lib/components/SummaryRow.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
-	import { months } from '$lib/utils';
+	import { formatCurrency, monthNames } from '$lib/utils';
+	import { categoryColorMap } from '$lib/utils/categoryColors';
 	import { padMonth } from '$lib/utils/dates';
 	import { useMonthYearParams } from '$lib/utils/monthYearParams.svelte';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import HelpCircleIcon from '@lucide/svelte/icons/help-circle';
-	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
 
 	import type { PageProps } from './$types';
 
@@ -245,243 +244,236 @@
 			editAmount = amount.toString();
 		}
 	}
+
+	let categoryColors = $derived(categoryColorMap(sortedCategories));
+	let monthName = $derived(monthNames[selectedMonth - 1]);
+	let setCount = $derived(sortedCategories.length - categoriesWithoutBudget.length);
+
+	let stats = $derived<Stat[]>([
+		{ label: `Budgeted for ${monthName}`, value: formatCurrency(totalBudget) },
+		{ label: 'Recurring bills', value: formatCurrency(totalRecurring) },
+		{
+			label: 'Expected spending',
+			value: formatCurrency(totalRecurring + totalBudget),
+			tooltip: 'Category budgets plus recurring bills.'
+		},
+		{
+			label: 'Categories set',
+			value: `${setCount} of ${sortedCategories.length}`,
+			meter: sortedCategories.length > 0 ? (setCount / sortedCategories.length) * 100 : 0,
+			subtext: allBudgetsSet
+				? 'Every category has a budget'
+				: `${categoriesWithoutBudget.length} still to set`
+		}
+	]);
 </script>
 
 <svelte:head>
-	<title>Budgets</title>
+	<title>Budget</title>
 </svelte:head>
 
-<div class="px-4 py-6 sm:px-0">
-	<!-- Header with Month Switcher -->
-	<div class="mb-8">
-		<div class="flex items-center justify-between gap-4">
-			<div class="hidden md:flex">
-				<MonthYearSwitcher
-					currentMonth={selectedMonth}
-					currentYear={selectedYear}
-					onMonthChange={monthYear.onMonthYearChange}
-				/>
-			</div>
-			<div class="w-full md:w-44">
-				<Select.Root
-					type="single"
-					value={selectedMonth.toString()}
-					onValueChange={monthYear.onMonthJump}
-				>
-					<Select.Trigger class="w-full">
-						{months.find((m) => m.value === selectedMonth.toString())?.label || 'Jump to Month'}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Label>Jump to Month</Select.Label>
-						{#each months as month (month.value)}
-							<Select.Item value={month.value} label={month.label}>
-								{month.label}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-		</div>
-	</div>
+<PageShell
+	title="Budget"
+	subtitle="Plan what each category can spend in {monthName} {selectedYear}"
+>
+	{#snippet actions()}
+		<PeriodPicker
+			month={selectedMonth}
+			year={selectedYear}
+			onChange={monthYear.onMonthYearChange}
+		/>
+	{/snippet}
 
 	{#if data.loadError}
 		<LoadErrorBanner message={data.loadError} />
 	{:else}
-		<!-- Three Column Layout -->
-		<div class="flex flex-col gap-4 lg:grid lg:grid-cols-13">
-			<!-- Column 1: Category List -->
-			<div class="lg:sticky lg:top-[calc(var(--header-height)+0.5rem)] lg:col-span-3 lg:self-start">
-				<div
-					class="bg-card flex flex-col rounded-lg border shadow lg:max-h-[calc(100vh-var(--header-height)-5.5rem)]"
-				>
-					<div class="shrink-0 border-b p-6">
-						<div class="flex items-center justify-between">
-							<h3 class="text-lg font-semibold">Categories</h3>
-						</div>
-					</div>
-					<div class="space-y-0.5 p-2 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
-						{#each sortedCategories as category (category.id)}
-							{@const categoryBudget = getBudgetForCategory(category.id)}
+		{#if reloading.current}
+			<CardGridSkeleton cards={1} linesPerCard={1} lineClass="h-12" label="Loading budget totals" />
+		{:else}
+			<DashboardStatStrip {stats} />
+		{/if}
+
+		<div class="grid items-start gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
+			<!-- Category list: a sticky rail at desk width, a picker on phones -->
+			<nav
+				aria-label="Categories"
+				class="bg-card hidden overflow-hidden rounded-xl border shadow-sm lg:sticky lg:top-[calc(var(--header-height)+1rem)] lg:flex lg:max-h-[calc(100dvh-var(--header-height)-2rem)] lg:flex-col"
+			>
+				<h2 class="border-b px-4 py-3 text-sm font-semibold tracking-tight">Categories</h2>
+				<ul class="min-h-0 flex-1 overflow-y-auto p-1.5">
+					{#each sortedCategories as category (category.id)}
+						{@const categoryBudget = getBudgetForCategory(category.id)}
+						<li>
 							<button
 								class={[
-									'focus-visible:ring-ring/50 w-full rounded-md px-3 py-2.5 text-left text-sm transition-colors outline-none focus-visible:ring-[3px]',
+									'focus-visible:ring-ring/50 flex w-full items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-left text-sm transition-colors outline-none focus-visible:ring-[3px]',
 									selectedCategoryId === category.id
 										? 'bg-accent text-accent-foreground'
-										: 'hover:bg-muted'
+										: 'hover:bg-muted/60'
 								]}
-								aria-pressed={selectedCategoryId === category.id}
+								aria-current={selectedCategoryId === category.id ? 'true' : undefined}
 								onclick={() => (selectedCategoryId = category.id)}
 							>
-								<div class="flex items-center justify-between">
-									<span class="font-medium">{category.name}</span>
-									{#if categoryBudget}
-										<CheckCircleIcon class="text-positive h-4 w-4" />
-									{:else}
-										<HelpCircleIcon class="text-muted-foreground h-4 w-4" />
-									{/if}
-								</div>
+								<span
+									class="size-2 shrink-0 rounded-full"
+									style:background={categoryColors.get(category.id)}
+									aria-hidden="true"
+								></span>
+								<span class="flex-1 truncate font-medium">{category.name}</span>
+								{#if categoryBudget}
+									<span class="text-muted-foreground text-xs tabular-nums">
+										{formatCurrency(categoryBudget.amount)}
+									</span>
+								{:else}
+									<span class="text-muted-foreground/70 text-xs">Not set</span>
+								{/if}
 							</button>
-						{/each}
-					</div>
+						</li>
+					{/each}
+				</ul>
+			</nav>
+
+			<div class="flex min-w-0 flex-col gap-4">
+				<div class="lg:hidden">
+					<Select.Root
+						type="single"
+						value={selectedCategoryId ?? undefined}
+						onValueChange={(v) => v && (selectedCategoryId = v)}
+					>
+						<Select.Trigger class="h-11 w-full" aria-label="Category">
+							{#if selectedCategory}
+								<span class="flex items-center gap-2">
+									<span
+										class="size-2 rounded-full"
+										style:background={categoryColors.get(selectedCategory.id)}
+										aria-hidden="true"
+									></span>
+									{selectedCategory.name}
+								</span>
+							{:else}
+								Choose a category
+							{/if}
+						</Select.Trigger>
+						<Select.Content>
+							{#each sortedCategories as category (category.id)}
+								{@const categoryBudget = getBudgetForCategory(category.id)}
+								<Select.Item value={category.id} label={category.name}>
+									<span class="flex w-full items-center gap-2">
+										<span
+											class="size-2 rounded-full"
+											style:background={categoryColors.get(category.id)}
+											aria-hidden="true"
+										></span>
+										<span class="flex-1">{category.name}</span>
+										<span class="text-muted-foreground text-xs tabular-nums">
+											{categoryBudget ? formatCurrency(categoryBudget.amount) : 'Not set'}
+										</span>
+									</span>
+								</Select.Item>
+							{/each}
+						</Select.Content>
+					</Select.Root>
 				</div>
-			</div>
 
-			<!-- Column 2: Category Detail -->
-			<div class="lg:col-span-7">
-				{#if reloading.current}
-					<CardGridSkeleton
-						cards={1}
-						linesPerCard={3}
-						lineClass="h-24"
-						class="flex flex-col gap-4"
-						label="Loading category budget"
-					/>
-				{:else if selectedCategory}
-					<!-- Heading -->
-					<div class="mb-6">
-						<h2 class="text-2xl font-semibold">
-							{selectedCategory.name} budget is set to:
-						</h2>
-					</div>
-
-					<!-- Four Mini Cards -->
-					<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-						<!-- Last Month Spent -->
-						<PresetBudgetCard
-							title="How much I spent last month"
-							amount={presetAmounts.lastMonthSpent}
-							isSelected={selectedPresetAmount === 'lastMonth'}
-							presetType="lastMonth"
-							budgetId={selectedBudget?.id}
-							{selectedMonth}
-							{selectedYear}
-							categoryId={selectedCategory.id}
-							onSelect={() => selectPresetAmount('lastMonth', presetAmounts.lastMonthSpent)}
-						/>
-
-						<!-- Last Month Budget -->
-						<PresetBudgetCard
-							title="How much I budgeted last month"
-							amount={presetAmounts.lastMonthBudget}
-							isSelected={selectedPresetAmount === 'lastMonthBudget'}
-							presetType="lastMonthBudget"
-							budgetId={selectedBudget?.id}
-							{selectedMonth}
-							{selectedYear}
-							categoryId={selectedCategory.id}
-							onSelect={() => selectPresetAmount('lastMonthBudget', presetAmounts.lastMonthBudget)}
-						/>
-
-						<!-- Average Spent -->
-						<PresetBudgetCard
-							title="How much I spend on average"
-							amount={presetAmounts.averageSpent}
-							isSelected={selectedPresetAmount === 'average'}
-							presetType="average"
-							budgetId={selectedBudget?.id}
-							{selectedMonth}
-							{selectedYear}
-							categoryId={selectedCategory.id}
-							onSelect={() => selectPresetAmount('average', presetAmounts.averageSpent)}
-						/>
-
-						<!-- Custom Amount -->
-						<PresetBudgetCard
-							title="Custom"
-							amount={selectedBudget && selectedBudget.presetType === 'custom'
-								? selectedBudget.amount
-								: 0}
-							isSelected={selectedPresetAmount === 'custom'}
-							isCustom={true}
-							isEditing={editingCustomAmount}
-							{editAmount}
-							budgetId={selectedBudget?.id}
-							presetType="custom"
-							{selectedMonth}
-							{selectedYear}
-							categoryId={selectedCategory.id}
-							onSelect={() => selectPresetAmount('custom', 0)}
-							onEdit={startEditingCustomAmount}
-							onCancel={cancelEditing}
-							onSaved={cancelEditing}
-						/>
-					</div>
-
-					<!-- Area Chart -->
-					<div class="mt-6">
-						<AreaChart categoryName={selectedCategory.name} {chartData} />
-					</div>
-				{:else}
-					<div class="bg-card rounded-lg border shadow">
-						<div class="text-muted-foreground p-12 text-center">
-							<p>Select a category to view or edit its budget</p>
-						</div>
-					</div>
-				{/if}
-			</div>
-
-			<!-- Column 3: Total Summary -->
-			<div class="lg:col-span-3">
 				{#if reloading.current}
 					<CardGridSkeleton
 						cards={2}
 						linesPerCard={3}
+						lineClass="h-10"
 						class="flex flex-col gap-4"
-						label="Loading budget summary"
+						label="Loading category budget"
 					/>
-				{:else}
-					<!-- Budget Status Box -->
-					<div class="bg-card mb-4 rounded-lg border shadow">
-						<div class="relative p-6">
-							<div class="absolute top-4 right-4">
-								{#if allBudgetsSet}
-									<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-								{:else}
-									<CheckCircleIcon class="h-5 w-5 text-gray-300" />
-								{/if}
-							</div>
-							<div class="flex flex-col items-center justify-center space-y-2">
-								<SlidersHorizontalIcon class="text-muted-foreground h-5 w-5" />
-								<p class="text-lg font-semibold">
-									Set {months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label ||
-										'Monthly'} Budget
+				{:else if selectedCategory}
+					<section class="bg-card overflow-hidden rounded-xl border shadow-sm">
+						<header
+							class="flex flex-wrap items-end justify-between gap-3 px-4 pt-4 pb-3 sm:px-5 sm:pt-5"
+						>
+							<div class="min-w-0">
+								<h2 class="flex items-center gap-2 text-base font-semibold tracking-tight">
+									<span
+										class="size-2 shrink-0 rounded-full"
+										style:background={categoryColors.get(selectedCategory.id)}
+										aria-hidden="true"
+									></span>
+									<span class="truncate">{selectedCategory.name}</span>
+								</h2>
+								<p class="text-muted-foreground mt-0.5 text-xs">
+									Pick a starting point for {monthName}. Choosing one saves it.
 								</p>
-								{#if categoriesWithoutBudget.length > 0}
-									<p class="text-muted-foreground text-sm">
-										There is no budget set for {categoriesWithoutBudget.length}
-										{categoriesWithoutBudget.length === 1 ? 'category' : 'categories'}.
-									</p>
-								{:else}
-									<p class="text-muted-foreground text-sm">All budgets are set!</p>
-								{/if}
 							</div>
+							<div class="sm:text-right">
+								<p class="text-muted-foreground text-xs">Budget for {monthName}</p>
+								<p class="text-xl font-semibold tracking-tight tabular-nums">
+									{selectedBudget ? formatCurrency(selectedBudget.amount) : 'Not set'}
+								</p>
+							</div>
+						</header>
+						<div class="divide-y border-t" role="group" aria-label="Budget amount options">
+							<PresetBudgetCard
+								title="What I spent last month"
+								amount={presetAmounts.lastMonthSpent}
+								isSelected={selectedPresetAmount === 'lastMonth'}
+								presetType="lastMonth"
+								budgetId={selectedBudget?.id}
+								{selectedMonth}
+								{selectedYear}
+								categoryId={selectedCategory.id}
+								onSelect={() => selectPresetAmount('lastMonth', presetAmounts.lastMonthSpent)}
+							/>
+							<PresetBudgetCard
+								title="What I budgeted last month"
+								amount={presetAmounts.lastMonthBudget}
+								isSelected={selectedPresetAmount === 'lastMonthBudget'}
+								presetType="lastMonthBudget"
+								budgetId={selectedBudget?.id}
+								{selectedMonth}
+								{selectedYear}
+								categoryId={selectedCategory.id}
+								onSelect={() =>
+									selectPresetAmount('lastMonthBudget', presetAmounts.lastMonthBudget)}
+							/>
+							<PresetBudgetCard
+								title="What I spend on average"
+								amount={presetAmounts.averageSpent}
+								isSelected={selectedPresetAmount === 'average'}
+								presetType="average"
+								budgetId={selectedBudget?.id}
+								{selectedMonth}
+								{selectedYear}
+								categoryId={selectedCategory.id}
+								onSelect={() => selectPresetAmount('average', presetAmounts.averageSpent)}
+							/>
+							<PresetBudgetCard
+								title="Custom amount"
+								amount={selectedBudget && selectedBudget.presetType === 'custom'
+									? selectedBudget.amount
+									: 0}
+								isSelected={selectedPresetAmount === 'custom'}
+								isCustom={true}
+								isEditing={editingCustomAmount}
+								{editAmount}
+								budgetId={selectedBudget?.id}
+								presetType="custom"
+								{selectedMonth}
+								{selectedYear}
+								categoryId={selectedCategory.id}
+								onSelect={() => selectPresetAmount('custom', 0)}
+								onEdit={startEditingCustomAmount}
+								onCancel={cancelEditing}
+								onSaved={cancelEditing}
+							/>
 						</div>
-					</div>
+					</section>
 
-					<!-- Spending Overview Box -->
-					<div class="bg-card rounded-lg border shadow">
-						<div class="border-b p-6">
-							<h3 class="text-lg font-semibold">
-								{months.find((m) => m.value === padMonth(selectedMonth.toString()))?.label ||
-									'Monthly'} Spending Overview
-							</h3>
-						</div>
-						<div class="p-6">
-							<div class="space-y-4">
-								<SummaryRow label="Recurring Expenses" amount={totalRecurring} />
-								<SummaryRow label="You Budgeted" amount={totalBudget} />
-								<SummaryRow
-									label="You Expect To Spend"
-									amount={totalRecurring + totalBudget}
-									emphasized={true}
-									bordered={true}
-									muted={false}
-								/>
-							</div>
-						</div>
-					</div>
+					<AreaChart categoryName={selectedCategory.name} {chartData} />
+				{:else}
+					<section
+						class="bg-card text-muted-foreground rounded-xl border px-6 py-12 text-center text-sm shadow-sm"
+					>
+						Add a category first, then set its budget here.
+					</section>
 				{/if}
 			</div>
 		</div>
 	{/if}
-</div>
+</PageShell>

@@ -1,59 +1,42 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Button } from '$lib/components/ui/button';
+	import PageShell from '$lib/components/PageShell.svelte';
 
 	let { children } = $props();
+
+	const tabs = [
+		{ href: '/admin/users', label: 'Users' },
+		{ href: '/admin/archived-goals', label: 'Archived goals' },
+		{ href: '/admin/deleted-customers', label: 'Deleted customers' },
+		{ href: '/admin/api-keys', label: 'API keys' },
+		{ href: '/admin/api-logs', label: 'API logs' }
+	];
 
 	const currentPath = $derived(page.url.pathname);
 </script>
 
-<div class="container mx-auto space-y-6 py-6">
-	<div class="flex items-center justify-between">
-		<div>
-			<h1 class="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-			<p class="text-muted-foreground">Manage users and everything else</p>
-		</div>
-	</div>
-
-	<div class="flex gap-2 overflow-x-auto border-b">
-		<a href="/admin/users" class="shrink-0">
-			<Button variant={currentPath === '/admin/users' ? 'default' : 'ghost'} class="rounded-b-none">
-				Users
-			</Button>
-		</a>
-		<a href="/admin/archived-goals" class="shrink-0">
-			<Button
-				variant={currentPath === '/admin/archived-goals' ? 'default' : 'ghost'}
-				class="rounded-b-none"
-			>
-				Archived Goals
-			</Button>
-		</a>
-		<a href="/admin/deleted-customers" class="shrink-0">
-			<Button
-				variant={currentPath === '/admin/deleted-customers' ? 'default' : 'ghost'}
-				class="rounded-b-none"
-			>
-				Deleted Customers
-			</Button>
-		</a>
-		<a href="/admin/api-keys" class="shrink-0">
-			<Button
-				variant={currentPath === '/admin/api-keys' ? 'default' : 'ghost'}
-				class="rounded-b-none"
-			>
-				API Keys
-			</Button>
-		</a>
-		<a href="/admin/api-logs" class="shrink-0">
-			<Button
-				variant={currentPath === '/admin/api-logs' ? 'default' : 'ghost'}
-				class="rounded-b-none"
-			>
-				API Logs
-			</Button>
-		</a>
-	</div>
+<PageShell title="Admin" subtitle="Accounts, API access and recovery">
+	<nav aria-label="Admin sections">
+		<ul class="bg-muted inline-flex flex-wrap items-center gap-0.5 rounded-lg p-[3px]">
+			{#each tabs as tab (tab.href)}
+				{@const active = currentPath === tab.href}
+				<li class="h-10 md:h-[30px]">
+					<a
+						href={tab.href}
+						aria-current={active ? 'page' : undefined}
+						class={[
+							'focus-visible:ring-ring/50 flex h-full items-center rounded-[10px] px-3 text-sm whitespace-nowrap transition-colors outline-none focus-visible:ring-[3px]',
+							active
+								? 'bg-background text-foreground font-medium shadow-xs'
+								: 'text-muted-foreground hover:text-foreground'
+						]}
+					>
+						{tab.label}
+					</a>
+				</li>
+			{/each}
+		</ul>
+	</nav>
 
 	{@render children()}
-</div>
+</PageShell>

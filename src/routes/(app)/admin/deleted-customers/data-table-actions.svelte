@@ -52,7 +52,7 @@
 <Dialog.Root bind:open={openRestoreDialog}>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Restore Customer</Dialog.Title>
+			<Dialog.Title>Restore customer</Dialog.Title>
 			<Dialog.Description>
 				Are you sure you want to restore "{customer.name}" ({customer.user.name})? They will
 				reappear in the active customers list.

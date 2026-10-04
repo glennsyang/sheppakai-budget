@@ -51,7 +51,7 @@
 <Dialog.Root bind:open={openRevokeDialog}>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Revoke API Key</Dialog.Title>
+			<Dialog.Title>Revoke API key</Dialog.Title>
 			<Dialog.Description>
 				Are you sure you want to revoke "{apiKey.name || '(unnamed)'}"? Any tool using this key will
 				immediately lose access, and this cannot be undone.

@@ -1,10 +1,6 @@
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { badgeCell, stackCell, tagListCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
@@ -28,72 +24,57 @@ function scopesFromPermissions(permissions: Record<string, string[]> | null): st
 	);
 }
 
+const shortDate = (value: Date | string) =>
+	new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
 export const columns: ColumnDef<Features, AdminApiKey>[] = [
 	{
 		accessorKey: 'name',
-		header: 'Name',
-		cell: ({ row }) => row.original.name || '(unnamed)'
+		header: 'Key',
+		cell: ({ row }) =>
+			stackCell(
+				row.original.name || '(unnamed)',
+				row.original.start ? `${row.original.start}…` : null
+			),
+		meta: { mobile: 'title' }
 	},
 	{
 		accessorKey: 'ownerName',
 		header: 'Owner',
-		cell: ({ row }) => `${row.original.ownerName} (${row.original.ownerEmail})`
-	},
-	{
-		accessorKey: 'start',
-		header: 'Key',
-		cell: ({ row }) => (row.original.start ? `${row.original.start}…` : '—')
+		cell: ({ row }) => stackCell(row.original.ownerName, row.original.ownerEmail),
+		meta: { mobile: 'detail' }
 	},
 	{
 		id: 'scopes',
 		header: 'Scopes',
-		cell: ({ row }) => {
-			const scopeListSnippet = createRawSnippet<[string[]]>((getScopes) => {
-				const scopes = getScopes();
-				return {
-					render: () =>
-						scopes.length > 0
-							? `<div class="flex flex-wrap gap-1">${scopes
-									.map(
-										(scope) =>
-											`<span class="inline-flex items-center rounded-md border px-1.5 py-0.5 text-xs">${scope}</span>`
-									)
-									.join('')}</div>`
-							: '<span class="text-muted-foreground">—</span>'
-				};
-			});
-			return renderSnippet(scopeListSnippet, scopesFromPermissions(row.original.permissions));
-		}
+		cell: ({ row }) => tagListCell(scopesFromPermissions(row.original.permissions))
 	},
 	{
 		accessorKey: 'enabled',
 		header: 'Status',
-		cell: ({ row }) => {
-			const statusSnippet = createRawSnippet<[boolean]>((getEnabled) => {
-				const enabled = getEnabled();
-				return {
-					render: () => (enabled ? 'Active' : 'Disabled')
-				};
-			});
-			return renderSnippet(statusSnippet, row.original.enabled);
-		}
+		accessorFn: (row) => (row.enabled ? 'Active' : 'Disabled'),
+		cell: ({ row }) =>
+			badgeCell({
+				label: row.original.enabled ? 'Active' : 'Disabled',
+				tone: row.original.enabled ? 'muted' : 'negative'
+			}),
+		meta: { mobile: 'value' }
 	},
 	{
 		accessorKey: 'expiresAt',
 		header: 'Expires',
-		cell: ({ row }) =>
-			row.original.expiresAt ? new Date(row.original.expiresAt).toLocaleDateString() : 'Never'
+		cell: ({ row }) => (row.original.expiresAt ? shortDate(row.original.expiresAt) : 'Never')
 	},
 	{
 		accessorKey: 'lastRequest',
 		header: 'Last used',
-		cell: ({ row }) =>
-			row.original.lastRequest ? new Date(row.original.lastRequest).toLocaleDateString() : 'Never'
+		cell: ({ row }) => (row.original.lastRequest ? shortDate(row.original.lastRequest) : 'Never'),
+		meta: { mobile: 'subvalue' }
 	},
 	{
 		accessorKey: 'createdAt',
 		header: 'Created',
-		cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString()
+		cell: ({ row }) => shortDate(row.original.createdAt)
 	},
 	{
 		id: 'actions',

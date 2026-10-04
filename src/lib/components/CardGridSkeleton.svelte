@@ -28,10 +28,9 @@
 	<span class="sr-only">{label}</span>
 
 	{#each Array.from({ length: cards }) as _card, cardIndex (cardIndex)}
-		<div class="overflow-hidden rounded-lg border shadow">
-			<div class="space-y-4 p-6">
-				<Skeleton class="mx-auto h-6 w-40" />
-				<div class="border-t"></div>
+		<div class="bg-card overflow-hidden rounded-xl border shadow-sm">
+			<div class="space-y-3 p-5">
+				<Skeleton class="h-4 w-32" />
 				{#each Array.from({ length: linesPerCard }) as _line, lineIndex (lineIndex)}
 					<Skeleton class="{lineClass} w-full" />
 				{/each}

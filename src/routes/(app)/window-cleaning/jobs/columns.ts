@@ -1,29 +1,13 @@
 import type { WindowCleaningJob } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { moneyCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
-const currencyFormatter = new Intl.NumberFormat('en-CA', {
-	style: 'currency',
-	currency: 'CAD'
-});
-
-function moneyCell(value: number, rightAlign = true) {
-	const snippet = createRawSnippet<[string]>((get) => {
-		const v = get();
-		const cls = rightAlign ? 'text-right font-medium' : 'font-medium';
-		return { render: () => `<div class="${cls}">${v}</div>` };
-	});
-	return renderSnippet(snippet, currencyFormatter.format(value));
-}
+const cad = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' });
 
 export const columns: ColumnDef<Features, WindowCleaningJob>[] = [
 	{
@@ -33,7 +17,8 @@ export const columns: ColumnDef<Features, WindowCleaningJob>[] = [
 				columnName: 'Date',
 				onclick: column.getToggleSortingHandler()
 			}),
-		cell: ({ row }) => formatLocalTimestamp(row.original.jobDate)
+		cell: ({ row }) => formatLocalTimestamp(row.original.jobDate),
+		meta: { width: 'w-32' }
 	},
 	{
 		id: 'customer',
@@ -43,7 +28,8 @@ export const columns: ColumnDef<Features, WindowCleaningJob>[] = [
 				onclick: column.getToggleSortingHandler()
 			}),
 		accessorFn: (row) => row.customer?.name ?? '',
-		cell: ({ row }) => row.original.customer?.name ?? '—'
+		cell: ({ row }) => row.original.customer?.name ?? '—',
+		meta: { mobile: 'title' }
 	},
 	{
 		accessorKey: 'durationHours',
@@ -52,43 +38,54 @@ export const columns: ColumnDef<Features, WindowCleaningJob>[] = [
 				columnName: 'Duration',
 				onclick: column.getToggleSortingHandler()
 			}),
-		cell: ({ row }) => (row.original.durationHours == null ? '—' : `${row.original.durationHours}h`)
+		cell: ({ row }) =>
+			row.original.durationHours == null ? '—' : `${row.original.durationHours}h`,
+		meta: { mobile: 'detail', width: 'w-24' }
 	},
 	{
 		accessorKey: 'notes',
 		header: 'Notes',
-		cell: ({ row }) => row.original.notes ?? '—'
+		cell: ({ row }) => row.original.notes ?? '—',
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'amountCharged',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
 				columnName: 'Charged',
-				onclick: column.getToggleSortingHandler(),
-				class: 'justify-end w-full'
+				onclick: column.getToggleSortingHandler()
 			}),
-		cell: ({ row }) => moneyCell(row.original.amountCharged)
+		cell: ({ row }) => moneyCell(row.original.amountCharged, { currency: 'CAD', muted: true }),
+		meta: { align: 'end' }
 	},
 	{
 		accessorKey: 'tip',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
 				columnName: 'Tip',
-				onclick: column.getToggleSortingHandler(),
-				class: 'justify-end w-full'
+				onclick: column.getToggleSortingHandler()
 			}),
-		cell: ({ row }) => (row.original.tip > 0 ? moneyCell(row.original.tip) : moneyCell(0))
+		cell: ({ row }) => moneyCell(row.original.tip, { currency: 'CAD', muted: true }),
+		meta: { align: 'end' }
 	},
 	{
 		id: 'total',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
 				columnName: 'Total',
-				onclick: column.getToggleSortingHandler(),
-				class: 'justify-end w-full'
+				onclick: column.getToggleSortingHandler()
 			}),
 		accessorFn: (row) => row.amountCharged + row.tip,
-		cell: ({ row }) => moneyCell(row.original.amountCharged + row.original.tip)
+		cell: ({ row }) =>
+			moneyCell(row.original.amountCharged + row.original.tip, { currency: 'CAD' }),
+		meta: { mobile: 'value', align: 'end' }
+	},
+	{
+		id: 'tipLine',
+		header: 'Tip',
+		accessorFn: (row) => (row.tip > 0 ? row.tip : ''),
+		cell: ({ row }) => `incl. ${cad.format(row.original.tip)} tip`,
+		meta: { mobile: 'subvalue', phoneOnly: true }
 	},
 	{
 		id: 'actions',

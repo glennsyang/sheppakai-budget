@@ -68,7 +68,7 @@
 <Dialog.Root bind:open>
 	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
-			<Dialog.Title>{isEditing ? 'Edit Income' : 'Add New Income'}</Dialog.Title>
+			<Dialog.Title>{isEditing ? 'Edit income' : 'Add income'}</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
 					? 'Update this income source. Modify the description and amount as needed.'
@@ -135,6 +135,7 @@
 					id="income-amount"
 					name="amount"
 					type="number"
+					inputmode="decimal"
 					step="0.01"
 					min="0"
 					bind:value={$form.amount}

@@ -1,18 +1,21 @@
 <script lang="ts">
 	import type { WindowCleaningCustomerWithStats, WindowCleaningJob } from '$lib';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
+	import DashboardStatStrip, { type Stat } from '$lib/components/DashboardStatStrip.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
+	import PageShell from '$lib/components/PageShell.svelte';
+	import RowActionsMenu from '$lib/components/RowActionsMenu.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
 	import WindowCleaningCustomerModal from '$lib/components/WindowCleaningCustomerModal.svelte';
 	import WindowCleaningJobModal from '$lib/components/WindowCleaningJobModal.svelte';
 	import { customerFormContext, jobFormContext, openCustomerSheetContext } from '$lib/contexts';
 	import { formatLocalTimestamp, formatTime12h } from '$lib/utils/dates';
 	import { buildGoogleMapsUrl } from '$lib/utils/maps';
-	import { Pencil, Trash2, MapPin } from '@lucide/svelte';
+	import MailIcon from '@lucide/svelte/icons/mail';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
+	import PhoneIcon from '@lucide/svelte/icons/phone';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import type { PageProps } from './$types';
@@ -69,251 +72,226 @@
 		deletingJobId = jobId;
 		openDeleteJobModal = true;
 	}
+
+	const thisYear = new Date().getFullYear();
+
+	let stats = $derived.by<Stat[]>(() => {
+		const diff = data.earnedThisYear - data.earnedLastYear;
+		const pct =
+			data.earnedLastYear > 0 ? Math.round(Math.abs(diff / data.earnedLastYear) * 100) : 0;
+		return [
+			{ label: 'Customers', value: String(data.totalCustomers) },
+			{ label: 'Jobs this month', value: String(data.jobsThisMonthCount) },
+			{ label: 'Earned this month', value: currencyFormatter.format(data.earnedThisMonth) },
+			{
+				label: `Earned in ${thisYear}`,
+				value: currencyFormatter.format(data.earnedThisYear),
+				trend:
+					data.earnedLastYear > 0
+						? {
+								direction: diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat',
+								label: `${pct}% ${diff >= 0 ? 'ahead of' : 'behind'} ${thisYear - 1} (${currencyFormatter.format(data.earnedLastYear)})`
+							}
+						: undefined
+			}
+		];
+	});
 </script>
 
 <svelte:head>
-	<title>Window Cleaning</title>
+	<title>Window cleaning</title>
 </svelte:head>
 
-<div class="px-4 py-6 sm:px-0">
-	<!-- Header -->
-	<div class="mb-6 flex items-center justify-between">
-		<div>
-			<h1 class="text-3xl font-bold tracking-tight">Window Cleaning</h1>
-			<p class="text-muted-foreground mt-1">Manage your customers and track jobs</p>
-		</div>
-		<Button size="sm" onclick={() => (openAddCustomerModal = true)}>
-			<PlusIcon class="mr-2 h-4 w-4" />
-			Add Customer
+<PageShell title="Window cleaning" subtitle="Customers, visits and what each one has earned">
+	{#snippet actions()}
+		<Button href="/window-cleaning/jobs" variant="outline">All jobs</Button>
+		<Button onclick={() => (openAddCustomerModal = true)}>
+			<PlusIcon />
+			Add customer
 		</Button>
-	</div>
+	{/snippet}
 
 	{#if data.loadError}
 		<LoadErrorBanner message={data.loadError} />
 	{:else}
-		<!-- Stats Row -->
-		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
-			<Card>
-				<CardContent class="pt-6">
-					<p class="text-muted-foreground text-sm">Customers</p>
-					<p class="text-2xl font-bold">{data.totalCustomers}</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardContent class="pt-6">
-					<p class="text-muted-foreground text-sm">Jobs This Month</p>
-					<p class="text-2xl font-bold">{data.jobsThisMonthCount}</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardContent class="pt-6">
-					<p class="text-muted-foreground text-sm">Earned This Month</p>
-					<p class="text-positive text-2xl font-bold">
-						{currencyFormatter.format(data.earnedThisMonth)}
-					</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardContent class="pt-6">
-					<p class="text-muted-foreground text-sm">Earned This Year</p>
-					<p class="text-positive text-2xl font-bold">
-						{currencyFormatter.format(data.earnedThisYear)}
-					</p>
-					{#if data.earnedLastYear > 0}
-						{@const diff = data.earnedThisYear - data.earnedLastYear}
-						{@const pct = Math.round(Math.abs(diff / data.earnedLastYear) * 100)}
-						<p class="mt-1 text-xs {diff >= 0 ? 'text-positive' : 'text-destructive'}">
-							{diff >= 0 ? '▲' : '▼'}
-							{pct}% vs {new Date().getFullYear() - 1} ({currencyFormatter.format(
-								data.earnedLastYear
-							)})
-						</p>
-					{/if}
-				</CardContent>
-			</Card>
-		</div>
+		<DashboardStatStrip {stats} />
 
-		<!-- Customers Table -->
 		{#if data.customers.length > 0}
 			<DataTable
 				{columns}
 				data={data.customers}
+				defaultPageSize={20}
 				defaultSorting={[{ id: 'name', desc: false }]}
+				searchPlaceholder="Search customers or addresses…"
 				onRowClick={openCustomerSheet}
+				rowLabel={(c) => `Open ${c.name}`}
 			/>
 		{:else}
-			<Card>
-				<CardContent class="py-12 text-center">
-					<p class="text-muted-foreground">
-						No customers yet. Add your first customer to get started!
-					</p>
-					<Button class="mt-4" onclick={() => (openAddCustomerModal = true)}>
-						<PlusIcon class="mr-2 h-4 w-4" />
-						Add Your First Customer
-					</Button>
-				</CardContent>
-			</Card>
+			<section class="bg-card rounded-xl border px-6 py-12 text-center shadow-sm">
+				<h2 class="text-base font-semibold tracking-tight">No customers yet</h2>
+				<p class="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">
+					Add a customer with their address, then log each visit to track what they have paid.
+				</p>
+				<Button class="mt-5" onclick={() => (openAddCustomerModal = true)}>
+					<PlusIcon />
+					Add your first customer
+				</Button>
+			</section>
 		{/if}
 	{/if}
-</div>
+</PageShell>
 
 <!-- Customer Detail Sheet -->
 <Sheet.Root bind:open={openSheet}>
-	<Sheet.Content side="right" class="flex w-full flex-col sm:max-w-2xl">
-		<Sheet.Header>
-			<Sheet.Title class="text-4xl sm:text-xl">{selectedCustomer?.name ?? 'Customer'}</Sheet.Title>
-			<Sheet.Description class="text-3xl sm:text-base">
+	<Sheet.Content side="right" class="flex w-full flex-col gap-0 sm:max-w-xl">
+		<Sheet.Header class="border-b pe-12">
+			<Sheet.Title class="text-xl tracking-tight"
+				>{selectedCustomer?.name ?? 'Customer'}</Sheet.Title
+			>
+			<Sheet.Description>
 				{#if selectedCustomer}
-					<a
-						href={buildGoogleMapsUrl(
-							selectedCustomer.address,
-							selectedCustomer.city,
-							selectedCustomer.unitNumber
-						)}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="text-primary inline-flex items-center gap-1 hover:underline"
-					>
-						<MapPin class="size-6 shrink-0 sm:size-4" />
-						{selectedCustomer.address}{selectedCustomer.unitNumber
-							? `, Unit ${selectedCustomer.unitNumber}`
-							: ''} — {selectedCustomer.city}
-					</a>
+					{selectedCustomer.address}{selectedCustomer.unitNumber
+						? `, Unit ${selectedCustomer.unitNumber}`
+						: ''}, {selectedCustomer.city}
 				{/if}
 			</Sheet.Description>
 		</Sheet.Header>
 
 		{#if selectedCustomer}
-			<div class="flex-1 overflow-y-auto px-4 py-3">
-				<!-- Customer Info -->
-				<div class="mb-4 space-y-1 text-3xl sm:text-base">
-					{#if selectedCustomer.buzzerNumber}
-						<p class="text-muted-foreground">Buzzer: {selectedCustomer.buzzerNumber}</p>
+			<div class="flex-1 overflow-y-auto">
+				<div class="flex flex-col gap-4 p-4">
+					<!-- Field actions: big targets for use on the doorstep -->
+					<div class="grid grid-cols-3 gap-2">
+						<Button
+							variant="outline"
+							class="h-14 flex-col gap-1 text-xs"
+							href={buildGoogleMapsUrl(
+								selectedCustomer.address,
+								selectedCustomer.city,
+								selectedCustomer.unitNumber
+							)}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<MapPinIcon class="size-4" />
+							Directions
+						</Button>
+						<Button
+							variant="outline"
+							class="h-14 flex-col gap-1 text-xs"
+							href={selectedCustomer.phoneNumber
+								? `tel:${selectedCustomer.phoneNumber}`
+								: undefined}
+							disabled={!selectedCustomer.phoneNumber}
+						>
+							<PhoneIcon class="size-4" />
+							Call
+						</Button>
+						<Button
+							variant="outline"
+							class="h-14 flex-col gap-1 text-xs"
+							href={selectedCustomer.email ? `mailto:${selectedCustomer.email}` : undefined}
+							disabled={!selectedCustomer.email}
+						>
+							<MailIcon class="size-4" />
+							Email
+						</Button>
+					</div>
+
+					{#if selectedCustomer.buzzerNumber || selectedCustomer.phoneNumber || selectedCustomer.email}
+						<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+							{#if selectedCustomer.buzzerNumber}
+								<dt class="text-muted-foreground">Buzzer</dt>
+								<dd class="tabular-nums">{selectedCustomer.buzzerNumber}</dd>
+							{/if}
+							{#if selectedCustomer.phoneNumber}
+								<dt class="text-muted-foreground">Phone</dt>
+								<dd class="tabular-nums">{selectedCustomer.phoneNumber}</dd>
+							{/if}
+							{#if selectedCustomer.email}
+								<dt class="text-muted-foreground">Email</dt>
+								<dd class="truncate">{selectedCustomer.email}</dd>
+							{/if}
+						</dl>
 					{/if}
-					{#if selectedCustomer.phoneNumber}
-						<p>
-							<a href="tel:{selectedCustomer.phoneNumber}" class="text-primary hover:underline">
-								📞 {selectedCustomer.phoneNumber}
-							</a>
-						</p>
-					{/if}
-					{#if selectedCustomer.email}
-						<p>
-							<a href="mailto:{selectedCustomer.email}" class="text-primary hover:underline">
-								✉️ {selectedCustomer.email}
-							</a>
-						</p>
-					{/if}
+
 					{#if selectedCustomer.notes}
-						<p class="bg-muted rounded-md px-3 py-2 text-sm italic">
-							{selectedCustomer.notes}
-						</p>
+						<p class="bg-muted/60 rounded-[10px] px-3 py-2.5 text-sm">{selectedCustomer.notes}</p>
 					{/if}
-				</div>
 
-				<!-- Customer Stats -->
-				<div class="mb-4 flex gap-4 rounded-md border p-3 text-sm">
-					<div>
-						<span class="text-muted-foreground">Total Earned:</span>
-						<span class="text-positive ml-1 font-semibold">
-							{currencyFormatter.format(selectedCustomer.totalEarned)}
-						</span>
-					</div>
-					<div>
-						<span class="text-muted-foreground">Visits:</span>
-						<span class="ml-1 font-semibold">{selectedCustomer.jobs.length}</span>
-					</div>
-					{#if selectedCustomer.lastJobDate}
-						<div>
-							<span class="text-muted-foreground">Last Visit:</span>
-							<span class="ml-1 font-semibold">
-								{formatLocalTimestamp(selectedCustomer.lastJobDate)}
-							</span>
+					<dl class="bg-border grid grid-cols-3 gap-px overflow-hidden rounded-xl border">
+						<div class="bg-card p-3">
+							<dt class="text-muted-foreground text-xs">Total earned</dt>
+							<dd class="mt-0.5 font-semibold tabular-nums">
+								{currencyFormatter.format(selectedCustomer.totalEarned)}
+							</dd>
 						</div>
-					{/if}
-				</div>
+						<div class="bg-card p-3">
+							<dt class="text-muted-foreground text-xs">Visits</dt>
+							<dd class="mt-0.5 font-semibold tabular-nums">{selectedCustomer.jobs.length}</dd>
+						</div>
+						<div class="bg-card p-3">
+							<dt class="text-muted-foreground text-xs">Last visit</dt>
+							<dd class="mt-0.5 font-semibold tabular-nums">
+								{selectedCustomer.lastJobDate
+									? formatLocalTimestamp(selectedCustomer.lastJobDate)
+									: '—'}
+							</dd>
+						</div>
+					</dl>
 
-				<!-- Sheet Actions -->
-				<div class="mb-4 flex gap-2">
-					<Button size="sm" onclick={handleLogJob}>
-						<PlusIcon class="mr-1 h-4 w-4" />
-						Log Job
-					</Button>
-					<Button size="sm" variant="outline" onclick={() => (openEditCustomerModal = true)}>
-						Edit Customer
-					</Button>
-				</div>
-
-				<!-- Jobs Table -->
-				{#if selectedCustomerJobs.length === 0}
-					<div
-						class="text-muted-foreground flex h-24 items-center justify-center rounded-md border text-sm"
-					>
-						No jobs logged for this customer yet.
+					<div class="flex gap-2">
+						<Button class="flex-1 sm:flex-none" onclick={handleLogJob}>
+							<PlusIcon />
+							Log job
+						</Button>
+						<Button variant="outline" onclick={() => (openEditCustomerModal = true)}>
+							Edit customer
+						</Button>
 					</div>
-				{:else}
-					<div class="rounded-md border">
-						<Table.Root>
-							<Table.Header>
-								<Table.Row>
-									<Table.Head>Date</Table.Head>
-									<Table.Head>Time</Table.Head>
-									<Table.Head>Duration</Table.Head>
-									<Table.Head class="text-right">Charged</Table.Head>
-									<Table.Head class="text-right">Tip</Table.Head>
-									<Table.Head class="text-right">Total</Table.Head>
-									<Table.Head>Note</Table.Head>
-									<Table.Head class="w-16"></Table.Head>
-								</Table.Row>
-							</Table.Header>
-							<Table.Body>
-								{#each selectedCustomerJobs as job (job.id)}
-									<Table.Row>
-										<Table.Cell class="text-sm">{formatLocalTimestamp(job.jobDate)}</Table.Cell>
-										<Table.Cell class="text-sm">{formatTime12h(job.jobTime) ?? '—'}</Table.Cell>
-										<Table.Cell class="text-sm">
-											{job.durationHours != null ? `${job.durationHours}h` : '—'}
-										</Table.Cell>
-										<Table.Cell class="text-right text-sm">
-											{currencyFormatter.format(job.amountCharged)}
-										</Table.Cell>
-										<Table.Cell class="text-right text-sm">
-											{job.tip > 0 ? currencyFormatter.format(job.tip) : '—'}
-										</Table.Cell>
-										<Table.Cell class="text-right text-sm font-medium">
+				</div>
+
+				<section class="border-t">
+					<h3 class="text-muted-foreground px-4 pt-4 pb-2 text-xs font-medium">Visits</h3>
+					{#if selectedCustomerJobs.length === 0}
+						<p class="text-muted-foreground px-4 pb-8 text-sm">
+							No jobs logged for this customer yet.
+						</p>
+					{:else}
+						<ul class="divide-y border-t">
+							{#each selectedCustomerJobs as job (job.id)}
+								<li class="flex min-h-14 items-center gap-3 py-2.5 ps-4 pe-2">
+									<div class="min-w-0 flex-1">
+										<p class="text-sm font-medium">{formatLocalTimestamp(job.jobDate)}</p>
+										<p class="text-muted-foreground truncate text-xs">
+											{[
+												formatTime12h(job.jobTime),
+												job.durationHours != null ? `${job.durationHours}h` : null,
+												job.notes
+											]
+												.filter(Boolean)
+												.join(' · ') || 'No details'}
+										</p>
+									</div>
+									<div class="shrink-0 text-right">
+										<p class="text-sm font-medium tabular-nums">
 											{currencyFormatter.format(job.amountCharged + job.tip)}
-										</Table.Cell>
-										<Table.Cell class="text-muted-foreground max-w-32 truncate text-sm">
-											{job.notes ?? ''}
-										</Table.Cell>
-										<Table.Cell>
-											<div class="flex gap-1">
-												<Button
-													size="icon"
-													variant="outline"
-													class="h-7 w-7"
-													aria-label="Edit Job"
-													onclick={() => handleEditJob(job)}
-												>
-													<Pencil class="h-3.5 w-3.5" />
-												</Button>
-												<Button
-													size="icon"
-													variant="outline"
-													class="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 w-7"
-													aria-label="Delete Job"
-													onclick={() => handleDeleteJob(job.id)}
-												>
-													<Trash2 class="h-3.5 w-3.5" />
-												</Button>
-											</div>
-										</Table.Cell>
-									</Table.Row>
-								{/each}
-							</Table.Body>
-						</Table.Root>
-					</div>
-				{/if}
+										</p>
+										{#if job.tip > 0}
+											<p class="text-muted-foreground text-xs tabular-nums">
+												incl. {currencyFormatter.format(job.tip)} tip
+											</p>
+										{/if}
+									</div>
+									<RowActionsMenu
+										onEdit={() => handleEditJob(job)}
+										onDelete={() => handleDeleteJob(job.id)}
+									/>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+				</section>
 			</div>
 		{/if}
 	</Sheet.Content>
@@ -351,7 +329,7 @@
 	bind:open={openDeleteJobModal}
 	id={deletingJobId}
 	actionUrl="/window-cleaning?/deleteJob"
-	title="Delete Job"
+	title="Delete job"
 	message="Are you sure you want to delete this job? This cannot be undone."
 	confirmButtonText="Delete"
 />

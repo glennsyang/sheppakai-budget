@@ -95,7 +95,7 @@
 	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
 			<Dialog.Title>
-				{isEditing ? 'Edit Contribution' : 'Add Contribution'}
+				{isEditing ? 'Edit contribution' : 'Add contribution'}
 			</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
@@ -141,6 +141,7 @@
 					id="contribution-amount"
 					name="amount"
 					type="number"
+					inputmode="decimal"
 					step="0.01"
 					min="0"
 					bind:value={$form.amount}

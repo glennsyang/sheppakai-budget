@@ -1,27 +1,11 @@
 import type { Transaction } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
+import { moneyCell } from '$lib/components/table/cells';
 import TransactionRowActions from '$lib/components/TransactionRowActions.svelte';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
+import { formatCurrency } from '$lib/utils';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-	style: 'currency',
-	currency: 'USD'
-});
-
-function makeCurrencyCell(value: number) {
-	const snippet = createRawSnippet<[string]>((getValue) => {
-		const formatted = getValue();
-		return { render: () => `<div class="text-right font-medium">${formatted}</div>` };
-	});
-	return renderSnippet(snippet, currencyFormatter.format(value));
-}
 
 export function createReceiptColumns(
 	actionUrl: string,
@@ -35,7 +19,8 @@ export function createReceiptColumns(
 					columnName: 'Date',
 					onclick: column.getToggleSortingHandler()
 				}),
-			cell: ({ row }) => formatLocalTimestamp(row.original.date)
+			cell: ({ row }) => formatLocalTimestamp(row.original.date),
+			meta: { width: 'w-32' }
 		},
 		{
 			accessorKey: 'payee',
@@ -43,27 +28,40 @@ export function createReceiptColumns(
 				renderComponent(DataTableSortButton, {
 					columnName: 'Payee',
 					onclick: column.getToggleSortingHandler()
-				})
+				}),
+			meta: { mobile: 'title' }
 		},
 		{
-			accessorKey: 'amount',
-			header: ({ column }) =>
-				renderComponent(DataTableSortButton, {
-					columnName: 'Amount',
-					onclick: column.getToggleSortingHandler(),
-					class: 'justify-end w-full'
-				}),
-			cell: ({ row }) => makeCurrencyCell(Number.parseFloat(row.getValue('amount')))
+			accessorKey: 'notes',
+			header: 'Notes',
+			meta: { mobile: 'detail' }
 		},
 		{
 			accessorKey: 'gstAmount',
 			header: ({ column }) =>
 				renderComponent(DataTableSortButton, {
 					columnName: 'GST',
-					onclick: column.getToggleSortingHandler(),
-					class: 'justify-end w-full'
+					onclick: column.getToggleSortingHandler()
 				}),
-			cell: ({ row }) => makeCurrencyCell(row.original.gstAmount ?? 0)
+			cell: ({ row }) => moneyCell(row.original.gstAmount ?? 0, { muted: true }),
+			meta: { align: 'end', width: 'w-28' }
+		},
+		{
+			accessorKey: 'amount',
+			header: ({ column }) =>
+				renderComponent(DataTableSortButton, {
+					columnName: 'Amount',
+					onclick: column.getToggleSortingHandler()
+				}),
+			cell: ({ row }) => moneyCell(Number(row.original.amount)),
+			meta: { mobile: 'value', align: 'end', width: 'w-32' }
+		},
+		{
+			id: 'gstLine',
+			header: 'GST',
+			accessorFn: (row) => row.gstAmount ?? 0,
+			cell: ({ row }) => `GST ${formatCurrency(row.original.gstAmount ?? 0)}`,
+			meta: { mobile: 'subvalue', phoneOnly: true }
 		},
 		{
 			id: 'actions',

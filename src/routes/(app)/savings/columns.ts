@@ -1,12 +1,8 @@
 import type { Savings } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { moneyCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
@@ -15,51 +11,33 @@ export const columns: ColumnDef<Features, Savings>[] = [
 		accessorKey: 'title',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
-				columnName: 'Title',
+				columnName: 'Account',
 				onclick: column.getToggleSortingHandler()
-			})
+			}),
+		meta: { mobile: 'title' }
 	},
 	{
 		accessorKey: 'description',
 		header: 'Description',
-		cell: ({ row }) => {
-			return row.original.description || '-';
-		}
+		cell: ({ row }) => row.original.description || '—',
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'amount',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
-				columnName: 'Amount',
-				onclick: column.getToggleSortingHandler(),
-				class: 'justify-end w-full'
+				columnName: 'Balance',
+				onclick: column.getToggleSortingHandler()
 			}),
-		cell: ({ row }) => {
-			const formatter = new Intl.NumberFormat('en-US', {
-				style: 'currency',
-				currency: 'USD'
-			});
-
-			const amountCellSnippet = createRawSnippet<[string]>((getAmount) => {
-				const amount = getAmount();
-				return {
-					render: () => `<div class="text-right font-medium">${amount}</div>`
-				};
-			});
-
-			return renderSnippet(
-				amountCellSnippet,
-				formatter.format(Number.parseFloat(row.getValue('amount')))
-			);
-		}
+		cell: ({ row }) => moneyCell(Number(row.original.amount)),
+		meta: { mobile: 'value', align: 'end' }
 	},
 	{
 		id: 'actions',
-		cell: ({ row }) => {
-			return renderComponent(DataTableActions, {
+		cell: ({ row }) =>
+			renderComponent(DataTableActions, {
 				id: row.original.id,
 				savingsData: row.original
-			});
-		}
+			})
 	}
 ];

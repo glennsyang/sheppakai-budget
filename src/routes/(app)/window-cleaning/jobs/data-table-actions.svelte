@@ -27,7 +27,7 @@
 	bind:open={openDeleteModal}
 	id={jobData.id}
 	actionUrl="/window-cleaning/jobs?/deleteJob"
-	title="Delete Job"
+	title="Delete job"
 	message="Are you sure you want to delete this job? This cannot be undone."
 	confirmButtonText="Delete"
 />

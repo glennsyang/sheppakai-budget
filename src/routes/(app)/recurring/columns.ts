@@ -1,14 +1,11 @@
 import type { Recurring } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { moneyCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
+import PaidToggle from './paid-toggle.svelte';
 
 const MONTH_ABBREVIATIONS = [
 	'Jan',
@@ -26,11 +23,11 @@ const MONTH_ABBREVIATIONS = [
 ];
 
 function formatDueDate(recurring: Recurring): string {
-	if (!recurring.dueDay) return '—';
+	if (!recurring.dueDay) return '';
 	if (recurring.cadence === 'Yearly' && recurring.dueMonth) {
-		return `${MONTH_ABBREVIATIONS[recurring.dueMonth - 1]} ${recurring.dueDay}`;
+		return `Due ${MONTH_ABBREVIATIONS[recurring.dueMonth - 1]} ${recurring.dueDay}`;
 	}
-	return `${recurring.dueDay}${ordinalSuffix(recurring.dueDay)}`;
+	return `Due the ${recurring.dueDay}${ordinalSuffix(recurring.dueDay)}`;
 }
 
 function ordinalSuffix(day: number): string {
@@ -42,12 +39,20 @@ function ordinalSuffix(day: number): string {
 
 export const columns: ColumnDef<Features, Recurring>[] = [
 	{
+		id: 'paid',
+		header: 'Paid',
+		enableHiding: false,
+		cell: ({ row }) => renderComponent(PaidToggle, { recurring: row.original }),
+		meta: { mobile: 'lead', width: 'w-14' }
+	},
+	{
 		accessorKey: 'merchant',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
 				columnName: 'Payee',
 				onclick: column.getToggleSortingHandler()
-			})
+			}),
+		meta: { mobile: 'title' }
 	},
 	{
 		accessorKey: 'description',
@@ -55,62 +60,37 @@ export const columns: ColumnDef<Features, Recurring>[] = [
 			renderComponent(DataTableSortButton, {
 				columnName: 'Description',
 				onclick: column.getToggleSortingHandler()
-			})
+			}),
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'cadence',
-		header: 'Cadence'
+		header: 'Cadence',
+		meta: { mobile: 'detail' }
 	},
 	{
 		id: 'dueDate',
 		header: 'Due',
-		cell: ({ row }) => {
-			const dueDateSnippet = createRawSnippet<[string]>((getDue) => {
-				const due = getDue();
-				return {
-					render: () => `<div>${due}</div>`
-				};
-			});
-
-			return renderSnippet(dueDateSnippet, formatDueDate(row.original));
-		}
+		accessorFn: (row) => formatDueDate(row),
+		cell: ({ row }) => formatDueDate(row.original) || '—',
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'amount',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
 				columnName: 'Amount',
-				onclick: column.getToggleSortingHandler(),
-				class: 'justify-end w-full',
-				iconPosition: 'right'
+				onclick: column.getToggleSortingHandler()
 			}),
-		cell: ({ row }) => {
-			const formatter = new Intl.NumberFormat('en-US', {
-				style: 'currency',
-				currency: 'USD'
-			});
-
-			const amountCellSnippet = createRawSnippet<[string]>((getAmount) => {
-				const amount = getAmount();
-				return {
-					render: () => `<div class="text-right font-medium">${amount}</div>`
-				};
-			});
-
-			return renderSnippet(
-				amountCellSnippet,
-				formatter.format(Number.parseFloat(row.getValue('amount')))
-			);
-		}
+		cell: ({ row }) => moneyCell(Number(row.original.amount), { muted: row.original.paid }),
+		meta: { mobile: 'value', align: 'end' }
 	},
 	{
 		id: 'actions',
-		cell: ({ row }) => {
-			// Pass both the ID and the entire recurring data for editing
-			return renderComponent(DataTableActions, {
+		cell: ({ row }) =>
+			renderComponent(DataTableActions, {
 				id: row.original.id,
 				recurringData: row.original
-			});
-		}
+			})
 	}
 ];

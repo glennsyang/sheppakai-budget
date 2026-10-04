@@ -87,6 +87,19 @@ export function formatLocalTimestamp(timestamp: string, format: string = 'MMM DD
  *   → startDate: "2026-02-01"
  *   → endDate: "2026-02-28"
  */
+/** A day heading for grouped lists: "Fri, Oct 3", with the year when it isn't this year. */
+export function formatDayHeading(timestamp: string, now: Date = new Date()): string {
+	const normalized =
+		timestamp.length === 10 ? `${timestamp}T00:00:00` : timestamp.replace(' ', 'T');
+	const date = new Date(normalized);
+	return date.toLocaleDateString('en-US', {
+		weekday: 'short',
+		month: 'short',
+		day: 'numeric',
+		...(date.getFullYear() === now.getFullYear() ? {} : { year: 'numeric' })
+	});
+}
+
 export function getMonthDateRange(month: number, year: number) {
 	const startDate = `${year}-${padMonth(String(month))}-01`;
 

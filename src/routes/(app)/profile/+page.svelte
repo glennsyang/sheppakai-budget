@@ -1,15 +1,10 @@
 <script lang="ts">
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
+	import PageShell from '$lib/components/PageShell.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import * as Separator from '$lib/components/ui/separator';
-	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import EditIcon from '@lucide/svelte/icons/edit';
-	import LockIcon from '@lucide/svelte/icons/lock';
-	import SaveIcon from '@lucide/svelte/icons/save';
-	import UserIcon from '@lucide/svelte/icons/user';
-	import XIcon from '@lucide/svelte/icons/x';
+	import { Spinner } from '$lib/components/ui/spinner';
 	import { superForm } from 'sveltekit-superforms';
 
 	import type { PageProps } from './$types';
@@ -80,233 +75,164 @@
 	<title>Profile</title>
 </svelte:head>
 
-<div class="px-4 py-6 sm:px-0">
-	<div class="mb-8">
-		<h1 class="text-3xl font-bold tracking-tight">Profile</h1>
-		<p class="text-muted-foreground mt-2">Manage your account information and security settings</p>
-	</div>
+{#snippet fieldError(message: string[] | undefined)}
+	{#if message}
+		<p class="text-destructive text-xs">{message}</p>
+	{/if}
+{/snippet}
 
-	<div class="space-y-6">
-		{#if data.loadError}
-			<LoadErrorBanner message={data.loadError} />
-		{/if}
+<PageShell title="Profile" subtitle="Your account details and password">
+	{#if data.loadError}
+		<LoadErrorBanner message={data.loadError} />
+	{/if}
 
-		<!-- Profile Information Section -->
-		<div class="overflow-hidden rounded-lg border shadow">
-			<div class="p-6">
-				<div class="mb-4 flex items-center justify-between">
-					<div class="flex items-center gap-2">
-						<UserIcon class="h-5 w-5" />
-						<h2 class="text-xl font-semibold">Profile Information</h2>
-					</div>
-					{#if !isEditingProfile}
-						<Button size="sm" variant="outline" onclick={() => (isEditingProfile = true)}>
-							<EditIcon class="mr-2 h-4 w-4" />
-							Edit
-						</Button>
-					{/if}
-				</div>
-
-				<form method="POST" action="?/update" use:profileEnhance>
-					<div class="space-y-4">
-						{#if $profileMessage}
-							<div
-								class="flex items-center gap-2 rounded-md p-3 {$profileMessage.type === 'success'
-									? 'text-positive border border-green-200 bg-green-50'
-									: 'text-destructive border border-red-200 bg-red-50'}"
-							>
-								{#if $profileMessage.type === 'success'}
-									<CheckCircleIcon class="h-4 w-4" />
-								{:else}
-									<AlertCircleIcon class="h-4 w-4" />
-								{/if}
-								<span class="text-sm">{$profileMessage.text}</span>
-							</div>
-						{/if}
-						<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-							<div>
-								<label for="name" class="mb-2 block text-sm font-medium"> Name </label>
-								<Input
-									id="name"
-									name="name"
-									type="text"
-									bind:value={$profileForm.name}
-									disabled={!isEditingProfile}
-									placeholder="Enter your first name"
-									class={$profileErrors.name ? 'border-destructive' : ''}
-								/>
-								{#if $profileErrors.name}
-									<p class="text-destructive mt-1 text-sm">{$profileErrors.name}</p>
-								{/if}
-							</div>
-						</div>
-
-						<div>
-							<label for="email" class="mb-2 block text-sm font-medium"> Email Address </label>
-							<Input
-								id="email"
-								type="email"
-								value={userEmail}
-								disabled={true}
-								placeholder="Email cannot be changed"
-								class="bg-muted"
-							/>
-							<p class="text-muted-foreground mt-1 text-xs">Email address cannot be changed</p>
-						</div>
-
-						{#if isEditingProfile}
-							<div class="flex gap-2 pt-4">
-								<Button type="submit" size="sm" disabled={$profileSubmitting}>
-									{#if $profileSubmitting}
-										<div
-											class="border-primary mr-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
-										></div>
-									{:else}
-										<SaveIcon class="mr-2 h-4 w-4" />
-									{/if}
-									Save Changes
-								</Button>
-								<Button
-									type="button"
-									size="sm"
-									variant="outline"
-									onclick={resetProfileForm}
-									disabled={$profileSubmitting}
-								>
-									<XIcon class="mr-2 h-4 w-4" />
-									Cancel
-								</Button>
-							</div>
-						{/if}
-					</div>
-				</form>
-			</div>
+	<section
+		class="bg-card grid gap-x-8 gap-y-4 rounded-xl border p-4 shadow-sm sm:p-6 lg:grid-cols-[16rem_minmax(0,1fr)]"
+	>
+		<div>
+			<h2 class="text-base font-semibold tracking-tight">Account</h2>
+			<p class="text-muted-foreground mt-1 text-sm">The name shown around the app.</p>
 		</div>
 
-		<Separator.Root />
+		<form method="POST" action="?/update" use:profileEnhance class="flex max-w-lg flex-col gap-4">
+			{#if $profileMessage}
+				<FormMessage type={$profileMessage.type} text={$profileMessage.text} />
+			{/if}
+			<div class="flex flex-col gap-2">
+				<label for="name" class="text-sm font-medium">Name</label>
+				<Input
+					id="name"
+					name="name"
+					type="text"
+					autocomplete="given-name"
+					bind:value={$profileForm.name}
+					disabled={!isEditingProfile}
+					placeholder="Your first name"
+					aria-invalid={$profileErrors.name ? 'true' : undefined}
+				/>
+				{@render fieldError($profileErrors.name)}
+			</div>
 
-		<!-- Password Change Section -->
-		<div class="overflow-hidden rounded-lg border shadow">
-			<div class="p-6">
-				<div class="mb-4 flex items-center justify-between">
-					<div class="flex items-center gap-2">
-						<LockIcon class="h-5 w-5" />
-						<h2 class="text-xl font-semibold">Change Password</h2>
-					</div>
-					{#if !isEditingPassword}
-						<Button size="sm" variant="outline" onclick={() => (isEditingPassword = true)}>
-							<EditIcon class="mr-2 h-4 w-4" />
-							Change Password
-						</Button>
-					{/if}
-				</div>
+			<div class="flex flex-col gap-2">
+				<label for="email" class="text-sm font-medium">Email</label>
+				<Input id="email" type="email" value={userEmail} disabled />
+				<p class="text-muted-foreground text-xs">Your sign-in email can't be changed here.</p>
+			</div>
 
-				{#if isEditingPassword}
-					<form method="POST" action="?/changePassword" use:passwordEnhance>
-						<div class="space-y-4">
-							{#if $passwordMessage}
-								<div
-									class="flex items-center gap-2 rounded-md p-3 {$passwordMessage.type === 'success'
-										? 'text-positive border border-green-200 bg-green-50'
-										: 'text-destructive border border-red-200 bg-red-50'}"
-								>
-									{#if $passwordMessage.type === 'success'}
-										<CheckCircleIcon class="h-4 w-4" />
-									{:else}
-										<AlertCircleIcon class="h-4 w-4" />
-									{/if}
-									<span class="text-sm">{$passwordMessage.text}</span>
-								</div>
-							{/if}
-							<div>
-								<label for="currentPassword" class="mb-2 block text-sm font-medium">
-									Current Password
-								</label>
-								<Input
-									id="currentPassword"
-									name="currentPassword"
-									type="password"
-									bind:value={$passwordForm.currentPassword}
-									placeholder="Enter your current password"
-									class={$passwordErrors.currentPassword ? 'border-destructive' : ''}
-									required
-								/>
-								{#if $passwordErrors.currentPassword}
-									<p class="text-destructive mt-1 text-sm">{$passwordErrors.currentPassword}</p>
-								{/if}
-							</div>
-
-							<div>
-								<label for="newPassword" class="mb-2 block text-sm font-medium">
-									New Password
-								</label>
-								<Input
-									id="newPassword"
-									name="newPassword"
-									type="password"
-									bind:value={$passwordForm.newPassword}
-									placeholder="Enter your new password"
-									class={$passwordErrors.newPassword ? 'border-destructive' : ''}
-									required
-								/>
-								{#if $passwordErrors.newPassword}
-									<p class="text-destructive mt-1 text-sm">{$passwordErrors.newPassword}</p>
-								{/if}
-							</div>
-
-							<div>
-								<label for="confirmPassword" class="mb-2 block text-sm font-medium">
-									Confirm New Password
-								</label>
-								<Input
-									id="confirmPassword"
-									name="confirmPassword"
-									type="password"
-									bind:value={$passwordForm.confirmPassword}
-									placeholder="Confirm your new password"
-									class={$passwordErrors.confirmPassword ? 'border-destructive' : ''}
-									required
-								/>
-								{#if $passwordErrors.confirmPassword}
-									<p class="text-destructive mt-1 text-sm">{$passwordErrors.confirmPassword}</p>
-								{/if}
-							</div>
-
-							<div class="flex gap-2 pt-4">
-								<Button type="submit" size="sm" disabled={$passwordSubmitting}>
-									{#if $passwordSubmitting}
-										<div
-											class="border-primary mr-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
-										></div>
-									{:else}
-										<SaveIcon class="mr-2 h-4 w-4" />
-									{/if}
-									Change Password
-								</Button>
-								<Button
-									type="button"
-									size="sm"
-									variant="outline"
-									onclick={resetPasswordForm}
-									disabled={$passwordSubmitting}
-								>
-									<XIcon class="mr-2 h-4 w-4" />
-									Cancel
-								</Button>
-							</div>
-						</div>
-					</form>
+			<div class="flex gap-2 pt-1">
+				{#if isEditingProfile}
+					<Button type="submit" disabled={$profileSubmitting} aria-busy={$profileSubmitting}>
+						{#if $profileSubmitting}<Spinner aria-hidden="true" />{/if}
+						Save name
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						onclick={resetProfileForm}
+						disabled={$profileSubmitting}
+					>
+						Cancel
+					</Button>
 				{:else}
-					<div class="text-muted-foreground text-sm">
-						{#if passwordUpdatedAt}
-							<p>
-								Password was last updated on {new Date(passwordUpdatedAt).toLocaleDateString()}
-							</p>
-						{/if}
-						<p class="mt-1">Click "Change Password" to update your password.</p>
-					</div>
+					<Button type="button" variant="outline" onclick={() => (isEditingProfile = true)}>
+						Edit name
+					</Button>
 				{/if}
 			</div>
+		</form>
+	</section>
+
+	<section
+		class="bg-card grid gap-x-8 gap-y-4 rounded-xl border p-4 shadow-sm sm:p-6 lg:grid-cols-[16rem_minmax(0,1fr)]"
+	>
+		<div>
+			<h2 class="text-base font-semibold tracking-tight">Password</h2>
+			<p class="text-muted-foreground mt-1 text-sm">
+				{#if passwordUpdatedAt}
+					Last changed {new Date(passwordUpdatedAt).toLocaleDateString('en-US', {
+						month: 'short',
+						day: 'numeric',
+						year: 'numeric'
+					})}.
+				{:else}
+					At least 12 characters.
+				{/if}
+			</p>
 		</div>
-	</div>
-</div>
+
+		{#if isEditingPassword}
+			<form
+				method="POST"
+				action="?/changePassword"
+				use:passwordEnhance
+				class="flex max-w-lg flex-col gap-4"
+			>
+				{#if $passwordMessage}
+					<FormMessage type={$passwordMessage.type} text={$passwordMessage.text} />
+				{/if}
+				<div class="flex flex-col gap-2">
+					<label for="currentPassword" class="text-sm font-medium">Current password</label>
+					<Input
+						id="currentPassword"
+						name="currentPassword"
+						type="password"
+						autocomplete="current-password"
+						bind:value={$passwordForm.currentPassword}
+						aria-invalid={$passwordErrors.currentPassword ? 'true' : undefined}
+						required
+					/>
+					{@render fieldError($passwordErrors.currentPassword)}
+				</div>
+				<div class="flex flex-col gap-2">
+					<label for="newPassword" class="text-sm font-medium">New password</label>
+					<Input
+						id="newPassword"
+						name="newPassword"
+						type="password"
+						autocomplete="new-password"
+						bind:value={$passwordForm.newPassword}
+						aria-invalid={$passwordErrors.newPassword ? 'true' : undefined}
+						required
+					/>
+					{@render fieldError($passwordErrors.newPassword)}
+				</div>
+				<div class="flex flex-col gap-2">
+					<label for="confirmPassword" class="text-sm font-medium">Confirm new password</label>
+					<Input
+						id="confirmPassword"
+						name="confirmPassword"
+						type="password"
+						autocomplete="new-password"
+						bind:value={$passwordForm.confirmPassword}
+						aria-invalid={$passwordErrors.confirmPassword ? 'true' : undefined}
+						required
+					/>
+					{@render fieldError($passwordErrors.confirmPassword)}
+				</div>
+				<div class="flex gap-2 pt-1">
+					<Button type="submit" disabled={$passwordSubmitting} aria-busy={$passwordSubmitting}>
+						{#if $passwordSubmitting}<Spinner aria-hidden="true" />{/if}
+						Change password
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						onclick={resetPasswordForm}
+						disabled={$passwordSubmitting}
+					>
+						Cancel
+					</Button>
+				</div>
+			</form>
+		{:else}
+			<div class="flex flex-col items-start gap-3">
+				{#if $passwordMessage}
+					<FormMessage type={$passwordMessage.type} text={$passwordMessage.text} />
+				{/if}
+				<Button type="button" variant="outline" onclick={() => (isEditingPassword = true)}>
+					Change password
+				</Button>
+			</div>
+		{/if}
+	</section>
+</PageShell>
