@@ -4,6 +4,7 @@
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import type { DashboardSectionDefinition } from '$lib/dashboardSections';
 	import type { dashboardVisibilitySchema } from '$lib/formSchemas';
+	import { cn } from '$lib/utils.js';
 	import { SlidersHorizontalIcon } from '@lucide/svelte/icons';
 	import { toast } from 'svelte-sonner';
 	import type { SuperValidated } from 'sveltekit-superforms';
@@ -13,9 +14,10 @@
 	interface Props {
 		sections: DashboardSectionDefinition[];
 		dashboardVisibilityForm: SuperValidated<z.infer<typeof dashboardVisibilitySchema>>;
+		class?: string;
 	}
 
-	let { sections, dashboardVisibilityForm }: Props = $props();
+	let { sections, dashboardVisibilityForm, class: className }: Props = $props();
 
 	let open = $state(false);
 
@@ -56,9 +58,9 @@
 <Popover.Root bind:open>
 	<Popover.Trigger>
 		{#snippet child({ props })}
-			<Button {...props} variant="outline" size="sm" class="gap-2">
+			<Button {...props} variant="outline" size="sm" class={cn('gap-2', className)}>
 				<SlidersHorizontalIcon class="size-4" />
-				Customize
+				<span class="max-sm:sr-only">Customize</span>
 			</Button>
 		{/snippet}
 	</Popover.Trigger>

@@ -539,22 +539,27 @@
 </svelte:head>
 
 <div class="mx-auto w-full max-w-7xl py-4 sm:py-6">
-	<!-- Header -->
-	<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-		<div>
+	<!-- Header: on phones the actions share the title row and each control gets its own full-width row;
+	     from sm up the controls flow in one row after the title (beside it from lg). -->
+	<div class="mb-6 flex flex-wrap items-center gap-x-2 gap-y-3 sm:gap-y-2 lg:items-end">
+		<div class="order-1 min-w-0 flex-1 sm:mb-2 sm:basis-full lg:mb-0 lg:basis-auto">
 			<h1 class="text-2xl font-semibold tracking-tight sm:text-[1.75rem]">{headerGreeting}</h1>
 			<p class="text-muted-foreground mt-1 text-sm">{headerSubtitle}</p>
 		</div>
-		<div class="flex flex-wrap items-center gap-2">
-			<Tabs.Root value={selectedMode} onValueChange={onModeChange}>
-				<Tabs.List class="h-9">
-					<Tabs.Trigger value="monthly" class="px-3">Monthly</Tabs.Trigger>
-					<Tabs.Trigger value="yearly" class="px-3">Yearly</Tabs.Trigger>
-				</Tabs.List>
-			</Tabs.Root>
+		<Tabs.Root
+			value={selectedMode}
+			onValueChange={onModeChange}
+			class="order-4 w-full sm:order-2 sm:w-auto"
+		>
+			<Tabs.List class="h-9 w-full sm:w-auto">
+				<Tabs.Trigger value="monthly" class="px-3">Monthly</Tabs.Trigger>
+				<Tabs.Trigger value="yearly" class="px-3">Yearly</Tabs.Trigger>
+			</Tabs.List>
+		</Tabs.Root>
+		<div class="order-5 flex w-full gap-2 sm:order-3 sm:w-auto">
 			{#if selectedMode === 'monthly'}
 				<Select.Root type="single" value={selectedMonth} onValueChange={onMonthChange}>
-					<Select.Trigger class="w-36" aria-label="Month">
+					<Select.Trigger class="w-full sm:w-36" aria-label="Month">
 						{selectedMonth ? months.find((m) => m.value === selectedMonth)?.label : 'Select Month'}
 					</Select.Trigger>
 					<Select.Content>
@@ -568,7 +573,7 @@
 				</Select.Root>
 			{:else}
 				<Select.Root type="single" value={selectedYear} onValueChange={onYearChange}>
-					<Select.Trigger class="w-28" aria-label="Year">{selectedYear}</Select.Trigger>
+					<Select.Trigger class="w-24 sm:w-28" aria-label="Year">{selectedYear}</Select.Trigger>
 					<Select.Content>
 						<Select.Label>Select Year</Select.Label>
 						{#each yearOptions as yearOption (yearOption.value)}
@@ -578,22 +583,30 @@
 						{/each}
 					</Select.Content>
 				</Select.Root>
-				<Tabs.Root value={yearlyView} onValueChange={onYearlyViewChange}>
-					<Tabs.List class="h-9">
+				<Tabs.Root
+					value={yearlyView}
+					onValueChange={onYearlyViewChange}
+					class="flex-1 sm:flex-none"
+				>
+					<Tabs.List class="h-9 w-full sm:w-auto">
 						<Tabs.Trigger value="current" class="px-3">Last 6 months</Tabs.Trigger>
 						<Tabs.Trigger value="full" class="px-3">Full year</Tabs.Trigger>
 					</Tabs.List>
 				</Tabs.Root>
 			{/if}
-			<DashboardCustomizePopover
-				sections={visibleSections}
-				dashboardVisibilityForm={data.dashboardVisibilityForm}
-			/>
-			<Button class="ms-auto gap-1.5 lg:ms-0" onclick={() => (openLogExpenseModal = true)}>
-				<PlusIcon class="size-4" />
-				Log expense
-			</Button>
 		</div>
+		<DashboardCustomizePopover
+			sections={visibleSections}
+			dashboardVisibilityForm={data.dashboardVisibilityForm}
+			class="order-2 max-sm:size-9 max-sm:px-0 sm:order-4"
+		/>
+		<Button
+			class="order-3 gap-1.5 max-sm:size-9 max-sm:px-0 sm:order-5 sm:ms-auto lg:ms-0"
+			onclick={() => (openLogExpenseModal = true)}
+		>
+			<PlusIcon class="size-4" />
+			<span class="max-sm:sr-only">Log expense</span>
+		</Button>
 	</div>
 
 	{#if reloading.current}
