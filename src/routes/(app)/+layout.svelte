@@ -3,6 +3,7 @@
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import MobileTabBar from '$lib/components/MobileTabBar.svelte';
 	import SiteHeader from '$lib/components/SiteHeader.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { setCategoriesContext } from '$lib/contexts';
@@ -29,7 +30,10 @@
 		<AppSidebar {sidebarData} user={data.user} />
 		<Sidebar.Inset>
 			<SiteHeader {sidebarData} />
-			<main class="flex flex-1 flex-col space-y-4 p-4 md:px-6 md:py-2 lg:px-8">
+			<!-- Phones navigate from the bottom tab bar, so leave room for it under the content. -->
+			<main
+				class="flex flex-1 flex-col space-y-4 p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] md:px-6 md:py-2 lg:px-8"
+			>
 				{#if isCrossRouteNavigation}
 					<LoadingSpinner fullScreen={true} size="lg" />
 				{:else}
@@ -40,5 +44,6 @@
 				{/if}
 			</main>
 		</Sidebar.Inset>
+		<MobileTabBar {sidebarData} user={data.user} />
 	{/if}
 </Sidebar.Provider>

@@ -29,3 +29,15 @@ export function classifyNavigation(
 
 	return toRouteId === currentRouteId ? 'same-route' : 'cross-route';
 }
+
+/**
+ * The nav URL a path belongs to: the longest URL that is the path itself or a
+ * parent of it, so /window-cleaning/jobs doesn't also light up /window-cleaning.
+ */
+export function matchNavUrl(path: string, urls: (string | undefined)[]): string | null {
+	return (
+		urls
+			.filter((url): url is string => !!url && (path === url || path.startsWith(`${url}/`)))
+			.sort((a, b) => b.length - a.length)[0] ?? null
+	);
+}

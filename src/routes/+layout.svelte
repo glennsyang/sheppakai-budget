@@ -9,7 +9,12 @@
 </script>
 
 <ModeWatcher disableHeadScriptInjection />
-<Toaster position="bottom-right" richColors />
+<!-- On phones, toasts sit above the bottom tab bar. -->
+<Toaster
+	position="bottom-right"
+	richColors
+	mobileOffset={{ bottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
+/>
 <Tooltip.Provider>
 	{@render children()}
 </Tooltip.Provider>

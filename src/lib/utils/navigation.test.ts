@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { classifyNavigation } from './navigation';
+import { classifyNavigation, matchNavUrl } from './navigation';
 
 describe('classifyNavigation', () => {
 	it('returns idle when no navigation is in flight', () => {
@@ -25,5 +25,23 @@ describe('classifyNavigation', () => {
 
 	it('returns same-route when both route ids are null', () => {
 		expect(classifyNavigation(null, null)).toBe('same-route');
+	});
+});
+
+describe('matchNavUrl', () => {
+	const urls = ['/dashboard', '/window-cleaning', '/window-cleaning/jobs', '/savings', undefined];
+
+	it('prefers the longest matching URL', () => {
+		expect(matchNavUrl('/window-cleaning/jobs', urls)).toBe('/window-cleaning/jobs');
+		expect(matchNavUrl('/window-cleaning', urls)).toBe('/window-cleaning');
+	});
+
+	it('matches child paths but not prefixes of other words', () => {
+		expect(matchNavUrl('/savings/goals', urls)).toBe('/savings');
+		expect(matchNavUrl('/savingsx', urls)).toBeNull();
+	});
+
+	it('returns null when nothing matches', () => {
+		expect(matchNavUrl('/profile', urls)).toBeNull();
 	});
 });
