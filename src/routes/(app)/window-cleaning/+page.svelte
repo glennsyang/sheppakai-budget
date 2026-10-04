@@ -198,12 +198,39 @@
 						</Button>
 					</div>
 
-					{#if selectedCustomer.buzzerNumber || selectedCustomer.phoneNumber || selectedCustomer.email}
-						<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
-							{#if selectedCustomer.buzzerNumber}
-								<dt class="text-muted-foreground">Buzzer</dt>
-								<dd class="tabular-nums">{selectedCustomer.buzzerNumber}</dd>
+					<!-- Access info: large so it reads at a glance at the door -->
+					{#if selectedCustomer.unitNumber || selectedCustomer.buzzerNumber}
+						<dl
+							class={[
+								'bg-border grid gap-px overflow-hidden rounded-xl border',
+								selectedCustomer.unitNumber && selectedCustomer.buzzerNumber && 'grid-cols-2'
+							]}
+						>
+							{#if selectedCustomer.unitNumber}
+								<div class="bg-card p-3">
+									<dt class="text-muted-foreground text-xs">Unit</dt>
+									<dd
+										class="mt-0.5 text-4xl font-semibold tracking-tight break-all tabular-nums sm:text-2xl"
+									>
+										{selectedCustomer.unitNumber}
+									</dd>
+								</div>
 							{/if}
+							{#if selectedCustomer.buzzerNumber}
+								<div class="bg-card p-3">
+									<dt class="text-muted-foreground text-xs">Buzzer</dt>
+									<dd
+										class="mt-0.5 text-4xl font-semibold tracking-tight break-all tabular-nums sm:text-2xl"
+									>
+										{selectedCustomer.buzzerNumber}
+									</dd>
+								</div>
+							{/if}
+						</dl>
+					{/if}
+
+					{#if selectedCustomer.phoneNumber || selectedCustomer.email}
+						<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
 							{#if selectedCustomer.phoneNumber}
 								<dt class="text-muted-foreground">Phone</dt>
 								<dd class="tabular-nums">{selectedCustomer.phoneNumber}</dd>
