@@ -1,90 +1,91 @@
 import type { Transaction } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { badgeCell, categoryCell, moneyCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
+import { FALLBACK_CATEGORY_COLOR } from '$lib/utils/categoryColors';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
-export const columns: ColumnDef<Features, Transaction>[] = [
-	{
-		accessorKey: 'date',
-		header: ({ column }) =>
-			renderComponent(DataTableSortButton, {
-				columnName: 'Date',
-				onclick: column.getToggleSortingHandler()
-			}),
-		cell: ({ row }) => {
-			return formatLocalTimestamp(row.original.date);
+export function createColumns(
+	categoryColors: Map<string, string>
+): ColumnDef<Features, Transaction>[] {
+	return [
+		{
+			accessorKey: 'date',
+			header: ({ column }) =>
+				renderComponent(DataTableSortButton, {
+					columnName: 'Date',
+					onclick: column.getToggleSortingHandler()
+				}),
+			cell: ({ row }) => formatLocalTimestamp(row.original.date),
+			meta: { width: 'w-32' }
+		},
+		{
+			accessorKey: 'payee',
+			header: ({ column }) =>
+				renderComponent(DataTableSortButton, {
+					columnName: 'Payee',
+					onclick: column.getToggleSortingHandler()
+				}),
+			meta: { mobile: 'title' }
+		},
+		{
+			accessorKey: 'category',
+			header: ({ column }) =>
+				renderComponent(DataTableSortButton, {
+					columnName: 'Category',
+					onclick: column.getToggleSortingHandler()
+				}),
+			accessorFn: (row) => row.category?.name,
+			cell: ({ row }) => {
+				const category = row.original.category;
+				return categoryCell(
+					category?.name ?? 'Uncategorized',
+					(category && categoryColors.get(category.id)) || FALLBACK_CATEGORY_COLOR
+				);
+			},
+			meta: { mobile: 'detail' }
+		},
+		{
+			accessorKey: 'notes',
+			header: 'Notes',
+			cell: ({ row }) => row.original.notes,
+			meta: { mobile: 'detail' }
+		},
+		{
+			id: 'excluded',
+			header: '',
+			enableHiding: false,
+			accessorFn: (row) => (row.excludedFromBudget ? 'Excluded' : ''),
+			cell: ({ row }) =>
+				row.original.excludedFromBudget
+					? badgeCell({
+							label: 'Excluded',
+							tone: 'muted',
+							title: 'Not counted in budget totals'
+						})
+					: '',
+			meta: { mobile: 'subvalue', width: 'w-24' }
+		},
+		{
+			accessorKey: 'amount',
+			header: ({ column }) =>
+				renderComponent(DataTableSortButton, {
+					columnName: 'Amount',
+					onclick: column.getToggleSortingHandler()
+				}),
+			cell: ({ row }) => moneyCell(Number(row.original.amount)),
+			meta: { mobile: 'value', align: 'end' }
+		},
+		{
+			id: 'actions',
+			cell: ({ row }) =>
+				renderComponent(DataTableActions, {
+					id: row.original.id,
+					transactionData: row.original
+				})
 		}
-	},
-	{
-		accessorKey: 'category',
-		header: ({ column }) =>
-			renderComponent(DataTableSortButton, {
-				columnName: 'Category',
-				onclick: column.getToggleSortingHandler()
-			}),
-		accessorFn: (row) => row.category?.name,
-		cell: ({ row }) => {
-			return row.original.category ? row.original.category.name : 'Uncategorized';
-		}
-	},
-	{
-		accessorKey: 'payee',
-		header: ({ column }) =>
-			renderComponent(DataTableSortButton, {
-				columnName: 'Payee',
-				onclick: column.getToggleSortingHandler()
-			})
-	},
-	{
-		accessorKey: 'notes',
-		header: 'Notes',
-		cell: ({ row }) => {
-			return row.original.notes;
-		}
-	},
-	{
-		accessorKey: 'amount',
-		header: ({ column }) =>
-			renderComponent(DataTableSortButton, {
-				columnName: 'Amount',
-				onclick: column.getToggleSortingHandler(),
-				class: 'justify-end w-full'
-			}),
-		cell: ({ row }) => {
-			const formatter = new Intl.NumberFormat('en-US', {
-				style: 'currency',
-				currency: 'USD'
-			});
-
-			const amountCellSnippet = createRawSnippet<[string]>((getAmount) => {
-				const amount = getAmount();
-				return {
-					render: () => `<div class="text-right font-medium">${amount}</div>`
-				};
-			});
-
-			return renderSnippet(
-				amountCellSnippet,
-				formatter.format(Number.parseFloat(row.getValue('amount')))
-			);
-		}
-	},
-	{
-		id: 'actions',
-		cell: ({ row }) => {
-			// Pass both the ID and the entire expense data for editing
-			return renderComponent(DataTableActions, {
-				id: row.original.id,
-				transactionData: row.original
-			});
-		}
-	}
-];
+	];
+}

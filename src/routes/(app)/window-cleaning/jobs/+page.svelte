@@ -2,13 +2,14 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
+	import DashboardStatStrip, { type Stat } from '$lib/components/DashboardStatStrip.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
+	import PageShell from '$lib/components/PageShell.svelte';
+	import PeriodPicker from '$lib/components/PeriodPicker.svelte';
 	import TableSkeleton from '$lib/components/TableSkeleton.svelte';
-	import { Card, CardContent } from '$lib/components/ui/card';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
-	import YearSwitcher from '$lib/components/YearSwitcher.svelte';
 	import { jobFormContext } from '$lib/contexts';
-	import { getCurrentPacificMonthYear, parseYearParam } from '$lib/utils/dates';
+	import { formatDayHeading, getCurrentPacificMonthYear, parseYearParam } from '$lib/utils/dates';
 	import { usePendingReload } from '$lib/utils/pendingNavigation.svelte';
 
 	import type { PageProps } from './$types';
@@ -38,82 +39,56 @@
 	// A year switch is a same-route navigation: keep the heading and switcher
 	// live, and skeleton only the stats and table.
 	const reloading = usePendingReload();
+
+	let stats = $derived.by<Stat[]>(() => {
+		const diff = data.totalEarned - data.earnedLastYear;
+		const pct =
+			data.earnedLastYear > 0 ? Math.round(Math.abs(diff / data.earnedLastYear) * 100) : 0;
+		return [
+			{ label: 'Jobs', value: String(data.jobCount) },
+			{ label: 'Charged', value: currencyFormatter.format(data.totalCharged) },
+			{ label: 'Tips', value: currencyFormatter.format(data.totalTips) },
+			{
+				label: 'Total earned',
+				value: currencyFormatter.format(data.totalEarned),
+				trend:
+					data.earnedLastYear > 0
+						? {
+								direction: diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat',
+								label: `${pct}% ${diff >= 0 ? 'ahead of' : 'behind'} ${selectedYear - 1} (${currencyFormatter.format(data.earnedLastYear)})`
+							}
+						: undefined
+			}
+		];
+	});
 </script>
 
 <svelte:head>
-	<title>Window Cleaning — All Jobs</title>
+	<title>All jobs · Window cleaning</title>
 </svelte:head>
 
-<div class="px-4 py-6 sm:px-0">
-	<!-- Header -->
-	<div class="mb-6">
-		<h1 class="text-3xl font-bold tracking-tight">All Jobs</h1>
-		<p class="text-muted-foreground mt-1">Jobs for {selectedYear} across all customers</p>
-	</div>
-
-	<!-- Year Selector -->
-	<div class="mb-4">
-		<YearSwitcher currentYear={selectedYear} {onYearChange} />
-	</div>
+<PageShell
+	title="All jobs"
+	subtitle="Every window-cleaning visit in {selectedYear}, across all customers"
+>
+	{#snippet actions()}
+		<PeriodPicker mode="year" year={selectedYear} onChange={onYearChange} />
+	{/snippet}
 
 	{#if reloading.current}
-		<CardGridSkeleton
-			cards={4}
-			linesPerCard={1}
-			class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4"
-			label="Loading job totals"
-		/>
-		<TableSkeleton rows={8} columns={columns.length} />
+		<CardGridSkeleton cards={1} linesPerCard={1} lineClass="h-12" label="Loading job totals" />
+		<TableSkeleton rows={8} columns={columns.length - 2} />
 	{:else if data.loadError}
 		<LoadErrorBanner message={data.loadError} />
 	{:else}
-		<!-- Stats Row -->
-		<div class="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-			<Card>
-				<CardContent class="pt-6">
-					<p class="text-muted-foreground text-sm">Jobs</p>
-					<p class="text-2xl font-bold">{data.jobCount}</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardContent class="pt-6">
-					<p class="text-muted-foreground text-sm">Charged</p>
-					<p class="text-2xl font-bold">{currencyFormatter.format(data.totalCharged)}</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardContent class="pt-6">
-					<p class="text-muted-foreground text-sm">Tips</p>
-					<p class="text-2xl font-bold">{currencyFormatter.format(data.totalTips)}</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardContent class="pt-6">
-					<p class="text-muted-foreground text-sm">Total Earned</p>
-					<p class="text-positive text-2xl font-bold">
-						{currencyFormatter.format(data.totalEarned)}
-					</p>
-					{#if data.earnedLastYear > 0}
-						{@const diff = data.totalEarned - data.earnedLastYear}
-						{@const pct = Math.round(Math.abs(diff / data.earnedLastYear) * 100)}
-						<p class="mt-1 text-xs {diff >= 0 ? 'text-positive' : 'text-destructive'}">
-							{diff >= 0 ? '▲' : '▼'}
-							{pct}% vs {selectedYear - 1} ({currencyFormatter.format(data.earnedLastYear)})
-						</p>
-					{/if}
-				</CardContent>
-			</Card>
-		</div>
-
-		<!-- Jobs Table -->
-		{#if data.jobs.length > 0}
-			<DataTable {columns} data={data.jobs} />
-		{:else}
-			<Card>
-				<CardContent class="py-12 text-center">
-					<p class="text-muted-foreground">No jobs found for this year.</p>
-				</CardContent>
-			</Card>
-		{/if}
+		<DashboardStatStrip {stats} />
+		<DataTable
+			{columns}
+			data={data.jobs}
+			defaultPageSize={20}
+			searchPlaceholder="Search customers or notes…"
+			mobileGroupBy={(j) => formatDayHeading(j.jobDate)}
+			emptyMessage={`No jobs logged in ${selectedYear}.`}
+		/>
 	{/if}
-</div>
+</PageShell>

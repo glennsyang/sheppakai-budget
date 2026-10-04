@@ -89,9 +89,7 @@
 <Dialog.Root bind:open>
 	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
-			<Dialog.Title
-				>{isEditing ? 'Edit Recurring Expense' : 'Add New Recurring Expense'}</Dialog.Title
-			>
+			<Dialog.Title>{isEditing ? 'Edit recurring bill' : 'Add recurring bill'}</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
 					? 'Update this recurring expense entry. Modify the merchant, description, cadence, or amount as needed.'
@@ -161,6 +159,7 @@
 						id="recurring-due-day"
 						name="dueDay"
 						type="number"
+						inputmode="numeric"
 						min="1"
 						max="31"
 						bind:value={$form.dueDay}
@@ -204,6 +203,7 @@
 					id="recurring-amount"
 					name="amount"
 					type="number"
+					inputmode="decimal"
 					step="0.01"
 					min="0"
 					bind:value={$form.amount}

@@ -144,7 +144,7 @@
 	{#if user.banned}
 		<DropdownMenu.Item onclick={() => (openUnbanDialog = true)}>Unban User</DropdownMenu.Item>
 	{:else}
-		<DropdownMenu.Item onclick={() => (openBanDialog = true)}>Ban User</DropdownMenu.Item>
+		<DropdownMenu.Item onclick={() => (openBanDialog = true)}>Ban user</DropdownMenu.Item>
 	{/if}
 	<DropdownMenu.Item onclick={() => (openWelcomeModal = true)}>Send Welcome Email</DropdownMenu.Item
 	>
@@ -156,7 +156,7 @@
 <Dialog.Root bind:open={openSetRoleDialog}>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Set User Role</Dialog.Title>
+			<Dialog.Title>Set user role</Dialog.Title>
 			<Dialog.Description>Change the role for {user.email}</Dialog.Description>
 		</Dialog.Header>
 		<form method="POST" action="/admin/users?/setRole" use:setRoleEnhance>
@@ -194,7 +194,7 @@
 <Dialog.Root bind:open={openSetPasswordDialog}>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Set User Password</Dialog.Title>
+			<Dialog.Title>Set user password</Dialog.Title>
 			<Dialog.Description>Set a new password for {user.email}</Dialog.Description>
 		</Dialog.Header>
 		<form class="space-y-4" method="POST" action="/admin/users?/setPassword" use:setPasswordEnhance>
@@ -227,11 +227,11 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-<!-- Ban User Dialog -->
+<!-- Ban user Dialog -->
 <Dialog.Root bind:open={openBanDialog}>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Ban User</Dialog.Title>
+			<Dialog.Title>Ban user</Dialog.Title>
 			<Dialog.Description>Ban {user.email} from the application</Dialog.Description>
 		</Dialog.Header>
 		<form class="space-y-4" method="POST" action="/admin/users?/banUser" use:banUserEnhance>
@@ -256,7 +256,7 @@
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
 				<Button type="submit" disabled={$banUserSubmitting}>
-					{$banUserSubmitting ? 'Updating...' : 'Ban User'}
+					{$banUserSubmitting ? 'Updating...' : 'Ban user'}
 				</Button>
 			</Dialog.Footer>
 		</form>
@@ -268,7 +268,7 @@
 	bind:open={openUnbanDialog}
 	id={user.id}
 	actionUrl="/admin/users?/unbanUser"
-	title="Unban User"
+	title="Unban user"
 	message="Are you sure you want to unban {user.email}?"
 	confirmButtonText="Unban User"
 />
@@ -278,7 +278,7 @@
 	bind:open={openRevokeDialog}
 	id={user.id}
 	actionUrl="/admin/users?/revokeSession"
-	title="Revoke Session"
+	title="Revoke session"
 	message="Are you sure you want to permanently revoke all sessions for {user.email}? This action cannot be undone."
 	confirmButtonText="Revoke Session"
 />
@@ -288,7 +288,7 @@
 	bind:open={openWelcomeModal}
 	id={user.id}
 	actionUrl="/admin/users?/sendWelcomeEmail"
-	title="Send Welcome Email"
+	title="Send welcome email"
 	message="Send {user.email} a welcome email with a new 72-hour link to set their password?"
 	confirmButtonText="Send Email"
 />
@@ -298,7 +298,7 @@
 	bind:open={openDeleteModal}
 	id={user.id}
 	actionUrl="/admin/users?/deleteUser"
-	title="Delete User"
+	title="Delete user"
 	message="Are you sure you want to permanently delete {user.email}? This action cannot be undone."
 	confirmButtonText="Delete User"
 />

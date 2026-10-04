@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AuthFormMessage from '$lib/components/AuthFormMessage.svelte';
+	import FormMessage from '$lib/components/FormMessage.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { Field, FieldGroup, FieldLabel } from '$lib/components/ui/field';
@@ -15,30 +16,27 @@
 	const { form, errors, message, submitting, enhance } = superForm(data.form);
 </script>
 
-<Card.Root class="mx-auto w-full max-w-sm">
-	<Card.Header class="text-center">
-		<Card.Title class="text-2xl">Sign In</Card.Title>
-		<Card.Description>Enter your credentials to access your account</Card.Description>
+<svelte:head>
+	<title>Sign in · Sheppakai Budget</title>
+</svelte:head>
+
+<Card.Root class="w-full">
+	<Card.Header>
+		<Card.Title class="text-xl tracking-tight">Sign in</Card.Title>
+		<Card.Description>Welcome back.</Card.Description>
 	</Card.Header>
 	<Card.Content>
 		<form method="POST" use:enhance>
 			<FieldGroup>
 				{#if data.resetComplete}
-					<div
-						class="rounded-lg bg-green-50 p-4 text-sm text-green-800 dark:bg-green-900/20"
-						role="status"
-					>
-						Password reset successfully! You can now sign in with your new password.
-					</div>
+					<FormMessage type="success" text="Password changed. Sign in with your new password." />
 				{/if}
 
 				{#if data.invalidVerificationLink}
-					<div
-						class="rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-900/20"
-						role="alert"
-					>
-						That verification link is invalid or has expired. Please sign in or request a new one.
-					</div>
+					<FormMessage
+						type="error"
+						text="That verification link is invalid or has expired. Sign in to get a new one."
+					/>
 				{/if}
 
 				<AuthFormMessage message={$message} />
@@ -49,7 +47,7 @@
 						id="email"
 						name="email"
 						type="email"
-						placeholder="Enter your email"
+						placeholder="you@example.com"
 						bind:value={$form.email}
 						class={$errors.email ? 'border-destructive' : ''}
 						autocomplete="email"
@@ -63,7 +61,10 @@
 				<Field>
 					<div class="flex items-center">
 						<FieldLabel for="password">Password</FieldLabel>
-						<a href="/forgot-password" class="ms-auto text-sm font-medium underline">
+						<a
+							href="/forgot-password"
+							class="text-primary ms-auto text-sm font-medium hover:underline"
+						>
 							Forgot password?
 						</a>
 					</div>
@@ -71,7 +72,6 @@
 						id="password"
 						name="password"
 						type="password"
-						placeholder="Enter your password"
 						bind:value={$form.password}
 						class={$errors.password ? 'border-destructive' : ''}
 						autocomplete="current-password"
@@ -85,10 +85,10 @@
 				<Field>
 					<Button type="submit" class="w-full" disabled={$submitting} aria-busy={$submitting}>
 						{#if $submitting}
-							<Spinner class="mr-2" aria-hidden="true" />
-							Signing In...
+							<Spinner aria-hidden="true" />
+							Signing in…
 						{:else}
-							Sign In
+							Sign in
 						{/if}
 					</Button>
 				</Field>

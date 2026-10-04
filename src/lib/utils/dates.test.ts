@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+	formatDayHeading,
 	calculateMonthsSinceJanuary,
 	extractDateFromTimestamp,
 	filterByDateRange,
@@ -792,5 +793,17 @@ describe('Date Utilities - Local Timezone Storage', () => {
 			const referenceDate = new Date('2026-03-06T23:59:00');
 			expect(getDaysUntilDue(new Date(2026, 2, 7, 0, 1), referenceDate)).toBe(1);
 		});
+	});
+});
+
+describe('formatDayHeading', () => {
+	const now = new Date('2026-10-03T12:00:00');
+
+	it('omits the year for dates in the current year', () => {
+		expect(formatDayHeading('2026-10-02', now)).toBe('Fri, Oct 2');
+	});
+
+	it('adds the year for other years', () => {
+		expect(formatDayHeading('2025-12-31 08:00:00', now)).toBe('Wed, Dec 31, 2025');
 	});
 });

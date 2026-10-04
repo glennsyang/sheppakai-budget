@@ -16,8 +16,8 @@ describe('AuthFormMessage', () => {
 		}).body;
 
 		expect(html).toContain('Registration successful! Please sign in.');
-		expect(html).toContain('bg-green-50/80');
-		expect(html).toContain('text-positive');
+		expect(html).toContain('role="status"');
+		expect(html).not.toContain('text-destructive');
 	});
 
 	it('renders error styling for an error message', () => {
@@ -26,7 +26,7 @@ describe('AuthFormMessage', () => {
 		}).body;
 
 		expect(html).toContain('Invalid email or password');
-		expect(html).toContain('bg-red-50/80');
+		expect(html).toContain('role="alert"');
 		expect(html).toContain('text-destructive');
 	});
 
@@ -42,7 +42,7 @@ describe('AuthFormMessage', () => {
 			}
 		}).body;
 
-		expect(html).toContain('bg-green-50/80');
-		expect(html).not.toContain('bg-red-50/80');
+		expect(html).toContain('role="status"');
+		expect(html).not.toContain('role="alert"');
 	});
 });

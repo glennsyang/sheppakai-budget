@@ -17,15 +17,11 @@
 	const { form, errors, message, submitting, enhance } = superForm(data.form);
 </script>
 
-<Card.Root class="mx-auto w-full max-w-sm">
+<Card.Root class="w-full">
 	{#if data.invalid}
-		<Card.Header class="text-center">
-			<div
-				class="bg-destructive/10 mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-full"
-			>
-				<CircleXIcon class="text-destructive h-8 w-8" />
-			</div>
-			<Card.Title class="text-2xl">Invalid or expired link</Card.Title>
+		<Card.Header>
+			<CircleXIcon class="text-destructive mb-1 size-5" aria-hidden="true" />
+			<Card.Title class="text-xl tracking-tight">Invalid or expired link</Card.Title>
 			<Card.Description>
 				This password reset link is no longer valid. Request a new one and we'll email it right
 				over.
@@ -37,16 +33,18 @@
 					<Button href={FORGOT_PASSWORD_ROUTE} class="w-full">Request a new link</Button>
 				</Field>
 				<Field>
-					<a href={SIGN_IN_ROUTE} class="text-center text-sm font-medium underline">
+					<a href={SIGN_IN_ROUTE} class="text-primary text-sm font-medium hover:underline">
 						Back to sign in
 					</a>
 				</Field>
 			</FieldGroup>
 		</Card.Content>
 	{:else}
-		<Card.Header class="text-center">
-			<Card.Title class="text-2xl">Reset Password</Card.Title>
-			<Card.Description>Enter your new password</Card.Description>
+		<Card.Header>
+			<Card.Title class="text-xl tracking-tight">Choose a new password</Card.Title>
+			<Card.Description
+				>12 or more characters, with upper and lower case, a number and a symbol.</Card.Description
+			>
 		</Card.Header>
 		<Card.Content>
 			<form method="POST" use:enhance>
@@ -61,7 +59,6 @@
 							id="password"
 							name="password"
 							type="password"
-							placeholder="12+ characters, incl. upper/lower/number/symbol"
 							bind:value={$form.password}
 							class={$errors.password ? 'border-destructive' : ''}
 							autocomplete="new-password"
@@ -78,7 +75,6 @@
 							id="confirmPassword"
 							name="confirmPassword"
 							type="password"
-							placeholder="Confirm new password"
 							bind:value={$form.confirmPassword}
 							class={$errors.confirmPassword ? 'border-destructive' : ''}
 							autocomplete="new-password"
@@ -92,16 +88,16 @@
 					<Field>
 						<Button type="submit" class="w-full" disabled={$submitting} aria-busy={$submitting}>
 							{#if $submitting}
-								<Spinner class="mr-2" aria-hidden="true" />
-								Resetting...
+								<Spinner aria-hidden="true" />
+								Saving…
 							{:else}
-								Reset Password
+								Save new password
 							{/if}
 						</Button>
 					</Field>
 
 					<Field>
-						<a href={SIGN_IN_ROUTE} class="text-center text-sm font-medium underline">
+						<a href={SIGN_IN_ROUTE} class="text-primary text-sm font-medium hover:underline">
 							Back to sign in
 						</a>
 					</Field>

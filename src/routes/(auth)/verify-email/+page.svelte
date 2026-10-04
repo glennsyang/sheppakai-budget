@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AuthFormMessage from '$lib/components/AuthFormMessage.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import { MailIcon } from '@lucide/svelte/icons';
 	import { superForm } from 'sveltekit-superforms';
 
@@ -16,53 +17,37 @@
 	<title>Verify Your Email - Sheppakai Budget</title>
 </svelte:head>
 
-<div class="bg-background flex min-h-screen items-center justify-center px-4 py-12">
-	<div class="w-full max-w-md space-y-8">
-		<div class="text-center">
-			<div
-				class="bg-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-			>
-				<MailIcon class="text-primary h-8 w-8" />
-			</div>
-			<h1 class="text-3xl font-bold tracking-tight">Check your email</h1>
-			<p class="text-muted-foreground mt-2 text-sm">We've sent a verification link to</p>
-			<p class="text-foreground mt-1 text-sm font-medium">
-				{data.email}
-			</p>
-		</div>
-
+<Card.Root class="w-full">
+	<Card.Header>
+		<MailIcon class="text-primary mb-1 size-5" aria-hidden="true" />
+		<Card.Title class="text-xl tracking-tight">Check your email</Card.Title>
+		<Card.Description>
+			We sent a verification link to <span class="text-foreground font-medium">{data.email}</span>.
+		</Card.Description>
+	</Card.Header>
+	<Card.Content class="flex flex-col gap-4">
 		<AuthFormMessage message={$message} />
 
-		<div class="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
-			<div class="space-y-4">
-				<div>
-					<h2 class="text-lg font-semibold">Next steps:</h2>
-					<ol class="text-muted-foreground mt-3 space-y-2 text-sm">
-						<li class="flex items-start">
-							<span class="text-foreground mr-2 font-semibold">1.</span>
-							<span>Open the email we just sent you</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-foreground mr-2 font-semibold">2.</span>
-							<span>Click the verification link in the email</span>
-						</li>
-						<li class="flex items-start">
-							<span class="text-foreground mr-2 font-semibold">3.</span>
-							<span>You'll be automatically signed in and redirected to your dashboard</span>
-						</li>
-					</ol>
-				</div>
+		<ol class="text-muted-foreground flex flex-col gap-2 text-sm">
+			<li class="flex gap-2.5">
+				<span class="text-foreground w-3 shrink-0 font-medium tabular-nums">1</span>
+				Open the email we just sent.
+			</li>
+			<li class="flex gap-2.5">
+				<span class="text-foreground w-3 shrink-0 font-medium tabular-nums">2</span>
+				Tap the verification link.
+			</li>
+			<li class="flex gap-2.5">
+				<span class="text-foreground w-3 shrink-0 font-medium tabular-nums">3</span>
+				You'll be signed in and taken to your dashboard.
+			</li>
+		</ol>
 
-				<div class="bg-muted rounded-md p-3">
-					<p class="text-muted-foreground text-xs">
-						💡 <strong>Tip:</strong> If you don't see the email, check your spam or junk folder. The verification
-						link will expire in 10 minutes.
-					</p>
-				</div>
-			</div>
-		</div>
+		<p class="bg-muted/60 text-muted-foreground rounded-[10px] px-3 py-2.5 text-xs">
+			Not there? Check spam or junk. The link expires in 10 minutes.
+		</p>
 
-		<form method="POST" action="?/resend" use:enhance class="space-y-2">
+		<form method="POST" action="?/resend" use:enhance class="flex flex-col gap-2">
 			<input type="hidden" name="email" bind:value={$form.email} />
 			<Button
 				type="submit"
@@ -71,17 +56,12 @@
 				disabled={$submitting}
 				aria-busy={$submitting}
 			>
-				{$submitting ? 'Sending verification email…' : 'Resend verification email'}
+				{$submitting ? 'Sending…' : 'Resend verification email'}
 			</Button>
 			{#if $errors.email}
-				<p class="text-destructive text-sm">{$errors.email}</p>
+				<p class="text-destructive text-xs">{$errors.email}</p>
 			{/if}
 		</form>
-
-		<div class="text-center">
-			<a href="/sign-in">
-				<Button variant="outline" class="w-full">Back to Sign In</Button>
-			</a>
-		</div>
-	</div>
-</div>
+		<Button href="/sign-in" variant="ghost" class="w-full">Back to sign in</Button>
+	</Card.Content>
+</Card.Root>

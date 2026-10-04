@@ -19,7 +19,6 @@ function renderShell(loadError?: string): string {
 			selectedMonth: 1,
 			selectedYear: 2026,
 			onMonthYearChange: () => {},
-			onMonthJump: () => {},
 			tableContent,
 			summaryContent,
 			loadError

@@ -7,33 +7,33 @@
 
 	let { data }: PageProps = $props();
 
-	function getYearlyAverageGasPerMonth(yearlyTotalAmount: number): number | null {
+	function averagePerMonth(yearlyTotalAmount: number) {
 		const completedMonthsSinceJanuary = data.completedMonthsSinceJanuary ?? 0;
+		const average =
+			data.yearlyTransactions.length === 0 || completedMonthsSinceJanuary <= 0
+				? null
+				: yearlyTotalAmount / completedMonthsSinceJanuary;
 
-		if (data.yearlyTransactions.length === 0 || completedMonthsSinceJanuary <= 0) {
-			return null;
-		}
-
-		return yearlyTotalAmount / completedMonthsSinceJanuary;
+		return [
+			{
+				label: 'Monthly average',
+				value: average === null ? '—' : formatCurrency(average),
+				subtext: 'Completed months this year'
+			}
+		];
 	}
 </script>
 
 <ReceiptsPage
-	title="Fuel Receipts"
-	description="Gas category transactions to track your GST"
+	title="Fuel receipts"
+	subtitle="Gas purchases and the GST on them, for the business books"
 	basePath="/receipts/fuel"
 	{columns}
-	amountLabel="Total Gas"
+	amountLabel="Fuel"
+	addLabel="Add fuel receipt"
 	monthlyTransactions={data.monthlyTransactions}
 	yearlyTransactions={data.yearlyTransactions}
 	form={data.form}
 	loadError={data.loadError}
->
-	{#snippet yearlyExtra(yearlyTotalAmount)}
-		{@const average = getYearlyAverageGasPerMonth(yearlyTotalAmount)}
-		<div class="mb-3 flex items-center justify-between">
-			<span class="text-base font-medium">Monthly Average:</span>
-			<span class="text-xl font-bold">{average === null ? '—' : formatCurrency(average)}</span>
-		</div>
-	{/snippet}
-</ReceiptsPage>
+	yearlyExtra={averagePerMonth}
+/>

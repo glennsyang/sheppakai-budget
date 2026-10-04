@@ -74,7 +74,7 @@
 <Dialog.Root bind:open>
 	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
-			<Dialog.Title>{isEditing ? 'Edit Transaction' : 'Add New Transaction'}</Dialog.Title>
+			<Dialog.Title>{isEditing ? 'Edit transaction' : 'Add transaction'}</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
 					? 'Update this transaction entry. Modify the amount, payee, notes, date, or category as needed.'
@@ -96,6 +96,7 @@
 						id="transaction-amount"
 						name="amount"
 						type="number"
+						inputmode="decimal"
 						step="0.01"
 						min="0"
 						bind:value={$form.amount}
@@ -113,6 +114,7 @@
 						id="transaction-gst-amount"
 						name="gstAmount"
 						type="number"
+						inputmode="decimal"
 						step="0.01"
 						min="0"
 						bind:value={$form.gstAmount}

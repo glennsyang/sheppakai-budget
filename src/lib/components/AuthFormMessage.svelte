@@ -1,17 +1,13 @@
 <script lang="ts">
+	import FormMessage from '$lib/components/FormMessage.svelte';
+
 	interface Props {
 		message: App.Superforms.Message | undefined;
 	}
 
 	let { message }: Props = $props();
-
-	const isSuccess = $derived(message?.type === 'success');
 </script>
 
 {#if message}
-	<div class="rounded-md p-4 {isSuccess ? 'bg-green-50/80' : 'bg-red-50/80'} backdrop-blur-sm">
-		<div class="text-sm {isSuccess ? 'text-positive' : 'text-destructive'}">
-			{message.text}
-		</div>
-	</div>
+	<FormMessage type={message.type === 'success' ? 'success' : 'error'} text={message.text} />
 {/if}

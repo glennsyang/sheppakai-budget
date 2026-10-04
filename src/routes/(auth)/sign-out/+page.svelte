@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
+	import * as Card from '$lib/components/ui/card';
 	import { Spinner } from '$lib/components/ui/spinner';
 
 	let isSubmitting = $state(false);
 </script>
 
-<div class="flex min-h-screen items-center justify-center bg-gray-100">
-	<div class="w-full max-w-md space-y-6 rounded-lg bg-white p-8 text-center shadow-lg">
-		<div>
-			<h1 class="text-3xl font-bold">Sign Out</h1>
-			<p class="mt-2 text-gray-600">Are you sure you want to sign out?</p>
-		</div>
-
+<Card.Root class="w-full">
+	<Card.Header>
+		<Card.Title class="text-xl tracking-tight">Sign out?</Card.Title>
+		<Card.Description>You'll need your email and password to get back in.</Card.Description>
+	</Card.Header>
+	<Card.Content class="flex flex-col gap-2">
 		<form
 			method="POST"
 			use:enhance={() => {
@@ -26,16 +26,13 @@
 		>
 			<Button type="submit" class="w-full" disabled={isSubmitting} aria-busy={isSubmitting}>
 				{#if isSubmitting}
-					<Spinner class="mr-2" aria-hidden="true" />
-					Signing Out...
+					<Spinner aria-hidden="true" />
+					Signing out…
 				{:else}
-					Sign Out
+					Sign out
 				{/if}
 			</Button>
 		</form>
-
-		<div class="text-center">
-			<a href="/dashboard" class="text-sm"> Cancel </a>
-		</div>
-	</div>
-</div>
+		<Button href="/dashboard" variant="ghost" class="w-full">Cancel</Button>
+	</Card.Content>
+</Card.Root>

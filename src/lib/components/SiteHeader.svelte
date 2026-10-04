@@ -1,12 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import type { SidebarData } from '$lib';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import MoonIcon from '@lucide/svelte/icons/moon';
-	import SunIcon from '@lucide/svelte/icons/sun';
-	import { toggleMode } from 'mode-watcher';
 
 	interface Props {
 		sidebarData: SidebarData;
@@ -19,7 +16,7 @@
 		[null, sidebarData.navMain],
 		['Savings', sidebarData.navSavings],
 		['Receipts', sidebarData.navReceipts],
-		['Window Cleaning', sidebarData.navWindows],
+		['Window cleaning', sidebarData.navWindows],
 		['Setup', sidebarData.navSetup]
 	]);
 
@@ -33,6 +30,9 @@
 					best = { section, title: item.title, length: item.url.length };
 				}
 			}
+		}
+		if (!best && (path === '/profile' || path.startsWith('/profile/'))) {
+			return { section: null, title: 'Profile', length: 0 };
 		}
 		return best;
 	});
@@ -52,20 +52,7 @@
 			<span class="truncate font-medium">{crumb?.title ?? 'Sheppakai Budget'}</span>
 		</p>
 		<div class="ms-auto flex items-center gap-2">
-			<Button
-				onclick={toggleMode}
-				variant="ghost"
-				size="icon"
-				class="text-muted-foreground h-11 w-11 md:h-8 md:w-8"
-			>
-				<SunIcon
-					class="h-[1.1rem] w-[1.1rem] scale-100 rotate-0 transition-all! dark:scale-0 dark:-rotate-90"
-				/>
-				<MoonIcon
-					class="absolute h-[1.1rem] w-[1.1rem] scale-0 rotate-90 transition-all! dark:scale-100 dark:rotate-0"
-				/>
-				<span class="sr-only">Toggle theme</span>
-			</Button>
+			<ThemeToggle />
 		</div>
 	</div>
 </header>

@@ -31,7 +31,7 @@
 	bind:open={openDeleteModal}
 	{id}
 	actionUrl="/savings?/delete"
-	title="Delete Savings"
+	title="Delete savings account"
 	message="Are you sure you want to delete this savings entry?"
 	confirmButtonText="Delete"
 />

@@ -1,84 +1,61 @@
 import type { UserWithSessions } from '$lib';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { badgeCell, stackCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
 export const columns: ColumnDef<Features, UserWithSessions>[] = [
 	{
-		accessorKey: 'email',
-		header: 'Email'
-	},
-	{
 		accessorKey: 'name',
-		header: 'Name',
-		cell: ({ row }) => {
-			return row.original.name || '-';
-		}
+		header: 'User',
+		accessorFn: (row) => `${row.name ?? ''} ${row.email}`,
+		cell: ({ row }) =>
+			stackCell(
+				row.original.name || row.original.email,
+				row.original.name ? row.original.email : null
+			),
+		meta: { mobile: 'title' }
 	},
 	{
 		accessorKey: 'role',
 		header: 'Role',
 		cell: ({ row }) => {
-			const roleSnippet = createRawSnippet<[string]>((getRole) => {
-				const role = getRole();
-				const badgeClass =
-					role === 'admin'
-						? 'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-						: 'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-				return {
-					render: () => `<span class="${badgeClass}">${role}</span>`
-				};
+			const role = row.original.role ?? 'user';
+			return badgeCell({
+				label: role === 'admin' ? 'Admin' : 'User',
+				tone: role === 'admin' ? 'neutral' : 'muted'
 			});
-
-			return renderSnippet(roleSnippet, row.original.role ?? 'user');
-		}
+		},
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'banned',
 		header: 'Status',
-		cell: ({ row }) => {
-			const statusSnippet = createRawSnippet<[{ banned: boolean; banReason: string | null }]>(
-				(getStatus) => {
-					const { banned, banReason } = getStatus();
-					if (banned) {
-						const title = banReason ? `Banned: ${banReason}` : 'Banned';
-						return {
-							render: () =>
-								`<span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" title="${title}">Banned</span>`
-						};
-					}
-					return {
-						render: () =>
-							'<span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>'
-					};
-				}
-			);
-
-			return renderSnippet(statusSnippet, {
-				banned: row.original.banned ?? false,
-				banReason: row.original.banReason ?? ''
-			});
-		}
+		accessorFn: (row) => (row.banned ? 'Banned' : 'Active'),
+		cell: ({ row }) =>
+			row.original.banned
+				? badgeCell({
+						label: 'Banned',
+						tone: 'negative',
+						title: row.original.banReason ? `Banned: ${row.original.banReason}` : 'Banned'
+					})
+				: badgeCell({ label: 'Active', tone: 'muted' }),
+		meta: { mobile: 'subvalue' }
 	},
 	{
 		accessorKey: 'createdAt',
-		header: 'Created',
-		cell: ({ row }) => {
-			return new Date(row.original.createdAt).toLocaleDateString();
-		}
+		header: 'Joined',
+		cell: ({ row }) =>
+			new Date(row.original.createdAt).toLocaleDateString('en-US', {
+				month: 'short',
+				day: 'numeric',
+				year: 'numeric'
+			}),
+		meta: { mobile: 'detail' }
 	},
 	{
 		id: 'actions',
-		cell: ({ row }) => {
-			return renderComponent(DataTableActions, {
-				user: row.original
-			});
-		}
+		cell: ({ row }) => renderComponent(DataTableActions, { user: row.original })
 	}
 ];

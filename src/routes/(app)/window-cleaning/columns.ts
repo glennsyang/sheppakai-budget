@@ -1,20 +1,16 @@
 import type { WindowCleaningCustomerWithStats } from '$lib';
 import DataTableSortButton from '$lib/components/DataTableSortButton.svelte';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { moneyCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import { formatLocalTimestamp } from '$lib/utils/dates';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
-const currencyFormatter = new Intl.NumberFormat('en-CA', {
-	style: 'currency',
-	currency: 'CAD'
-});
+function formatAddress(customer: WindowCleaningCustomerWithStats) {
+	const unit = customer.unitNumber ? `, Unit ${customer.unitNumber}` : '';
+	return `${customer.address}${unit}, ${customer.city}`;
+}
 
 export const columns: ColumnDef<Features, WindowCleaningCustomerWithStats>[] = [
 	{
@@ -23,7 +19,8 @@ export const columns: ColumnDef<Features, WindowCleaningCustomerWithStats>[] = [
 			renderComponent(DataTableSortButton, {
 				columnName: 'Name',
 				onclick: column.getToggleSortingHandler()
-			})
+			}),
+		meta: { mobile: 'title' }
 	},
 	{
 		accessorKey: 'address',
@@ -31,7 +28,9 @@ export const columns: ColumnDef<Features, WindowCleaningCustomerWithStats>[] = [
 			renderComponent(DataTableSortButton, {
 				columnName: 'Address',
 				onclick: column.getToggleSortingHandler()
-			})
+			}),
+		cell: ({ row }) => formatAddress(row.original),
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'phoneNumber',
@@ -42,42 +41,33 @@ export const columns: ColumnDef<Features, WindowCleaningCustomerWithStats>[] = [
 		id: 'lastJobDate',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
-				columnName: 'Last Visit',
+				columnName: 'Last visit',
 				onclick: column.getToggleSortingHandler()
 			}),
 		accessorFn: (row) => row.lastJobDate ?? '',
 		cell: ({ row }) =>
-			row.original.lastJobDate ? formatLocalTimestamp(row.original.lastJobDate) : '—'
+			row.original.lastJobDate ? formatLocalTimestamp(row.original.lastJobDate) : 'Never',
+		meta: { mobile: 'subvalue', width: 'w-32' }
 	},
 	{
 		id: 'lastCharged',
-		header: 'Last Charged',
+		header: 'Last charged',
 		cell: ({ row }) => {
 			const latestJob = row.original.jobs[0];
-			if (!latestJob) return '—';
-			const amountSnippet = createRawSnippet<[string]>((getAmount) => {
-				const amount = getAmount();
-				return { render: () => `<div class="text-right">${amount}</div>` };
-			});
-			return renderSnippet(amountSnippet, currencyFormatter.format(latestJob.amountCharged));
-		}
+			return latestJob ? moneyCell(latestJob.amountCharged, { currency: 'CAD', muted: true }) : '—';
+		},
+		meta: { align: 'end' }
 	},
 	{
 		id: 'totalEarned',
 		header: ({ column }) =>
 			renderComponent(DataTableSortButton, {
-				columnName: 'Total Earned',
-				onclick: column.getToggleSortingHandler(),
-				class: 'justify-end w-full'
+				columnName: 'Total earned',
+				onclick: column.getToggleSortingHandler()
 			}),
 		accessorFn: (row) => row.totalEarned,
-		cell: ({ row }) => {
-			const amountSnippet = createRawSnippet<[string]>((getAmount) => {
-				const amount = getAmount();
-				return { render: () => `<div class="text-right font-medium">${amount}</div>` };
-			});
-			return renderSnippet(amountSnippet, currencyFormatter.format(row.original.totalEarned));
-		}
+		cell: ({ row }) => moneyCell(row.original.totalEarned, { currency: 'CAD' }),
+		meta: { mobile: 'value', align: 'end' }
 	},
 	{
 		id: 'actions',

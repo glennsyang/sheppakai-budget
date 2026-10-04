@@ -83,7 +83,7 @@
 <Dialog.Root bind:open>
 	<Dialog.Content class="sm:max-w-106.25">
 		<Dialog.Header>
-			<Dialog.Title>{isEditing ? 'Edit Savings Goal' : 'Create New Savings Goal'}</Dialog.Title>
+			<Dialog.Title>{isEditing ? 'Edit savings goal' : 'New savings goal'}</Dialog.Title>
 			<Dialog.Description>
 				{isEditing
 					? 'Update your savings goal details. Modify the name, target amount, or status as needed.'
@@ -132,6 +132,7 @@
 					id="goal-target-amount"
 					name="targetAmount"
 					type="number"
+					inputmode="decimal"
 					step="0.01"
 					min="0"
 					bind:value={$form.targetAmount}

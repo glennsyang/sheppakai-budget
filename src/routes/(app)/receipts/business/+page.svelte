@@ -8,11 +8,12 @@
 </script>
 
 <ReceiptsPage
-	title="Business Receipts"
-	description="Track your business expenses with GST"
+	title="Business receipts"
+	subtitle="Business expenses and the GST on them, for the books"
 	basePath="/receipts/business"
 	{columns}
-	amountLabel="Total Amount"
+	amountLabel="Spent"
+	addLabel="Add business receipt"
 	monthlyTransactions={data.monthlyTransactions}
 	yearlyTransactions={data.yearlyTransactions}
 	form={data.form}

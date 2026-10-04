@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { Recurring } from '$lib';
+	import DashboardStatStrip, { type Stat } from '$lib/components/DashboardStatStrip.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
+	import PageShell from '$lib/components/PageShell.svelte';
 	import RecurringModal from '$lib/components/RecurringModal.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
@@ -19,88 +21,62 @@
 	let openModal = $state<boolean>(false);
 	const unpaidAsOf = new Intl.DateTimeFormat('en-US', {
 		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
+		day: 'numeric'
 	}).format(new Date());
 
-	const getRecurringRowClass = (recurring: Recurring) => {
-		return recurring.paid ? 'bg-green-50/80 dark:bg-emerald-900/60 dark:text-emerald-100' : '';
-	};
+	// Paid bills recede so what is still owed stands out.
+	const getRecurringRowClass = (recurring: Recurring) =>
+		recurring.paid ? 'text-muted-foreground' : '';
 
-	// Calculate total recurring expenses
 	let totalRecurring = $derived(data.recurrings.reduce((sum, item) => sum + item.amount, 0));
-
-	// Calculate total unpaid recurring expenses
 	let totalUnpaidRecurring = $derived(
 		data.recurrings.filter((item) => !item.paid).reduce((sum, item) => sum + item.amount, 0)
 	);
+	let paidCount = $derived(data.recurrings.filter((item) => item.paid).length);
+
+	let stats = $derived<Stat[]>([
+		{ label: 'Recurring total', value: formatCurrency(totalRecurring) },
+		{
+			label: 'Left to pay',
+			value: formatCurrency(totalUnpaidRecurring),
+			subtext: `Unpaid as of ${unpaidAsOf}`
+		},
+		{
+			label: 'Paid',
+			value: `${paidCount} of ${data.recurrings.length}`,
+			meter: data.recurrings.length > 0 ? (paidCount / data.recurrings.length) * 100 : 0
+		}
+	]);
 </script>
 
 <svelte:head>
-	<title>Recurring Transactions</title>
+	<title>Recurring</title>
 </svelte:head>
 
-<div class="px-4 py-6 sm:px-0">
-	<div class="flex flex-col gap-6 lg:grid lg:grid-cols-4">
-		<!-- Table Column (larger) -->
-		<div class="lg:col-span-3">
-			<div class="overflow-hidden rounded-lg border shadow">
-				<div class="p-6">
-					<div class="mb-4 flex items-center justify-between">
-						<div>
-							<h1 class="text-3xl font-bold tracking-tight">Recurring Expenses</h1>
-							<p class="text-muted-foreground mt-2">
-								Manage your monthly and yearly recurring expenses
-							</p>
-						</div>
-						<div class="flex items-center gap-2">
-							<Button size="sm" onclick={() => (openModal = true)}>
-								<PlusIcon />
-								Add
-							</Button>
-						</div>
-					</div>
-					{#if data.loadError}
-						<LoadErrorBanner message={data.loadError} />
-					{:else}
-						<DataTable {columns} data={data.recurrings} rowClassName={getRecurringRowClass} />
-					{/if}
-				</div>
-			</div>
-		</div>
+<PageShell
+	title="Recurring"
+	subtitle="Bills and subscriptions that come around every month or year"
+>
+	{#snippet actions()}
+		<Button onclick={() => (openModal = true)}>
+			<PlusIcon />
+			Add recurring
+		</Button>
+	{/snippet}
 
-		<!-- Summary Card Column -->
-		{#if !data.loadError}
-			<div class="lg:col-span-1">
-				<div class="overflow-hidden rounded-lg border shadow">
-					<div class="p-6">
-						<h2 class="text-center text-2xl font-bold tracking-tight">Summary</h2>
-						<div class="my-4 border-t"></div>
-						<div class="flex items-center justify-between">
-							<span class="text-base font-medium">Total Monthly Recurring: </span>
-							<span class="text-2xl font-bold">{formatCurrency(totalRecurring)}</span>
-						</div>
-					</div>
-				</div>
-
-				<div
-					class="mt-6 overflow-hidden rounded-lg border border-green-200/70 bg-green-50/40 shadow dark:border-green-900/60 dark:bg-green-950/20"
-				>
-					<div class="p-6">
-						<h2 class="text-center text-2xl font-bold tracking-tight">Unpaid</h2>
-						<p class="text-muted-foreground mt-1 text-center text-sm">Unpaid as of {unpaidAsOf}</p>
-						<div class="my-4 border-t"></div>
-						<div class="flex items-center justify-between">
-							<span class="text-base font-medium">Total Left to Pay: </span>
-							<span class="text-positive text-2xl font-bold"
-								>{formatCurrency(totalUnpaidRecurring)}</span
-							>
-						</div>
-					</div>
-				</div>
-			</div>
-		{/if}
-	</div>
-</div>
+	{#if data.loadError}
+		<LoadErrorBanner message={data.loadError} />
+	{:else}
+		<DashboardStatStrip {stats} />
+		<DataTable
+			{columns}
+			data={data.recurrings}
+			defaultPageSize={20}
+			rowClassName={getRecurringRowClass}
+			searchPlaceholder="Search bills…"
+			emptyMessage="No recurring bills yet. Add rent, subscriptions or insurance to see what is still owed each month."
+		/>
+	{/if}
+</PageShell>
 
 <RecurringModal bind:open={openModal} recurringForm={data.form} />

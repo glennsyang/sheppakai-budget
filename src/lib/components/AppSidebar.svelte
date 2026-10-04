@@ -54,7 +54,7 @@
 		<NavMain items={sidebarData.navMain} {activeUrl} />
 		<NavSecondary title="Savings" items={sidebarData.navSavings} {activeUrl} />
 		<NavSecondary title="Receipts" items={sidebarData.navReceipts} {activeUrl} />
-		<NavSecondary title="Window Cleaning" items={sidebarData.navWindows} {activeUrl} />
+		<NavSecondary title="Window cleaning" items={sidebarData.navWindows} {activeUrl} />
 		<NavSecondary title="Setup" items={sidebarData.navSetup} {user} {activeUrl} />
 	</Sidebar.Content>
 	<Sidebar.Footer>

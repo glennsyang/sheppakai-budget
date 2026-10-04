@@ -52,7 +52,7 @@
 <Dialog.Root bind:open={openUnarchiveDialog}>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Unarchive Savings Goal</Dialog.Title>
+			<Dialog.Title>Unarchive savings goal</Dialog.Title>
 			<Dialog.Description>
 				Are you sure you want to unarchive "{goal.name}" for {goal.user.name}? The goal will be set
 				to active status.

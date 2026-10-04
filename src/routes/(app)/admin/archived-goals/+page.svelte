@@ -1,5 +1,6 @@
 <script lang="ts">
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import { unArchiveFormContext } from '$lib/contexts';
 
@@ -13,22 +14,21 @@
 </script>
 
 <svelte:head>
-	<title>Archived Savings Goals</title>
+	<title>Archived goals · Admin</title>
 </svelte:head>
 
-<div class="space-y-4">
-	<div>
-		<h2 class="text-2xl font-bold">Archived Savings Goals</h2>
-		<p class="text-muted-foreground">View and restore archived savings goals</p>
-	</div>
+<SectionHeader
+	title="Archived goals"
+	description="Savings goals taken off the goals page. Restore one to bring it back."
+/>
 
-	{#if data.loadError}
-		<LoadErrorBanner message={data.loadError} />
-	{:else if data.archivedGoals.length === 0}
-		<div class="flex h-64 items-center justify-center rounded-lg border border-dashed">
-			<p class="text-muted-foreground">No archived goals found</p>
-		</div>
-	{:else}
-		<DataTable {columns} data={data.archivedGoals} />
-	{/if}
-</div>
+{#if data.loadError}
+	<LoadErrorBanner message={data.loadError} />
+{:else}
+	<DataTable
+		{columns}
+		data={data.archivedGoals}
+		searchable={data.archivedGoals.length > 10}
+		emptyMessage="No archived goals."
+	/>
+{/if}

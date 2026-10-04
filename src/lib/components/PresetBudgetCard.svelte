@@ -1,13 +1,10 @@
 <script lang="ts">
 	import { enhance as enhanceAction } from '$app/forms';
+	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { formatCurrency } from '$lib/utils';
 	import { actionMessage } from '$lib/utils/actionMessage';
 	import { padMonth } from '$lib/utils/dates';
-	import CheckIcon from '@lucide/svelte/icons/check';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
-	import PencilIcon from '@lucide/svelte/icons/pencil';
-	import XIcon from '@lucide/svelte/icons/x';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 
@@ -68,94 +65,70 @@
 		};
 </script>
 
+{#snippet radio()}
+	<span
+		class={[
+			'flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors',
+			isSelected ? 'border-primary bg-primary' : 'border-input bg-transparent'
+		]}
+		aria-hidden="true"
+	>
+		{#if isSelected}<span class="bg-primary-foreground size-1.5 rounded-full"></span>{/if}
+	</span>
+{/snippet}
+
 {#if isCustom}
-	<!-- Custom Amount Card -->
-	<div
-		class="bg-card relative cursor-pointer rounded-lg border p-4 shadow transition-all {isSelected
-			? 'border-positive hover:border-positive'
-			: 'hover:border-primary'}"
-		onclick={onSelect}
-		role="button"
-		tabindex="0"
-		onkeydown={(e) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
-				onSelect();
-			}
-		}}
-	>
-		<div class="absolute top-2 right-2">
-			{#if isSelected}
-				<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-			{:else}
-				<CheckCircleIcon class="h-5 w-5 text-gray-300" />
+	{#if isEditing}
+		<form
+			method="POST"
+			action={budgetId ? '?/update' : '?/create'}
+			use:enhanceAction={enhanceBudget}
+			class="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-5"
+		>
+			{@render radio()}
+			{#if budgetId}
+				<input type="hidden" name="id" value={budgetId} />
 			{/if}
-		</div>
-		<div class="flex flex-col items-center justify-center space-y-2 pt-2">
-			{#if isEditing}
-				<form
-					method="POST"
-					action={budgetId ? '?/update' : '?/create'}
-					use:enhanceAction={enhanceBudget}
-					class="flex flex-col items-center gap-2"
-				>
-					{#if budgetId}
-						<input type="hidden" name="id" value={budgetId} />
-					{/if}
-					<input type="hidden" name="month" value={padMonth(selectedMonth.toString())} />
-					<input type="hidden" name="year" value={selectedYear.toString()} />
-					<input type="hidden" name="categoryId" value={categoryId} />
-					<input type="hidden" name="presetType" value={presetType} />
-					<Input
-						type="number"
-						name="amount"
-						value={editAmount}
-						step="0.01"
-						min="0"
-						class="w-32 text-center text-2xl font-bold"
-						autofocus
-					/>
-					<div class="flex items-center gap-1">
-						<button type="submit" class="hover:text-positive rounded p-1 hover:bg-green-100">
-							<CheckIcon class="h-4 w-4" />
-						</button>
-						<button
-							type="button"
-							class="hover:text-destructive rounded p-1 hover:bg-red-100"
-							onclick={onCancel}
-						>
-							<XIcon class="h-4 w-4" />
-						</button>
-					</div>
-				</form>
-			{:else}
-				<p class="text-2xl font-bold">{formatCurrency(amount)}</p>
-			{/if}
-			<div class="flex items-center justify-center gap-1">
-				<p class="text-muted-foreground text-center text-sm">{title}</p>
-				{#if !isEditing}
-					<button
-						type="button"
-						class="hover:bg-muted rounded p-1"
-						onclick={(e) => {
-							e.stopPropagation();
-							if (onEdit) onEdit();
-						}}
-					>
-						<PencilIcon class="h-3 w-3" />
-					</button>
-				{/if}
+			<input type="hidden" name="month" value={padMonth(selectedMonth.toString())} />
+			<input type="hidden" name="year" value={selectedYear.toString()} />
+			<input type="hidden" name="categoryId" value={categoryId} />
+			<input type="hidden" name="presetType" value={presetType} />
+			<label for="custom-budget-amount" class="text-sm font-medium">{title}</label>
+			<div class="ms-auto flex items-center gap-2">
+				<Input
+					id="custom-budget-amount"
+					type="number"
+					inputmode="decimal"
+					name="amount"
+					value={editAmount}
+					step="0.01"
+					min="0"
+					class="w-32 text-right tabular-nums"
+					autofocus
+				/>
+				<Button type="submit" size="sm">Save</Button>
+				<Button type="button" size="sm" variant="ghost" onclick={onCancel}>Cancel</Button>
 			</div>
-		</div>
-	</div>
+		</form>
+	{:else}
+		<button
+			type="button"
+			aria-pressed={isSelected}
+			class="hover:bg-muted/60 focus-visible:bg-muted/60 flex w-full items-center gap-3 px-4 py-3 text-left outline-none sm:px-5"
+			onclick={() => {
+				onSelect();
+				onEdit?.();
+			}}
+		>
+			{@render radio()}
+			<span class="flex-1 text-sm font-medium">{title}</span>
+			<span class={['text-sm tabular-nums', isSelected ? 'font-medium' : 'text-muted-foreground']}>
+				{isSelected && amount > 0 ? formatCurrency(amount) : 'Enter amount'}
+			</span>
+		</button>
+	{/if}
 {:else}
-	<!-- Preset Amount Card -->
-	<form
-		method="POST"
-		action={budgetId ? '?/update' : '?/create'}
-		use:enhanceAction={enhanceBudget}
-		class="relative"
-	>
+	<form method="POST" action={budgetId ? '?/update' : '?/create'} use:enhanceAction={enhanceBudget}>
 		{#if budgetId}
 			<input type="hidden" name="id" value={budgetId} />
 		{/if}
@@ -166,25 +139,19 @@
 		<input type="hidden" name="presetType" value={presetType} />
 		<button
 			type="submit"
-			class="bg-card relative w-full rounded-lg border p-4 shadow transition-all {isSelected
-				? 'border-positive hover:border-positive'
-				: 'hover:border-primary'}"
+			aria-pressed={isSelected}
+			class="hover:bg-muted/60 focus-visible:bg-muted/60 flex w-full items-center gap-3 px-4 py-3 text-left outline-none sm:px-5"
 			onclick={(e) => {
 				e.preventDefault();
 				onSelect();
 				(e.currentTarget.closest('form') as HTMLFormElement)?.requestSubmit();
 			}}
 		>
-			<div class="absolute top-2 right-2">
-				{#if isSelected}
-					<CheckCircleIcon class="h-5 w-5 fill-green-500 text-white" />
-				{:else}
-					<CheckCircleIcon class="h-5 w-5 text-gray-300" />
-				{/if}
-			</div>
-			<div class="flex flex-col items-center justify-center space-y-2 pt-2">
-				<p class="text-2xl font-bold">{formatCurrency(amount)}</p>
-				<p class="text-muted-foreground text-center text-sm">{title}</p>
-			</div>
+			{@render radio()}
+			<span class="flex-1 text-sm font-medium">{title}</span>
+			<span class={['text-sm tabular-nums', isSelected ? 'font-medium' : 'text-muted-foreground']}>
+				{formatCurrency(amount)}
+			</span>
 		</button>
-	</form>{/if}
+	</form>
+{/if}

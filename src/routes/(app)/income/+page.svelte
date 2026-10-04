@@ -1,11 +1,12 @@
 <script lang="ts">
-	import type { Income } from '$lib';
+	import type { Stat } from '$lib/components/DashboardStatStrip.svelte';
 	import IncomeModal from '$lib/components/IncomeModal.svelte';
 	import MonthlyTablePageShell from '$lib/components/MonthlyTablePageShell.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { DataTable } from '$lib/components/ui/data-table';
 	import { incomeFormContext } from '$lib/contexts';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, monthNames } from '$lib/utils';
+	import { formatDayHeading } from '$lib/utils/dates';
 	import { useMonthYearParams } from '$lib/utils/monthYearParams.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
@@ -41,6 +42,22 @@
 	});
 
 	const monthYear = useMonthYearParams('/income');
+
+	let periodLabel = $derived(`${monthNames[monthYear.month - 1]} ${monthYear.year}`);
+
+	let stats = $derived<Stat[]>([
+		{
+			label: `Income in ${monthNames[monthYear.month - 1]}`,
+			value: formatCurrency(monthlyTotalIncome)
+		},
+		{ label: `Income in ${monthYear.year}`, value: formatCurrency(yearlyTotalIncome) },
+		{
+			label: 'Monthly average',
+			value:
+				yearlyAverageIncomePerMonth === null ? '—' : formatCurrency(yearlyAverageIncomePerMonth),
+			subtext: 'Completed months this year'
+		}
+	]);
 </script>
 
 <svelte:head>
@@ -49,60 +66,28 @@
 
 <MonthlyTablePageShell
 	title="Income"
+	subtitle="Pay, side-business deposits and anything else coming in"
 	loadError={data.loadError}
-	description="Manage your income sources"
 	selectedMonth={monthYear.month}
 	selectedYear={monthYear.year}
 	onMonthYearChange={monthYear.onMonthYearChange}
-	onMonthJump={monthYear.onMonthJump}
-	mainClass="flex flex-col gap-6 lg:grid lg:grid-cols-4"
-	tableColumnClass="lg:col-span-3"
-	summaryColumnClass="lg:col-span-1"
+	{stats}
 	skeletonColumns={columns.length}
 >
-	{#snippet headerActions()}
-		<Button size="sm" onclick={() => (openModal = true)}>
+	{#snippet primaryAction()}
+		<Button onclick={() => (openModal = true)}>
 			<PlusIcon />
-			Add
+			Add income
 		</Button>
 	{/snippet}
 
 	{#snippet tableContent()}
-		<DataTable {columns} data={data.monthlyIncomes} />
-	{/snippet}
-
-	{#snippet summaryContent()}
-		<div class="flex flex-col gap-6">
-			<div class="overflow-hidden rounded-lg border shadow">
-				<div class="p-6">
-					<h2 class="text-center text-2xl font-bold tracking-tight">Monthly Summary</h2>
-					<div class="my-4 border-t"></div>
-					<div class="flex items-center justify-between">
-						<span class="text-base font-medium">Total Income: </span>
-						<span class="text-2xl font-bold">{formatCurrency(monthlyTotalIncome)}</span>
-					</div>
-				</div>
-			</div>
-
-			<div class="overflow-hidden rounded-lg border shadow">
-				<div class="p-6">
-					<h2 class="text-center text-2xl font-bold tracking-tight">Yearly Summary</h2>
-					<div class="my-4 border-t"></div>
-					<div class="mb-3 flex items-center justify-between">
-						<span class="text-base font-medium">Total Income: </span>
-						<span class="text-2xl font-bold">{formatCurrency(yearlyTotalIncome)}</span>
-					</div>
-					<div class="mb-3 flex items-center justify-between">
-						<span class="text-base font-medium">Monthly Average:</span>
-						<span class="text-xl font-bold"
-							>{yearlyAverageIncomePerMonth === null
-								? '—'
-								: formatCurrency(yearlyAverageIncomePerMonth)}</span
-						>
-					</div>
-				</div>
-			</div>
-		</div>
+		<DataTable
+			{columns}
+			data={data.monthlyIncomes}
+			mobileGroupBy={(i) => formatDayHeading(i.date)}
+			emptyMessage={`No income recorded for ${periodLabel} yet.`}
+		/>
 	{/snippet}
 </MonthlyTablePageShell>
 

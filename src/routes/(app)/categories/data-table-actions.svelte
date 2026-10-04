@@ -30,7 +30,7 @@
 	bind:open={openDeleteModal}
 	{id}
 	actionUrl="/categories?/delete"
-	title="Delete Category"
+	title="Delete category"
 	message="Are you sure you want to delete this category?"
 	confirmButtonText="Delete"
 />

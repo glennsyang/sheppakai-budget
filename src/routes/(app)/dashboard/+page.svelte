@@ -30,6 +30,7 @@
 	import { dashboardSectionsForMode } from '$lib/dashboardSections';
 	import { formatCurrency, monthNames, months } from '$lib/utils';
 	import { computeCashFlowProjection } from '$lib/utils/cashFlowProjection';
+	import { categoryColorMap } from '$lib/utils/categoryColors';
 	import {
 		getCurrentPacificMonthYear,
 		getMonthProgress,
@@ -360,22 +361,7 @@
 	let totalGoalsTarget = $derived(goalsWithProgress.reduce((acc, g) => acc + g.targetAmount, 0));
 	let excludedExpensesTotal = $derived(data.excludedExpensesTotal || 0);
 
-	// Category identity colour, stable by alphabetical position. Seven hues 30° apart, clear of
-	// the red, amber and green bands reserved for money state, in two lightness tiers (14 colours).
-	// Handed out in a stride so neighbouring categories land far apart on both axes.
-	const CATEGORY_HUES = [190, 280, 340, 220, 310, 115, 250];
-	let categoryColors = $derived(
-		new Map(
-			sortedCategories.map((c, i) => {
-				const hue = CATEGORY_HUES[i % CATEGORY_HUES.length];
-				const tier = Math.floor(i / CATEGORY_HUES.length) % 2;
-				return [
-					c.id,
-					`oklch(calc(var(--category-l) - ${tier} * var(--category-tier-step)) var(--category-c) ${hue})`
-				];
-			})
-		)
-	);
+	let categoryColors = $derived(categoryColorMap(sortedCategories));
 	function categoryRows(list: { id: string; name: string }[]) {
 		return list.map((c) => ({
 			id: c.id,

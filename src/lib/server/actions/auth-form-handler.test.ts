@@ -48,7 +48,7 @@ describe('invalidAuthForm', () => {
 		const html = render(AuthFormMessage, { props: { message: result.data.form.message } }).body;
 
 		expect(html).toContain('Please correct the errors in the form.');
-		expect(html).toContain('bg-red-50/80');
+		expect(html).toContain('role="alert"');
 	});
 });
 
@@ -138,6 +138,6 @@ describe('handleAuthFormAction', () => {
 		const html = render(AuthFormMessage, { props: { message: result.data.form.message } }).body;
 
 		expect(html).toContain('Registration failed. Please try again.');
-		expect(html).toContain('bg-red-50/80');
+		expect(html).toContain('role="alert"');
 	});
 });

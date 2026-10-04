@@ -15,10 +15,12 @@
 	const { form, errors, message, submitting, enhance } = superForm(data.form);
 </script>
 
-<Card.Root class="mx-auto w-full max-w-sm">
-	<Card.Header class="text-center">
-		<Card.Title class="text-2xl">Forgot Password</Card.Title>
-		<Card.Description>Enter your email to receive a password reset link</Card.Description>
+<Card.Root class="w-full">
+	<Card.Header>
+		<Card.Title class="text-xl tracking-tight">Reset your password</Card.Title>
+		<Card.Description
+			>Enter your email and we'll send a reset link. It expires in 10 minutes.</Card.Description
+		>
 	</Card.Header>
 	<Card.Content>
 		<form method="POST" use:enhance>
@@ -31,7 +33,7 @@
 						id="email"
 						name="email"
 						type="email"
-						placeholder="Enter your email"
+						placeholder="you@example.com"
 						bind:value={$form.email}
 						class={$errors.email ? 'border-destructive' : ''}
 						autocomplete="email"
@@ -45,14 +47,16 @@
 				<Field>
 					<Button type="submit" class="w-full" disabled={$submitting} aria-busy={$submitting}>
 						{#if $submitting}
-							<Spinner class="mr-2" aria-hidden="true" />
-							Sending...
+							<Spinner aria-hidden="true" />
+							Sending…
 						{:else}
-							Send Reset Link
+							Send reset link
 						{/if}
 					</Button>
-					<FieldDescription class="text-center">
-						Remember your password? <a href="/sign-in" class="font-medium underline">Sign in here</a
+					<FieldDescription>
+						Remember your password? <a
+							href="/sign-in"
+							class="text-primary font-medium hover:underline">Sign in</a
 						>
 					</FieldDescription>
 				</Field>

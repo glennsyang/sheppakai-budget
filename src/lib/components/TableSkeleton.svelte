@@ -16,22 +16,24 @@
 	}
 </script>
 
-<div class="space-y-4" role="status">
+<div class="bg-card overflow-hidden rounded-xl border shadow-sm" role="status">
 	<span class="sr-only">Loading table data</span>
 
 	<!-- Table header skeleton -->
-	<div class="flex space-x-4">
+	<div class="flex h-10 items-center gap-6 border-b px-4 lg:px-5">
 		{#each Array.from({ length: columns }) as _col, i (i)}
-			<Skeleton class="h-6 {getColumnWidth(i)}" />
+			<Skeleton class="h-3 {getColumnWidth(i)}" />
 		{/each}
 	</div>
 
 	<!-- Table rows skeleton -->
-	{#each Array.from({ length: rows }) as _row, rowIndex (rowIndex)}
-		<div class="flex space-x-4">
-			{#each Array.from({ length: columns }) as _col2, colIndex (`${rowIndex}-${colIndex}`)}
-				<Skeleton class="h-4 {getColumnWidth(colIndex)}" />
-			{/each}
-		</div>
-	{/each}
+	<div class="divide-y">
+		{#each Array.from({ length: rows }) as _row, rowIndex (rowIndex)}
+			<div class="flex h-12 items-center gap-6 px-4 lg:px-5">
+				{#each Array.from({ length: columns }) as _col2, colIndex (`${rowIndex}-${colIndex}`)}
+					<Skeleton class="h-3.5 {getColumnWidth(colIndex)}" />
+				{/each}
+			</div>
+		{/each}
+	</div>
 </div>

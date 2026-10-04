@@ -24,7 +24,7 @@ describe('CardGridSkeleton', () => {
 	it('reuses the card frame so the layout does not shift on swap', () => {
 		const html = render(CardGridSkeleton, { props: { cards: 1 } }).body;
 
-		expect(html).toContain('overflow-hidden rounded-lg border shadow');
+		expect(html).toContain('bg-card overflow-hidden rounded-xl border shadow-sm');
 	});
 
 	it('applies the caller-supplied container classes', () => {

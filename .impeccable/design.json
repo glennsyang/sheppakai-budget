@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 2,
-	"generatedAt": "2026-10-03T21:30:40.226079+00:00",
+	"generatedAt": "2026-10-04T00:35:18.450069+00:00",
 	"title": "Design System: Sheppakai Budget",
 	"extensions": {
 		"colorMeta": {
@@ -466,11 +466,11 @@
 			},
 			"headline": {
 				"displayName": "Headline",
-				"purpose": "Page greeting; 1.5rem below sm."
+				"purpose": "Page greeting and every route's page title, with a muted body subtitle; 1.5rem below sm."
 			},
 			"title": {
 				"displayName": "Title",
-				"purpose": "Sentence-case panel and section titles, no icon."
+				"purpose": "Sentence-case panel, section and dialog titles, no icon."
 			},
 			"figure": {
 				"displayName": "Figure",
@@ -482,7 +482,7 @@
 			},
 			"label": {
 				"displayName": "Label",
-				"purpose": "Stat labels, sublines, meter captions, muted."
+				"purpose": "Stat labels, sublines, meter captions, table headers, date group headings, badges; muted."
 			},
 			"axis": {
 				"displayName": "Axis",
@@ -524,6 +524,11 @@
 				"name": "chevron-nudge",
 				"value": "translateX(2px) on row hover",
 				"purpose": "Row affordance."
+			},
+			{
+				"name": "sheet",
+				"value": "200ms slide-in-from-bottom (below sm) / zoom-in-95 + fade (from sm)",
+				"purpose": "Dialog entrance: bottom sheet on phones, centred dialog above."
 			}
 		],
 		"breakpoints": [
@@ -540,6 +545,10 @@
 				"value": "1024px"
 			},
 			{
+				"name": "2xl",
+				"value": "1536px"
+			},
+			{
 				"name": "content-max",
 				"value": "1280px"
 			}
@@ -549,7 +558,9 @@
 			"insetMargin": "8px",
 			"insetRadius": "16px",
 			"headerBackdrop": "page-grey 85% + backdrop-blur(12px)",
-			"scope": "Only /dashboard has had a composition pass; other (app) routes inherit tokens and primitives only."
+			"pageFrame": "Header (Headline title + muted subtitle; actions row with period picker and one primary action, right-aligned from lg), stat strip, ledger panel; optional side panel beside the ledger only from 2xl at minmax(18rem,22rem).",
+			"phoneTouchTarget": "44px below md for picker, search, pager, toggles, row actions (tab-nav items 40px).",
+			"authShell": "Shell grey, 56px header with brand mark and theme toggle; single 384px card."
 		}
 	},
 	"components": [
@@ -616,18 +627,59 @@
 			"description": "Dot, name, category-hue meter (red when over), spent/planned, remaining.",
 			"html": "<button class=\"ds-crow\"><span class=\"ds-cname\"><i class=\"ds-dot\" style=\"background:oklch(0.68 0.13 220)\"></i>Groceries</span><span class=\"ds-cbar\"><i style=\"width:68%;background:oklch(0.68 0.13 220)\"></i></span><span class=\"ds-camt\"><b>$175.21</b> left</span></button><button class=\"ds-crow\"><span class=\"ds-cname\"><i class=\"ds-dot\" style=\"background:oklch(0.68 0.13 190)\"></i>Entertainment</span><span class=\"ds-cbar\"><i style=\"width:100%;background:var(--destructive,oklch(0.575 0.215 26))\"></i></span><span class=\"ds-camt ds-over\">$69.53 over</span></button>",
 			"css": ".ds-crow{display:grid;grid-template-columns:12rem 1fr 8rem;align-items:center;gap:16px;width:560px;padding:12px 20px;border:0;border-bottom:1px solid var(--border,oklch(0.918 0.005 264));background:var(--card,oklch(1 0 0));color:var(--foreground,oklch(0.205 0.012 264));font:400 14px/1.4 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;text-align:left;cursor:pointer;transition:background-color .15s}.ds-crow:hover,.ds-crow:focus-visible{outline:none;background:color-mix(in oklch,var(--muted,oklch(0.957 0.005 264)) 60%,transparent)}.ds-cname{display:flex;align-items:center;gap:10px;font-weight:500}.ds-dot{width:8px;height:8px;border-radius:9999px}.ds-cbar{height:6px;border-radius:9999px;background:var(--track,oklch(0.935 0.005 264));overflow:hidden}.ds-cbar i{display:block;height:100%;border-radius:9999px;transition:width .5s ease-out}.ds-camt{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted-foreground,oklch(0.515 0.016 264))}.ds-camt b{font-weight:500;color:var(--foreground,oklch(0.205 0.012 264))}.ds-over{font-weight:500;color:var(--destructive,oklch(0.575 0.215 26))}"
+		},
+		{
+			"name": "Period Picker",
+			"kind": "nav",
+			"refersTo": "period-picker",
+			"description": "Month stepper with jump-to-month select; 44px below md. Sits in the page header's actions row.",
+			"html": "<div class=\"ds-pp\"><button class=\"ds-pp-step\" aria-label=\"Previous month\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 18-6-6 6-6\"/></svg></button><button class=\"ds-pp-label\">June 2026</button><button class=\"ds-pp-step\" aria-label=\"Next month\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></button></div>",
+			"css": ".ds-pp{display:inline-flex;align-items:center;height:36px;border:1px solid var(--border,oklch(0.918 0.005 264));border-radius:10px;background:var(--card,oklch(1 0 0));box-shadow:var(--elev-xs,0 1px 2px 0 oklch(0.2 0.02 264/.05))}.ds-pp-step{display:flex;align-items:center;justify-content:center;width:36px;height:100%;border:0;background:transparent;color:var(--muted-foreground,oklch(0.515 0.016 264));cursor:pointer;border-radius:10px;transition:background-color .15s,color .15s}.ds-pp-step:hover{background:var(--muted,oklch(0.957 0.005 264));color:var(--foreground,oklch(0.205 0.012 264))}.ds-pp-label{min-width:9rem;height:100%;border:0;background:transparent;color:var(--foreground,oklch(0.205 0.012 264));font:400 14px/1.43 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;font-weight:500;font-variant-numeric:tabular-nums;cursor:pointer}.ds-pp button:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.6 0.17 270)) 50%,transparent)}"
+		},
+		{
+			"name": "Ledger Panel (phone rows)",
+			"kind": "custom",
+			"refersTo": "ledger-row-phone",
+			"description": "Signature: below md, DataTable rows stack as title / muted detail joined by · / right value, grouped under date headings; from md a hairline table.",
+			"html": "<div class=\"ds-lp\"><div class=\"ds-lp-group\">Fri, Oct 2</div><ul class=\"ds-lp-list\"><li class=\"ds-lp-row\"><div class=\"ds-lp-main\"><div class=\"ds-lp-title\">Costco</div><div class=\"ds-lp-detail\"><span><i class=\"ds-dot\" style=\"background:oklch(0.68 0.13 220)\"></i>Groceries</span><span>Weekly shop</span></div></div><div class=\"ds-lp-val\">$142.18</div></li><li class=\"ds-lp-row\"><div class=\"ds-lp-main\"><div class=\"ds-lp-title\">Shell</div><div class=\"ds-lp-detail\"><span><i class=\"ds-dot\" style=\"background:oklch(0.68 0.13 280)\"></i>Fuel</span></div></div><div class=\"ds-lp-val\">$61.40<div class=\"ds-lp-sub\">GST $2.92</div></div></li></ul><div class=\"ds-lp-foot\"><span>1–20 of 46</span></div></div>",
+			"css": ".ds-lp{width:360px;border:1px solid var(--border,oklch(0.918 0.005 264));border-radius:16px;background:var(--card,oklch(1 0 0));color:var(--foreground,oklch(0.205 0.012 264));overflow:hidden;font:400 14px/1.43 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;box-shadow:var(--elev-sm,0 1px 2px 0 oklch(0.2 0.02 264/.04),0 2px 8px -2px oklch(0.2 0.02 264/.06))}.ds-lp-group{padding:6px 16px;background:color-mix(in oklch,var(--muted,oklch(0.957 0.005 264)) 50%,transparent);border-bottom:1px solid var(--border,oklch(0.918 0.005 264));color:var(--muted-foreground,oklch(0.515 0.016 264));font-size:12px;font-weight:500}.ds-lp-list{list-style:none;margin:0;padding:0}.ds-lp-row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 8px 10px 16px;border-bottom:1px solid var(--border,oklch(0.918 0.005 264));transition:background-color .15s}.ds-lp-row:hover{background:color-mix(in oklch,var(--muted,oklch(0.957 0.005 264)) 60%,transparent)}.ds-lp-main{flex:1;min-width:0}.ds-lp-title{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-lp-detail{display:flex;gap:6px;margin-top:2px;color:var(--muted-foreground,oklch(0.515 0.016 264));font-size:12px}.ds-lp-detail span{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-lp-detail span+span:before{content:'·';margin-right:6px}.ds-dot{width:8px;height:8px;border-radius:9999px;flex-shrink:0}.ds-lp-val{text-align:right;font-weight:500;font-variant-numeric:tabular-nums}.ds-lp-sub{margin-top:2px;color:var(--muted-foreground,oklch(0.515 0.016 264));font-size:12px;font-weight:400}.ds-lp-foot{padding:8px 16px;color:var(--muted-foreground,oklch(0.515 0.016 264));font-size:12px;font-variant-numeric:tabular-nums}"
+		},
+		{
+			"name": "Status Badge",
+			"kind": "chip",
+			"refersTo": "status-badge",
+			"description": "20px table badge. Neutral, muted (outline), positive (money state only), negative (failed or disabled).",
+			"html": "<span class=\"ds-badge\">Member</span> <span class=\"ds-badge ds-badge-muted\">Active</span> <span class=\"ds-badge ds-badge-pos\">Reached</span> <span class=\"ds-badge ds-badge-neg\">Disabled</span>",
+			"css": ".ds-badge{display:inline-flex;align-items:center;height:20px;padding:0 6px;border:1px solid transparent;border-radius:10px;background:var(--muted,oklch(0.957 0.005 264));color:var(--foreground,oklch(0.205 0.012 264));font:500 12px/1 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;white-space:nowrap}.ds-badge-muted{background:transparent;border-color:var(--border,oklch(0.918 0.005 264));color:var(--muted-foreground,oklch(0.515 0.016 264))}.ds-badge-pos{background:color-mix(in oklch,var(--positive,oklch(0.545 0.135 156)) 12%,transparent);color:var(--positive,oklch(0.545 0.135 156))}.ds-badge-neg{background:color-mix(in oklch,var(--destructive,oklch(0.575 0.215 26)) 12%,transparent);color:var(--destructive,oklch(0.575 0.215 26))}"
+		},
+		{
+			"name": "Bottom Sheet Dialog",
+			"kind": "card",
+			"refersTo": "dialog-sheet",
+			"description": "Below sm dialogs rise as bottom sheets with full-width footer buttons; from sm a centred 512px dialog.",
+			"html": "<div class=\"ds-sheet\" role=\"dialog\" aria-label=\"Add expense\"><div class=\"ds-sheet-title\">Add expense</div><label class=\"ds-sheet-label\">Amount<input class=\"ds-sheet-input\" inputmode=\"decimal\" value=\"42.50\"></label><div class=\"ds-sheet-foot\"><button class=\"ds-sheet-primary\">Save</button><button class=\"ds-sheet-cancel\">Cancel</button></div></div>",
+			"css": ".ds-sheet{width:360px;padding:20px;border-top:1px solid var(--border,oklch(0.918 0.005 264));border-radius:16px 16px 0 0;background:var(--popover,oklch(1 0 0));color:var(--foreground,oklch(0.205 0.012 264));font:400 14px/1.43 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;box-shadow:var(--elev-md,0 2px 4px -1px oklch(0.2 0.02 264/.06),0 8px 24px -6px oklch(0.2 0.02 264/.12));display:grid;gap:16px}.ds-sheet-title{font-size:16px;font-weight:600;letter-spacing:-0.025em}.ds-sheet-label{display:grid;gap:8px;font-weight:500}.ds-sheet-input{height:36px;padding:4px 12px;border:1px solid var(--input,oklch(0.882 0.007 264));border-radius:10px;background:var(--background,oklch(0.985 0.003 264));color:inherit;font:inherit;font-weight:400;font-variant-numeric:tabular-nums}.ds-sheet-input:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.6 0.17 270)) 50%,transparent)}.ds-sheet-foot{display:flex;flex-direction:column;gap:8px}.ds-sheet-foot button{width:100%;height:36px;border-radius:10px;font:inherit;font-weight:500;cursor:pointer;transition:opacity .15s,background-color .15s}.ds-sheet-primary{border:0;background:var(--primary,oklch(0.51 0.2 270));color:var(--primary-foreground,oklch(0.99 0.004 270))}.ds-sheet-primary:hover{opacity:.9}.ds-sheet-cancel{border:1px solid var(--input,oklch(0.882 0.007 264));background:var(--background,oklch(0.985 0.003 264));color:inherit}.ds-sheet-cancel:hover{background:var(--accent,oklch(0.95 0.012 270))}"
+		},
+		{
+			"name": "Savings Goal Row",
+			"kind": "custom",
+			"refersTo": "goal-row",
+			"description": "Goal as a row with a money-green meter, replacing progress rings.",
+			"html": "<div class=\"ds-goal\"><div class=\"ds-goal-head\"><span class=\"ds-goal-name\">Emergency fund</span><span class=\"ds-goal-sub\">By Dec 31, 2026</span></div><div class=\"ds-goal-figs\"><span><b>$6,200.00</b> of $10,000.00</span><span>$3,800.00 to go · 62%</span></div><div class=\"ds-goal-track\"><i style=\"width:62%\"></i></div></div>",
+			"css": ".ds-goal{width:520px;padding:16px 20px;background:var(--card,oklch(1 0 0));border-bottom:1px solid var(--border,oklch(0.918 0.005 264));color:var(--foreground,oklch(0.205 0.012 264));font:400 14px/1.43 \"Inter Variable\",ui-sans-serif,system-ui,sans-serif;display:grid;gap:10px;transition:background-color .15s}.ds-goal:hover{background:color-mix(in oklch,var(--muted,oklch(0.957 0.005 264)) 60%,var(--card,oklch(1 0 0)))}.ds-goal-name{font-weight:500}.ds-goal-sub{display:block;margin-top:2px;color:var(--muted-foreground,oklch(0.515 0.016 264));font-size:12px}.ds-goal-figs{display:flex;justify-content:space-between;gap:12px;font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted-foreground,oklch(0.515 0.016 264))}.ds-goal-figs b{font-size:14px;font-weight:500;color:var(--foreground,oklch(0.205 0.012 264))}.ds-goal-track{height:6px;border-radius:9999px;background:var(--track,oklch(0.935 0.005 264));overflow:hidden}.ds-goal-track i{display:block;height:100%;border-radius:9999px;background:var(--positive,oklch(0.545 0.135 156));transition:width .5s ease-out}"
 		}
 	],
 	"narrative": {
 		"northStar": "The Quiet Ledger",
-		"overview": "A modern personal-finance app finished to Copilot Money / Linear standard: one calm, near-neutral surface where the single figure that answers \"can I spend today?\" sits first and the month's pace is drawn honestly beneath it. Colour is rationed by job. Indigo means \"you can act here\". Green, amber and red mean money state and nothing else. A set of even-lightness hues names categories. All other data ink is the foreground colour.\n\nDensity is moderate. Panels hold real content, rows breathe at 12px vertical padding, and figures carry the hierarchy through size and tabular alignment, not boxes or colour. The app shell is a recessed grey sidebar with the content inset as one raised sheet. In light mode depth is soft, low offset shadow. In dark mode it is tonal lift with no shadow at all.\n\nThe world was built to replace a wall of same-size KPI cards, spinning beams and sparklines. The answer comes once, at the top, at a size that reads in under a second.",
+		"overview": "A modern personal-finance app finished to Copilot Money / Linear standard: one calm, near-neutral surface where the single figure that answers \"can I spend today?\" sits first and the month's pace is drawn honestly beneath it. Colour is rationed by job. Indigo means \"you can act here\". Green, amber and red mean money state and nothing else. A set of even-lightness hues names categories. All other data ink is the foreground colour.\n\nDensity is moderate. Panels hold real content, rows breathe at 12px vertical padding, and figures carry the hierarchy through size and tabular alignment, not boxes or colour. The app shell is a recessed grey sidebar with the content inset as one raised sheet. In light mode depth is soft, low offset shadow. In dark mode it is tonal lift with no shadow at all.\n\nThe world was built to replace a wall of same-size KPI cards, spinning beams and sparklines. The answer comes once, at the top, at a size that reads in under a second.\n\nEvery other route reads like the dashboard: one header with a muted subtitle, one stat strip carrying the page's answer figures, then one panel holding the ledger. On a phone the ledger becomes stacked rows grouped under date headings and capture dialogs rise as bottom sheets; at the desk it is a hairline table.",
 		"keyCharacteristics": [
 			"Cool near-neutral greys (hue 264-270, chroma at or below 0.016) carry nearly every pixel.",
 			"One indigo accent, reserved for action, selection, focus and the today marker.",
 			"Money colours encode money state only. Category hues identify categories only. The two never share a hue band.",
 			"Inter Variable with optical sizing, `cv11` + `ss03`, and tabular figures on every amount.",
 			"16px panels, 10px controls, 1px hairlines; soft shadow in light, none in dark.",
-			"Motion is limited to state transitions (150ms) and one ease-out bar fill on load (500ms)."
+			"Motion is limited to state transitions (150ms) and one ease-out bar fill on load (500ms).",
+			"Every route is header, stat strip, ledger panel: stacked date-grouped rows below `md`, a hairline table from `md`."
 		],
 		"rules": [
 			{
@@ -657,8 +709,18 @@
 			},
 			{
 				"name": "The Sentence Case Rule",
-				"body": "Titles and labels are sentence case, with no uppercase tracking, no eyebrows above titles, and no icon before the title text.",
+				"body": "Titles, labels, sidebar nav items (\"Savings goals\"), tab labels (\"Archived goals\", \"API keys\") and dialog titles (\"Add income\", \"Edit category\") are sentence case, with no uppercase tracking, no eyebrows above titles, and no icon before the title text.",
 				"section": "typography"
+			},
+			{
+				"name": "The Thumb Rule",
+				"body": "Below `md`, every control a thumb hits is 44px: the period picker, toolbar search, pager buttons, row toggles, row action buttons and tab-nav items (40px). From `md` they return to the desk sizes (32-36px).",
+				"section": "layout"
+			},
+			{
+				"name": "The One Header Rule",
+				"body": "A route has one header (Headline title plus muted subtitle) and at most one primary-variant button in its actions row. Summary totals live in the stat strip, never in their own boxes beside the ledger.",
+				"section": "layout"
 			},
 			{
 				"name": "The Tonal Dark Rule",
@@ -681,7 +743,11 @@
 			"**Do** write sentence-case panel titles with no icon, plus an optional one-line muted description.",
 			"**Do** subdivide panels with hairlines, 1px-gap cells or a quiet-fill column.",
 			"**Do** keep light and dark at parity, raising dark surfaces by lightness, not shadow.",
-			"**Do** limit motion to 150ms colour/shadow transitions and a single 500ms ease-out bar fill on load."
+			"**Do** limit motion to 150ms colour/shadow transitions and a single 500ms ease-out bar fill on load.",
+			"**Do** build every route as header, stat strip, then ledger panel, with the period picker and one primary action in the header's actions row.",
+			"**Do** give every ledger column a mobile role so phones get stacked rows, and group date ledgers under day headings.",
+			"**Do** make phone controls 44px, and set `inputmode=\"decimal\"` on amount fields.",
+			"**Do** let dialogs become bottom sheets below `sm`, with full-width footer buttons."
 		],
 		"donts": [
 			"**Don't** nest a card inside a card.",
@@ -691,7 +757,9 @@
 			"**Don't** use a money hue for a category, or indigo for a category or chart series.",
 			"**Don't** put icons before panel titles, uppercase eyebrows or kickers above titles.",
 			"**Don't** set a second display family or use weight 700 for figures. The system tops out at 600.",
-			"**Don't** use an amount without `tabular-nums`."
+			"**Don't** use an amount without `tabular-nums`.",
+			"**Don't** put summary totals in separate boxes beside the table. They go in the stat strip.",
+			"**Don't** add a side panel beside the ledger below `2xl`, or one that repeats the stat strip."
 		]
 	}
 }

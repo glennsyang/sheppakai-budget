@@ -23,8 +23,8 @@
 	onDelete={() => (openDeleteModal = true)}
 	stopTriggerPropagation
 >
-	<DropdownMenu.Item onclick={() => (openLogJobModal = true)}>Log Job</DropdownMenu.Item>
-	<DropdownMenu.Item onclick={() => openCustomerSheet(customerData)}>View Jobs</DropdownMenu.Item>
+	<DropdownMenu.Item onclick={() => (openLogJobModal = true)}>Log job</DropdownMenu.Item>
+	<DropdownMenu.Item onclick={() => openCustomerSheet(customerData)}>View jobs</DropdownMenu.Item>
 </RowActionsMenu>
 
 <WindowCleaningCustomerModal
@@ -44,7 +44,7 @@
 	bind:open={openDeleteModal}
 	id={customerData.id}
 	actionUrl="/window-cleaning?/deleteCustomer"
-	title="Delete Customer"
+	title="Delete customer"
 	message="Are you sure you want to delete {customerData.name}? They will be moved to the deleted customers list and can be restored from the Admin panel."
 	confirmButtonText="Delete"
 />

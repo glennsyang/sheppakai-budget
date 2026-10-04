@@ -70,7 +70,7 @@
 	<Dialog.Content class="sm:max-w-lg">
 		<Dialog.Header>
 			<Dialog.Title>
-				{isEditing ? 'Edit Customer' : 'Add Customer'}
+				{isEditing ? 'Edit customer' : 'Add customer'}
 			</Dialog.Title>
 			<Dialog.Description>
 				{isEditing ? "Update this customer's information." : 'Add a new window cleaning customer.'}

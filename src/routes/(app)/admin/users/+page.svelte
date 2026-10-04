@@ -1,5 +1,6 @@
 <script lang="ts">
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
+	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import {
 		banUserFormContext,
@@ -32,21 +33,22 @@
 </script>
 
 <svelte:head>
-	<title>User Management</title>
+	<title>Users · Admin</title>
 </svelte:head>
 
-<div class="space-y-4">
-	<div class="flex flex-wrap items-start justify-between gap-4">
-		<div>
-			<h2 class="text-2xl font-bold">User Management</h2>
-			<p class="text-muted-foreground">Manage user accounts, roles, and permissions</p>
-		</div>
+<SectionHeader title="Users" description="Accounts, roles and access">
+	{#snippet actions()}
 		<CreateUserDialog data={data.createUserForm} />
-	</div>
+	{/snippet}
+</SectionHeader>
 
-	{#if data.loadError}
-		<LoadErrorBanner message={data.loadError} />
-	{:else}
-		<DataTable {columns} data={usersWithSessionsAndRole} />
-	{/if}
-</div>
+{#if data.loadError}
+	<LoadErrorBanner message={data.loadError} />
+{:else}
+	<DataTable
+		{columns}
+		data={usersWithSessionsAndRole}
+		searchPlaceholder="Search users…"
+		emptyMessage="No users yet."
+	/>
+{/if}

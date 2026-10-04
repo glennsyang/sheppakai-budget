@@ -78,7 +78,7 @@
 	<Dialog.Content class="sm:max-w-md">
 		<Dialog.Header>
 			<Dialog.Title>
-				{isEditing ? 'Edit Job' : 'Log Job'}
+				{isEditing ? 'Edit job' : 'Log job'}
 			</Dialog.Title>
 			<Dialog.Description>
 				{isEditing ? 'Update this job record.' : 'Record a completed window cleaning job.'}
@@ -121,6 +121,7 @@
 						id="job-charged"
 						name="amountCharged"
 						type="number"
+						inputmode="decimal"
 						step="0.01"
 						min="0.01"
 						bind:value={$form.amountCharged}
@@ -140,6 +141,7 @@
 						id="job-tip"
 						name="tip"
 						type="number"
+						inputmode="decimal"
 						step="0.01"
 						min="0"
 						bind:value={$form.tip}
@@ -160,6 +162,7 @@
 					id="job-duration"
 					name="durationHours"
 					type="number"
+					inputmode="decimal"
 					step="0.25"
 					min="0.25"
 					bind:value={$form.durationHours}
@@ -189,7 +192,7 @@
 			<Dialog.Footer>
 				<Dialog.Close><Button type="reset" variant="outline">Cancel</Button></Dialog.Close>
 				<Button type="submit" disabled={$submitting || !$form.jobDate || !$form.amountCharged}>
-					{isEditing ? 'Save Changes' : 'Log Job'}
+					{isEditing ? 'Save changes' : 'Log job'}
 				</Button>
 			</Dialog.Footer>
 		</form>

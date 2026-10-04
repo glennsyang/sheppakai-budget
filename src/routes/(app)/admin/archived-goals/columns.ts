@@ -1,77 +1,43 @@
 import type { SavingsGoal } from '$lib';
-import {
-	type Features,
-	renderComponent,
-	renderSnippet
-} from '$lib/components/ui/data-table/index.js';
+import { moneyCell, stackCell } from '$lib/components/table/cells';
+import { type Features, renderComponent } from '$lib/components/ui/data-table/index.js';
 import type { ColumnDef } from '@tanstack/table-core';
-import { createRawSnippet } from 'svelte';
 
 import DataTableActions from './data-table-actions.svelte';
 
 export const columns: ColumnDef<Features, SavingsGoal>[] = [
 	{
 		accessorKey: 'name',
-		header: 'Goal Name'
-	},
-	{
-		accessorKey: 'description',
-		header: 'Description',
-		cell: ({ row }) => {
-			return row.original.description || '-';
-		}
-	},
-	{
-		accessorKey: 'targetAmount',
-		header: 'Target Amount',
-		cell: ({ row }) => {
-			const formatter = new Intl.NumberFormat('en-US', {
-				style: 'currency',
-				currency: 'USD'
-			});
-
-			const amountCellSnippet = createRawSnippet<[string]>((getAmount) => {
-				const amount = getAmount();
-				return {
-					render: () => `<div class="text-right font-medium">${amount}</div>`
-				};
-			});
-
-			return renderSnippet(amountCellSnippet, formatter.format(row.original.targetAmount));
-		}
+		header: 'Goal',
+		cell: ({ row }) => stackCell(row.original.name, row.original.description),
+		meta: { mobile: 'title' }
 	},
 	{
 		accessorKey: 'user',
 		header: 'Owner',
 		accessorFn: (row) => row.user.email,
-		cell: ({ row }) => {
-			const userSnippet = createRawSnippet<[{ email: string; name: string }]>((getUser) => {
-				const { email, name } = getUser();
-				return {
-					render: () =>
-						`<div><div class="font-medium">${name}</div><div class="text-sm text-muted-foreground">${email}</div></div>`
-				};
-			});
-
-			return renderSnippet(userSnippet, {
-				email: row.original.user.email,
-				name: row.original.user.name
-			});
-		}
+		cell: ({ row }) => stackCell(row.original.user.name, row.original.user.email),
+		meta: { mobile: 'detail' }
 	},
 	{
 		accessorKey: 'updatedAt',
-		header: 'Archived Date',
-		cell: ({ row }) => {
-			return new Date(row.original.updatedAt).toLocaleDateString();
-		}
+		header: 'Archived',
+		cell: ({ row }) =>
+			new Date(row.original.updatedAt).toLocaleDateString('en-US', {
+				month: 'short',
+				day: 'numeric',
+				year: 'numeric'
+			}),
+		meta: { mobile: 'detail' }
+	},
+	{
+		accessorKey: 'targetAmount',
+		header: 'Target',
+		cell: ({ row }) => moneyCell(row.original.targetAmount),
+		meta: { mobile: 'value', align: 'end' }
 	},
 	{
 		id: 'actions',
-		cell: ({ row }) => {
-			return renderComponent(DataTableActions, {
-				goal: row.original
-			});
-		}
+		cell: ({ row }) => renderComponent(DataTableActions, { goal: row.original })
 	}
 ];
