@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { Budget, ChartData } from '$lib';
-	import AreaChart from '$lib/components/AreaChart.svelte';
 	import CardGridSkeleton from '$lib/components/CardGridSkeleton.svelte';
 	import DashboardStatStrip, { type Stat } from '$lib/components/DashboardStatStrip.svelte';
 	import LoadErrorBanner from '$lib/components/LoadErrorBanner.svelte';
 	import PageShell from '$lib/components/PageShell.svelte';
 	import PeriodPicker from '$lib/components/PeriodPicker.svelte';
 	import PresetBudgetCard from '$lib/components/PresetBudgetCard.svelte';
+	import SpendTrendChart from '$lib/components/SpendTrendChart.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getCategoriesContext } from '$lib/contexts';
 	import { formatCurrency, monthNames } from '$lib/utils';
@@ -465,7 +465,7 @@
 						</div>
 					</section>
 
-					<AreaChart categoryName={selectedCategory.name} {chartData} />
+					<SpendTrendChart categoryName={selectedCategory.name} {chartData} />
 				{:else}
 					<section
 						class="bg-card text-muted-foreground rounded-xl border px-6 py-12 text-center text-sm shadow-sm"
