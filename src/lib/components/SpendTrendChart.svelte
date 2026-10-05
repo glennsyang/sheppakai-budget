@@ -9,7 +9,7 @@
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import { scaleUtc } from 'd3-scale';
 	import { curveMonotoneX } from 'd3-shape';
-	import { Area, AreaChart, LinearGradient } from 'layerchart';
+	import { LineChart, Spline } from 'layerchart';
 
 	interface Props {
 		categoryName: string;
@@ -112,10 +112,11 @@
 	</Card.Header>
 	<Card.Content>
 		<Chart.Container config={chartConfig} class="aspect-auto h-64 w-full sm:h-72">
-			<AreaChart
+			<LineChart
 				data={filteredChartData}
 				x="date"
 				xScale={scaleUtc()}
+				seriesLayout="overlap"
 				series={[
 					{
 						key: 'actual',
@@ -139,45 +140,31 @@
 				}}
 			>
 				{#snippet marks()}
-					<!-- Spent is ink over a faint ink fade; budgeted is a dashed muted line (Neutral Ink Rule). -->
-					<LinearGradient
-						stops={[
-							'color-mix(in oklch, var(--foreground) 10%, transparent)',
-							'color-mix(in oklch, var(--foreground) 0%, transparent)'
-						]}
-						vertical
-					>
-						{#snippet children({ gradient })}
-							<Area
-								seriesKey="actual"
-								curve={curveMonotoneX}
-								line={{ class: 'stroke-[2px] stroke-foreground' }}
-								motion="tween"
-								fill={gradient}
-							/>
-						{/snippet}
-					</LinearGradient>
-					<Area
+					<!-- Spent is a solid ink line; budgeted is a dotted muted line (Neutral Ink Rule). -->
+					<Spline
+						seriesKey="actual"
+						curve={curveMonotoneX}
+						motion="tween"
+						class="stroke-foreground stroke-[2px]"
+					/>
+					<Spline
 						seriesKey="planned"
 						curve={curveMonotoneX}
-						fill="transparent"
-						line={{ class: 'stroke-[1.5px] stroke-muted-foreground/60 [stroke-dasharray:4_4]' }}
 						motion="tween"
+						class="stroke-muted-foreground stroke-[1.5px] [stroke-dasharray:1_4] [stroke-linecap:round]"
 					/>
 				{/snippet}
 				{#snippet tooltip()}
 					<Chart.Tooltip labelFormatter={(v: Date) => formatMonthLongUtc(v)} indicator="dot" />
 				{/snippet}
-			</AreaChart>
+			</LineChart>
 		</Chart.Container>
 		<ul class="text-muted-foreground mt-3 flex items-center justify-center gap-5 text-xs">
 			<li class="flex items-center gap-2">
 				<span class="bg-foreground h-0.5 w-4 rounded-full" aria-hidden="true"></span>Spent
 			</li>
 			<li class="flex items-center gap-2">
-				<span
-					class="border-muted-foreground/70 w-4 border-t-[1.5px] border-dashed"
-					aria-hidden="true"
+				<span class="border-muted-foreground/70 w-4 border-t-2 border-dotted" aria-hidden="true"
 				></span>Budgeted
 			</li>
 		</ul>
